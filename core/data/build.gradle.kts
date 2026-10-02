@@ -6,6 +6,9 @@ plugins {
 
 android {
     namespace = "com.bluecubelabs.env.core.data"
+    sourceSets {
+        getByName("test").assets.directories.add("schemas")
+    }
 }
 
 room {

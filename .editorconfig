@@ -13,7 +13,7 @@ max_line_length = 120
 ktlint_code_style = android_studio
 ij_kotlin_allow_trailing_comma = true
 ij_kotlin_allow_trailing_comma_on_call_site = true
-ktlint_function_naming_ignore_when_annotated_with = Composable
+ktlint_function_naming_ignore_when_annotated_with = Composable, Test
 ktlint_standard_function-signature = disabled
 ktlint_standard_class-signature = disabled
 

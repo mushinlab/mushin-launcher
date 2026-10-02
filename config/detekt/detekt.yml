@@ -27,7 +27,7 @@ complexity:
     functionThreshold: 10
     constructorThreshold: 14
     ignoreDefaultParameters: true
-    ignoreAnnotated: ['Composable']
+    ignoreAnnotated: ['Composable', 'Query']
   LongMethod:
     threshold: 120
   CyclomaticComplexMethod:
