@@ -1,0 +1,27 @@
+# E. План реализации для AI-агента
+
+## E.1 Порядок эпиков
+
+| Эпик | Задачи (ID — суть — зависит от — DoD) |
+|---|---|
+| **E0 Bootstrap** | T0.1 Gradle-скелет, version catalog, build-logic, модули D.2 — DoD: `./gradlew assembleDebug` зелёный, пустая Activity стартует. T0.2 CI workflow — DoD: PR-проверка проходит. T0.3 CLAUDE.md, `docs/spec/*` (этот документ разбит по файлам), ADR-0001 — DoD: файлы в репозитории. T0.4 ktlint + detekt — DoD: 0 нарушений. |
+| **E1 Data** | T1.1 Entities + DAO + seed (D.4) ← T0.1 — DoD: Robolectric-тесты DAO, инвариантов энвов, seed. T1.2 DataStore-ключи + `SettingsRepository` — DoD: тест чтения дефолтов. T1.3 Экспорт схемы, тест миграции «1→1» (скелет) — DoD: схема в VCS. |
+| **E2 App catalog** | T2.1 `LauncherAppsGateway` + `AppCatalog` (D.6) ← T1.1 — DoD: тест с фейком (add/remove/change, 2 профиля). T2.2 `AppLauncher` (start, details, uninstall, quiet mode) — DoD: ручной чек-лист на устройстве. T2.3 Q12-очистка при удалении — DoD: тест. |
+| **E3 Icons** | T3.1 `IconLoader` (mono/desaturate/fallback) ← T2.1 — DoD: инструментальный тест на 5 системных приложениях, coverage-fallback. T3.2 LruCache + диск + инвалидация — DoD: тест попаданий, лимит 8 МБ. T3.3 Прогрев — DoD: иконки избранного готовы до `reportFullyDrawn`. |
+| **E4 Home** | T4.1 Тема, `LocalPalette`, пресеты C.5 + тест контраста ← T1.1 — DoD: unit. T4.2 Clock + Date (форматы, ресиверы) — DoD: UI-тест 12/24. T4.3 `ZebraRow`, список, лимит строк, empty state, icon_mode — DoD: UI-тесты AC-03.x, AC-04.1. T4.4 Edge-to-edge и бары — DoD: скриншоты Graphite и Paper. T4.5 HomeSnapshot для первого кадра — DoD: TTID-замер. |
+| **E5 Gestures** | T5.1 `GestureArbiter` (JVM) + тесты ← T0.1 — DoD: 100 % веток. T5.2 `homeGestures` + `RowRegistry` ← T4.3 — DoD: UI-тесты tap/long-press/double-tap/свайпы. T5.3 Биндинги и действия (D.13) — DoD: шторка открывается на устройстве. |
+| **E6 Popup** | T6.1 `AnchoredBelowPoint` + тесты ← T0.1. T6.2 Env popup + app section ← T5.2, T2.2 — DoD: AC-06.x. |
+| **E7 Search engine** | T7.1 normalize/translit/phonetic/layoutSwap ← T0.1 — DoD: unit. T7.2 Индекс + scoring — DoD: все кейсы D.11. T7.3 Microbenchmark — DoD: ≤ 4 мс P95 на устройстве (500 синтетических имён). |
+| **E8 Keyboard** | T8.1 Раскладки EN/RU (данные) ← T7.1. T8.2 Composable + единый pointerInput + haptics + цифры + backspace-repeat — DoD: UI-тесты AC-08.x. T8.3 `KeyboardRouter` + аппаратная клавиатура — DoD: тест KeyEvent. |
+| **E9 Search screen** | T9.1 Раскладка C.7, всегда скомпонованный слой ← T8.2, T7.2 — DoD: тест «IME не виден». T9.2 Recents (F10) ← T1.1 — DoD: AC-10.x. T9.3 Запуск, запись истории, сброс — DoD: AC-09.5, AC-13.4. |
+| **E10 Settings** | T10.1 Стек маршрутов + root ← T6.2. T10.2 Энвы: CRUD, палитра ← T1.1. T10.3 Редактор: drag & drop, вверх/вниз, пикер, лимит. T10.4 Приложения: rename/hide. T10.5 Жесты: пикеры. T10.6 Клавиатура, поиск, главный экран. — DoD каждой: AC соответствующих фич. |
+| **E11 Perf** | T11.1 Модуль `:benchmark`, генератор Baseline Profile ← E9. T11.2 Бенчмарки D.14, фиксация результатов — DoD: все цели D.14 выполнены или заведён issue с анализом трассы. |
+| **E12 Hardening** | T12.1 F13 Home/Back полностью. T12.2 MemoryLimiter: `onTrimMemory`, проверка `ApplicationExitInfo`. T12.3 Локализация ru/en (`strings.xml`, ru — по умолчанию). T12.4 Чек-лист edge cases B. — DoD: ручной прогон 14 дней (G4). |
+| **v1.1** | E13 Private Space, E14 своя палитра, E15 светлые варианты и обои, E16 импорт/экспорт. |
+
+## E.2 Как ставить задачи агенту
+
+- **Одна задача — одна сессия.** Шаблон промпта:
+  > «Выполни T5.2 из `docs/plan.md`. Спецификация: `docs/spec/ux.md` §C.3–C.4, `docs/spec/tech.md` §D.9. Файлы: `feature/home/...`. Вне scope: popup (T6.x). Готово, когда: [DoD дословно]. Перед завершением запусти `./gradlew :feature:home:testDebugUnitTest :feature:home:connectedDebugAndroidTest` и приложи вывод.»
+- Спецификация задачи должна быть самодостаточной: названы файлы и интерфейсы, явно указано, что вне scope, в конце — проверка end-to-end. Для больших фич полезно, чтобы агент сначала «проинтервьюировал» владельца и записал spec-файл, а реализация шла в новой сессии с чистым контекстом.
+- Критерии успеха формулируются декларативно («тест X зелёный, метрика ≤ Y»), а не пошаговыми инструкциями.

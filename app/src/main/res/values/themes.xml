@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="graphite_background">#FF0E0E0E</color>
+
+    <style name="Theme.Env.Starting" parent="android:Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowBackground">@color/graphite_background</item>
+        <item name="android:windowShowWallpaper">false</item>
+        <item name="android:windowSplashScreenBackground">@color/graphite_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/transparent</item>
+        <item name="android:windowSplashScreenAnimationDuration">0</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+    </style>
+</resources>
