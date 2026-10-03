@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -84,7 +85,7 @@ interface SearchActions : KeyboardActions {
 
     fun onShowKeyboard()
 
-    fun onGestureWord(word: String)
+    fun onToggleInput()
 
     fun onLongPress(key: AppKey, label: String, anchor: Offset)
 
@@ -105,6 +106,7 @@ object SearchDimens {
     val resultIcon: Dp = 24.dp
     val recentIcon: Dp = 20.dp
     val enterInset: Dp = 6.dp
+    val toggleWidth: Dp = 72.dp
     val closeSwipe: Dp = 72.dp
     const val MAX_RECENTS = 10
 }
@@ -151,13 +153,26 @@ fun SearchScreen(
                     Modifier.width(recentsWidth).fillMaxHeight(),
                 )
             }
-            QueryRow(controller, actions, enterWidth = recentsWidth.takeIf { mode == SearchMode.TYPING })
-            if (mode == SearchMode.TYPING) {
+            val typing = mode == SearchMode.TYPING
+            QueryRow(
+                controller,
+                actions,
+                enterWidth = recentsWidth.takeIf { typing },
+                inputToggle = if (!typing) {
+                    null
+                } else {
+                    stringResource(
+                        if (chrome.gestureTyping) R.string.search_input_keys else R.string.search_input_gesture,
+                    )
+                },
+            )
+            if (typing) {
                 if (chrome.gestureTyping) {
-                    GesturePanel(controller::vocabulary, actions::onGestureWord)
+                    GesturePanel(controller, chrome.haptics)
                 } else {
                     Keyboard(chrome.layout, chrome.nextLayoutLabel, chrome.digitHints, chrome.haptics, actions)
                 }
+                Spacer(Modifier.height(KeyboardDimens.bottomLift))
             }
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
@@ -332,7 +347,7 @@ private fun AppRowItem(
 }
 
 @Composable
-private fun QueryRow(controller: SearchController, actions: SearchActions, enterWidth: Dp?) {
+private fun QueryRow(controller: SearchController, actions: SearchActions, enterWidth: Dp?, inputToggle: String?) {
     val colors = LocalEnvColors.current
     Row(
         Modifier
@@ -341,6 +356,15 @@ private fun QueryRow(controller: SearchController, actions: SearchActions, enter
             .background(colors.background),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (inputToggle != null) {
+            QueryKey(
+                inputToggle,
+                SearchDimens.toggleWidth,
+                "input_toggle",
+                EnvType.secondarySize,
+                actions::onToggleInput,
+            )
+        }
         Row(
             Modifier
                 .weight(1f)
@@ -365,23 +389,26 @@ private fun QueryRow(controller: SearchController, actions: SearchActions, enter
             )
         }
         if (enterWidth != null) {
-            Box(
-                Modifier
-                    .width(enterWidth)
-                    .fillMaxHeight()
-                    .padding(SearchDimens.enterInset)
-                    .clip(RoundedCornerShape(KeyboardDimens.radius))
-                    .background(colors.keyBackground)
-                    .pressable(onClick = actions::onEnter)
-                    .testTag("enter"),
-                contentAlignment = Alignment.Center,
-            ) {
-                BasicText(
-                    stringResource(R.string.search_enter),
-                    style = EnvType.style(EnvType.keySize, colors.textPrimary, FontWeight.Medium),
-                )
-            }
+            QueryKey(stringResource(R.string.search_enter), enterWidth, "enter", EnvType.keySize, actions::onEnter)
         }
+    }
+}
+
+@Composable
+private fun QueryKey(label: String, width: Dp, tag: String, textSize: TextUnit, onClick: () -> Unit) {
+    val colors = LocalEnvColors.current
+    Box(
+        Modifier
+            .width(width)
+            .fillMaxHeight()
+            .padding(SearchDimens.enterInset)
+            .clip(RoundedCornerShape(KeyboardDimens.radius))
+            .background(colors.keyBackground)
+            .pressable(onClick = onClick)
+            .testTag(tag),
+        contentAlignment = Alignment.Center,
+    ) {
+        BasicText(label, style = EnvType.style(textSize, colors.textPrimary, FontWeight.Medium))
     }
 }
 

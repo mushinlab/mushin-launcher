@@ -9,6 +9,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.AppUsage
+import com.bluecubelabs.env.core.model.LearnedGesture
+import com.bluecubelabs.env.core.search.GestureDecoder
+import com.bluecubelabs.env.core.search.GesturePoint
 import com.bluecubelabs.env.core.search.SearchEngine
 import com.bluecubelabs.env.core.search.SearchIndex
 import kotlinx.collections.immutable.ImmutableList
@@ -46,17 +49,39 @@ class SearchController(
         private set
     var menu by mutableStateOf<SearchMenu?>(null)
         private set
+    var session by mutableIntStateOf(0)
+        private set
 
     private var index: SearchIndex = SearchIndex.EMPTY
     private var usage: Map<AppKey, AppUsage> = emptyMap()
-
-    val vocabulary: List<String> get() = index.vocabulary
+    private var learned: List<LearnedGesture> = emptyList()
+    private val gesturePaths = mutableListOf<String>()
+    private var gestureCorrected = false
 
     fun update(index: SearchIndex, usage: Map<AppKey, AppUsage>) {
         this.index = index
         this.usage = usage
         refresh()
     }
+
+    fun setLearned(samples: List<LearnedGesture>) {
+        learned = samples
+    }
+
+    fun applyGesture(decoder: GestureDecoder, path: List<GesturePoint>): Boolean {
+        val result = decoder.decode(path, index.gestureVocabulary, learned) ?: return true
+        gesturePaths += result.path
+        if (gesturePaths.size > 1) gestureCorrected = true
+        val word = result.word ?: return false
+        replaceQuery(word.text)
+        return true
+    }
+
+    fun onInputSwitched() {
+        if (gesturePaths.isNotEmpty()) gestureCorrected = true
+    }
+
+    fun gesturesToLearn(): List<String> = if (gestureCorrected) gesturePaths.toList() else emptyList()
 
     fun setEngine(engine: SearchEngine) {
         this.engine = engine
@@ -65,6 +90,7 @@ class SearchController(
 
     fun type(c: Char): Boolean {
         if (query.length >= MAX_QUERY) return false
+        if (c == ' ' && (query.isEmpty() || query.last() == ' ')) return false
         query += c
         refresh()
         return true
@@ -92,6 +118,9 @@ class SearchController(
         query = ""
         selected = NO_SELECTION
         menu = null
+        gesturePaths.clear()
+        gestureCorrected = false
+        session++
         refresh()
     }
 

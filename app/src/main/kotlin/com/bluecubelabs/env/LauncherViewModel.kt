@@ -3,6 +3,7 @@ package com.bluecubelabs.env
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bluecubelabs.env.core.apps.LaunchResult
+import com.bluecubelabs.env.core.apps.NotificationSource
 import com.bluecubelabs.env.core.apps.icons.IconKey
 import com.bluecubelabs.env.core.data.repo.EnvError
 import com.bluecubelabs.env.core.data.repo.EnvOutcome
@@ -23,6 +24,7 @@ import com.bluecubelabs.env.core.model.Palettes
 import com.bluecubelabs.env.core.model.ProfileType
 import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.search.Alphabet
+import com.bluecubelabs.env.core.search.GestureLearning
 import com.bluecubelabs.env.core.search.SearchEngine
 import com.bluecubelabs.env.core.search.SearchIndex
 import com.bluecubelabs.env.core.search.SearchItem
@@ -81,6 +83,7 @@ class LauncherViewModel(
     private val versionName: String,
 ) : ViewModel() {
     private val roleHeld = MutableStateFlow(true)
+    private val notificationAccess = MutableStateFlow(false)
     private val capacity = MutableStateFlow(0)
 
     private val catalogMap: StateFlow<Map<AppKey, AppEntry>?> =
@@ -112,8 +115,8 @@ class LauncherViewModel(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, initial?.palette ?: Palettes.Graphite)
 
-    val home: StateFlow<HomeUiState> = combine(data, roleHeld) { d, role ->
-        if (d == null) snapshotState(initial, role) else homeState(d, role)
+    val home: StateFlow<HomeUiState> = combine(data, roleHeld, container.notificationCounts) { d, role, counts ->
+        if (d == null) snapshotState(initial, role) else homeState(d, role, counts)
     }
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, snapshotState(initial, roleHeld.value))
@@ -151,20 +154,23 @@ class LauncherViewModel(
             .toImmutableList()
     }.stateIn(viewModelScope, SharingStarted.Eagerly, persistentListOf())
 
-    val settingsState: StateFlow<SettingsUiState> = combine(data, container.gestures.bindings, roleHeld, capacity) {
-            d,
-            g,
-            role,
-            cap,
-        ->
+    val settingsState: StateFlow<SettingsUiState> = combine(
+        data,
+        container.gestures.bindings,
+        roleHeld,
+        capacity,
+        notificationAccess,
+    ) { d, g, role, cap, access ->
         if (d == null) {
             SettingsUiState(capacity = cap, isDefaultLauncher = role, versionName = versionName)
         } else {
-            settingsState(d, g, role, cap)
+            settingsState(d, g, role, cap).copy(notificationAccess = access)
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, SettingsUiState(versionName = versionName))
 
     val gestureBindings = container.gestures.bindings
+
+    val learnedGestures = container.gestureLearning.samples
 
     private val _iconsReady = MutableStateFlow(false)
     val iconsReady: StateFlow<Boolean> = _iconsReady
@@ -178,8 +184,9 @@ class LauncherViewModel(
         viewModelScope.launch { warmIcons() }
     }
 
-    fun setRoleHeld(held: Boolean) {
-        roleHeld.value = held
+    fun setAccess(roleHeld: Boolean, notificationAccess: Boolean) {
+        this.roleHeld.value = roleHeld
+        this.notificationAccess.value = notificationAccess
     }
 
     fun setCapacity(value: Int) {
@@ -199,11 +206,19 @@ class LauncherViewModel(
 
     val currentEnvName: String? get() = data.value?.current?.name
 
-    fun launch(key: AppKey, fromSearch: Boolean, animate: Boolean = true): LaunchResult {
+    fun launch(
+        key: AppKey,
+        fromSearch: Boolean,
+        animate: Boolean = true,
+        gestures: List<String> = emptyList(),
+    ): LaunchResult {
         val result = container.launcher.launch(key, animate = animate)
         if (result == LaunchResult.Started) {
             val envId = currentEnvId()
             container.scope.launch { container.history.recordLaunch(key, envId, fromSearch) }
+            if (gestures.isNotEmpty()) {
+                container.scope.launch { container.gestureLearning.update { GestureLearning.learn(it, gestures, key) } }
+            }
         }
         return result
     }
@@ -328,7 +343,7 @@ class LauncherViewModel(
         },
     )
 
-    private fun homeState(d: LauncherData, role: Boolean): HomeUiState {
+    private fun homeState(d: LauncherData, role: Boolean, counts: Map<NotificationSource, Int>): HomeUiState {
         val env = d.current
         val rows = env?.let { d.items[it.id] }.orEmpty().mapNotNull { key ->
             val entry = d.apps[key] ?: return@mapNotNull null
@@ -337,6 +352,11 @@ class LauncherViewModel(
                 label = d.overrides[key]?.customLabel ?: entry.label,
                 dimmed = entry.isDimmed,
                 work = entry.profile == ProfileType.WORK,
+                notifications = if (d.settings.notificationCounts) {
+                    counts[NotificationSource(key.packageName, key.userSerial)] ?: 0
+                } else {
+                    0
+                },
             )
         }
         return HomeUiState(

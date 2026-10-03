@@ -14,6 +14,7 @@
     <string name="settings_search">Поиск</string>
     <string name="settings_keyboard">Клавиатура</string>
     <string name="settings_gestures">Жесты</string>
+    <string name="settings_press">Анимация нажатия</string>
     <string name="settings_apps">Скрытые и переименованные</string>
     <string name="settings_system">Система</string>
     <string name="settings_current_env">Энв «%1$s»</string>
@@ -71,6 +72,16 @@
     <string name="home_text_s">Маленький</string>
     <string name="home_text_m">Средний</string>
     <string name="home_text_l">Крупный</string>
+    <string name="home_notifications">Счётчик уведомлений</string>
+    <string name="home_notifications_note">Маленькая цифра справа от названия приложения. Уведомления не сохраняются и никуда не передаются, считается только их количество.</string>
+    <string name="home_notifications_no_access">Нужен доступ к уведомлениям, без него счётчик не работает.</string>
+    <string name="home_notifications_grant">Открыть доступ к уведомлениям</string>
+    <string name="press_flash">Вспышка</string>
+    <string name="press_hold">Подсветка</string>
+    <string name="press_accent">Акцент</string>
+    <string name="press_dim">Приглушение</string>
+    <string name="press_scale">Сжатие</string>
+    <string name="press_note">Как строки и кнопки отвечают на касание. Нажмите на вариант, чтобы его попробовать.</string>
 
     <string name="search_fuzzy">Исправлять опечатки</string>
     <string name="search_layout_swap">Неправильная раскладка</string>
@@ -81,14 +92,13 @@
     <string name="keyboard_layouts">Раскладки</string>
     <string name="keyboard_haptics">Отклик вибрацией</string>
     <string name="keyboard_digit_hints">Подсказки цифр</string>
-    <string name="keyboard_gesture">Ввод рисунком</string>
-    <string name="keyboard_gesture_note">Вместо клавиш — пустая панель. Проведите по ней пальцем, как по раскладке QWERTY, и лаунчер угадает слово.</string>
     <string name="keyboard_need_one">Нужна хотя бы одна раскладка</string>
 
     <string name="gesture_up">Свайп вверх</string>
     <string name="gesture_down">Свайп вниз</string>
     <string name="gesture_left">Свайп влево</string>
     <string name="gesture_right">Свайп вправо</string>
+    <string name="gesture_shade_zone">Свайп вниз из верхней пятой части экрана всегда открывает шторку уведомлений.</string>
     <string name="action_none">Ничего</string>
     <string name="action_notifications">Шторка уведомлений</string>
     <string name="action_search">Поиск</string>

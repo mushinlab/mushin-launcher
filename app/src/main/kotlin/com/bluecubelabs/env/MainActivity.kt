@@ -2,12 +2,14 @@ package com.bluecubelabs.env
 
 import android.annotation.SuppressLint
 import android.app.role.RoleManager
+import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Trace
+import android.provider.Settings
 import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
@@ -55,7 +57,7 @@ class MainActivity : ComponentActivity() {
     private var lastBarsDark: Boolean? = null
 
     private val roleRequest = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        refreshRole()
+        refreshAccess()
     }
 
     private val timeReceiver = object : BroadcastReceiver() {
@@ -96,7 +98,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        refreshRole()
+        refreshAccess()
     }
 
     override fun onStop() {
@@ -144,9 +146,9 @@ class MainActivity : ComponentActivity() {
         roleRequest.launch(roleManager.createRequestRoleIntent(RoleManager.ROLE_HOME))
     }
 
-    private fun refreshRole() {
+    private fun refreshAccess() {
         val held = getSystemService(RoleManager::class.java)?.isRoleHeld(RoleManager.ROLE_HOME) ?: true
-        viewModel.setRoleHeld(held)
+        viewModel.setAccess(roleHeld = held, notificationAccess = container.hasNotificationAccess())
     }
 
     fun openSearch(mode: SearchMode, firstChar: Char? = null) {
@@ -188,7 +190,8 @@ class MainActivity : ComponentActivity() {
 
     fun launch(key: AppKey, fromSearch: Boolean, animate: Boolean = true): Boolean {
         val entry = viewModel.entry(key)
-        val result = viewModel.launch(key, fromSearch, animate)
+        val gestures = if (fromSearch) search.gesturesToLearn() else emptyList()
+        val result = viewModel.launch(key, fromSearch, animate, gestures)
         when (result) {
             LaunchResult.Started -> if (fromSearch) closeOverlays()
 
@@ -219,8 +222,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun onSwipe(direction: SwipeDirection) {
-        when (val action = viewModel.gestureBindings.value[direction] ?: GestureAction.None) {
+    fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean) {
+        val action = if (fromShadeZone) {
+            GestureAction.Notifications
+        } else {
+            viewModel.gestureBindings.value[direction] ?: GestureAction.None
+        }
+        when (action) {
             GestureAction.None -> Unit
 
             GestureAction.Search -> openSearch(SearchMode.TYPING)
@@ -265,6 +273,24 @@ class MainActivity : ComponentActivity() {
             viewModel.addEnvItem(envId, key) -> Notice(getString(R.string.notice_added_to_env, env))
 
             else -> Notice(getString(R.string.notice_env_full, env))
+        }
+    }
+
+    fun toggleInput() {
+        search.onInputSwitched()
+        viewModel.updateSettings { it.copy(keyboardGestureTyping = !it.keyboardGestureTyping) }
+    }
+
+    fun openNotificationAccess() {
+        val detail = Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS)
+            .putExtra(
+                Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME,
+                container.notificationListener.flattenToString(),
+            )
+        try {
+            startActivity(detail)
+        } catch (_: ActivityNotFoundException) {
+            startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
         }
     }
 

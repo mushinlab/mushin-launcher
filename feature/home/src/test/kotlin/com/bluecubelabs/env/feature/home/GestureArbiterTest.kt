@@ -17,8 +17,13 @@ class GestureArbiterTest {
         flingVelocityPxPerSec = 1000 * dp,
     )
     private val arbiter = GestureArbiter(config)
-    private val zone =
-        StartZone(topLimitPx = 63f, bottomLimitPx = 2400f - 63f - 16 * dp, leftLimitPx = 80f, rightLimitPx = 1000f)
+    private val zone = StartZone(
+        topLimitPx = 63f,
+        shadeLimitPx = 2400f * 0.2f,
+        bottomLimitPx = 2400f - 63f - 16 * dp,
+        leftLimitPx = 80f,
+        rightLimitPx = 1000f,
+    )
 
     @Test
     fun AC_07_1_secondBackgroundDownWithinTimeoutAndDistanceIsDoubleTap() {
@@ -126,5 +131,13 @@ class GestureArbiterTest {
         assertThat(arbiter.isAllowedStart(SwipeDirection.LEFT, 500f, 1000f, zone)).isTrue()
         assertThat(arbiter.isAllowedStart(SwipeDirection.LEFT, 40f, 1000f, zone)).isFalse()
         assertThat(arbiter.isAllowedStart(SwipeDirection.RIGHT, 1050f, 1000f, zone)).isFalse()
+    }
+
+    @Test
+    fun swipeDownFromTopFifthOfScreenGoesToShade() {
+        assertThat(arbiter.isShadeSwipe(SwipeDirection.DOWN, 100f, zone)).isTrue()
+        assertThat(arbiter.isShadeSwipe(SwipeDirection.DOWN, 479f, zone)).isTrue()
+        assertThat(arbiter.isShadeSwipe(SwipeDirection.DOWN, 480f, zone)).isFalse()
+        assertThat(arbiter.isShadeSwipe(SwipeDirection.UP, 100f, zone)).isFalse()
     }
 }

@@ -54,6 +54,7 @@ import com.bluecubelabs.env.core.ui.EnvTheme
 import com.bluecubelabs.env.core.ui.EnvType as Type
 import com.bluecubelabs.env.core.ui.LocalEnvColors
 import com.bluecubelabs.env.core.ui.LocalIconProvider
+import com.bluecubelabs.env.core.ui.LocalPressFeedback
 import com.bluecubelabs.env.core.ui.Motion
 import com.bluecubelabs.env.core.ui.pressable
 import com.bluecubelabs.env.feature.home.HomeActions
@@ -82,7 +83,10 @@ fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: La
     BackHandler(enabled = true) { activity.handleBack() }
 
     EnvTheme(palette) {
-        CompositionLocalProvider(LocalIconProvider provides iconProvider) {
+        CompositionLocalProvider(
+            LocalIconProvider provides iconProvider,
+            LocalPressFeedback provides settings.pressFeedback,
+        ) {
             Box(
                 Modifier
                     .fillMaxSize()
@@ -151,8 +155,8 @@ private fun homeActions(activity: MainActivity, vm: LauncherViewModel) = object 
         activity.openSearch(com.bluecubelabs.env.feature.search.SearchMode.TYPING)
     }
 
-    override fun onSwipe(direction: SwipeDirection) {
-        activity.onSwipe(direction)
+    override fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean) {
+        activity.onSwipe(direction, fromShadeZone)
     }
 
     override fun onRequestRole() {
@@ -175,7 +179,9 @@ private fun SearchLayer(activity: MainActivity, vm: LauncherViewModel, settings:
     val usage by vm.usage.collectAsStateWithLifecycle()
     val engine by vm.searchEngine.collectAsStateWithLifecycle()
     val recents by vm.recents.collectAsStateWithLifecycle()
+    val learned by vm.learnedGestures.collectAsStateWithLifecycle()
     LaunchedEffect(index, usage) { activity.search.update(index, usage) }
+    LaunchedEffect(learned) { activity.search.setLearned(learned) }
     LaunchedEffect(engine) { activity.search.setEngine(engine) }
     val active = activity.overlay == Overlay.Search
     val progress = remember { Animatable(0f) }
@@ -230,8 +236,8 @@ private fun searchActions(activity: MainActivity) = object : SearchActions {
         activity.launch(key, fromSearch = true)
     }
 
-    override fun onGestureWord(word: String) {
-        activity.search.replaceQuery(word)
+    override fun onToggleInput() {
+        activity.toggleInput()
     }
 
     override fun onLongPress(key: AppKey, label: String, anchor: Offset) {
@@ -378,6 +384,8 @@ private fun SettingsLayer(activity: MainActivity, vm: LauncherViewModel) {
             override fun clearHistory(envId: Long) = vm.clearHistory(envId)
 
             override fun requestDefaultLauncher() = activity.requestRole()
+
+            override fun openNotificationAccess() = activity.openNotificationAccess()
         }
     }
     SettingsHost(activity.settingsStack, state, actions)

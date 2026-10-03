@@ -11,9 +11,11 @@ import com.bluecubelabs.env.core.model.ClockFormat
 import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.HomeTextSize
 import com.bluecubelabs.env.core.model.IconMode
+import com.bluecubelabs.env.core.model.PressFeedback
 import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.search.KeyboardLayouts
 import com.bluecubelabs.env.core.ui.HorizontalDivider
+import com.bluecubelabs.env.core.ui.LocalEnvColors
 
 @Composable
 internal fun RootScreen(state: SettingsUiState, push: (SettingsRoute) -> Unit, back: () -> Unit) {
@@ -32,6 +34,11 @@ internal fun RootScreen(state: SettingsUiState, push: (SettingsRoute) -> Unit, b
         NavRow(stringResource(R.string.settings_search), tag = "nav_search") { push(SettingsRoute.Search) }
         NavRow(stringResource(R.string.settings_keyboard), tag = "nav_keyboard") { push(SettingsRoute.Keyboard) }
         NavRow(stringResource(R.string.settings_gestures), tag = "nav_gestures") { push(SettingsRoute.Gestures) }
+        NavRow(
+            stringResource(R.string.settings_press),
+            value = pressLabel(state.settings.pressFeedback),
+            tag = "nav_press",
+        ) { push(SettingsRoute.Press) }
         NavRow(stringResource(R.string.settings_apps), tag = "nav_apps") { push(SettingsRoute.Apps) }
         NavRow(stringResource(R.string.settings_system), tag = "nav_system") { push(SettingsRoute.System) }
     }
@@ -75,6 +82,42 @@ internal fun HomeSettingsScreen(state: SettingsUiState, actions: SettingsActions
             s.homeTextSize,
             "text_size",
         ) { size -> actions.updateSettings { it.copy(homeTextSize = size) } }
+        HorizontalDivider()
+        ToggleRow(stringResource(R.string.home_notifications), s.notificationCounts, tag = "notification_counts") {
+            actions.updateSettings { settings -> settings.copy(notificationCounts = it) }
+            if (it && !state.notificationAccess) actions.openNotificationAccess()
+        }
+        if (s.notificationCounts && !state.notificationAccess) {
+            NoteText(stringResource(R.string.home_notifications_no_access), LocalEnvColors.current.accent)
+            NavRow(stringResource(R.string.home_notifications_grant), tag = "notification_access") {
+                actions.openNotificationAccess()
+            }
+        } else {
+            NoteText(stringResource(R.string.home_notifications_note))
+        }
+    }
+}
+
+@Composable
+internal fun pressLabel(feedback: PressFeedback): String = stringResource(
+    when (feedback) {
+        PressFeedback.FLASH -> R.string.press_flash
+        PressFeedback.HOLD -> R.string.press_hold
+        PressFeedback.ACCENT -> R.string.press_accent
+        PressFeedback.DIM -> R.string.press_dim
+        PressFeedback.SCALE -> R.string.press_scale
+    },
+)
+
+@Composable
+internal fun PressSettingsScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+    SettingsPage(stringResource(R.string.settings_press), back) {
+        ChoiceRows(
+            PressFeedback.entries.map { it to pressLabel(it) },
+            state.settings.pressFeedback,
+            "press",
+        ) { feedback -> actions.updateSettings { it.copy(pressFeedback = feedback) } }
+        NoteText(stringResource(R.string.press_note))
     }
 }
 
@@ -165,11 +208,6 @@ internal fun KeyboardSettingsScreen(state: SettingsUiState, actions: SettingsAct
         ToggleRow(stringResource(R.string.keyboard_digit_hints), s.keyboardDigitHints, tag = "kb_digits") { v ->
             actions.updateSettings { it.copy(keyboardDigitHints = v) }
         }
-        HorizontalDivider()
-        ToggleRow(stringResource(R.string.keyboard_gesture), s.keyboardGestureTyping, tag = "kb_gesture") { v ->
-            actions.updateSettings { it.copy(keyboardGestureTyping = v) }
-        }
-        NoteText(stringResource(R.string.keyboard_gesture_note))
     }
 }
 
@@ -215,6 +253,7 @@ internal fun GesturesScreen(state: SettingsUiState, push: (SettingsRoute) -> Uni
                 push(SettingsRoute.GestureAction(direction))
             }
         }
+        NoteText(stringResource(R.string.gesture_shade_zone))
     }
 }
 
@@ -235,7 +274,7 @@ internal fun GestureActionScreen(
             GestureAction.AllApps to stringResource(R.string.action_all_apps),
         )
         simple.forEach { (action, label) ->
-            NavRow(label, value = if (action == current) "✓" else null, tag = "action_$label") {
+            NavRow(label, selected = action == current, tag = "action_$label") {
                 actions.setGesture(direction, action)
                 back()
             }
@@ -243,6 +282,7 @@ internal fun GestureActionScreen(
         NavRow(
             stringResource(R.string.action_launch_app),
             value = if (current is GestureAction.LaunchApp) actionLabel(state.gestures[direction]) else null,
+            selected = current is GestureAction.LaunchApp,
             tag = "action_app",
         ) { push(SettingsRoute.PickGestureApp(direction)) }
     }

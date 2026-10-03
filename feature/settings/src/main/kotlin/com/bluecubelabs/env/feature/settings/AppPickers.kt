@@ -1,8 +1,5 @@
 package com.bluecubelabs.env.feature.settings
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,12 +18,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bluecubelabs.env.core.model.AppKey
@@ -38,7 +32,6 @@ import com.bluecubelabs.env.core.search.SearchItem
 import com.bluecubelabs.env.core.ui.EnvType
 import com.bluecubelabs.env.core.ui.HorizontalDivider
 import com.bluecubelabs.env.core.ui.LocalEnvColors
-import com.bluecubelabs.env.core.ui.Motion
 import com.bluecubelabs.env.core.ui.SingleLineText
 import com.bluecubelabs.env.core.ui.pressable
 
@@ -110,18 +103,12 @@ internal fun EnvAppPicker(envId: Long, state: SettingsUiState, actions: Settings
 @Composable
 private fun PickerRow(label: String, selected: Boolean, enabled: Boolean, tag: String, onClick: () -> Unit) {
     val colors = LocalEnvColors.current
-    val background by animateColorAsState(
-        if (selected) colors.accent.copy(alpha = SELECTED_ALPHA) else Color.Transparent,
-        tween(Motion.TRANSITION_MS),
-        label = "picker_row",
-    )
     Box(
         Modifier
             .fillMaxWidth()
             .heightIn(min = 56.dp)
-            .background(background)
+            .selectedBackground(selected)
             .pressable(enabled = enabled, onClick = onClick)
-            .semantics { this.selected = selected }
             .testTag(tag)
             .alpha(if (enabled) 1f else DISABLED_ALPHA)
             .padding(horizontal = 24.dp, vertical = 8.dp),
@@ -131,8 +118,6 @@ private fun PickerRow(label: String, selected: Boolean, enabled: Boolean, tag: S
     }
 }
 
-private const val SELECTED_ALPHA = 0.24f
-
 @Composable
 internal fun GestureAppPicker(
     direction: SwipeDirection,
@@ -141,11 +126,12 @@ internal fun GestureAppPicker(
     done: () -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
+    val current = (state.gestures[direction]?.action as? GestureAction.LaunchApp)?.key
     SettingsPage(directionLabel(direction), done, scrollable = false) {
         FilterField(query) { query = it }
         LazyColumn(Modifier.weight(1f)) {
             items(filterApps(state.apps.filterNot { it.hidden }, query), key = { it.key.id }) { app ->
-                NavRow(app.label, tag = "pick_${app.label}") {
+                NavRow(app.label, selected = app.key == current, tag = "pick_${app.label}") {
                     actions.setGesture(direction, GestureAction.LaunchApp(app.key))
                     done()
                 }

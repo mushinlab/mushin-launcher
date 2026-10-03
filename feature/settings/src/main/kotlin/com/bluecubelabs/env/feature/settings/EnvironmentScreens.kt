@@ -244,6 +244,7 @@ private fun PalettePicker(selected: PalettePreset, onSelect: (PalettePreset) -> 
             Modifier
                 .fillMaxWidth()
                 .height(56.dp)
+                .selectedBackground(preset == selected)
                 .pressable { onSelect(preset) }
                 .testTag("palette_$preset")
                 .padding(horizontal = 24.dp),
@@ -259,7 +260,6 @@ private fun PalettePicker(selected: PalettePreset, onSelect: (PalettePreset) -> 
                 style = Type.style(17.sp, LocalEnvColors.current.textPrimary),
                 modifier = Modifier.weight(1f),
             )
-            if (preset == selected) BasicText("✓", style = Type.style(17.sp, LocalEnvColors.current.accent))
         }
     }
 }

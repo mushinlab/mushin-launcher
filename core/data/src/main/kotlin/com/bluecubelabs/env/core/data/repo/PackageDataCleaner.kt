@@ -13,6 +13,7 @@ class PackageDataCleaner(
             db.environmentItemDao().deletePackage(packageName, userSerial)
             db.searchRecentDao().deletePackage(packageName, userSerial)
             db.appUsageDao().deletePackage(packageName, userSerial)
+            db.gestureSampleDao().deletePackage(packageName, userSerial)
             db.appOverrideDao().markOrphaned(packageName, userSerial, clock())
         }
     }

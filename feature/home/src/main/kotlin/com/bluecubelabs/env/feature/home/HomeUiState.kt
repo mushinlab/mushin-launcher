@@ -14,6 +14,7 @@ data class HomeRow(
     val label: String,
     val dimmed: Boolean = false,
     val work: Boolean = false,
+    val notifications: Int = 0,
 )
 
 @Immutable

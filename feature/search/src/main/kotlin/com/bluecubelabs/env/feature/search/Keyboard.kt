@@ -63,6 +63,7 @@ interface KeyboardActions {
 object KeyboardDimens {
     val rowHeight = 52.dp
     val verticalPadding = 4.dp
+    val bottomLift = rowHeight / 2
     val gap = 4.dp
     val radius = 6.dp
     val digitSwipe = 24.dp
@@ -292,6 +293,7 @@ private class KeyboardGestureHandler(
             PressMode.NORMAL -> when (spec.action) {
                 KeyAction.BACKSPACE -> target.onBackspace()
                 KeyAction.SWITCH_LAYOUT -> target.onSwitchLayout()
+                KeyAction.SPACE -> type(' ')
                 null -> spec.char?.let(::type)
             }
         }
@@ -317,6 +319,7 @@ private fun KeyView(index: Int, key: KeyGeometry, state: KeyboardState, nextLayo
     val label = when (key.spec.action) {
         KeyAction.BACKSPACE -> "⌫"
         KeyAction.SWITCH_LAYOUT -> nextLayoutLabel
+        KeyAction.SPACE -> ""
         null -> key.spec.char?.toString().orEmpty()
     }
     val widthDp = with(density) { key.rect.width.toDp() }

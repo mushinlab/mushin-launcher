@@ -18,6 +18,7 @@ data class GestureConfig(
 
 data class StartZone(
     val topLimitPx: Float,
+    val shadeLimitPx: Float,
     val bottomLimitPx: Float,
     val leftLimitPx: Float,
     val rightLimitPx: Float,
@@ -84,6 +85,9 @@ class GestureArbiter(private val config: GestureConfig) {
             SwipeDirection.DOWN -> startY > zone.topLimitPx
             SwipeDirection.LEFT, SwipeDirection.RIGHT -> startX > zone.leftLimitPx && startX < zone.rightLimitPx
         }
+
+    fun isShadeSwipe(direction: SwipeDirection, startY: Float, zone: StartZone): Boolean =
+        direction == SwipeDirection.DOWN && startY < zone.shadeLimitPx
 
     private companion object {
         const val NO_TAP = Long.MIN_VALUE

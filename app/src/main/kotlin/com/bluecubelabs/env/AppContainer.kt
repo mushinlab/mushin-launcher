@@ -1,16 +1,21 @@
 package com.bluecubelabs.env
 
 import android.app.Application
+import android.app.NotificationManager
+import android.content.ComponentName
+import android.service.notification.NotificationListenerService
 import com.bluecubelabs.env.core.apps.AndroidLauncherAppsGateway
 import com.bluecubelabs.env.core.apps.AppCatalog
 import com.bluecubelabs.env.core.apps.AppLauncher
 import com.bluecubelabs.env.core.apps.NotificationShade
+import com.bluecubelabs.env.core.apps.NotificationSource
 import com.bluecubelabs.env.core.apps.PackageEvent
 import com.bluecubelabs.env.core.apps.ReflectionNotificationShade
 import com.bluecubelabs.env.core.apps.icons.IconLoader
 import com.bluecubelabs.env.core.apps.icons.LauncherIconSource
 import com.bluecubelabs.env.core.data.db.EnvDatabase
 import com.bluecubelabs.env.core.data.repo.EnvironmentRepository
+import com.bluecubelabs.env.core.data.repo.GestureLearningRepository
 import com.bluecubelabs.env.core.data.repo.GestureRepository
 import com.bluecubelabs.env.core.data.repo.HistoryRepository
 import com.bluecubelabs.env.core.data.repo.OverrideRepository
@@ -20,6 +25,10 @@ import com.bluecubelabs.env.core.data.snapshot.HomeSnapshotStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class AppContainer(private val app: Application) {
@@ -30,6 +39,7 @@ class AppContainer(private val app: Application) {
     val overrides by lazy { OverrideRepository(database, scope) }
     val history by lazy { HistoryRepository(database, scope) }
     val gestures by lazy { GestureRepository(database, scope) }
+    val gestureLearning by lazy { GestureLearningRepository(database, scope) }
     val cleaner by lazy { PackageDataCleaner(database) }
     val settings by lazy { SettingsRepository.create(app, scope) }
     val snapshots by lazy { HomeSnapshotStore(app.filesDir) }
@@ -39,6 +49,11 @@ class AppContainer(private val app: Application) {
     val icons by lazy { IconLoader(app, LauncherIconSource(app, gateway)) }
     val launcher by lazy { AppLauncher(app, gateway) }
     val shade: NotificationShade by lazy { ReflectionNotificationShade(app) }
+    val notificationCounts = MutableStateFlow<Map<NotificationSource, Int>>(emptyMap())
+    val notificationListener = ComponentName(app, NotificationCountService::class.java)
+
+    fun hasNotificationAccess(): Boolean =
+        app.getSystemService(NotificationManager::class.java).isNotificationListenerAccessGranted(notificationListener)
 
     fun densityScale(): Float = app.resources.displayMetrics.density
 
@@ -55,6 +70,11 @@ class AppContainer(private val app: Application) {
             }
         }
         scope.launch { cleaner.purgeExpiredOverrides() }
+        scope.launch {
+            settings.settings.map { it.notificationCounts }.distinctUntilChanged().filter { it }.collect {
+                if (hasNotificationAccess()) NotificationListenerService.requestRebind(notificationListener)
+            }
+        }
         scope.launch(Dispatchers.IO) { ExitLog(app).recordNewExits() }
     }
 }

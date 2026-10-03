@@ -70,6 +70,7 @@ object EnvType {
     val querySize = 24.sp
     val keySize = 22.sp
     val digitHintSize = 10.sp
+    val badgeSize = 13.sp
     val popupSize = 16.sp
     val popupHeaderSize = 14.sp
     val secondarySize = 16.sp

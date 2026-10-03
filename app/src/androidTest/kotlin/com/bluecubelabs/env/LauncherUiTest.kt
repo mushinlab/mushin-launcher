@@ -22,8 +22,11 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.bluecubelabs.env.core.apps.NotificationSource
 import com.bluecubelabs.env.core.model.EnvType
+import com.bluecubelabs.env.core.model.PressFeedback
 import com.bluecubelabs.env.core.search.KeyboardLayouts
+import com.bluecubelabs.env.feature.search.GestureDimens
 import com.bluecubelabs.env.feature.search.KeyboardDimens
 import com.bluecubelabs.env.feature.search.KeyboardGeometry
 import com.google.common.truth.Truth.assertThat
@@ -57,8 +60,11 @@ class LauncherUiTest {
     }
 
     @After
-    fun resetGestureTyping() = runBlocking {
-        container.settings.update { it.copy(keyboardGestureTyping = false) }
+    fun resetSettings() = runBlocking {
+        container.settings.update {
+            it.copy(keyboardGestureTyping = false, notificationCounts = false, pressFeedback = PressFeedback.FLASH)
+        }
+        container.notificationCounts.value = emptyMap()
     }
 
     private fun backgroundPoint() = rule.onNodeWithTag("home")
@@ -236,17 +242,38 @@ class LauncherUiTest {
     }
 
     @Test
-    fun gestureInputDecodesWordDrawnOnBlankPanel() {
-        runBlocking { container.settings.update { it.copy(keyboardGestureTyping = true) } }
-        rule.waitUntil(5_000) { container.settings.settings.value.keyboardGestureTyping }
+    fun keyboardHasSpaceRowAndSitsHalfAKeyAboveTheBottom() {
         openSearch()
+        val q = rule.onNodeWithTag("key_q").fetchSemanticsNode().boundsInRoot
+        val space = rule.onNodeWithTag("key_SPACE").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        val keyboard = rule.onNodeWithTag("keyboard").fetchSemanticsNode().boundsInRoot
+        val search = rule.onNodeWithTag("search").fetchSemanticsNode().boundsInRoot
+        val navBar = ViewCompat.getRootWindowInsets(rule.activity.window.decorView)
+            ?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
+        with(rule.density) {
+            assertThat(space.height).isWithin(1f).of(q.height)
+            assertThat(search.bottom - navBar - keyboard.bottom).isWithin(2f).of((KeyboardDimens.rowHeight / 2).toPx())
+        }
+        rule.onNodeWithTag("key_s").performClick()
+        rule.onNodeWithTag("key_SPACE").performClick()
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("s ")
+    }
+
+    @Test
+    fun gestureInputDecodesWordDrawnOnBlankPanel() {
+        openSearch()
+        rule.onNodeWithTag("input_toggle").performClick()
+        rule.waitUntil(5_000) { container.settings.settings.value.keyboardGestureTyping }
         rule.onNodeWithTag("keyboard").assertDoesNotExist()
+        val panel = rule.onNodeWithTag("gesture_panel").fetchSemanticsNode().boundsInRoot
+        with(rule.density) { assertThat(panel.height).isWithin(2f).of(GestureDimens.height.toPx()) }
         rule.onNodeWithTag("gesture_panel").performTouchInput {
+            val padding = KeyboardDimens.verticalPadding.toPx()
             val keys = KeyboardGeometry.compute(
-                KeyboardLayouts.EN,
+                KeyboardLayouts.EN.copy(rows = KeyboardLayouts.EN.rows.take(KeyboardLayouts.LETTER_ROWS)),
                 width.toFloat(),
-                KeyboardDimens.rowHeight.toPx(),
-                KeyboardDimens.verticalPadding.toPx(),
+                (height - padding * 2) / KeyboardLayouts.LETTER_ROWS,
+                padding,
                 KeyboardDimens.gap.toPx(),
             )
             val points = "maps".map { c -> keys.first { it.spec.char == c }.rect.center }
@@ -255,5 +282,29 @@ class LauncherUiTest {
             up()
         }
         rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("maps")
+        rule.onNodeWithTag("input_toggle").performClick()
+        rule.onNodeWithTag("keyboard").assertIsDisplayed()
+    }
+
+    @Test
+    fun notificationCountShowsNextToRowLabelWhenEnabled() {
+        val key = envItems().first()
+        container.notificationCounts.value = mapOf(NotificationSource(key.packageName, key.userSerial) to 3)
+        rule.onNodeWithTag("badge_0", useUnmergedTree = true).assertDoesNotExist()
+        runBlocking { container.settings.update { it.copy(notificationCounts = true) } }
+        rule.waitUntil(5_000) {
+            runCatching { rule.onNodeWithTag("badge_0", useUnmergedTree = true).assertTextEquals("3") }.isSuccess
+        }
+    }
+
+    @Test
+    fun selectedOptionIsMarkedByBackgroundAndPressStyleApplies() {
+        rule.runOnIdle { rule.activity.settingsStack.open() }
+        rule.onNodeWithTag("nav_press").performClick()
+        rule.onNodeWithTag("press_FLASH").assertIsSelected()
+        rule.onNodeWithTag("press_DIM").assertIsNotSelected().performClick()
+        rule.waitUntil(5_000) { container.settings.settings.value.pressFeedback == PressFeedback.DIM }
+        rule.onNodeWithTag("press_DIM").assertIsSelected()
+        rule.onNodeWithTag("press_FLASH").assertIsNotSelected()
     }
 }

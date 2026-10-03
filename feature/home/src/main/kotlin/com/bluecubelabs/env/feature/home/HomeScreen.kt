@@ -69,7 +69,7 @@ interface HomeActions {
 
     fun onDoubleTap()
 
-    fun onSwipe(direction: SwipeDirection)
+    fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean)
 
     fun onRequestRole()
 
@@ -130,9 +130,9 @@ fun HomeScreen(
                 currentActions.onDoubleTap()
             }
 
-            override fun onSwipe(direction: SwipeDirection) {
+            override fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean) {
                 view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
-                currentActions.onSwipe(direction)
+                currentActions.onSwipe(direction, fromShadeZone)
             }
         }
     }
@@ -172,6 +172,7 @@ private fun rememberStartZone(): State<StartZone> {
         with(density) {
             StartZone(
                 topLimitPx = status.getTop(this).toFloat(),
+                shadeLimitPx = heightPx * SHADE_ZONE,
                 bottomLimitPx = heightPx - mandatory.getBottom(this) - 16.dp.toPx(),
                 leftLimitPx = gestures.getLeft(this, direction) + 8.dp.toPx(),
                 rightLimitPx = widthPx - gestures.getRight(this, direction) - 8.dp.toPx(),
@@ -278,6 +279,14 @@ private fun FavoriteRow(
                 Spacer(Modifier.width(6.dp))
                 Briefcase(colors.textSecondary)
             }
+            if (row.notifications > 0) {
+                Spacer(Modifier.width(4.dp))
+                BasicText(
+                    if (row.notifications > MAX_BADGE) "$MAX_BADGE+" else row.notifications.toString(),
+                    style = EnvType.style(EnvType.badgeSize, colors.accent),
+                    modifier = Modifier.align(Alignment.Top).testTag("badge_$index"),
+                )
+            }
         }
         if (iconMode == IconMode.RIGHT) {
             Spacer(Modifier.width(HomeDimens.iconGap))
@@ -287,4 +296,6 @@ private fun FavoriteRow(
 }
 
 private const val ROLE_CARD = "role_card"
+private const val SHADE_ZONE = 0.2f
 private const val DIMMED_ALPHA = 0.5f
+private const val MAX_BADGE = 99

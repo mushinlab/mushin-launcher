@@ -3,6 +3,7 @@ package com.bluecubelabs.env.core.data.db
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -21,9 +22,11 @@ import com.bluecubelabs.env.core.model.Palettes
         SearchRecentEntity::class,
         AppUsageEntity::class,
         GestureBindingEntity::class,
+        GestureSampleEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
+    autoMigrations = [AutoMigration(from = 1, to = 2)],
 )
 abstract class EnvDatabase : RoomDatabase() {
     abstract fun environmentDao(): EnvironmentDao
@@ -37,6 +40,8 @@ abstract class EnvDatabase : RoomDatabase() {
     abstract fun appUsageDao(): AppUsageDao
 
     abstract fun gestureBindingDao(): GestureBindingDao
+
+    abstract fun gestureSampleDao(): GestureSampleDao
 
     companion object {
         const val NAME = "env.db"

@@ -83,6 +83,8 @@ private fun SettingsRouteScreen(
 
         SettingsRoute.Gestures -> GesturesScreen(state, push, back)
 
+        SettingsRoute.Press -> PressSettingsScreen(state, actions, back)
+
         is SettingsRoute.GestureAction -> GestureActionScreen(route.direction, state, actions, push, back)
 
         SettingsRoute.Apps -> AppsSettingsScreen(state, actions, back)

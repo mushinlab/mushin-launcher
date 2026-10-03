@@ -17,7 +17,7 @@ interface HomeGestureCallbacks {
 
     fun onDoubleTap()
 
-    fun onSwipe(direction: SwipeDirection)
+    fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean)
 }
 
 private sealed interface PressOutcome {
@@ -67,8 +67,9 @@ suspend fun PointerInputScope.detectHomeGestures(
                 val velocity = tracker.calculateVelocity()
                 val delta = end - down.position
                 val direction = arbiter.swipeDirection(delta.x, delta.y, velocity.x, velocity.y)
-                if (direction != null && arbiter.isAllowedStart(direction, down.position.x, down.position.y, zone())) {
-                    callbacks.onSwipe(direction)
+                val start = zone()
+                if (direction != null && arbiter.isAllowedStart(direction, down.position.x, down.position.y, start)) {
+                    callbacks.onSwipe(direction, arbiter.isShadeSwipe(direction, down.position.y, start))
                 }
             }
 

@@ -16,14 +16,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.bluecubelabs.env.core.model.PressFeedback
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -48,6 +52,8 @@ fun SingleLineText(text: String, style: TextStyle, modifier: Modifier = Modifier
     )
 }
 
+val LocalPressFeedback = staticCompositionLocalOf { PressFeedback.FLASH }
+
 @Composable
 fun Modifier.pressable(
     enabled: Boolean = true,
@@ -56,19 +62,37 @@ fun Modifier.pressable(
     onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit,
 ): Modifier {
+    val style = LocalPressFeedback.current
+    val accent = LocalEnvColors.current.accent
     val source = remember { MutableInteractionSource() }
     val pressed by source.collectIsPressedAsState()
-    val flash = remember { Animatable(0f) }
+    val level = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
+    val visible = enabled && pressedColor.alpha > 0f
     LaunchedEffect(pressed) {
         if (pressed) {
-            flash.snapTo(1f)
-        } else if (flash.value > 0f) {
-            flash.animateTo(0f, tween(Motion.PRESS_FADE_MS))
+            level.snapTo(1f)
+        } else if (level.value > 0f) {
+            level.release(style, quick = false)
+        }
+    }
+    val feedback = when {
+        !visible -> Modifier
+
+        style == PressFeedback.DIM -> Modifier.graphicsLayer { alpha = 1f - DIM_AMOUNT * level.value }
+
+        style == PressFeedback.SCALE -> Modifier.graphicsLayer {
+            scaleX = 1f - SCALE_AMOUNT * level.value
+            scaleY = scaleX
+        }
+
+        else -> {
+            val color = if (style == PressFeedback.ACCENT) accent.copy(alpha = ACCENT_ALPHA) else pressedColor
+            Modifier.drawBehind { if (level.value > 0f) drawRect(color, alpha = level.value) }
         }
     }
     return this
-        .drawBehind { if (enabled && flash.value > 0f) drawRect(pressedColor, alpha = flash.value) }
+        .then(feedback)
         .combinedClickable(
             interactionSource = source,
             indication = null,
@@ -76,18 +100,34 @@ fun Modifier.pressable(
             role = role,
             onLongClick = onLongClick,
             onClick = {
-                scope.launch {
-                    flash.snapTo(1f)
-                    flash.animateTo(0f, tween(Motion.PRESS_FADE_MS))
+                if (visible && level.value == 0f) {
+                    scope.launch {
+                        level.snapTo(1f)
+                        level.release(style, quick = true)
+                    }
                 }
                 onClick()
             },
         )
 }
 
+private suspend fun Animatable<Float, *>.release(style: PressFeedback, quick: Boolean) {
+    if (style == PressFeedback.HOLD) {
+        if (quick) delay(Motion.PRESS_HOLD_MS)
+        snapTo(0f)
+    } else {
+        animateTo(0f, tween(Motion.PRESS_FADE_MS))
+    }
+}
+
+private const val DIM_AMOUNT = 0.5f
+private const val SCALE_AMOUNT = 0.04f
+private const val ACCENT_ALPHA = 0.35f
+
 object Motion {
     const val TRANSITION_MS = 200
     const val PRESS_FADE_MS = 200
+    const val PRESS_HOLD_MS = 100L
 }
 
 fun Modifier.rowHeight(height: Dp): Modifier = this.fillMaxWidth().height(height)

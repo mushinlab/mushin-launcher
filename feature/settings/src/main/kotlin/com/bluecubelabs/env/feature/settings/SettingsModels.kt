@@ -35,6 +35,8 @@ sealed interface SettingsRoute {
 
     data object Gestures : SettingsRoute
 
+    data object Press : SettingsRoute
+
     data class GestureAction(val direction: SwipeDirection) : SettingsRoute
 
     data object Apps : SettingsRoute
@@ -119,6 +121,7 @@ data class SettingsUiState(
     val gestures: ImmutableMap<SwipeDirection, GestureSummary> = persistentMapOf(),
     val capacity: Int = 0,
     val isDefaultLauncher: Boolean = false,
+    val notificationAccess: Boolean = false,
     val versionName: String = "",
 ) {
     val currentEnvId: Long? get() = envs.firstOrNull { it.current }?.id
@@ -150,4 +153,6 @@ interface SettingsActions {
     fun clearHistory(envId: Long)
 
     fun requestDefaultLauncher()
+
+    fun openNotificationAccess()
 }

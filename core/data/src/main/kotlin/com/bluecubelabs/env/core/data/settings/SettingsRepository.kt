@@ -49,6 +49,8 @@ class SettingsRepository(
         internal val CLOCK_FORMAT = stringPreferencesKey("clock_format")
         internal val SHOW_DATE = booleanPreferencesKey("show_date")
         internal val HOME_TEXT_SIZE = stringPreferencesKey("home_text_size")
+        internal val NOTIFICATION_COUNTS = booleanPreferencesKey("notification_counts")
+        internal val PRESS_FEEDBACK = stringPreferencesKey("press_feedback")
         internal val KB_LAYOUTS = stringPreferencesKey("kb_layouts")
         internal val KB_ACTIVE_LAYOUT = stringPreferencesKey("kb_active_layout")
         internal val KB_HAPTICS = booleanPreferencesKey("kb_haptics")
@@ -67,6 +69,8 @@ class SettingsRepository(
                 clockFormat = enumOr(prefs[CLOCK_FORMAT], defaults.clockFormat),
                 showDate = prefs[SHOW_DATE] ?: defaults.showDate,
                 homeTextSize = enumOr(prefs[HOME_TEXT_SIZE], defaults.homeTextSize),
+                notificationCounts = prefs[NOTIFICATION_COUNTS] ?: defaults.notificationCounts,
+                pressFeedback = enumOr(prefs[PRESS_FEEDBACK], defaults.pressFeedback),
                 keyboardLayouts = prefs[KB_LAYOUTS]
                     ?.split(',')
                     ?.map { it.trim() }
@@ -91,6 +95,8 @@ class SettingsRepository(
             prefs[CLOCK_FORMAT] = settings.clockFormat.name
             prefs[SHOW_DATE] = settings.showDate
             prefs[HOME_TEXT_SIZE] = settings.homeTextSize.name
+            prefs[NOTIFICATION_COUNTS] = settings.notificationCounts
+            prefs[PRESS_FEEDBACK] = settings.pressFeedback.name
             prefs[KB_LAYOUTS] = settings.keyboardLayouts.joinToString(",")
             prefs[KB_ACTIVE_LAYOUT] = settings.activeKeyboardLayout
             prefs[KB_HAPTICS] = settings.keyboardHaptics

@@ -3,6 +3,8 @@
     <string name="search_nothing_found">Nothing found</string>
     <string name="search_hidden_suffix">(hidden)</string>
     <string name="search_enter">Open ⏎</string>
+    <string name="search_input_gesture">Swipe</string>
+    <string name="search_input_keys">ABC</string>
     <string name="menu_add_to_env">Add to env</string>
     <string name="menu_remove_from_env">Remove from env</string>
     <string name="menu_app_info">App info</string>

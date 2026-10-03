@@ -27,3 +27,9 @@ object DefaultGestures {
         GestureBinding(SwipeDirection.RIGHT, GestureAction.None),
     )
 }
+
+data class LearnedGesture(
+    val path: String,
+    val key: AppKey,
+    val weight: Double,
+)

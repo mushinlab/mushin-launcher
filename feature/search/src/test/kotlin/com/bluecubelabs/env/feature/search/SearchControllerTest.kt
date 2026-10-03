@@ -3,6 +3,8 @@ package com.bluecubelabs.env.feature.search
 import android.view.KeyEvent
 import androidx.compose.ui.geometry.Offset
 import com.bluecubelabs.env.core.model.AppKey
+import com.bluecubelabs.env.core.search.GestureDecoder
+import com.bluecubelabs.env.core.search.GesturePoint
 import com.bluecubelabs.env.core.search.KeyAction
 import com.bluecubelabs.env.core.search.KeyboardLayouts
 import com.bluecubelabs.env.core.search.SearchIndex
@@ -87,7 +89,6 @@ class SearchControllerTest {
         assertThat(controller.menu).isNotNull()
         controller.reset()
         assertThat(controller.menu).isNull()
-        assertThat(controller.vocabulary).contains("slack")
     }
 
     @Test
@@ -113,7 +114,11 @@ class SearchControllerTest {
             topPadding = 10f,
             gap = 10f,
         )
-        assertThat(keys.size).isEqualTo(10 + 9 + 9)
+        assertThat(keys.size).isEqualTo(10 + 9 + 9 + 1)
+        val space = keys.single { it.spec.action == KeyAction.SPACE }
+        assertThat(space.rect.left).isGreaterThan(200f)
+        assertThat(space.rect.right).isLessThan(880f)
+        assertThat(space.rect.height).isEqualTo(keys[0].rect.height)
         val q = keys.indexOfFirst { it.spec.char == 'q' }
         assertThat(KeyboardGeometry.hit(keys, Offset(20f, 60f))).isEqualTo(q)
         val gapBetweenQandW = Offset(keys[q].rect.right + 2f, keys[q].rect.center.y)
@@ -122,6 +127,45 @@ class SearchControllerTest {
         assertThat(backspace.rect.right).isGreaterThan(1060f)
         val a = keys.first { it.spec.char == 'a' }
         assertThat(a.rect.left).isGreaterThan(54f)
+    }
+
+    @Test
+    fun spaceIsTypedOnlyBetweenWords() {
+        val controller = SearchController(clock = { 0L })
+        controller.update(index, emptyMap())
+        assertThat(controller.type(' ')).isFalse()
+        controller.type('s')
+        assertThat(controller.type(' ')).isTrue()
+        assertThat(controller.type(' ')).isFalse()
+        assertThat(controller.query).isEqualTo("s ")
+        assertThat(controller.rows.first().label).isEqualTo("Slack")
+    }
+
+    @Test
+    fun gestureReplacesQueryWithAppWordAndLearnsOnlyAfterCorrection() {
+        val keys = KeyboardGeometry.compute(KeyboardLayouts.EN, 1080f, 136f, 10f, 10f)
+            .mapNotNull { k -> k.spec.char?.let { it to GesturePoint(k.rect.center.x, k.rect.center.y) } }
+            .toMap()
+        val decoder = GestureDecoder(keys)
+        val path = { word: String -> word.map { keys.getValue(it) } }
+        val controller = SearchController(clock = { 0L })
+        controller.update(index, emptyMap())
+        val session = controller.session
+
+        assertThat(controller.applyGesture(decoder, path("kamera"))).isTrue()
+        assertThat(controller.query).isEqualTo("камера")
+        assertThat(controller.gesturesToLearn()).isEmpty()
+
+        controller.applyGesture(decoder, path("slack"))
+        assertThat(controller.query).isEqualTo("slack")
+        assertThat(controller.gesturesToLearn()).hasSize(2)
+
+        controller.reset()
+        assertThat(controller.session).isGreaterThan(session)
+        assertThat(controller.gesturesToLearn()).isEmpty()
+        controller.applyGesture(decoder, path("slack"))
+        controller.onInputSwitched()
+        assertThat(controller.gesturesToLearn()).containsExactly(decoder.keysAlong(path("slack")))
     }
 
     @Test

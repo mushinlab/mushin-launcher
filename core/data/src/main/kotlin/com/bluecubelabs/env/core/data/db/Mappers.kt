@@ -7,6 +7,7 @@ import com.bluecubelabs.env.core.model.EnvType
 import com.bluecubelabs.env.core.model.Environment
 import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.GestureBinding
+import com.bluecubelabs.env.core.model.LearnedGesture
 import com.bluecubelabs.env.core.model.Palette
 import com.bluecubelabs.env.core.model.PalettePreset
 import com.bluecubelabs.env.core.model.SearchRecent
@@ -51,6 +52,12 @@ internal fun AppUsageEntity.toModel(): AppUsage = AppUsage(
     lastLaunchedAt = lastLaunchedAt,
     decayedScore = decayedScore,
 )
+
+internal fun GestureSampleEntity.toModel(): LearnedGesture =
+    LearnedGesture(path, AppKey(packageName, activityName, userSerial), weight)
+
+internal fun LearnedGesture.toEntity(): GestureSampleEntity =
+    GestureSampleEntity(path, key.packageName, key.activityName, key.userSerial, weight)
 
 internal fun SearchRecentEntity.toModel(): SearchRecent = SearchRecent(
     key = AppKey(packageName, activityName, userSerial),

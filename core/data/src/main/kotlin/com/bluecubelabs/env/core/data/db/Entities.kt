@@ -109,3 +109,15 @@ data class GestureBindingEntity(
     @ColumnInfo(name = "activity_name") val activityName: String?,
     @ColumnInfo(name = "user_serial") val userSerial: Long?,
 )
+
+@Entity(
+    tableName = "gesture_sample",
+    primaryKeys = ["path", "package_name", "activity_name", "user_serial"],
+)
+data class GestureSampleEntity(
+    @ColumnInfo(name = "path") val path: String,
+    @ColumnInfo(name = "package_name") val packageName: String,
+    @ColumnInfo(name = "activity_name") val activityName: String,
+    @ColumnInfo(name = "user_serial") val userSerial: Long,
+    @ColumnInfo(name = "weight") val weight: Double,
+)

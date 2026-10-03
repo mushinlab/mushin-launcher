@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
@@ -167,4 +168,28 @@ interface GestureBindingDao {
 
     @Upsert
     suspend fun upsert(entity: GestureBindingEntity)
+}
+
+@Dao
+interface GestureSampleDao {
+    @Query("SELECT * FROM gesture_sample")
+    fun observeAll(): Flow<List<GestureSampleEntity>>
+
+    @Query("SELECT * FROM gesture_sample")
+    suspend fun getAll(): List<GestureSampleEntity>
+
+    @Insert
+    suspend fun insertAll(samples: List<GestureSampleEntity>)
+
+    @Query("DELETE FROM gesture_sample")
+    suspend fun deleteAll()
+
+    @Transaction
+    suspend fun replaceAll(samples: List<GestureSampleEntity>) {
+        deleteAll()
+        insertAll(samples)
+    }
+
+    @Query("DELETE FROM gesture_sample WHERE package_name = :packageName AND user_serial = :userSerial")
+    suspend fun deletePackage(packageName: String, userSerial: Long)
 }

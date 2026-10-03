@@ -1,5 +1,7 @@
 package com.bluecubelabs.env.feature.settings
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -43,12 +45,15 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bluecubelabs.env.core.ui.EnvType
 import com.bluecubelabs.env.core.ui.HorizontalDivider
 import com.bluecubelabs.env.core.ui.LocalEnvColors
+import com.bluecubelabs.env.core.ui.Motion
 import com.bluecubelabs.env.core.ui.SingleLineText
 import com.bluecubelabs.env.core.ui.pressable
 
@@ -98,10 +103,22 @@ fun SectionHeader(text: String) {
 }
 
 @Composable
+internal fun Modifier.selectedBackground(selected: Boolean): Modifier {
+    val accent = LocalEnvColors.current.accent
+    val color by animateColorAsState(
+        if (selected) accent.copy(alpha = SELECTED_ALPHA) else accent.copy(alpha = 0f),
+        tween(Motion.TRANSITION_MS),
+        label = "selected",
+    )
+    return background(color).semantics { this.selected = selected }
+}
+
+@Composable
 fun NavRow(
     title: String,
     value: String? = null,
     enabled: Boolean = true,
+    selected: Boolean = false,
     tag: String? = null,
     onClick: () -> Unit,
 ) {
@@ -110,6 +127,7 @@ fun NavRow(
         Modifier
             .fillMaxWidth()
             .heightIn(min = 56.dp)
+            .selectedBackground(selected)
             .pressable(enabled = enabled, onClick = onClick)
             .let { if (tag != null) it.testTag(tag) else it }
             .alpha(if (enabled) 1f else DISABLED_ALPHA)
@@ -168,7 +186,7 @@ fun <T> ChoiceRows(options: List<Pair<T, String>>, selected: T, tagPrefix: Strin
     options.forEach { (value, label) ->
         NavRow(
             title = label,
-            value = if (value == selected) "✓" else null,
+            selected = value == selected,
             tag = "${tagPrefix}_$value",
             onClick = { onSelect(value) },
         )
@@ -295,4 +313,5 @@ private fun DialogButtons(buttons: List<Pair<String, () -> Unit>>) {
 }
 
 internal const val DISABLED_ALPHA = 0.4f
+private const val SELECTED_ALPHA = 0.24f
 private const val SCRIM_ALPHA = 0.5f

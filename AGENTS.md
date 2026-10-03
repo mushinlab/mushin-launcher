@@ -23,7 +23,7 @@
 - `:app` — `MainActivity`, `EnvApp`, `AppContainer`, связывание фич. `:benchmark`, `:core:search:bench` — бенчмарки.
 
 ## Жёсткие запреты
-- НЕ использовать TextField/BasicTextField/фокус на экране поиска. Анимации — только переходы ≤ 200 мс из ADR-0003 (`Motion.TRANSITION_MS`) и затухание нажатия; ripple запрещён.
+- НЕ использовать TextField/BasicTextField/фокус на экране поиска. Анимации — только переходы ≤ 200 мс из ADR-0003 (`Motion.TRANSITION_MS`) и пять стилей нажатия из ADR-0004 (`PressFeedback`); ripple запрещён.
 - НЕ добавлять зависимости без ADR (запрещены Hilt, Navigation, Coil, Material, сеть). НЕ INTERNET, НЕ QUERY_ALL_PACKAGES.
 - НЕ открывать и НЕ копировать код GPL-проектов (focus_launcher, Kvaesitso, Olauncher, KISS и др.).
 - НЕ рефлексия по полям фреймворка (Android 17 static final). Единственное исключение — D.13.

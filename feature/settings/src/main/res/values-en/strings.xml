@@ -14,6 +14,7 @@
     <string name="settings_search">Search</string>
     <string name="settings_keyboard">Keyboard</string>
     <string name="settings_gestures">Gestures</string>
+    <string name="settings_press">Press animation</string>
     <string name="settings_apps">Hidden &amp; renamed</string>
     <string name="settings_system">System</string>
     <string name="settings_current_env">Env “%1$s”</string>
@@ -71,6 +72,16 @@
     <string name="home_text_s">Small</string>
     <string name="home_text_m">Medium</string>
     <string name="home_text_l">Large</string>
+    <string name="home_notifications">Notification count</string>
+    <string name="home_notifications_note">A small number to the right of the app name. Notifications are never stored or sent anywhere; only their number is counted.</string>
+    <string name="home_notifications_no_access">Notification access is required for the count to work.</string>
+    <string name="home_notifications_grant">Open notification access</string>
+    <string name="press_flash">Flash</string>
+    <string name="press_hold">Highlight</string>
+    <string name="press_accent">Accent</string>
+    <string name="press_dim">Dim</string>
+    <string name="press_scale">Shrink</string>
+    <string name="press_note">How rows and buttons react to a touch. Tap an option to try it.</string>
 
     <string name="search_fuzzy">Fix typos</string>
     <string name="search_layout_swap">Wrong keyboard layout</string>
@@ -81,14 +92,13 @@
     <string name="keyboard_layouts">Layouts</string>
     <string name="keyboard_haptics">Haptic feedback</string>
     <string name="keyboard_digit_hints">Digit hints</string>
-    <string name="keyboard_gesture">Gesture input</string>
-    <string name="keyboard_gesture_note">Keys are replaced by a blank pad. Draw across it as if on a QWERTY layout and the launcher guesses the word.</string>
     <string name="keyboard_need_one">At least one layout is required</string>
 
     <string name="gesture_up">Swipe up</string>
     <string name="gesture_down">Swipe down</string>
     <string name="gesture_left">Swipe left</string>
     <string name="gesture_right">Swipe right</string>
+    <string name="gesture_shade_zone">Swiping down from the top fifth of the screen always opens the notification shade.</string>
     <string name="action_none">Nothing</string>
     <string name="action_notifications">Notification shade</string>
     <string name="action_search">Search</string>

@@ -1,6 +1,7 @@
 package com.bluecubelabs.env.core.search
 
 import com.bluecubelabs.env.core.model.AppKey
+import java.util.Locale
 
 data class SearchItem(
     val key: AppKey,
@@ -12,6 +13,7 @@ data class SearchItem(
 }
 
 internal class IndexedName(
+    val label: String,
     val normalized: String,
     val latin: String,
     val key: String,
@@ -35,13 +37,11 @@ class SearchIndex internal constructor(
 ) {
     val size: Int get() = items.size
 
-    val vocabulary: List<String> by lazy {
+    val gestureVocabulary: List<GestureWord> by lazy {
         items.asSequence()
             .filterNot { it.item.hidden }
-            .flatMap { indexed -> indexed.names.asSequence().flatMap { sequenceOf(it.latin) + it.latinWords } }
-            .map { word -> word.filter { it in 'a'..'z' } }
-            .filter { it.length >= 2 }
-            .distinct()
+            .flatMap { indexed -> indexed.names.asSequence().flatMap { gestureWords(indexed.item.key, it) } }
+            .distinctBy { it.latin to it.key }
             .toList()
     }
 
@@ -66,6 +66,7 @@ class SearchIndex internal constructor(
             val words = Text.splitWords(label).ifEmpty { listOf(normalized) }
             val latinWords = words.map(Translit::toLatin)
             return IndexedName(
+                label = label,
                 normalized = normalized,
                 latin = latin,
                 key = Phonetic.key(latin),
@@ -76,5 +77,17 @@ class SearchIndex internal constructor(
                 isCustom = isCustom,
             )
         }
+
+        private const val MIN_GESTURE_WORD = 3
+
+        private fun gestureWords(key: AppKey, name: IndexedName): Sequence<GestureWord> {
+            val full = GestureWord(letters(name.latin), name.label.lowercase(Locale.ROOT), key)
+            val words = name.words.asSequence().zip(name.latinWords.asSequence()) { word, latin ->
+                GestureWord(letters(latin), word, key)
+            }.filter { it.latin.length >= MIN_GESTURE_WORD }
+            return (sequenceOf(full) + words).filter { it.latin.length >= 2 }
+        }
+
+        private fun letters(latin: String): String = latin.filter { it in 'a'..'z' }
     }
 }
