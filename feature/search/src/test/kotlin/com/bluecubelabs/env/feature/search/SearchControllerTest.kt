@@ -169,6 +169,35 @@ class SearchControllerTest {
     }
 
     @Test
+    fun gestureLikeSeveralAppsShowsThemAllAsSuggestions() {
+        val keys = KeyboardGeometry.compute(KeyboardLayouts.EN, 1080f, 136f, 10f, 10f)
+            .mapNotNull { k -> k.spec.char?.let { it to GesturePoint(k.rect.center.x, k.rect.center.y) } }
+            .toMap()
+        val decoder = GestureDecoder(keys)
+        val controller = SearchController(clock = { 0L })
+        controller.update(
+            SearchIndex.build(listOf(item("Google Maps"), item("Files by Google"), item("Slack"))),
+            emptyMap(),
+        )
+
+        assertThat(controller.applyGesture(decoder, "google".map { keys.getValue(it) })).isTrue()
+        assertThat(controller.suggesting).isTrue()
+        assertThat(controller.query).isEmpty()
+        assertThat(controller.rows.map { it.label }).containsExactly("Google Maps", "Files by Google")
+        assertThat(controller.target()?.label).isEqualTo(controller.rows.first().label)
+        assertThat(controller.gesturesToLearn()).containsExactly(decoder.keysAlong("google".map { keys.getValue(it) }))
+
+        assertThat(controller.backspace()).isTrue()
+        assertThat(controller.suggesting).isFalse()
+        assertThat(controller.rows).hasSize(3)
+
+        controller.applyGesture(decoder, "google".map { keys.getValue(it) })
+        controller.type('s')
+        assertThat(controller.suggesting).isFalse()
+        assertThat(controller.query).isEqualTo("s")
+    }
+
+    @Test
     fun ruTopRowKeysAreNarrowerThanEn() {
         val en = KeyboardGeometry.compute(KeyboardLayouts.EN, 1080f, 136f, 10f, 10f).first()
         val ru = KeyboardGeometry.compute(KeyboardLayouts.RU, 1080f, 136f, 10f, 10f).first()

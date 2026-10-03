@@ -51,10 +51,13 @@ class SearchController(
         private set
     var session by mutableIntStateOf(0)
         private set
+    var suggesting by mutableStateOf(false)
+        private set
 
     private var index: SearchIndex = SearchIndex.EMPTY
     private var usage: Map<AppKey, AppUsage> = emptyMap()
     private var learned: List<LearnedGesture> = emptyList()
+    private var suggestions: List<AppKey> = emptyList()
     private val gesturePaths = mutableListOf<String>()
     private var gestureCorrected = false
 
@@ -72,8 +75,20 @@ class SearchController(
         val result = decoder.decode(path, index.gestureVocabulary, learned) ?: return true
         gesturePaths += result.path
         if (gesturePaths.size > 1) gestureCorrected = true
-        val word = result.word ?: return false
-        replaceQuery(word.text)
+        val word = result.words.singleOrNull()
+        when {
+            result.words.isEmpty() -> return false
+
+            word != null -> replaceQuery(word.text)
+
+            else -> {
+                gestureCorrected = true
+                suggestions = result.words.map { it.key }
+                query = ""
+                suggesting = true
+                refresh()
+            }
+        }
         return true
     }
 
@@ -91,31 +106,28 @@ class SearchController(
     fun type(c: Char): Boolean {
         if (query.length >= MAX_QUERY) return false
         if (c == ' ' && (query.isEmpty() || query.last() == ' ')) return false
-        query += c
-        refresh()
+        changeQuery(query + c)
         return true
     }
 
     fun backspace(): Boolean {
-        if (query.isEmpty()) return false
-        query = query.dropLast(1)
-        refresh()
+        if (query.isEmpty() && !suggesting) return false
+        changeQuery(query.dropLast(1))
         return true
     }
 
     fun replaceQuery(text: String) {
-        query = text.take(MAX_QUERY)
-        refresh()
+        changeQuery(text.take(MAX_QUERY))
     }
 
     fun clear() {
-        if (query.isEmpty()) return
-        query = ""
-        refresh()
+        if (query.isEmpty() && !suggesting) return
+        changeQuery("")
     }
 
     fun reset() {
         query = ""
+        suggesting = false
         selected = NO_SELECTION
         menu = null
         gesturePaths.clear()
@@ -139,14 +151,30 @@ class SearchController(
 
     fun target(): SearchRow? = rows.getOrNull(selected.coerceAtLeast(0))
 
+    private fun changeQuery(text: String) {
+        suggesting = false
+        query = text
+        refresh()
+    }
+
     private fun refresh() {
         selected = NO_SELECTION
-        rows = if (query.isEmpty()) {
-            index.alphabetical.map { SearchRow(it.key, it.displayLabel, hidden = false) }.toImmutableList()
-        } else {
-            engine.search(index, query, usage, clock())
-                .map { SearchRow(it.key, it.label, it.hidden) }
-                .toImmutableList()
+        rows = when {
+            suggesting -> {
+                val visible = index.alphabetical.associateBy { it.key }
+                suggestions.mapNotNull { key -> visible[key]?.let { SearchRow(key, it.displayLabel, hidden = false) } }
+                    .toImmutableList()
+            }
+
+            query.isEmpty() -> {
+                index.alphabetical.map { SearchRow(it.key, it.displayLabel, hidden = false) }.toImmutableList()
+            }
+
+            else -> {
+                engine.search(index, query, usage, clock())
+                    .map { SearchRow(it.key, it.label, it.hidden) }
+                    .toImmutableList()
+            }
         }
     }
 

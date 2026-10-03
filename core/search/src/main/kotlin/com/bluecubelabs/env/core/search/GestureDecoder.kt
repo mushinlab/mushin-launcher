@@ -2,15 +2,19 @@ package com.bluecubelabs.env.core.search
 
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.LearnedGesture
+import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.atan2
 import kotlin.math.ceil
 import kotlin.math.hypot
+import kotlin.math.ln
+import kotlin.math.sqrt
 
 data class GesturePoint(val x: Float, val y: Float, val repeat: Boolean = false)
 
 data class GestureWord(val latin: String, val text: String, val key: AppKey)
 
-data class GestureResult(val path: String, val word: GestureWord?)
+data class GestureResult(val path: String, val words: List<GestureWord>)
 
 class GestureDecoder(private val keys: Map<Char, GesturePoint>) {
     private val pitch: Float = keys.values.toList().let { points ->
@@ -46,23 +50,70 @@ class GestureDecoder(private val keys: Map<Char, GesturePoint>) {
         val sampled = resample(path)
         val repeats = path.count { it.repeat }
         val boosts = boosts(drawn, learned)
-        val best = vocabulary.asSequence()
+        val candidates = vocabulary.asSequence()
             .filter { word -> word.latin.length >= 2 && word.latin.all { it in keys } }
             .map { word -> word to score(sampled, repeats, word.latin) - (boosts[word.key] ?: 0f) }
-            .minByOrNull { it.second }
-        return GestureResult(drawn, best?.takeIf { it.second <= MAX_SCORE }?.first)
+            .groupBy { it.first.key }
+            .map { (_, scored) -> scored.minBy { it.second } }
+            .sortedBy { it.second }
+        val limit = minOf((candidates.firstOrNull()?.second ?: MAX_SCORE) + SUGGEST_MARGIN, MAX_SCORE)
+        return GestureResult(drawn, candidates.takeWhile { it.second <= limit }.map { it.first })
     }
 
     private fun score(sampled: List<GesturePoint>, repeats: Int, word: String): Float {
         val ideal = idealPaths.getOrPut(word) {
             resample(word.mapIndexed { i, c -> keys.getValue(c).copy(repeat = i > 0 && word[i - 1] == c) })
         }
-        val location = sampled.indices.sumOf { distance(sampled[it], ideal[it]).toDouble() }.toFloat() /
-            sampled.size / pitch
-        val ends = (distance(sampled.first(), ideal.first()) + distance(sampled.last(), ideal.last())) / pitch
         val doubles = word.zipWithNext().count { (a, b) -> a == b }
-        return location + ENDS_WEIGHT * ends + DOUBLE_PENALTY * abs(repeats - doubles)
+        return minOf(fit(sampled, ideal), aligned(sampled, ideal)) +
+            DIRECTION_WEIGHT * direction(sampled, ideal) +
+            MISSED_DOUBLE_PENALTY * (doubles - repeats).coerceAtLeast(0) +
+            EXTRA_DWELL_PENALTY * (repeats - doubles).coerceAtLeast(0)
     }
+
+    private fun fit(drawn: List<GesturePoint>, ideal: List<GesturePoint>): Float {
+        val location = drawn.indices.sumOf { distance(drawn[it], ideal[it]).toDouble() }.toFloat() / drawn.size
+        val ends = distance(drawn.first(), ideal.first()) + distance(drawn.last(), ideal.last())
+        return (location + ENDS_WEIGHT * ends) / pitch
+    }
+
+    private fun aligned(drawn: List<GesturePoint>, ideal: List<GesturePoint>): Float {
+        val from = centroid(drawn)
+        val to = centroid(ideal)
+        val drawnRadius = radius(drawn, from)
+        val idealRadius = radius(ideal, to)
+        val scale = if (drawnRadius == 0f || idealRadius == 0f) {
+            1f
+        } else {
+            (idealRadius / drawnRadius).coerceIn(1 / MAX_SCALE, MAX_SCALE)
+        }
+        val moved = drawn.map { GesturePoint(to.x + (it.x - from.x) * scale, to.y + (it.y - from.y) * scale) }
+        return fit(moved, ideal) + SHIFT_WEIGHT * distance(from, to) / pitch + SCALE_WEIGHT * abs(ln(scale))
+    }
+
+    private fun direction(drawn: List<GesturePoint>, ideal: List<GesturePoint>): Float {
+        var turns = 0.0
+        var counted = 0
+        for (i in 0 until drawn.lastIndex) {
+            val ax = drawn[i + 1].x - drawn[i].x
+            val ay = drawn[i + 1].y - drawn[i].y
+            val bx = ideal[i + 1].x - ideal[i].x
+            val by = ideal[i + 1].y - ideal[i].y
+            if ((ax == 0f && ay == 0f) || (bx == 0f && by == 0f)) continue
+            turns += abs(atan2(ax * by - ay * bx, ax * bx + ay * by)).toDouble()
+            counted++
+        }
+        return if (counted == 0) 0f else (turns / counted / PI).toFloat()
+    }
+
+    private fun centroid(points: List<GesturePoint>): GesturePoint =
+        GesturePoint(
+            points.sumOf { it.x.toDouble() }.toFloat() / points.size,
+            points.sumOf { it.y.toDouble() }.toFloat() / points.size,
+        )
+
+    private fun radius(points: List<GesturePoint>, center: GesturePoint): Float =
+        sqrt(points.sumOf { distance(it, center).toDouble().let { d -> d * d } } / points.size).toFloat()
 
     private fun boosts(drawn: String, learned: List<LearnedGesture>): Map<AppKey, Float> {
         val support = HashMap<AppKey, Double>()
@@ -100,8 +151,14 @@ class GestureDecoder(private val keys: Map<Char, GesturePoint>) {
         const val SAMPLES = 32
         const val SAMPLES_PER_KEY = 3f
         const val ENDS_WEIGHT = 0.5f
-        const val DOUBLE_PENALTY = 0.1f
+        const val SHIFT_WEIGHT = 0.5f
+        const val SCALE_WEIGHT = 0.5f
+        const val MAX_SCALE = 2f
+        const val DIRECTION_WEIGHT = 1f
+        const val MISSED_DOUBLE_PENALTY = 0.1f
+        const val EXTRA_DWELL_PENALTY = 0.5f
         const val MAX_SCORE = 2f
+        const val SUGGEST_MARGIN = 0.3f
         const val LEARN_BONUS = 1.5
     }
 }

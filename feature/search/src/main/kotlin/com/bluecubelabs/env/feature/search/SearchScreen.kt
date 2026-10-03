@@ -237,7 +237,7 @@ private fun ResultsPane(
     val colors = LocalEnvColors.current
     val rows = controller.rows
     val listState = rememberLazyListState()
-    LaunchedEffect(controller.query) { listState.scrollToItem(0) }
+    LaunchedEffect(controller.query, controller.suggesting) { listState.scrollToItem(0) }
     if (rows.isEmpty() && controller.query.isNotEmpty()) {
         Box(modifier.padding(SearchDimens.padding).testTag("no_results"), contentAlignment = Alignment.BottomStart) {
             BasicText(
@@ -384,8 +384,11 @@ private fun QueryRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             BasicText(
-                text = controller.query,
-                style = EnvType.style(EnvType.querySize, colors.textPrimary),
+                text = if (controller.suggesting) stringResource(R.string.search_suggestions) else controller.query,
+                style = EnvType.style(
+                    EnvType.querySize,
+                    if (controller.suggesting) colors.textSecondary else colors.textPrimary,
+                ),
                 maxLines = 1,
                 modifier = Modifier.testTag("query"),
             )

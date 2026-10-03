@@ -267,6 +267,42 @@ class LauncherUiTest {
         rule.onNodeWithTag("keyboard").assertDoesNotExist()
         val panel = rule.onNodeWithTag("gesture_panel").fetchSemanticsNode().boundsInRoot
         with(rule.density) { assertThat(panel.height).isWithin(2f).of(GestureDimens.height.toPx()) }
+        drawOnGesturePanel("maps")
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("maps")
+        rule.onNodeWithTag("result_count", useUnmergedTree = true).assertDoesNotExist()
+        rule.onNodeWithTag("gesture_delete").performClick()
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
+        rule.onNodeWithTag("input_toggle").performClick()
+        rule.onNodeWithTag("keyboard").assertIsDisplayed()
+        rule.onNodeWithTag("gesture_delete").assertDoesNotExist()
+        rule.onNodeWithTag("result_count", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun gestureLikeSeveralAppsShowsThemAllAsSuggestions() {
+        val twins = runBlocking { container.catalog.apps.first().sortedBy { it.label }.take(2).map { it.key } }
+        runBlocking {
+            container.overrides.rename(twins[0], "Zebra One")
+            container.overrides.rename(twins[1], "Zebra Two")
+        }
+        try {
+            openSearch()
+            rule.waitUntil(5_000) { rule.activity.search.rows.count { it.label.startsWith("Zebra") } == 2 }
+            rule.onNodeWithTag("input_toggle").performClick()
+            rule.waitUntil(5_000) { container.settings.settings.value.keyboardGestureTyping }
+            drawOnGesturePanel("zebra")
+            val suggestions = rule.activity.getString(com.bluecubelabs.env.feature.search.R.string.search_suggestions)
+            rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals(suggestions)
+            assertThat(rule.activity.search.rows.map { it.label }).containsExactly("Zebra One", "Zebra Two")
+            rule.onNodeWithTag("gesture_delete").performClick()
+            rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
+            assertThat(rule.activity.search.rows.size).isGreaterThan(2)
+        } finally {
+            runBlocking { twins.forEach { container.overrides.rename(it, null) } }
+        }
+    }
+
+    private fun drawOnGesturePanel(word: String) {
         rule.onNodeWithTag("gesture_panel").performTouchInput {
             val padding = KeyboardDimens.verticalPadding.toPx()
             val keys = KeyboardGeometry.compute(
@@ -276,19 +312,11 @@ class LauncherUiTest {
                 padding,
                 KeyboardDimens.gap.toPx(),
             )
-            val points = "maps".map { c -> keys.first { it.spec.char == c }.rect.center }
+            val points = word.map { c -> keys.first { it.spec.char == c }.rect.center }
             down(points.first())
             points.drop(1).forEach { moveTo(it) }
             up()
         }
-        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("maps")
-        rule.onNodeWithTag("result_count", useUnmergedTree = true).assertDoesNotExist()
-        rule.onNodeWithTag("gesture_delete").performClick()
-        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
-        rule.onNodeWithTag("input_toggle").performClick()
-        rule.onNodeWithTag("keyboard").assertIsDisplayed()
-        rule.onNodeWithTag("gesture_delete").assertDoesNotExist()
-        rule.onNodeWithTag("result_count", useUnmergedTree = true).assertExists()
     }
 
     @Test

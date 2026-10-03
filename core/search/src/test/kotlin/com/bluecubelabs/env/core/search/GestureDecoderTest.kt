@@ -22,8 +22,14 @@ class GestureDecoderTest {
         GesturePoint(p.x + if (i % 2 == 0) wobble else -wobble, p.y + wobble)
     }
 
-    private fun decodeText(path: List<GesturePoint>, vocabulary: List<GestureWord> = this.vocabulary) =
-        decoder.decode(path, vocabulary)?.word?.text
+    private fun decodeTexts(path: List<GesturePoint>, vocabulary: List<GestureWord> = this.vocabulary) =
+        decoder.decode(path, vocabulary)?.words?.map { it.text }
+
+    private fun moved(path: List<GesturePoint>, dx: Float, dy: Float, scale: Float = 1f): List<GesturePoint> {
+        val cx = path.map { it.x }.average().toFloat()
+        val cy = path.map { it.y }.average().toFloat()
+        return path.map { GesturePoint(cx + (it.x - cx) * scale + dx, cy + (it.y - cy) * scale + dy) }
+    }
 
     @Test
     fun keysAlongVisitsEveryKeyBetweenPoints() {
@@ -36,20 +42,34 @@ class GestureDecoderTest {
         val l = keys.getValue('l')
         assertThat(decoder.keysAlong(path("pol") + GesturePoint(l.x, l.y, repeat = true))).isEqualTo("poll")
         val both = listOf(GestureWord("pol", "pol", key(0)), GestureWord("poll", "poll", key(1)))
-        assertThat(decodeText(path("pol"), both)).isEqualTo("pol")
-        assertThat(decodeText(path("pol") + GesturePoint(l.x, l.y, repeat = true), both)).isEqualTo("poll")
+        assertThat(decodeTexts(path("pol"), both)).containsExactly("pol", "poll").inOrder()
+        assertThat(decodeTexts(path("pol") + GesturePoint(l.x, l.y, repeat = true), both)).containsExactly("poll")
     }
 
     @Test
     fun decodesExactPaths() {
-        words.forEach { word -> assertThat(decodeText(path(word))).isEqualTo(word) }
+        words.forEach { word -> assertThat(decodeTexts(path(word))).containsExactly(word) }
     }
 
     @Test
     fun decodesSloppyPaths() {
-        assertThat(decodeText(path("slack", wobble = 0.3f))).isEqualTo("slack")
-        assertThat(decodeText(path("telegram", wobble = 0.3f))).isEqualTo("telegram")
-        assertThat(decodeText(path("camera", wobble = 0.3f))).isEqualTo("camera")
+        assertThat(decodeTexts(path("slack", wobble = 0.3f))).containsExactly("slack")
+        assertThat(decodeTexts(path("telegram", wobble = 0.3f))).containsExactly("telegram")
+        assertThat(decodeTexts(path("camera", wobble = 0.3f))).containsExactly("camera")
+    }
+
+    @Test
+    fun recognisesTheShapeDrawnAwayFromTheKeys() {
+        assertThat(decodeTexts(moved(path("telegram"), dx = 0.5f, dy = 1f))).containsExactly("telegram")
+        assertThat(decodeTexts(moved(path("camera"), dx = 0f, dy = 0f, scale = 0.6f))).containsExactly("camera")
+        assertThat(decodeTexts(moved(path("settings", wobble = 0.2f), dx = -0.4f, dy = 0.6f, scale = 1.3f)))
+            .containsExactly("settings")
+    }
+
+    @Test
+    fun drawingInReverseIsNotTheWord() {
+        val maps = listOf(GestureWord("maps", "maps", key(0)))
+        assertThat(decodeTexts(path("spam"), maps)).isEmpty()
     }
 
     @Test
@@ -61,16 +81,21 @@ class GestureDecoderTest {
     fun shapeFarFromEveryAppWordGivesNoWord() {
         val result = decoder.decode(path("nm"), listOf(GestureWord("qw", "qw", key(0))))
         assertThat(result?.path).isEqualTo("nm")
-        assertThat(result?.word).isNull()
+        assertThat(result?.words).isEmpty()
     }
 
     @Test
-    fun learnedSampleTipsTheChoiceToItsApp() {
-        val twins = listOf(GestureWord("slack", "slack", key(0)), GestureWord("slack", "slack", key(1)))
-        assertThat(decoder.decode(path("slack"), twins)?.word?.key).isEqualTo(key(0))
+    fun similarDrawingsOfDifferentAppsAreAllSuggestedUntilLearned() {
+        val twins = listOf(
+            GestureWord("slack", "slack", key(0)),
+            GestureWord("slack", "slack", key(1)),
+            GestureWord("slak", "slak", key(1)),
+            GestureWord("spotify", "spotify", key(2)),
+        )
+        assertThat(decoder.decode(path("slack"), twins)?.words?.map { it.key }).containsExactly(key(0), key(1))
         val drawn = decoder.keysAlong(path("slack"))
         val learned = listOf(LearnedGesture(drawn, key(1), 1.0))
-        assertThat(decoder.decode(path("slack"), twins, learned)?.word?.key).isEqualTo(key(1))
+        assertThat(decoder.decode(path("slack"), twins, learned)?.words?.map { it.key }).containsExactly(key(1))
     }
 
     @Test
