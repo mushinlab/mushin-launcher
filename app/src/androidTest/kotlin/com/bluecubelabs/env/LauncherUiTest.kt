@@ -5,7 +5,7 @@ import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.doubleClick
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -17,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.bluecubelabs.env.core.model.EnvType
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
@@ -121,6 +122,22 @@ class LauncherUiTest {
         rule.runOnUiThread { rule.activity.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ESCAPE)) }
         rule.runOnIdle { assertThat(rule.activity.overlay).isEqualTo(Overlay.None) }
         rule.onNodeWithTag("search").assertDoesNotExist()
+    }
+
+    @Test
+    fun AC_13_1_homeButtonClosesSettings() {
+        backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
+        rule.onNodeWithTag("popup_settings").performClick()
+        rule.onNodeWithTag("settings").assertIsDisplayed()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        context.startActivity(
+            android.content.Intent(android.content.Intent.ACTION_MAIN)
+                .addCategory(android.content.Intent.CATEGORY_HOME)
+                .setClass(context, MainActivity::class.java)
+                .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK),
+        )
+        rule.waitUntil(5_000) { !rule.activity.settingsStack.isOpen }
+        rule.onNodeWithTag("settings").assertDoesNotExist()
     }
 
     @Test

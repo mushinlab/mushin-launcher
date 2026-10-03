@@ -20,7 +20,6 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.bluecubelabs.env.core.apps.LaunchResult
@@ -108,7 +107,7 @@ class MainActivity : ComponentActivity() {
 
     fun handleHomeIntent(intent: Intent) {
         val isHome = intent.action == Intent.ACTION_MAIN && intent.hasCategory(Intent.CATEGORY_HOME)
-        if (isHome && lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) closeAll()
+        if (isHome) closeAll()
     }
 
     @SuppressLint("RestrictedApi")

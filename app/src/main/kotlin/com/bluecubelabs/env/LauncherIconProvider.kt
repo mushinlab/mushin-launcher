@@ -11,6 +11,7 @@ import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.ui.AppIconImage
 import com.bluecubelabs.env.core.ui.IconProvider
 import java.util.WeakHashMap
+import kotlinx.coroutines.flow.first
 
 class LauncherIconProvider(
     private val loader: IconLoader,
@@ -23,6 +24,7 @@ class LauncherIconProvider(
     }?.toImage()
 
     override suspend fun load(key: AppKey, sizePx: Int): AppIconImage {
+        catalog.loaded.first { it }
         val iconKey = iconKey(key, sizePx) ?: return AppIconImage.Letter
         return loader.load(iconKey).toImage()
     }
