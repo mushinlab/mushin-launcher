@@ -114,7 +114,7 @@ internal fun EnvironmentsScreen(
         if (type != null) {
             TextInputDialog(
                 title = stringResource(R.string.env_create_title),
-                initial = if (type == EnvType.WORK) "Работа" else "",
+                initial = if (type == EnvType.WORK) stringResource(R.string.env_work_default_name) else "",
                 maxLength = EnvLimits.NAME_MAX_LENGTH + 8,
                 error = envErrorText(error),
                 confirm = stringResource(R.string.settings_save),

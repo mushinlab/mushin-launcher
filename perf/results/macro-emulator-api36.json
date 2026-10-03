@@ -1,0 +1,773 @@
+{
+    "context": {
+        "build": {
+            "brand": "google",
+            "device": "emu64a",
+            "fingerprint": "google/sdk_gphone64_arm64/emu64a:16/BE2A.250530.026.D1/13818094:user/release-keys",
+            "id": "BE2A.250530.026.D1",
+            "model": "sdk_gphone64_arm64",
+            "type": "user",
+            "version": {
+                "codename": "REL",
+                "sdk": 36
+            }
+        },
+        "cpuCoreCount": 1,
+        "cpuLocked": false,
+        "cpuMaxFreqHz": 2000,
+        "memTotalBytes": 2070859776,
+        "sustainedPerformanceModeEnabled": false,
+        "artMainlineVersion": 360527520,
+        "osCodenameAbbreviated": "REL",
+        "compilationMode": "run-from-apk",
+        "payload": {}
+    },
+    "benchmarks": [
+        {
+            "name": "coldStartup",
+            "params": {},
+            "className": "com.bluecubelabs.env.benchmark.LauncherBenchmarks",
+            "totalRunTimeNs": 16216925091,
+            "metrics": {
+                "timeToInitialDisplayMs": {
+                    "minimum": 221.820417,
+                    "maximum": 565.181501,
+                    "median": 236.3666455,
+                    "coefficientOfVariation": 0.38877544885538196,
+                    "runs": [
+                        565.181501,
+                        234.291167,
+                        362.377209,
+                        236.605958,
+                        236.127333,
+                        254.2465,
+                        224.661042,
+                        221.820417,
+                        432.418417,
+                        233.209625
+                    ]
+                }
+            },
+            "sampledMetrics": {},
+            "warmupIterations": 0,
+            "repeatIterations": 10,
+            "thermalThrottleSleepSeconds": 0,
+            "profilerOutputs": [
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 0",
+                    "filename": "LauncherBenchmarks_coldStartup_iter000_2026-10-03-00-54-57.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 1",
+                    "filename": "LauncherBenchmarks_coldStartup_iter001_2026-10-03-00-54-58.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 2",
+                    "filename": "LauncherBenchmarks_coldStartup_iter002_2026-10-03-00-55-00.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 3",
+                    "filename": "LauncherBenchmarks_coldStartup_iter003_2026-10-03-00-55-01.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 4",
+                    "filename": "LauncherBenchmarks_coldStartup_iter004_2026-10-03-00-55-03.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 5",
+                    "filename": "LauncherBenchmarks_coldStartup_iter005_2026-10-03-00-55-04.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 6",
+                    "filename": "LauncherBenchmarks_coldStartup_iter006_2026-10-03-00-55-05.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 7",
+                    "filename": "LauncherBenchmarks_coldStartup_iter007_2026-10-03-00-55-07.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 8",
+                    "filename": "LauncherBenchmarks_coldStartup_iter008_2026-10-03-00-55-08.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 9",
+                    "filename": "LauncherBenchmarks_coldStartup_iter009_2026-10-03-00-55-10.perfetto-trace"
+                }
+            ]
+        },
+        {
+            "name": "searchOpen",
+            "params": {},
+            "className": "com.bluecubelabs.env.benchmark.LauncherBenchmarks",
+            "totalRunTimeNs": 39292457018,
+            "metrics": {
+                "frameCount": {
+                    "minimum": 3.0,
+                    "maximum": 4.0,
+                    "median": 3.0,
+                    "coefficientOfVariation": 0.10200895677962514,
+                    "runs": [
+                        3.0,
+                        3.0,
+                        3.0,
+                        3.0,
+                        3.0,
+                        3.0,
+                        3.0,
+                        4.0,
+                        3.0,
+                        3.0
+                    ]
+                },
+                "search_openAverageMs": {
+                    "minimum": 10.553125,
+                    "maximum": 14.198083,
+                    "median": 13.194791500000001,
+                    "coefficientOfVariation": 0.08974014922683617,
+                    "runs": [
+                        13.469292,
+                        13.640083,
+                        13.605583,
+                        14.198083,
+                        12.0775,
+                        11.843416,
+                        12.920291,
+                        11.951541,
+                        10.553125,
+                        13.748292
+                    ]
+                }
+            },
+            "sampledMetrics": {
+                "frameDurationCpuMs": {
+                    "P50": 1.641708,
+                    "P90": 3.83775,
+                    "P95": 4.5952295,
+                    "P99": 5.461391999999999,
+                    "runs": [
+                        [
+                            5.673792,
+                            4.224667,
+                            1.329125
+                        ],
+                        [
+                            3.6475,
+                            1.550042,
+                            1.518958
+                        ],
+                        [
+                            2.734958,
+                            1.481,
+                            1.741792
+                        ],
+                        [
+                            3.83775,
+                            1.406292,
+                            2.475958
+                        ],
+                        [
+                            3.642875,
+                            1.849334,
+                            1.438875
+                        ],
+                        [
+                            4.965792,
+                            2.463166,
+                            1.417583
+                        ],
+                        [
+                            2.918625,
+                            1.619416,
+                            1.556667
+                        ],
+                        [
+                            3.138375,
+                            1.633333,
+                            1.342625,
+                            0.840791
+                        ],
+                        [
+                            2.428084,
+                            1.200041,
+                            1.162209
+                        ],
+                        [
+                            2.998417,
+                            1.305583,
+                            1.641708
+                        ]
+                    ]
+                },
+                "frameOverrunMs": {
+                    "P50": -12.452883,
+                    "P90": -10.49192,
+                    "P95": -10.2804735,
+                    "P99": -10.0861185,
+                    "runs": [
+                        [
+                            -10.102628,
+                            -10.079043,
+                            -12.198907
+                        ],
+                        [
+                            -12.452883,
+                            -12.698132,
+                            -13.221585
+                        ],
+                        [
+                            -13.748478,
+                            -12.720186,
+                            -11.694222
+                        ],
+                        [
+                            -12.502909,
+                            -13.199242,
+                            -10.458319
+                        ],
+                        [
+                            -12.916254,
+                            -12.343295,
+                            -12.464498
+                        ],
+                        [
+                            -11.526306,
+                            -11.527181,
+                            -12.2118
+                        ],
+                        [
+                            -13.221985,
+                            -12.521651,
+                            -11.845146
+                        ],
+                        [
+                            -12.889123,
+                            -10.823414,
+                            -12.041159,
+                            -12.206575
+                        ],
+                        [
+                            -13.902948,
+                            -13.587239,
+                            -12.93765
+                        ],
+                        [
+                            -13.439587,
+                            -10.49192,
+                            -11.270785
+                        ]
+                    ]
+                }
+            },
+            "warmupIterations": 0,
+            "repeatIterations": 10,
+            "thermalThrottleSleepSeconds": 0,
+            "profilerOutputs": [
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 0",
+                    "filename": "LauncherBenchmarks_searchOpen_iter000_2026-10-03-00-55-19.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 1",
+                    "filename": "LauncherBenchmarks_searchOpen_iter001_2026-10-03-00-55-23.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 2",
+                    "filename": "LauncherBenchmarks_searchOpen_iter002_2026-10-03-00-55-27.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 3",
+                    "filename": "LauncherBenchmarks_searchOpen_iter003_2026-10-03-00-55-31.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 4",
+                    "filename": "LauncherBenchmarks_searchOpen_iter004_2026-10-03-00-55-34.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 5",
+                    "filename": "LauncherBenchmarks_searchOpen_iter005_2026-10-03-00-55-38.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 6",
+                    "filename": "LauncherBenchmarks_searchOpen_iter006_2026-10-03-00-55-42.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 7",
+                    "filename": "LauncherBenchmarks_searchOpen_iter007_2026-10-03-00-55-46.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 8",
+                    "filename": "LauncherBenchmarks_searchOpen_iter008_2026-10-03-00-55-50.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 9",
+                    "filename": "LauncherBenchmarks_searchOpen_iter009_2026-10-03-00-55-54.perfetto-trace"
+                }
+            ]
+        },
+        {
+            "name": "typingInSearch",
+            "params": {},
+            "className": "com.bluecubelabs.env.benchmark.LauncherBenchmarks",
+            "totalRunTimeNs": 43848278771,
+            "metrics": {
+                "frameCount": {
+                    "minimum": 13.0,
+                    "maximum": 17.0,
+                    "median": 16.0,
+                    "coefficientOfVariation": 0.11130317886226404,
+                    "runs": [
+                        13.0,
+                        13.0,
+                        13.0,
+                        17.0,
+                        17.0,
+                        17.0,
+                        16.0,
+                        16.0,
+                        15.0,
+                        16.0
+                    ]
+                }
+            },
+            "sampledMetrics": {
+                "frameDurationCpuMs": {
+                    "P50": 2.1255,
+                    "P90": 3.2651752000000007,
+                    "P95": 3.9005669999999997,
+                    "P99": 5.542678159999992,
+                    "runs": [
+                        [
+                            3.272667,
+                            5.070834,
+                            5.94375,
+                            2.730125,
+                            2.921208,
+                            2.358917,
+                            2.660125,
+                            2.221917,
+                            1.799875,
+                            2.635208,
+                            2.029625,
+                            2.132625,
+                            2.477167
+                        ],
+                        [
+                            2.278875,
+                            3.364792,
+                            2.007125,
+                            2.78525,
+                            3.73725,
+                            1.901209,
+                            2.039333,
+                            4.014333,
+                            1.541166,
+                            1.976875,
+                            1.797833,
+                            2.74125,
+                            3.082458
+                        ],
+                        [
+                            2.239834,
+                            2.788375,
+                            1.958125,
+                            2.022667,
+                            3.037042,
+                            1.971875,
+                            2.144292,
+                            1.830125,
+                            2.844708,
+                            1.863166,
+                            1.966708,
+                            1.799,
+                            2.404208
+                        ],
+                        [
+                            3.273209,
+                            2.686,
+                            1.843875,
+                            1.867959,
+                            2.834542,
+                            2.496958,
+                            1.513083,
+                            2.142541,
+                            1.618792,
+                            2.418708,
+                            1.442459,
+                            2.044042,
+                            2.131125,
+                            1.632542,
+                            1.949458,
+                            1.959709,
+                            3.912792
+                        ],
+                        [
+                            2.850917,
+                            3.005958,
+                            1.873666,
+                            1.865666,
+                            1.738375,
+                            1.950375,
+                            2.416958,
+                            2.178792,
+                            3.272709,
+                            2.283791,
+                            1.62275,
+                            2.464292,
+                            3.066,
+                            3.385584,
+                            1.607166,
+                            2.343375,
+                            0.80225
+                        ],
+                        [
+                            2.093625,
+                            2.672,
+                            1.119541,
+                            1.454541,
+                            2.548291,
+                            1.483958,
+                            2.59125,
+                            1.669625,
+                            2.118625,
+                            1.4385,
+                            1.516916,
+                            2.443292,
+                            1.875417,
+                            2.097041,
+                            1.592667,
+                            2.0115,
+                            2.128917
+                        ],
+                        [
+                            2.219875,
+                            3.576875,
+                            2.221375,
+                            1.560083,
+                            2.230375,
+                            3.892417,
+                            1.747333,
+                            2.317416,
+                            1.860708,
+                            2.654125,
+                            1.761584,
+                            2.257084,
+                            1.400709,
+                            1.787625,
+                            2.172625,
+                            2.824625
+                        ],
+                        [
+                            2.338667,
+                            1.142792,
+                            1.782875,
+                            2.059291,
+                            3.997375,
+                            1.859584,
+                            2.63275,
+                            1.619917,
+                            1.60225,
+                            2.18425,
+                            1.383958,
+                            1.8245,
+                            1.295292,
+                            1.752,
+                            5.974125,
+                            2.698
+                        ],
+                        [
+                            2.236042,
+                            3.235208,
+                            2.1255,
+                            5.172458,
+                            1.91575,
+                            1.032584,
+                            1.681125,
+                            2.020833,
+                            2.25825,
+                            1.8345,
+                            1.8105,
+                            1.552959,
+                            1.842541,
+                            1.774458,
+                            2.73275
+                        ],
+                        [
+                            2.5955,
+                            2.730708,
+                            2.386333,
+                            1.659709,
+                            1.949583,
+                            3.220375,
+                            1.565958,
+                            2.328917,
+                            1.8035,
+                            1.611417,
+                            1.743708,
+                            2.178667,
+                            2.699875,
+                            1.749333,
+                            1.878083,
+                            4.063458
+                        ]
+                    ]
+                },
+                "frameOverrunMs": {
+                    "P50": -11.455696,
+                    "P90": -8.804753999999999,
+                    "P95": -7.7561874,
+                    "P99": -6.521885120000004,
+                    "runs": [
+                        [
+                            -11.222841,
+                            -7.487132,
+                            -6.309839,
+                            -10.241337,
+                            -10.202587,
+                            -11.512002,
+                            -11.874292,
+                            -12.209873,
+                            -12.45633,
+                            -11.819912,
+                            -10.413369,
+                            -10.482659,
+                            -11.624324
+                        ],
+                        [
+                            -10.242546,
+                            -11.593003,
+                            -12.028335,
+                            -9.952126,
+                            -9.28625,
+                            -12.196707,
+                            -10.102539,
+                            -7.732662,
+                            -13.142035,
+                            -12.214742,
+                            -9.994741,
+                            -11.433113,
+                            -8.142029
+                        ],
+                        [
+                            -12.180622,
+                            -7.771871,
+                            -10.912329,
+                            -10.876535,
+                            -11.305534,
+                            -12.669158,
+                            -11.116865,
+                            -12.489071,
+                            -12.099486,
+                            -10.712109,
+                            -12.157774,
+                            -13.141564,
+                            -8.686313
+                        ],
+                        [
+                            -10.2027,
+                            -12.044491,
+                            -9.671823,
+                            -13.182322,
+                            -12.141821,
+                            -9.798903,
+                            -13.069444,
+                            -11.076068,
+                            -12.846775,
+                            -7.540358,
+                            -12.654066,
+                            -12.942189,
+                            -8.427896,
+                            -12.451021,
+                            -11.180186,
+                            -7.45006,
+                            -10.422266
+                        ],
+                        [
+                            -8.78828,
+                            -11.861863,
+                            -11.75857,
+                            -12.000944,
+                            -11.426485,
+                            -9.025526,
+                            -12.251734,
+                            -11.771941,
+                            -11.789438,
+                            -11.424314,
+                            -11.945562,
+                            -8.712769,
+                            -10.514476,
+                            -11.878099,
+                            -12.492514,
+                            -10.079179,
+                            -11.78347
+                        ],
+                        [
+                            -12.921804,
+                            -11.34697,
+                            -10.607345,
+                            -11.100802,
+                            -13.5573,
+                            -12.643883,
+                            -9.967091,
+                            -12.973589,
+                            -11.093297,
+                            -12.67488,
+                            -13.212003,
+                            -11.024794,
+                            -12.315919,
+                            -10.301501,
+                            -12.718499,
+                            -11.143497,
+                            -12.335621
+                        ],
+                        [
+                            -12.165631,
+                            -10.481422,
+                            -11.286838,
+                            -12.753504,
+                            -10.444252,
+                            -11.197668,
+                            -11.739292,
+                            -12.759624,
+                            -12.910746,
+                            -6.71762,
+                            -12.138827,
+                            -8.640826,
+                            -13.346868,
+                            -12.8837,
+                            -11.369115,
+                            -5.804197
+                        ],
+                        [
+                            -13.482333,
+                            -12.870249,
+                            -10.509205,
+                            -11.656453,
+                            -10.893702,
+                            -12.160076,
+                            -10.582617,
+                            -11.427741,
+                            -13.109989,
+                            -11.627488,
+                            -11.846613,
+                            -11.455696,
+                            -11.262153,
+                            -12.899652,
+                            -8.87065,
+                            -11.026316
+                        ],
+                        [
+                            -11.412579,
+                            -11.337787,
+                            -9.376286,
+                            -7.392952,
+                            -12.881617,
+                            -11.181325,
+                            -12.995032,
+                            -8.738948,
+                            -12.13003,
+                            -13.174695,
+                            -12.628569,
+                            -13.262817,
+                            -11.404273,
+                            -12.66048,
+                            -11.508478
+                        ],
+                        [
+                            -10.977481,
+                            -11.643772,
+                            -9.195854,
+                            -10.84677,
+                            -12.474768,
+                            -8.968475,
+                            -13.228099,
+                            -12.330598,
+                            -9.239514,
+                            -13.482513,
+                            -12.500887,
+                            -11.219886,
+                            -9.412761,
+                            -12.760676,
+                            -12.083925,
+                            -10.74934
+                        ]
+                    ]
+                }
+            },
+            "warmupIterations": 0,
+            "repeatIterations": 10,
+            "thermalThrottleSleepSeconds": 0,
+            "profilerOutputs": [
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 0",
+                    "filename": "LauncherBenchmarks_typingInSearch_iter000_2026-10-03-00-55-59.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 1",
+                    "filename": "LauncherBenchmarks_typingInSearch_iter001_2026-10-03-00-56-03.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 2",
+                    "filename": "LauncherBenchmarks_typingInSearch_iter002_2026-10-03-00-56-08.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 3",
+                    "filename": "LauncherBenchmarks_typingInSearch_iter003_2026-10-03-00-56-12.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 4",
+                    "filename": "LauncherBenchmarks_typingInSearch_iter004_2026-10-03-00-56-16.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 5",
+                    "filename": "LauncherBenchmarks_typingInSearch_iter005_2026-10-03-00-56-21.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 6",
+                    "filename": "LauncherBenchmarks_typingInSearch_iter006_2026-10-03-00-56-25.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 7",
+                    "filename": "LauncherBenchmarks_typingInSearch_iter007_2026-10-03-00-56-29.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 8",
+                    "filename": "LauncherBenchmarks_typingInSearch_iter008_2026-10-03-00-56-34.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 9",
+                    "filename": "LauncherBenchmarks_typingInSearch_iter009_2026-10-03-00-56-38.perfetto-trace"
+                }
+            ]
+        }
+    ]
+}

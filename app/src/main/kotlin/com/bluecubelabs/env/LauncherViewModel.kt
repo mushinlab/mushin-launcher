@@ -170,7 +170,8 @@ class LauncherViewModel(
     val iconsReady: StateFlow<Boolean> = _iconsReady
 
     init {
-        home.debounce(SNAPSHOT_DEBOUNCE_MS)
+        combine(home, palette) { state, _ -> state }
+            .debounce(SNAPSHOT_DEBOUNCE_MS)
             .onEach { state -> data.value?.let { d -> writeSnapshot(d, state) } }
             .flowOn(Dispatchers.IO)
             .launchIn(viewModelScope)

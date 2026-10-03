@@ -10,6 +10,12 @@
 - Перед коммитом: `./gradlew ktlintFormat detekt lintDebug testDebugUnitTest test checkModuleGraph`
 - JVM-модули (`:core:model`, `:core:search`) тестируются задачей `test`, Android-модули — `testDebugUnitTest`.
 
+## Устройство и замеры
+- Instrumented/UI: `./gradlew :app:connectedDebugAndroidTest :core:apps:connectedDebugAndroidTest` (эмулятор API 36 подходит).
+- Baseline Profile: `./gradlew :app:generateBaselineProfile` (на эмуляторе добавить `-Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.suppressErrors=EMULATOR`).
+- Macrobenchmark: `./gradlew :benchmark:connectedBenchmarkReleaseAndroidTest`; microbenchmark поиска: `./gradlew :core:search:bench:connectedAndroidTest`.
+- Результаты замеров — в `perf/results/`.
+
 ## Модули (D.2)
 - `:core:model`, `:core:search` — чистый Kotlin/JVM, без Android.
 - `:core:data` (Room + DataStore), `:core:apps` (LauncherApps, иконки, запуск), `:core:ui` (палитра, базовые composable).

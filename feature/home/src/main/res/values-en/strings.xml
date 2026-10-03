@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_make_default">Make default launcher</string>
+    <string name="home_empty_env">Long press → ⚙ → Envs to add apps</string>
+    <string name="popup_settings">⚙  Settings</string>
+    <string name="popup_about">App info</string>
+    <string name="popup_rename">Rename</string>
+    <string name="popup_hide">Hide</string>
+    <string name="popup_show">Show</string>
+    <string name="popup_remove_from_env">Remove from env</string>
+    <string name="popup_uninstall">Uninstall</string>
+</resources>

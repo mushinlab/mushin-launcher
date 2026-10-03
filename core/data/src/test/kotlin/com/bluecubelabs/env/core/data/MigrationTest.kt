@@ -17,7 +17,7 @@ class MigrationTest {
     @Test
     fun schemaVersion1IsExportedAndValid() {
         helper.createDatabase(DB_NAME, 1).use { db ->
-            EnvDatabase.SeedCallback.seed(db, createdAt = 0L)
+            EnvDatabase.SeedCallback(EnvDatabase.SeedNames("Обычный", "Работа")).seed(db, createdAt = 0L)
         }
         helper.runMigrationsAndValidate(DB_NAME, 1, true).use { db ->
             db.query("SELECT COUNT(*) FROM environment").use { cursor ->

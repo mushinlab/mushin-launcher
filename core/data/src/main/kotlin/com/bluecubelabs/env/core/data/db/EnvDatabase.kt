@@ -7,6 +7,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.bluecubelabs.env.core.data.R
 import com.bluecubelabs.env.core.model.DefaultGestures
 import com.bluecubelabs.env.core.model.EnvType
 import com.bluecubelabs.env.core.model.PalettePreset
@@ -39,8 +40,6 @@ abstract class EnvDatabase : RoomDatabase() {
 
     companion object {
         const val NAME = "env.db"
-        const val DEFAULT_NORMAL_NAME = "Обычный"
-        const val DEFAULT_WORK_NAME = "Работа"
 
         fun build(context: Context, inMemory: Boolean = false): EnvDatabase {
             val builder = if (inMemory) {
@@ -48,18 +47,24 @@ abstract class EnvDatabase : RoomDatabase() {
             } else {
                 Room.databaseBuilder(context, EnvDatabase::class.java, NAME)
             }
-            return builder.addCallback(SeedCallback).build()
+            val names = SeedNames(
+                normal = context.getString(R.string.env_default_normal),
+                work = context.getString(R.string.env_default_work),
+            )
+            return builder.addCallback(SeedCallback(names)).build()
         }
     }
 
-    object SeedCallback : Callback() {
+    data class SeedNames(val normal: String, val work: String)
+
+    class SeedCallback(private val names: SeedNames) : Callback() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             seed(db, createdAt = System.currentTimeMillis())
         }
 
         fun seed(db: SupportSQLiteDatabase, createdAt: Long) {
-            insertEnvironment(db, DEFAULT_NORMAL_NAME, EnvType.NORMAL, 0, PalettePreset.GRAPHITE, createdAt)
-            insertEnvironment(db, DEFAULT_WORK_NAME, EnvType.WORK, 1, PalettePreset.NAVY, createdAt)
+            insertEnvironment(db, names.normal, EnvType.NORMAL, 0, PalettePreset.GRAPHITE, createdAt)
+            insertEnvironment(db, names.work, EnvType.WORK, 1, PalettePreset.NAVY, createdAt)
             DefaultGestures.bindings.forEach { binding ->
                 val values = ContentValues().apply {
                     put("direction", binding.direction.name)

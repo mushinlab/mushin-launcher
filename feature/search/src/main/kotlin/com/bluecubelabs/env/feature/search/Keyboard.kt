@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -299,7 +300,7 @@ private fun KeyView(index: Int, key: KeyGeometry, state: KeyboardState, nextLayo
     val pressed by remember(index) { derivedStateOf { state.pressed[index] == true } }
     val label = when (key.spec.action) {
         KeyAction.BACKSPACE -> "⌫"
-        KeyAction.ENTER -> "⏎ Открыть"
+        KeyAction.ENTER -> stringResource(R.string.search_enter)
         KeyAction.SWITCH_LAYOUT -> nextLayoutLabel
         null -> key.spec.char?.toString().orEmpty()
     }

@@ -20,6 +20,7 @@
 
     <string name="env_create">+ Создать энв</string>
     <string name="env_create_title">Новый энв</string>
+    <string name="env_work_default_name">Работа</string>
     <string name="env_create_work">+ Создать «Работа»</string>
     <string name="env_type_normal">обычный</string>
     <string name="env_type_work">работа</string>

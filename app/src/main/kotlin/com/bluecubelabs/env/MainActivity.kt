@@ -1,5 +1,6 @@
 package com.bluecubelabs.env
 
+import android.annotation.SuppressLint
 import android.app.role.RoleManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -110,6 +111,7 @@ class MainActivity : ComponentActivity() {
         if (isHome && lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) closeAll()
     }
 
+    @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (settingsStack.isOpen || renameTarget != null) return super.dispatchKeyEvent(event)
         val key = KeyboardRouter.map(event.keyCode, event.getUnicodeChar(event.metaState), event.isCtrlPressed)

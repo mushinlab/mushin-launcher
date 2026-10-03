@@ -29,6 +29,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -72,7 +74,12 @@ fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: La
 
     EnvTheme(palette) {
         CompositionLocalProvider(LocalIconProvider provides iconProvider) {
-            Box(Modifier.fillMaxSize().background(LocalEnvColors.current.background)) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(LocalEnvColors.current.background)
+                    .semantics { testTagsAsResourceId = true },
+            ) {
                 val homeActions = remember(activity) { homeActions(activity, vm) }
                 HomeScreen(
                     state = home,

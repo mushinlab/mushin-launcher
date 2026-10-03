@@ -55,5 +55,6 @@ class AppContainer(private val app: Application) {
             }
         }
         scope.launch { cleaner.purgeExpiredOverrides() }
+        scope.launch(Dispatchers.IO) { ExitLog(app).recordNewExits() }
     }
 }
