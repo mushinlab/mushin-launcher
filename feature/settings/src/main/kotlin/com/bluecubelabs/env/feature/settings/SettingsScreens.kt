@@ -208,6 +208,13 @@ internal fun KeyboardSettingsScreen(state: SettingsUiState, actions: SettingsAct
         ToggleRow(stringResource(R.string.keyboard_digit_hints), s.keyboardDigitHints, tag = "kb_digits") { v ->
             actions.updateSettings { it.copy(keyboardDigitHints = v) }
         }
+        HorizontalDivider()
+        ToggleRow(
+            stringResource(R.string.keyboard_gesture_letters),
+            s.keyboardGestureLetters,
+            tag = "kb_gesture_letters",
+        ) { v -> actions.updateSettings { it.copy(keyboardGestureLetters = v) } }
+        NoteText(stringResource(R.string.keyboard_gesture_letters_note))
     }
 }
 

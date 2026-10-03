@@ -38,6 +38,7 @@ class SettingsRepositoryTest {
         assertThat(settings.keyboardHaptics).isTrue()
         assertThat(settings.keyboardDigitHints).isTrue()
         assertThat(settings.keyboardGestureTyping).isFalse()
+        assertThat(settings.keyboardGestureLetters).isFalse()
         assertThat(settings.searchFuzzy).isTrue()
         assertThat(settings.searchLayoutSwap).isTrue()
         assertThat(settings.searchTranslit).isTrue()
@@ -55,6 +56,7 @@ class SettingsRepositoryTest {
                 iconMode = IconMode.RIGHT,
                 keyboardLayouts = listOf("ru", "en"),
                 keyboardGestureTyping = true,
+                keyboardGestureLetters = true,
                 notificationCounts = true,
                 pressFeedback = PressFeedback.DIM,
             )
@@ -62,6 +64,7 @@ class SettingsRepositoryTest {
         val settings = repo.settings.first { it.currentEnvId == 7L }
         assertThat(settings.iconMode).isEqualTo(IconMode.RIGHT)
         assertThat(settings.keyboardGestureTyping).isTrue()
+        assertThat(settings.keyboardGestureLetters).isTrue()
         assertThat(settings.notificationCounts).isTrue()
         assertThat(settings.pressFeedback).isEqualTo(PressFeedback.DIM)
         assertThat(settings.keyboardLayouts).containsExactly("ru", "en").inOrder()

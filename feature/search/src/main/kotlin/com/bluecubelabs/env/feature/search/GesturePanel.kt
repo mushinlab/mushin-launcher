@@ -24,17 +24,22 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.bluecubelabs.env.core.search.GestureDecoder
 import com.bluecubelabs.env.core.search.GesturePoint
 import com.bluecubelabs.env.core.search.KeyboardLayouts
+import com.bluecubelabs.env.core.ui.EnvType
 import com.bluecubelabs.env.core.ui.LocalEnvColors
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -45,7 +50,12 @@ object GestureDimens {
 }
 
 @Composable
-internal fun GesturePanel(controller: SearchController, haptics: Boolean, modifier: Modifier = Modifier) {
+internal fun GesturePanel(
+    controller: SearchController,
+    haptics: Boolean,
+    showLetters: Boolean,
+    modifier: Modifier = Modifier,
+) {
     val colors = LocalEnvColors.current
     val density = LocalDensity.current
     val view = LocalView.current
@@ -61,18 +71,22 @@ internal fun GesturePanel(controller: SearchController, haptics: Boolean, modifi
         dwells.clear()
     }
     val paddingPx = with(density) { KeyboardDimens.verticalPadding.toPx() }
-    val decoder = remember(size) {
-        val keys = KeyboardGeometry.compute(
+    val centers = remember(size) {
+        KeyboardGeometry.compute(
             letters,
             size.width.toFloat(),
             (size.height - paddingPx * 2) / KeyboardLayouts.LETTER_ROWS,
             paddingPx,
             with(density) { KeyboardDimens.gap.toPx() },
-        )
-        GestureDecoder(
-            keys.mapNotNull { key -> key.spec.char?.let { it to GesturePoint(key.rect.center.x, key.rect.center.y) } }
-                .toMap(),
-        )
+        ).mapNotNull { key -> key.spec.char?.let { it to key.rect.center } }.toMap()
+    }
+    val decoder = remember(centers) {
+        GestureDecoder(centers.mapValues { (_, center) -> GesturePoint(center.x, center.y) })
+    }
+    val measurer = rememberTextMeasurer()
+    val labels = remember(measurer, colors) {
+        val style = EnvType.style(EnvType.keySize, colors.textSecondary.copy(alpha = LETTERS_ALPHA))
+        letters.rows.flatten().mapNotNull { it.char }.associateWith { measurer.measure(it.toString(), style) }
     }
     val radiusPx = with(density) { KeyboardDimens.radius.toPx() }
     val strokePx = with(density) { GestureDimens.trailWidth.toPx() }
@@ -145,6 +159,7 @@ internal fun GesturePanel(controller: SearchController, haptics: Boolean, modifi
                     size = Size(size.width - paddingPx * 2, size.height - paddingPx * 2),
                     cornerRadius = CornerRadius(radiusPx),
                 )
+                if (showLetters) drawLetters(centers, labels)
                 if (trail.size > 1) {
                     val path = Path().apply {
                         moveTo(trail.first().x, trail.first().y)
@@ -160,3 +175,12 @@ internal fun GesturePanel(controller: SearchController, haptics: Boolean, modifi
             },
     )
 }
+
+private fun DrawScope.drawLetters(centers: Map<Char, Offset>, labels: Map<Char, TextLayoutResult>) {
+    centers.forEach { (char, center) ->
+        val label = labels.getValue(char)
+        drawText(label, topLeft = center - Offset(label.size.width / 2f, label.size.height / 2f))
+    }
+}
+
+private const val LETTERS_ALPHA = 0.6f

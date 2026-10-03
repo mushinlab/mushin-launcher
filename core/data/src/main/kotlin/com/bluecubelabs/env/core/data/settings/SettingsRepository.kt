@@ -56,6 +56,7 @@ class SettingsRepository(
         internal val KB_HAPTICS = booleanPreferencesKey("kb_haptics")
         internal val KB_DIGIT_HINTS = booleanPreferencesKey("kb_digit_hints")
         internal val KB_GESTURE = booleanPreferencesKey("kb_gesture")
+        internal val KB_GESTURE_LETTERS = booleanPreferencesKey("kb_gesture_letters")
         internal val SEARCH_FUZZY = booleanPreferencesKey("search_fuzzy")
         internal val SEARCH_LAYOUT_SWAP = booleanPreferencesKey("search_layout_swap")
         internal val SEARCH_TRANSLIT = booleanPreferencesKey("search_translit")
@@ -81,6 +82,7 @@ class SettingsRepository(
                 keyboardHaptics = prefs[KB_HAPTICS] ?: defaults.keyboardHaptics,
                 keyboardDigitHints = prefs[KB_DIGIT_HINTS] ?: defaults.keyboardDigitHints,
                 keyboardGestureTyping = prefs[KB_GESTURE] ?: defaults.keyboardGestureTyping,
+                keyboardGestureLetters = prefs[KB_GESTURE_LETTERS] ?: defaults.keyboardGestureLetters,
                 searchFuzzy = prefs[SEARCH_FUZZY] ?: defaults.searchFuzzy,
                 searchLayoutSwap = prefs[SEARCH_LAYOUT_SWAP] ?: defaults.searchLayoutSwap,
                 searchTranslit = prefs[SEARCH_TRANSLIT] ?: defaults.searchTranslit,
@@ -102,6 +104,7 @@ class SettingsRepository(
             prefs[KB_HAPTICS] = settings.keyboardHaptics
             prefs[KB_DIGIT_HINTS] = settings.keyboardDigitHints
             prefs[KB_GESTURE] = settings.keyboardGestureTyping
+            prefs[KB_GESTURE_LETTERS] = settings.keyboardGestureLetters
             prefs[SEARCH_FUZZY] = settings.searchFuzzy
             prefs[SEARCH_LAYOUT_SWAP] = settings.searchLayoutSwap
             prefs[SEARCH_TRANSLIT] = settings.searchTranslit

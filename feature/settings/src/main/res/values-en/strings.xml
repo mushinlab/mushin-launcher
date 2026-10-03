@@ -92,6 +92,8 @@
     <string name="keyboard_layouts">Layouts</string>
     <string name="keyboard_haptics">Haptic feedback</string>
     <string name="keyboard_digit_hints">Digit hints</string>
+    <string name="keyboard_gesture_letters">Letters on the gesture pad</string>
+    <string name="keyboard_gesture_letters_note">A learning aid: a faint QWERTY layout under the stroke. Turn it off once you remember where the letters are.</string>
     <string name="keyboard_need_one">At least one layout is required</string>
 
     <string name="gesture_up">Swipe up</string>

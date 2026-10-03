@@ -92,6 +92,8 @@
     <string name="keyboard_layouts">Раскладки</string>
     <string name="keyboard_haptics">Отклик вибрацией</string>
     <string name="keyboard_digit_hints">Подсказки цифр</string>
+    <string name="keyboard_gesture_letters">Буквы на панели рисунка</string>
+    <string name="keyboard_gesture_letters_note">Для обучения: бледная раскладка QWERTY под штрихом. Когда запомните, где какие буквы, выключите.</string>
     <string name="keyboard_need_one">Нужна хотя бы одна раскладка</string>
 
     <string name="gesture_up">Свайп вверх</string>

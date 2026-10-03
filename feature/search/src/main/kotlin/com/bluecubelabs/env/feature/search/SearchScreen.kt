@@ -78,6 +78,7 @@ data class SearchChrome(
     val digitHints: Boolean,
     val haptics: Boolean,
     val gestureTyping: Boolean,
+    val gestureLetters: Boolean,
 )
 
 interface SearchActions : KeyboardActions {
@@ -107,6 +108,7 @@ object SearchDimens {
     val recentIcon: Dp = 20.dp
     val enterInset: Dp = 6.dp
     val toggleWidth: Dp = 72.dp
+    val deleteWidth: Dp = 64.dp
     val closeSwipe: Dp = 72.dp
     const val MAX_RECENTS = 10
 }
@@ -165,10 +167,11 @@ fun SearchScreen(
                         if (chrome.gestureTyping) R.string.search_input_keys else R.string.search_input_gesture,
                     )
                 },
+                gestureDelete = typing && chrome.gestureTyping,
             )
             if (typing) {
                 if (chrome.gestureTyping) {
-                    GesturePanel(controller, chrome.haptics)
+                    GesturePanel(controller, chrome.haptics, chrome.gestureLetters)
                 } else {
                     Keyboard(chrome.layout, chrome.nextLayoutLabel, chrome.digitHints, chrome.haptics, actions)
                 }
@@ -347,7 +350,13 @@ private fun AppRowItem(
 }
 
 @Composable
-private fun QueryRow(controller: SearchController, actions: SearchActions, enterWidth: Dp?, inputToggle: String?) {
+private fun QueryRow(
+    controller: SearchController,
+    actions: SearchActions,
+    enterWidth: Dp?,
+    inputToggle: String?,
+    gestureDelete: Boolean,
+) {
     val colors = LocalEnvColors.current
     Row(
         Modifier
@@ -382,11 +391,16 @@ private fun QueryRow(controller: SearchController, actions: SearchActions, enter
             )
             BasicText("▏", style = EnvType.style(EnvType.querySize, colors.accent, FontWeight.Light))
             Spacer(Modifier.weight(1f))
-            BasicText(
-                text = controller.rows.size.toString(),
-                style = EnvType.style(14.sp, colors.textSecondary),
-                modifier = Modifier.testTag("result_count"),
-            )
+            if (!gestureDelete) {
+                BasicText(
+                    text = controller.rows.size.toString(),
+                    style = EnvType.style(14.sp, colors.textSecondary),
+                    modifier = Modifier.testTag("result_count"),
+                )
+            }
+        }
+        if (gestureDelete) {
+            QueryKey("⌫", SearchDimens.deleteWidth, "gesture_delete", EnvType.secondarySize, actions::onClear)
         }
         if (enterWidth != null) {
             QueryKey(stringResource(R.string.search_enter), enterWidth, "enter", EnvType.keySize, actions::onEnter)

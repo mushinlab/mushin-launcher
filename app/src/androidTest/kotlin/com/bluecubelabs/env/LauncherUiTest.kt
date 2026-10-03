@@ -282,8 +282,13 @@ class LauncherUiTest {
             up()
         }
         rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("maps")
+        rule.onNodeWithTag("result_count", useUnmergedTree = true).assertDoesNotExist()
+        rule.onNodeWithTag("gesture_delete").performClick()
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
         rule.onNodeWithTag("input_toggle").performClick()
         rule.onNodeWithTag("keyboard").assertIsDisplayed()
+        rule.onNodeWithTag("gesture_delete").assertDoesNotExist()
+        rule.onNodeWithTag("result_count", useUnmergedTree = true).assertExists()
     }
 
     @Test

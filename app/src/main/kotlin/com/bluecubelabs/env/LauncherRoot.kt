@@ -203,6 +203,7 @@ private fun SearchLayer(activity: MainActivity, vm: LauncherViewModel, settings:
             digitHints = settings.keyboardDigitHints,
             haptics = settings.keyboardHaptics,
             gestureTyping = settings.keyboardGestureTyping,
+            gestureLetters = settings.keyboardGestureLetters,
         )
     }
     val actions = remember(activity) { searchActions(activity) }
