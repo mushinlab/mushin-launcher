@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Энв</string>
+    <string name="notice_suspended">Приложение приостановлено</string>
+    <string name="notice_launch_failed">Не удалось открыть</string>
+    <string name="notice_remove_from_env">Убрать из энва</string>
+    <string name="notice_shade_unavailable">Шторка недоступна на этой версии Android</string>
+    <string name="rename_title">Переименовать «%1$s»</string>
+    <string name="rename_save">Сохранить</string>
+    <string name="rename_reset">Сбросить</string>
 </resources>

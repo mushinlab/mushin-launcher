@@ -1,0 +1,139 @@
+package com.bluecubelabs.env
+
+import android.view.KeyEvent
+import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.doubleClick
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.dp
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.bluecubelabs.env.core.model.EnvType
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@RunWith(AndroidJUnit4::class)
+class LauncherUiTest {
+    @get:Rule
+    val rule = createAndroidComposeRule<MainActivity>()
+
+    private val container get() = ApplicationProvider.getApplicationContext<EnvApp>().container
+
+    @Before
+    fun seedFavorites() = runBlocking {
+        val normal = container.environments.environments.first { it.isNotEmpty() }.first { it.type == EnvType.NORMAL }
+        container.settings.update { it.copy(currentEnvId = normal.id) }
+        val apps = container.catalog.apps.first { it.size >= 3 }.sortedBy { it.label }.take(3)
+        container.environments.setItems(normal.id, apps.map { it.key })
+        rule.waitUntil(5_000) { rule.activity.overlay == Overlay.None }
+        rule.waitUntil(5_000) {
+            runCatching { rule.onNodeWithTag("row_2").assertIsDisplayed() }.isSuccess
+        }
+    }
+
+    private fun backgroundPoint() = rule.onNodeWithTag("home")
+
+    @Test
+    fun AC_03_2_rowsAreAtLeast48dpTall() {
+        (0..2).forEach { rule.onNodeWithTag("row_$it").assertHeightIsAtLeast(48.dp) }
+    }
+
+    @Test
+    fun AC_07_1_doubleTapOpensKeyboardWithoutIme() {
+        backgroundPoint().performTouchInput { doubleClick(bottomCenter.copy(y = bottom - height * 0.15f)) }
+        rule.onNodeWithTag("keyboard").assertIsDisplayed()
+        val insets = ViewCompat.getRootWindowInsets(rule.activity.window.decorView)
+        assertThat(insets?.isVisible(WindowInsetsCompat.Type.ime())).isFalse()
+    }
+
+    @Test
+    fun AC_08_typingOnLauncherKeyboardUpdatesQuery() {
+        backgroundPoint().performTouchInput { doubleClick(bottomCenter.copy(y = bottom - height * 0.15f)) }
+        rule.onNodeWithTag("key_c").performClick()
+        rule.onNodeWithTag("key_a").performClick()
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("ca")
+        rule.onNodeWithTag("key_BACKSPACE").performClick()
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("c")
+    }
+
+    @Test
+    fun AC_06_1_longPressOnBackgroundShowsPopupInsideWindow() {
+        backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
+        val popup = rule.onNodeWithTag("popup").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        val root = rule.onNodeWithTag("home").fetchSemanticsNode().boundsInRoot
+        assertThat(popup.top).isAtLeast(root.top)
+        assertThat(popup.bottom).isAtMost(root.bottom)
+        rule.onNodeWithTag("popup_settings").assertIsDisplayed()
+    }
+
+    @Test
+    fun AC_06_3_longPressOnRowShowsAppSection() {
+        rule.onNodeWithTag("row_0").performTouchInput { longClick() }
+        rule.onNodeWithTag("popup_about").assertIsDisplayed()
+        rule.onNodeWithTag("popup_rename").assertIsDisplayed()
+        rule.onNodeWithTag("popup_hide").assertIsDisplayed()
+        rule.onNodeWithTag("popup_remove").assertIsDisplayed()
+    }
+
+    @Test
+    fun AC_13_3_backClosesPopupThenSearch() {
+        backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
+        rule.onNodeWithTag("popup").assertIsDisplayed()
+        Espresso.pressBack()
+        rule.onNodeWithTag("popup").assertDoesNotExist()
+        backgroundPoint().performTouchInput { doubleClick(bottomCenter.copy(y = bottom - height * 0.15f)) }
+        rule.onNodeWithTag("keyboard").assertIsDisplayed()
+        Espresso.pressBack()
+        rule.onNodeWithTag("keyboard").assertDoesNotExist()
+        rule.onNodeWithTag("home").assertIsDisplayed()
+    }
+
+    @Test
+    fun AC_12_1_swipeUpOpensSearch() {
+        backgroundPoint().performTouchInput {
+            swipeUp(startY = bottom - height * 0.2f, endY = bottom - height * 0.6f, durationMillis = 150)
+        }
+        rule.onNodeWithTag("keyboard").assertIsDisplayed()
+    }
+
+    @Test
+    fun AC_14_1_hardwareLetterOpensSearchInBrowsingMode() {
+        rule.runOnUiThread {
+            rule.activity.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_C))
+            rule.activity.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_C))
+        }
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("c")
+        rule.onNodeWithTag("keyboard").assertDoesNotExist()
+        rule.runOnUiThread { rule.activity.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ESCAPE)) }
+        rule.runOnIdle { assertThat(rule.activity.overlay).isEqualTo(Overlay.None) }
+        rule.onNodeWithTag("search").assertDoesNotExist()
+    }
+
+    @Test
+    fun AC_13_1_homeIntentClosesEverything() {
+        backgroundPoint().performTouchInput { doubleClick(bottomCenter.copy(y = bottom - height * 0.15f)) }
+        rule.onNodeWithTag("keyboard").assertIsDisplayed()
+        rule.runOnUiThread {
+            rule.activity.handleHomeIntent(
+                android.content.Intent(
+                    android.content.Intent.ACTION_MAIN,
+                ).addCategory(android.content.Intent.CATEGORY_HOME),
+            )
+        }
+        rule.onNodeWithTag("keyboard").assertDoesNotExist()
+    }
+}

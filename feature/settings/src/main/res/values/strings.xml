@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Настройки</string>
+    <string name="settings_cancel">Отмена</string>
+    <string name="settings_save">Сохранить</string>
+    <string name="settings_reset">Сбросить</string>
+    <string name="settings_delete">Удалить</string>
+    <string name="settings_clear">Очистить</string>
+    <string name="settings_done">Готово</string>
+    <string name="settings_on">Вкл</string>
+    <string name="settings_off">Выкл</string>
+
+    <string name="settings_envs">Энвы</string>
+    <string name="settings_home">Главный экран</string>
+    <string name="settings_search">Поиск</string>
+    <string name="settings_keyboard">Клавиатура</string>
+    <string name="settings_gestures">Жесты</string>
+    <string name="settings_apps">Приложения</string>
+    <string name="settings_system">Система</string>
+
+    <string name="env_create">+ Создать энв</string>
+    <string name="env_create_title">Новый энв</string>
+    <string name="env_create_work">+ Создать «Работа»</string>
+    <string name="env_type_normal">обычный</string>
+    <string name="env_type_work">работа</string>
+    <string name="env_type_custom">свой</string>
+    <string name="env_current">текущий</string>
+    <string name="env_name">Название</string>
+    <string name="env_rename_title">Название энва</string>
+    <string name="env_palette">Палитра</string>
+    <string name="env_items">Избранное</string>
+    <string name="env_add">+ Добавить</string>
+    <string name="env_max">Максимум %1$d</string>
+    <string name="env_overflow">Помещается %1$d из %2$d — лишние не видны на главном экране</string>
+    <string name="env_delete">Удалить энв</string>
+    <string name="env_delete_confirm">Удалить энв «%1$s»? Избранное и история энва будут удалены</string>
+    <string name="env_item_hidden">скрыто</string>
+    <string name="env_item_missing">удалено</string>
+    <string name="env_move_up">Вверх</string>
+    <string name="env_move_down">Вниз</string>
+    <string name="env_remove_item">Убрать</string>
+    <string name="env_empty">Пока пусто. Нажмите «Добавить».</string>
+
+    <string name="error_name_empty">Введите название</string>
+    <string name="error_name_long">Не больше 24 символов</string>
+    <string name="error_name_taken">Такое название уже есть</string>
+    <string name="error_work_limit">Энв «Работа» уже есть</string>
+    <string name="error_custom_limit">Не больше 20 своих энвов</string>
+    <string name="error_generic">Не получилось</string>
+
+    <string name="palette_graphite">Graphite</string>
+    <string name="palette_navy">Navy</string>
+    <string name="palette_paper">Paper</string>
+    <string name="palette_moss">Moss</string>
+
+    <string name="picker_title">Приложения</string>
+    <string name="picker_filter">Поиск</string>
+    <string name="picker_selected">Выбрано %1$d из %2$d</string>
+
+    <string name="home_icons">Иконки</string>
+    <string name="home_icons_none">Без иконок</string>
+    <string name="home_icons_left">Слева</string>
+    <string name="home_icons_right">Справа</string>
+    <string name="home_clock">Формат часов</string>
+    <string name="home_clock_system">Как в системе</string>
+    <string name="home_clock_24">24 часа</string>
+    <string name="home_clock_12">12 часов</string>
+    <string name="home_show_date">Показывать дату</string>
+    <string name="home_text_size">Размер текста</string>
+    <string name="home_text_s">Маленький</string>
+    <string name="home_text_m">Средний</string>
+    <string name="home_text_l">Крупный</string>
+
+    <string name="search_fuzzy">Исправлять опечатки</string>
+    <string name="search_layout_swap">Неправильная раскладка</string>
+    <string name="search_translit">Транслит</string>
+    <string name="search_clear_history">Очистить историю энва</string>
+    <string name="search_clear_confirm">Очистить историю поиска энва «%1$s»?</string>
+
+    <string name="keyboard_layouts">Раскладки</string>
+    <string name="keyboard_haptics">Отклик вибрацией</string>
+    <string name="keyboard_digit_hints">Подсказки цифр</string>
+    <string name="keyboard_need_one">Нужна хотя бы одна раскладка</string>
+
+    <string name="gesture_up">Свайп вверх</string>
+    <string name="gesture_down">Свайп вниз</string>
+    <string name="gesture_left">Свайп влево</string>
+    <string name="gesture_right">Свайп вправо</string>
+    <string name="action_none">Ничего</string>
+    <string name="action_notifications">Шторка уведомлений</string>
+    <string name="action_search">Поиск</string>
+    <string name="action_all_apps">Все приложения</string>
+    <string name="action_launch_app">Приложение…</string>
+    <string name="action_app_missing">(приложение удалено)</string>
+
+    <string name="apps_hidden">Скрытые</string>
+    <string name="apps_renamed">Переименованные</string>
+    <string name="apps_show">Показать</string>
+    <string name="apps_none_hidden">Скрытых приложений нет</string>
+    <string name="apps_none_renamed">Переименованных приложений нет</string>
+
+    <string name="system_default">Лаунчер по умолчанию</string>
+    <string name="system_default_yes">Да</string>
+    <string name="system_default_no">Нет — нажмите, чтобы назначить</string>
+    <string name="system_version">Версия</string>
+    <string name="system_licenses">Лицензии</string>
+    <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable — Apache License 2.0.</string>
+</resources>

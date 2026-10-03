@@ -1,0 +1,27 @@
+package com.bluecubelabs.env.feature.home
+
+import androidx.compose.runtime.Immutable
+import com.bluecubelabs.env.core.model.AppKey
+import com.bluecubelabs.env.core.model.ClockFormat
+import com.bluecubelabs.env.core.model.HomeTextSize
+import com.bluecubelabs.env.core.model.IconMode
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+
+@Immutable
+data class HomeRow(
+    val key: AppKey,
+    val label: String,
+    val dimmed: Boolean = false,
+    val work: Boolean = false,
+)
+
+@Immutable
+data class HomeUiState(
+    val rows: ImmutableList<HomeRow> = persistentListOf(),
+    val iconMode: IconMode = IconMode.NONE,
+    val textSize: HomeTextSize = HomeTextSize.M,
+    val clockFormat: ClockFormat = ClockFormat.SYSTEM,
+    val showDate: Boolean = true,
+    val roleMissing: Boolean = false,
+)

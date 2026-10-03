@@ -21,8 +21,12 @@ class SettingsRepository(
     private val dataStore: DataStore<Preferences>,
     scope: CoroutineScope,
 ) {
-    val settings: StateFlow<LauncherSettings> = dataStore.data
+    val loaded: StateFlow<LauncherSettings?> = dataStore.data
         .map(::decode)
+        .stateIn(scope, SharingStarted.Eagerly, null)
+
+    val settings: StateFlow<LauncherSettings> = loaded
+        .map { it ?: LauncherSettings() }
         .stateIn(scope, SharingStarted.Eagerly, LauncherSettings())
 
     suspend fun update(transform: (LauncherSettings) -> LauncherSettings) {

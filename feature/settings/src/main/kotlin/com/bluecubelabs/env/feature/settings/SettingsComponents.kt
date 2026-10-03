@@ -1,0 +1,298 @@
+package com.bluecubelabs.env.feature.settings
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.bluecubelabs.env.core.ui.EnvType
+import com.bluecubelabs.env.core.ui.HorizontalDivider
+import com.bluecubelabs.env.core.ui.LocalEnvColors
+import com.bluecubelabs.env.core.ui.SingleLineText
+import com.bluecubelabs.env.core.ui.pressable
+
+@Composable
+fun SettingsPage(
+    title: String,
+    onBack: () -> Unit,
+    scrollable: Boolean = true,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val colors = LocalEnvColors.current
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(colors.background)
+            .imePadding()
+            .testTag("settings"),
+    ) {
+        Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+        Row(
+            Modifier.fillMaxWidth().height(56.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                Modifier.size(56.dp).pressable(onClick = onBack).testTag("settings_back"),
+                contentAlignment = Alignment.Center,
+            ) {
+                BasicText("←", style = EnvType.style(22.sp, colors.textPrimary))
+            }
+            SingleLineText(title, EnvType.style(20.sp, colors.textPrimary, FontWeight.Medium))
+        }
+        HorizontalDivider()
+        val body = if (scrollable) Modifier.weight(1f).verticalScroll(rememberScrollState()) else Modifier.weight(1f)
+        Column(body) { content() }
+        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
+    }
+}
+
+@Composable
+fun SectionHeader(text: String) {
+    val colors = LocalEnvColors.current
+    BasicText(
+        text,
+        style = EnvType.style(13.sp, colors.textSecondary, FontWeight.Medium),
+        modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 6.dp),
+    )
+}
+
+@Composable
+fun NavRow(
+    title: String,
+    value: String? = null,
+    enabled: Boolean = true,
+    tag: String? = null,
+    onClick: () -> Unit,
+) {
+    val colors = LocalEnvColors.current
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .pressable(enabled = enabled, onClick = onClick)
+            .let { if (tag != null) it.testTag(tag) else it }
+            .alpha(if (enabled) 1f else DISABLED_ALPHA)
+            .padding(horizontal = 24.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        BasicText(title, style = EnvType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f, fill = false))
+        if (value != null) {
+            Spacer(Modifier.width(16.dp))
+            SingleLineText(value, EnvType.style(15.sp, colors.textSecondary))
+        }
+    }
+}
+
+@Composable
+fun ToggleRow(title: String, checked: Boolean, tag: String? = null, onToggle: (Boolean) -> Unit) {
+    val colors = LocalEnvColors.current
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .pressable(role = Role.Switch) { onToggle(!checked) }
+            .let { if (tag != null) it.testTag(tag) else it }
+            .padding(horizontal = 24.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        BasicText(title, style = EnvType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
+        Switch(checked)
+    }
+}
+
+@Composable
+private fun Switch(checked: Boolean) {
+    val colors = LocalEnvColors.current
+    Box(
+        Modifier
+            .size(width = 40.dp, height = 24.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (checked) colors.accent else colors.keyBackground)
+            .border(1.dp, colors.divider, RoundedCornerShape(12.dp))
+            .padding(3.dp),
+        contentAlignment = if (checked) Alignment.CenterEnd else Alignment.CenterStart,
+    ) {
+        Box(
+            Modifier
+                .size(18.dp)
+                .clip(RoundedCornerShape(9.dp))
+                .background(if (checked) colors.background else colors.textSecondary),
+        )
+    }
+}
+
+@Composable
+fun <T> ChoiceRows(options: List<Pair<T, String>>, selected: T, tagPrefix: String, onSelect: (T) -> Unit) {
+    options.forEach { (value, label) ->
+        NavRow(
+            title = label,
+            value = if (value == selected) "✓" else null,
+            tag = "${tagPrefix}_$value",
+            onClick = { onSelect(value) },
+        )
+    }
+}
+
+@Composable
+fun NoteText(text: String, color: Color = LocalEnvColors.current.textSecondary) {
+    BasicText(
+        text,
+        style = EnvType.style(14.sp, color),
+        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+    )
+}
+
+@Composable
+fun ConfirmDialog(
+    message: String,
+    confirm: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    DialogFrame(onDismiss) {
+        BasicText(message, style = EnvType.style(17.sp, LocalEnvColors.current.textPrimary))
+        Spacer(Modifier.height(16.dp))
+        DialogButtons(
+            listOf(
+                stringResource(R.string.settings_cancel) to onDismiss,
+                confirm to onConfirm,
+            ),
+        )
+    }
+}
+
+@Composable
+fun TextInputDialog(
+    title: String,
+    initial: String,
+    maxLength: Int,
+    error: String?,
+    confirm: String,
+    extra: Pair<String, () -> Unit>? = null,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val colors = LocalEnvColors.current
+    var text by remember { mutableStateOf(initial) }
+    val focus = remember { FocusRequester() }
+    LaunchedEffect(Unit) { focus.requestFocus() }
+    DialogFrame(onDismiss) {
+        BasicText(title, style = EnvType.style(17.sp, colors.textPrimary, FontWeight.Medium))
+        Spacer(Modifier.height(12.dp))
+        BasicTextField(
+            value = text,
+            onValueChange = { if (it.length <= maxLength) text = it },
+            singleLine = true,
+            textStyle = EnvType.style(18.sp, colors.textPrimary),
+            cursorBrush = SolidColor(colors.accent),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, colors.divider, RoundedCornerShape(6.dp))
+                .padding(12.dp)
+                .focusRequester(focus)
+                .testTag("text_input"),
+        )
+        if (error != null) {
+            Spacer(Modifier.height(6.dp))
+            BasicText(error, style = EnvType.style(14.sp, colors.accent))
+        }
+        Spacer(Modifier.height(16.dp))
+        DialogButtons(
+            listOfNotNull(
+                extra,
+                stringResource(R.string.settings_cancel) to onDismiss,
+                confirm to { onConfirm(text) },
+            ),
+        )
+    }
+}
+
+@Composable
+private fun DialogFrame(onDismiss: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
+    val colors = LocalEnvColors.current
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = SCRIM_ALPHA))
+            .pressable(pressedColor = Color.Transparent, onClick = onDismiss)
+            .imePadding(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            Modifier
+                .padding(24.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(colors.surface)
+                .border(1.dp, colors.divider, RoundedCornerShape(12.dp))
+                .pressable(pressedColor = Color.Transparent) {}
+                .padding(20.dp)
+                .testTag("dialog"),
+            content = content,
+        )
+    }
+}
+
+@Composable
+private fun DialogButtons(buttons: List<Pair<String, () -> Unit>>) {
+    val colors = LocalEnvColors.current
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+        buttons.forEachIndexed { index, (label, action) ->
+            Box(
+                Modifier
+                    .heightIn(min = 48.dp)
+                    .pressable(onClick = action)
+                    .testTag("dialog_button_$index")
+                    .padding(horizontal = 12.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                BasicText(label, style = EnvType.style(16.sp, colors.accent, FontWeight.Medium))
+            }
+        }
+    }
+}
+
+private const val DISABLED_ALPHA = 0.4f
+private const val SCRIM_ALPHA = 0.5f

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_nothing_found">Ничего не найдено</string>
+    <string name="search_hidden_suffix">(скрыто)</string>
+</resources>
