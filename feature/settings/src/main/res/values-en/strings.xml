@@ -6,7 +6,6 @@
     <string name="settings_reset">Reset</string>
     <string name="settings_delete">Delete</string>
     <string name="settings_clear">Clear</string>
-    <string name="settings_done">Done</string>
     <string name="settings_on">On</string>
     <string name="settings_off">Off</string>
 
@@ -15,8 +14,9 @@
     <string name="settings_search">Search</string>
     <string name="settings_keyboard">Keyboard</string>
     <string name="settings_gestures">Gestures</string>
-    <string name="settings_apps">Apps</string>
+    <string name="settings_apps">Hidden &amp; renamed</string>
     <string name="settings_system">System</string>
+    <string name="settings_current_env">Env “%1$s”</string>
 
     <string name="env_create">+ New env</string>
     <string name="env_create_title">New env</string>
@@ -29,12 +29,11 @@
     <string name="env_name">Name</string>
     <string name="env_rename_title">Env name</string>
     <string name="env_palette">Palette</string>
-    <string name="env_items">Favorites</string>
+    <string name="env_items">Apps</string>
     <string name="env_add">+ Add</string>
-    <string name="env_max">Max %1$d</string>
     <string name="env_overflow">%1$d of %2$d fit — the rest are not shown on Home</string>
     <string name="env_delete">Delete env</string>
-    <string name="env_delete_confirm">Delete env “%1$s”? Its favorites and history will be deleted</string>
+    <string name="env_delete_confirm">Delete env “%1$s”? Its apps and history will be deleted</string>
     <string name="env_item_hidden">hidden</string>
     <string name="env_item_missing">uninstalled</string>
     <string name="env_move_up">Move up</string>
@@ -57,6 +56,7 @@
     <string name="picker_title">Apps</string>
     <string name="picker_filter">Search</string>
     <string name="picker_selected">%1$d of %2$d selected</string>
+    <string name="picker_full">%1$d of %2$d selected — no more room on Home</string>
 
     <string name="home_icons">Icons</string>
     <string name="home_icons_none">No icons</string>
@@ -81,6 +81,8 @@
     <string name="keyboard_layouts">Layouts</string>
     <string name="keyboard_haptics">Haptic feedback</string>
     <string name="keyboard_digit_hints">Digit hints</string>
+    <string name="keyboard_gesture">Gesture input</string>
+    <string name="keyboard_gesture_note">Keys are replaced by a blank pad. Draw across it as if on a QWERTY layout and the launcher guesses the word.</string>
     <string name="keyboard_need_one">At least one layout is required</string>
 
     <string name="gesture_up">Swipe up</string>

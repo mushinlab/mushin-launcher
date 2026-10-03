@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -31,6 +32,7 @@ import com.bluecubelabs.env.core.search.KeyboardLayouts
 import com.bluecubelabs.env.feature.search.HardwareKey
 import com.bluecubelabs.env.feature.search.KeyboardRouter
 import com.bluecubelabs.env.feature.search.SearchController
+import com.bluecubelabs.env.feature.search.SearchMenu
 import com.bluecubelabs.env.feature.search.SearchMode
 import com.bluecubelabs.env.feature.settings.SettingsStack
 
@@ -43,6 +45,9 @@ class MainActivity : ComponentActivity() {
     var searchMode by mutableStateOf(SearchMode.TYPING)
     var renameTarget by mutableStateOf<AppKey?>(null)
     var notice by mutableStateOf<Notice?>(null)
+    var homeExit by mutableStateOf<SwipeDirection?>(null)
+        private set
+    private var pendingSwipeLaunch: AppKey? = null
     val search = SearchController()
     val settingsStack = SettingsStack()
     var searchTracePending = false
@@ -97,6 +102,8 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         unregisterReceiver(timeReceiver)
+        homeExit = null
+        pendingSwipeLaunch = null
         if (overlay != Overlay.None) closeOverlays()
     }
 
@@ -173,14 +180,16 @@ class MainActivity : ComponentActivity() {
         when {
             renameTarget != null -> renameTarget = null
             overlay is Overlay.Popup -> overlay = Overlay.None
+            search.menu != null -> search.closeMenu()
             overlay == Overlay.Search -> closeOverlays()
             settingsStack.isOpen -> settingsStack.pop()
         }
     }
 
-    fun launch(key: AppKey, fromSearch: Boolean) {
+    fun launch(key: AppKey, fromSearch: Boolean, animate: Boolean = true): Boolean {
         val entry = viewModel.entry(key)
-        when (viewModel.launch(key, fromSearch)) {
+        val result = viewModel.launch(key, fromSearch, animate)
+        when (result) {
             LaunchResult.Started -> if (fromSearch) closeOverlays()
 
             LaunchResult.UnlockRequested -> Unit
@@ -198,6 +207,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         if (entry == null && !fromSearch) notice = Notice(getString(R.string.notice_launch_failed))
+        return result == LaunchResult.Started
     }
 
     fun launchSearchTarget() {
@@ -225,8 +235,36 @@ class MainActivity : ComponentActivity() {
             is GestureAction.LaunchApp -> if (viewModel.entry(action.key) !=
                 null
             ) {
-                launch(action.key, fromSearch = false)
+                pendingSwipeLaunch = action.key
+                homeExit = direction
             }
+        }
+    }
+
+    fun completeSwipeLaunch() {
+        val key = pendingSwipeLaunch ?: return
+        pendingSwipeLaunch = null
+        if (!launch(key, fromSearch = false, animate = false)) homeExit = null
+    }
+
+    fun openSearchMenu(key: AppKey, label: String, anchor: Offset) {
+        val entry = viewModel.entry(key) ?: return
+        search.openMenu(SearchMenu(key, label, anchor, viewModel.isInCurrentEnv(key), !entry.isSystem))
+    }
+
+    fun toggleInEnv(key: AppKey, add: Boolean) {
+        search.closeMenu()
+        val env = viewModel.currentEnvName ?: return
+        val envId = viewModel.currentEnvId() ?: return
+        notice = when {
+            !add -> {
+                viewModel.removeFromCurrentEnv(key)
+                Notice(getString(R.string.notice_removed_from_env, env))
+            }
+
+            viewModel.addEnvItem(envId, key) -> Notice(getString(R.string.notice_added_to_env, env))
+
+            else -> Notice(getString(R.string.notice_env_full, env))
         }
     }
 

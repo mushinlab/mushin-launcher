@@ -143,7 +143,6 @@ internal fun EnvEditorScreen(
         back()
         return
     }
-    val items = state.envItems[envId].orEmpty()
     var renaming by remember { mutableStateOf(false) }
     var renameError by remember { mutableStateOf<String?>(null) }
     var deleting by remember { mutableStateOf(false) }
@@ -157,21 +156,7 @@ internal fun EnvEditorScreen(
             SectionHeader(stringResource(R.string.env_palette))
             PalettePicker(env.preset) { actions.setPalette(envId, it) }
             SectionHeader(stringResource(R.string.env_items))
-            if (items.size > state.capacity && state.capacity > 0) {
-                NoteText(
-                    stringResource(R.string.env_overflow, state.capacity, items.size),
-                    LocalEnvColors.current.accent,
-                )
-            }
-            if (items.isEmpty()) NoteText(stringResource(R.string.env_empty))
-            ReorderableItems(items, onChange = { keys -> actions.setEnvItems(envId, keys) })
-            val full = state.capacity in 1..items.size
-            NavRow(
-                stringResource(R.string.env_add),
-                value = if (full) stringResource(R.string.env_max, state.capacity) else null,
-                enabled = !full,
-                tag = "env_add",
-            ) { push(SettingsRoute.PickApps(envId)) }
+            EnvItemsSection(envId, state, actions, push)
             HorizontalDivider()
             NavRow(stringResource(R.string.env_delete), enabled = env.type != EnvType.NORMAL, tag = "env_delete") {
                 deleting = true
@@ -206,6 +191,43 @@ internal fun EnvEditorScreen(
             )
         }
     }
+}
+
+@Composable
+internal fun EnvAppsScreen(
+    envId: Long,
+    state: SettingsUiState,
+    actions: SettingsActions,
+    push: (SettingsRoute) -> Unit,
+    back: () -> Unit,
+) {
+    val env = state.envs.firstOrNull { it.id == envId }
+    if (env == null) {
+        back()
+        return
+    }
+    SettingsPage("${env.name} · ${stringResource(R.string.env_items)}", back) {
+        EnvItemsSection(envId, state, actions, push)
+    }
+}
+
+@Composable
+private fun EnvItemsSection(
+    envId: Long,
+    state: SettingsUiState,
+    actions: SettingsActions,
+    push: (SettingsRoute) -> Unit,
+) {
+    val items = state.envItems[envId].orEmpty()
+    if (items.size > state.capacity && state.capacity > 0) {
+        NoteText(
+            stringResource(R.string.env_overflow, state.capacity, items.size),
+            LocalEnvColors.current.accent,
+        )
+    }
+    if (items.isEmpty()) NoteText(stringResource(R.string.env_empty))
+    ReorderableItems(items, onChange = { keys -> actions.setEnvItems(envId, keys) })
+    NavRow(stringResource(R.string.env_add), tag = "env_add") { push(SettingsRoute.PickApps(envId)) }
 }
 
 @Composable

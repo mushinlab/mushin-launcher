@@ -2,5 +2,9 @@
 <resources>
     <string name="search_nothing_found">Ничего не найдено</string>
     <string name="search_hidden_suffix">(скрыто)</string>
-    <string name="search_enter">⏎ Открыть</string>
+    <string name="search_enter">Открыть ⏎</string>
+    <string name="menu_add_to_env">Добавить в энв</string>
+    <string name="menu_remove_from_env">Убрать из энва</string>
+    <string name="menu_app_info">О приложении</string>
+    <string name="menu_uninstall">Удалить</string>
 </resources>

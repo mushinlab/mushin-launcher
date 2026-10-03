@@ -74,6 +74,23 @@ class SearchControllerTest {
     }
 
     @Test
+    fun replaceQueryAndResetClosesMenu() {
+        val controller = SearchController(clock = { 0L })
+        controller.update(index, emptyMap())
+        controller.type('x')
+        controller.replaceQuery("slack")
+        assertThat(controller.query).isEqualTo("slack")
+        assertThat(controller.target()?.label).isEqualTo("Slack")
+        controller.openMenu(
+            SearchMenu(controller.rows.first().key, "Slack", Offset.Zero, inEnv = false, canUninstall = true),
+        )
+        assertThat(controller.menu).isNotNull()
+        controller.reset()
+        assertThat(controller.menu).isNull()
+        assertThat(controller.vocabulary).contains("slack")
+    }
+
+    @Test
     fun hardwareKeysMapToActions() {
         assertThat(KeyboardRouter.map(KeyEvent.KEYCODE_DEL, 0, false)).isEqualTo(HardwareKey.Backspace)
         assertThat(KeyboardRouter.map(KeyEvent.KEYCODE_ENTER, 0, false)).isEqualTo(HardwareKey.Enter)
@@ -96,13 +113,13 @@ class SearchControllerTest {
             topPadding = 10f,
             gap = 10f,
         )
-        assertThat(keys.size).isEqualTo(10 + 9 + 9 + 1)
+        assertThat(keys.size).isEqualTo(10 + 9 + 9)
         val q = keys.indexOfFirst { it.spec.char == 'q' }
         assertThat(KeyboardGeometry.hit(keys, Offset(20f, 60f))).isEqualTo(q)
         val gapBetweenQandW = Offset(keys[q].rect.right + 2f, keys[q].rect.center.y)
         assertThat(KeyboardGeometry.hit(keys, gapBetweenQandW)).isNotNull()
-        val enter = keys.indexOfFirst { it.spec.action == KeyAction.ENTER }
-        assertThat(keys[enter].rect.width).isGreaterThan(1000f)
+        val backspace = keys.first { it.spec.action == KeyAction.BACKSPACE }
+        assertThat(backspace.rect.right).isGreaterThan(1060f)
         val a = keys.first { it.spec.char == 'a' }
         assertThat(a.rect.left).isGreaterThan(54f)
     }

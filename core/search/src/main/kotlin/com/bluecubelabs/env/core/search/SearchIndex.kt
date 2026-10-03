@@ -35,6 +35,16 @@ class SearchIndex internal constructor(
 ) {
     val size: Int get() = items.size
 
+    val vocabulary: List<String> by lazy {
+        items.asSequence()
+            .filterNot { it.item.hidden }
+            .flatMap { indexed -> indexed.names.asSequence().flatMap { sequenceOf(it.latin) + it.latinWords } }
+            .map { word -> word.filter { it in 'a'..'z' } }
+            .filter { it.length >= 2 }
+            .distinct()
+            .toList()
+    }
+
     companion object {
         val EMPTY = SearchIndex(emptyList(), emptyList())
 

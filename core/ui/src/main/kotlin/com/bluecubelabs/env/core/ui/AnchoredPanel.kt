@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.widthIn
@@ -17,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -25,6 +29,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -94,5 +99,32 @@ fun AnchoredPanel(
             )
             layout(window.width, window.height) { placeable.place(position) }
         }
+    }
+}
+
+@Composable
+fun PanelHeader(text: String) {
+    val colors = LocalEnvColors.current
+    Box(Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 16.dp), contentAlignment = Alignment.CenterStart) {
+        SingleLineText(text, EnvType.style(EnvType.popupHeaderSize, colors.textSecondary))
+    }
+}
+
+@Composable
+fun PanelItem(text: String, tag: String, bold: Boolean = false, onClick: () -> Unit) {
+    val colors = LocalEnvColors.current
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .pressable(onClick = onClick)
+            .testTag(tag)
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        SingleLineText(
+            text,
+            EnvType.style(EnvType.popupSize, colors.textPrimary, if (bold) FontWeight.Bold else FontWeight.Normal),
+        )
     }
 }

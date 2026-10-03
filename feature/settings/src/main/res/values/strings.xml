@@ -6,7 +6,6 @@
     <string name="settings_reset">Сбросить</string>
     <string name="settings_delete">Удалить</string>
     <string name="settings_clear">Очистить</string>
-    <string name="settings_done">Готово</string>
     <string name="settings_on">Вкл</string>
     <string name="settings_off">Выкл</string>
 
@@ -15,8 +14,9 @@
     <string name="settings_search">Поиск</string>
     <string name="settings_keyboard">Клавиатура</string>
     <string name="settings_gestures">Жесты</string>
-    <string name="settings_apps">Приложения</string>
+    <string name="settings_apps">Скрытые и переименованные</string>
     <string name="settings_system">Система</string>
+    <string name="settings_current_env">Энв «%1$s»</string>
 
     <string name="env_create">+ Создать энв</string>
     <string name="env_create_title">Новый энв</string>
@@ -29,12 +29,11 @@
     <string name="env_name">Название</string>
     <string name="env_rename_title">Название энва</string>
     <string name="env_palette">Палитра</string>
-    <string name="env_items">Избранное</string>
+    <string name="env_items">Приложения</string>
     <string name="env_add">+ Добавить</string>
-    <string name="env_max">Максимум %1$d</string>
     <string name="env_overflow">Помещается %1$d из %2$d — лишние не видны на главном экране</string>
     <string name="env_delete">Удалить энв</string>
-    <string name="env_delete_confirm">Удалить энв «%1$s»? Избранное и история энва будут удалены</string>
+    <string name="env_delete_confirm">Удалить энв «%1$s»? Приложения и история энва будут удалены</string>
     <string name="env_item_hidden">скрыто</string>
     <string name="env_item_missing">удалено</string>
     <string name="env_move_up">Вверх</string>
@@ -57,6 +56,7 @@
     <string name="picker_title">Приложения</string>
     <string name="picker_filter">Поиск</string>
     <string name="picker_selected">Выбрано %1$d из %2$d</string>
+    <string name="picker_full">Выбрано %1$d из %2$d — больше не поместится на главном экране</string>
 
     <string name="home_icons">Иконки</string>
     <string name="home_icons_none">Без иконок</string>
@@ -81,6 +81,8 @@
     <string name="keyboard_layouts">Раскладки</string>
     <string name="keyboard_haptics">Отклик вибрацией</string>
     <string name="keyboard_digit_hints">Подсказки цифр</string>
+    <string name="keyboard_gesture">Ввод рисунком</string>
+    <string name="keyboard_gesture_note">Вместо клавиш — пустая панель. Проведите по ней пальцем, как по раскладке QWERTY, и лаунчер угадает слово.</string>
     <string name="keyboard_need_one">Нужна хотя бы одна раскладка</string>
 
     <string name="gesture_up">Свайп вверх</string>

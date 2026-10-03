@@ -294,5 +294,5 @@ private fun DialogButtons(buttons: List<Pair<String, () -> Unit>>) {
     }
 }
 
-private const val DISABLED_ALPHA = 0.4f
+internal const val DISABLED_ALPHA = 0.4f
 private const val SCRIM_ALPHA = 0.5f

@@ -197,8 +197,10 @@ class LauncherViewModel(
         return d.current?.let { key in d.items[it.id].orEmpty() } == true
     }
 
-    fun launch(key: AppKey, fromSearch: Boolean): LaunchResult {
-        val result = container.launcher.launch(key)
+    val currentEnvName: String? get() = data.value?.current?.name
+
+    fun launch(key: AppKey, fromSearch: Boolean, animate: Boolean = true): LaunchResult {
+        val result = container.launcher.launch(key, animate = animate)
         if (result == LaunchResult.Started) {
             val envId = currentEnvId()
             container.scope.launch { container.history.recordLaunch(key, envId, fromSearch) }
@@ -224,8 +226,21 @@ class LauncherViewModel(
 
     fun removeFromCurrentEnv(key: AppKey) {
         val envId = currentEnvId() ?: return
+        removeEnvItem(envId, key)
+    }
+
+    fun addEnvItem(envId: Long, key: AppKey): Boolean {
+        val limit = itemLimit
+        if (data.value?.items?.get(envId).orEmpty().size >= limit) return false
+        container.scope.launch { container.environments.addItems(envId, listOf(key), limit) }
+        return true
+    }
+
+    fun removeEnvItem(envId: Long, key: AppKey) {
         container.scope.launch { container.environments.removeItem(envId, key) }
     }
+
+    private val itemLimit: Int get() = capacity.value.takeIf { it > 0 } ?: Int.MAX_VALUE
 
     fun updateSettings(transform: (LauncherSettings) -> LauncherSettings) {
         container.scope.launch { container.settings.update(transform) }

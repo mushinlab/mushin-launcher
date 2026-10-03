@@ -2,6 +2,8 @@ package com.bluecubelabs.env
 
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.ReportDrawnWhen
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -11,11 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,7 +29,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -46,6 +54,7 @@ import com.bluecubelabs.env.core.ui.EnvTheme
 import com.bluecubelabs.env.core.ui.EnvType as Type
 import com.bluecubelabs.env.core.ui.LocalEnvColors
 import com.bluecubelabs.env.core.ui.LocalIconProvider
+import com.bluecubelabs.env.core.ui.Motion
 import com.bluecubelabs.env.core.ui.pressable
 import com.bluecubelabs.env.feature.home.HomeActions
 import com.bluecubelabs.env.feature.home.HomePopup
@@ -81,28 +90,51 @@ fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: La
                     .semantics { testTagsAsResourceId = true },
             ) {
                 val homeActions = remember(activity) { homeActions(activity, vm) }
+                val homeShift = remember { Animatable(0f) }
+                LaunchedEffect(activity.homeExit) {
+                    if (activity.homeExit == null) {
+                        homeShift.snapTo(0f)
+                    } else {
+                        homeShift.animateTo(1f, tween(Motion.TRANSITION_MS))
+                        activity.completeSwipeLaunch()
+                    }
+                }
                 HomeScreen(
                     state = home,
                     minute = activity.minute,
                     actions = homeActions,
-                    gesturesEnabled = { activity.overlay == Overlay.None && !activity.settingsStack.isOpen },
-                    modifier = Modifier.zIndex(0f),
+                    gesturesEnabled = {
+                        activity.overlay == Overlay.None && !activity.settingsStack.isOpen && activity.homeExit == null
+                    },
+                    modifier = Modifier.zIndex(0f).graphicsLayer { slideOut(activity.homeExit, homeShift.value) },
                 )
                 SearchLayer(activity, vm, settings)
                 PopupLayer(activity, vm)
-                if (activity.settingsStack.isOpen) {
-                    Box(Modifier.zIndex(3f)) { SettingsLayer(activity, vm) }
-                }
+                Box(Modifier.zIndex(3f)) { SettingsLayer(activity, vm) }
                 activity.renameTarget?.let { key ->
                     Box(Modifier.zIndex(4f)) { RenameDialog(activity, vm, key) }
                 }
                 activity.notice?.let { notice ->
-                    Box(Modifier.zIndex(5f).fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-                        NoticeBar(notice) { activity.notice = null }
+                    val top = activity.overlay == Overlay.Search
+                    Box(
+                        Modifier.zIndex(5f).fillMaxSize(),
+                        contentAlignment = if (top) Alignment.TopCenter else Alignment.BottomCenter,
+                    ) {
+                        NoticeBar(notice, top) { activity.notice = null }
                     }
                 }
             }
         }
+    }
+}
+
+private fun GraphicsLayerScope.slideOut(direction: SwipeDirection?, progress: Float) {
+    when (direction) {
+        SwipeDirection.RIGHT -> translationX = size.width * progress
+        SwipeDirection.LEFT -> translationX = -size.width * progress
+        SwipeDirection.UP -> translationY = -size.height * progress
+        SwipeDirection.DOWN -> translationY = size.height * progress
+        null -> Unit
     }
 }
 
@@ -145,23 +177,37 @@ private fun SearchLayer(activity: MainActivity, vm: LauncherViewModel, settings:
     val recents by vm.recents.collectAsStateWithLifecycle()
     LaunchedEffect(index, usage) { activity.search.update(index, usage) }
     LaunchedEffect(engine) { activity.search.setEngine(engine) }
-    if (!composed && activity.overlay != Overlay.Search) return
     val active = activity.overlay == Overlay.Search
+    val progress = remember { Animatable(0f) }
+    LaunchedEffect(active) { progress.animateTo(if (active) 1f else 0f, tween(Motion.TRANSITION_MS)) }
+    val shown by remember { derivedStateOf { progress.value > 0f } }
+    if (!composed && !active) return
+    val slidePx = with(LocalDensity.current) { SEARCH_SLIDE.toPx() }
     val enabledLayouts = settings.keyboardLayouts.ifEmpty { listOf(KeyboardLayouts.EN.id) }
     val layout = KeyboardLayouts.byId(settings.activeKeyboardLayout)?.takeIf { it.id in enabledLayouts }
         ?: KeyboardLayouts.byId(enabledLayouts.first())
         ?: KeyboardLayouts.EN
     val next =
         KeyboardLayouts.byId(enabledLayouts[(enabledLayouts.indexOf(layout.id) + 1).mod(enabledLayouts.size)]) ?: layout
-    val chrome = remember(settings.iconMode, layout, next, settings.keyboardDigitHints, settings.keyboardHaptics) {
-        SearchChrome(settings.iconMode, layout, next.label, settings.keyboardDigitHints, settings.keyboardHaptics)
+    val chrome = remember(settings, layout, next) {
+        SearchChrome(
+            iconMode = settings.iconMode,
+            layout = layout,
+            nextLayoutLabel = next.label,
+            digitHints = settings.keyboardDigitHints,
+            haptics = settings.keyboardHaptics,
+            gestureTyping = settings.keyboardGestureTyping,
+        )
     }
     val actions = remember(activity) { searchActions(activity) }
     Box(
         Modifier
-            .zIndex(if (active) 1f else -1f)
-            .graphicsLayer { alpha = if (active) 1f else 0f }
-            .then(if (active) Modifier else Modifier.clearAndSetSemantics { })
+            .zIndex(if (active || shown) 1f else -1f)
+            .graphicsLayer {
+                alpha = progress.value
+                translationY = (1f - progress.value) * slidePx
+            }
+            .then(if (active) Modifier else Modifier.clearAndSetSemantics { }.blockInput())
             .drawWithContent {
                 drawContent()
                 if (active) activity.onSearchDrawn()
@@ -171,9 +217,47 @@ private fun SearchLayer(activity: MainActivity, vm: LauncherViewModel, settings:
     }
 }
 
+private fun Modifier.blockInput(): Modifier = pointerInput(Unit) {
+    awaitPointerEventScope {
+        while (true) awaitPointerEvent(PointerEventPass.Initial).changes.forEach { it.consume() }
+    }
+}
+
 private fun searchActions(activity: MainActivity) = object : SearchActions {
+    private val container get() = (activity.application as EnvApp).container
+
     override fun onLaunch(key: AppKey) {
         activity.launch(key, fromSearch = true)
+    }
+
+    override fun onGestureWord(word: String) {
+        activity.search.replaceQuery(word)
+    }
+
+    override fun onLongPress(key: AppKey, label: String, anchor: Offset) {
+        activity.openSearchMenu(key, label, anchor)
+    }
+
+    override fun onToggleInEnv(key: AppKey, add: Boolean) {
+        activity.toggleInEnv(key, add)
+    }
+
+    override fun onAppInfo(key: AppKey) {
+        activity.search.closeMenu()
+        container.launcher.openDetails(key)
+    }
+
+    override fun onUninstall(key: AppKey) {
+        activity.search.closeMenu()
+        container.launcher.uninstall(key)
+    }
+
+    override fun onDismissMenu() {
+        activity.search.closeMenu()
+    }
+
+    override fun onClose() {
+        if (activity.overlay == Overlay.Search) activity.closeOverlays()
     }
 
     override fun onShowKeyboard() {
@@ -279,6 +363,12 @@ private fun SettingsLayer(activity: MainActivity, vm: LauncherViewModel) {
 
             override fun setEnvItems(id: Long, keys: List<AppKey>) = vm.setEnvItems(id, keys)
 
+            override fun addEnvItem(id: Long, key: AppKey) {
+                vm.addEnvItem(id, key)
+            }
+
+            override fun removeEnvItem(id: Long, key: AppKey) = vm.removeEnvItem(id, key)
+
             override fun setGesture(direction: SwipeDirection, action: GestureAction) = vm.setGesture(direction, action)
 
             override fun setHidden(key: AppKey, hidden: Boolean) = vm.setHidden(key, hidden)
@@ -316,7 +406,7 @@ private fun RenameDialog(activity: MainActivity, vm: LauncherViewModel, key: App
 }
 
 @Composable
-private fun NoticeBar(notice: Notice, onDismiss: () -> Unit) {
+private fun NoticeBar(notice: Notice, top: Boolean, onDismiss: () -> Unit) {
     val colors = LocalEnvColors.current
     LaunchedEffect(notice.id) {
         delay(NOTICE_MS)
@@ -324,7 +414,7 @@ private fun NoticeBar(notice: Notice, onDismiss: () -> Unit) {
     }
     Row(
         Modifier
-            .windowInsetsPadding(WindowInsets.navigationBars)
+            .windowInsetsPadding(if (top) WindowInsets.statusBars else WindowInsets.navigationBars)
             .padding(16.dp)
             .fillMaxWidth()
             .heightIn(min = 48.dp)
@@ -349,3 +439,4 @@ private fun NoticeBar(notice: Notice, onDismiss: () -> Unit) {
 }
 
 private const val NOTICE_MS = 4000L
+private val SEARCH_SLIDE = 24.dp

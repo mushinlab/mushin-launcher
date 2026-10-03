@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.LauncherApps
 import android.graphics.Rect
 import android.net.Uri
+import android.os.Process
 import android.os.UserManager
 import com.bluecubelabs.env.core.model.AppKey
 
@@ -27,14 +28,27 @@ class AppLauncher(
     private val launcherApps = context.getSystemService(LauncherApps::class.java)
     private val userManager = context.getSystemService(UserManager::class.java)
 
-    fun launch(key: AppKey, sourceBounds: Rect? = null): LaunchResult {
+    fun launch(key: AppKey, sourceBounds: Rect? = null, animate: Boolean = true): LaunchResult {
         val user = gateway.userFor(key.userSerial) ?: return LaunchResult.Failed
         if (runCatching { userManager.isQuietModeEnabled(user) }.getOrDefault(false)) {
             return if (requestUnquiet(key.userSerial)) LaunchResult.UnlockRequested else LaunchResult.Failed
         }
         val component = ComponentName(key.packageName, key.activityName)
         return try {
-            launcherApps.startMainActivity(component, user, sourceBounds, null)
+            if (animate || user != Process.myUserHandle()) {
+                launcherApps.startMainActivity(component, user, sourceBounds, null)
+            } else {
+                context.startActivity(
+                    Intent(Intent.ACTION_MAIN)
+                        .addCategory(Intent.CATEGORY_LAUNCHER)
+                        .setComponent(component)
+                        .addFlags(
+                            Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED or
+                                Intent.FLAG_ACTIVITY_NO_ANIMATION,
+                        ),
+                )
+            }
             LaunchResult.Started
         } catch (e: SecurityException) {
             if (isSuspended(key)) LaunchResult.Suspended else LaunchResult.Failed

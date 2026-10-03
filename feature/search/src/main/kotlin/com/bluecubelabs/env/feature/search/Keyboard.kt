@@ -30,7 +30,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -39,6 +38,7 @@ import com.bluecubelabs.env.core.search.KeySpec
 import com.bluecubelabs.env.core.search.KeyboardLayout
 import com.bluecubelabs.env.core.ui.EnvType
 import com.bluecubelabs.env.core.ui.LocalEnvColors
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -56,6 +56,8 @@ interface KeyboardActions {
     fun onEnter()
 
     fun onSwitchLayout()
+
+    fun onClose()
 }
 
 object KeyboardDimens {
@@ -65,6 +67,7 @@ object KeyboardDimens {
     val radius = 6.dp
     val digitSwipe = 24.dp
     val clearSwipe = 48.dp
+    val closeSwipe = 72.dp
     val bubbleWidth = 48.dp
     val bubbleHeight = 56.dp
     const val DIGIT_HOLD_MS = 300L
@@ -122,7 +125,7 @@ class KeyboardState {
     var bubbleKey by mutableStateOf<Int?>(null)
 }
 
-private enum class PressMode { NORMAL, DIGIT, REPEATING, CLEAR, COMMITTED }
+private enum class PressMode { NORMAL, DIGIT, REPEATING, CLEAR, CLOSE, COMMITTED }
 
 private class ActivePress(val keyIndex: Int, val start: Offset) {
     var mode = PressMode.NORMAL
@@ -162,6 +165,7 @@ fun Keyboard(
             .pointerInput(keys) {
                 val digitSwipePx = KeyboardDimens.digitSwipe.toPx()
                 val clearSwipePx = KeyboardDimens.clearSwipe.toPx()
+                val closeSwipePx = KeyboardDimens.closeSwipe.toPx()
                 coroutineScope {
                     val handler = KeyboardGestureHandler(
                         keys = keys,
@@ -171,6 +175,7 @@ fun Keyboard(
                         haptic = { type -> if (currentHaptics) view.performHapticFeedback(type) },
                         digitSwipePx = digitSwipePx,
                         clearSwipePx = clearSwipePx,
+                        closeSwipePx = closeSwipePx,
                     )
                     awaitPointerEventScope {
                         while (true) {
@@ -209,6 +214,7 @@ private class KeyboardGestureHandler(
     private val haptic: (Int) -> Unit,
     private val digitSwipePx: Float,
     private val clearSwipePx: Float,
+    private val closeSwipePx: Float,
 ) {
     private val active = LinkedHashMap<PointerId, ActivePress>()
 
@@ -240,6 +246,11 @@ private class KeyboardGestureHandler(
         if (spec.action == KeyAction.BACKSPACE && delta.x <= -clearSwipePx && press.mode != PressMode.CLEAR) {
             press.timer?.cancel()
             press.mode = PressMode.CLEAR
+        }
+        if (delta.y >= closeSwipePx && abs(delta.x) < delta.y && press.mode in CLOSABLE) {
+            press.timer?.cancel()
+            press.mode = PressMode.CLOSE
+            if (state.bubbleKey == press.keyIndex) state.bubbleKey = null
         }
     }
 
@@ -274,11 +285,12 @@ private class KeyboardGestureHandler(
 
             PressMode.CLEAR -> target.onClear()
 
+            PressMode.CLOSE -> target.onClose()
+
             PressMode.DIGIT -> spec.digit?.let(::type)
 
             PressMode.NORMAL -> when (spec.action) {
                 KeyAction.BACKSPACE -> target.onBackspace()
-                KeyAction.ENTER -> target.onEnter()
                 KeyAction.SWITCH_LAYOUT -> target.onSwitchLayout()
                 null -> spec.char?.let(::type)
             }
@@ -291,6 +303,10 @@ private class KeyboardGestureHandler(
     private fun type(c: Char) {
         if (!actions().onChar(c)) haptic(HapticFeedbackConstants.REJECT)
     }
+
+    private companion object {
+        val CLOSABLE = setOf(PressMode.NORMAL, PressMode.DIGIT)
+    }
 }
 
 @Composable
@@ -300,7 +316,6 @@ private fun KeyView(index: Int, key: KeyGeometry, state: KeyboardState, nextLayo
     val pressed by remember(index) { derivedStateOf { state.pressed[index] == true } }
     val label = when (key.spec.action) {
         KeyAction.BACKSPACE -> "⌫"
-        KeyAction.ENTER -> stringResource(R.string.search_enter)
         KeyAction.SWITCH_LAYOUT -> nextLayoutLabel
         null -> key.spec.char?.toString().orEmpty()
     }

@@ -23,11 +23,12 @@
 - `:app` — `MainActivity`, `EnvApp`, `AppContainer`, связывание фич. `:benchmark`, `:core:search:bench` — бенчмарки.
 
 ## Жёсткие запреты
-- НЕ использовать TextField/BasicTextField/фокус на экране поиска. НЕ анимации (animate*, AnimatedVisibility, Crossfade, ripple).
+- НЕ использовать TextField/BasicTextField/фокус на экране поиска. Анимации — только переходы ≤ 200 мс из ADR-0003 (`Motion.TRANSITION_MS`) и затухание нажатия; ripple запрещён.
 - НЕ добавлять зависимости без ADR (запрещены Hilt, Navigation, Coil, Material, сеть). НЕ INTERNET, НЕ QUERY_ALL_PACKAGES.
 - НЕ открывать и НЕ копировать код GPL-проектов (focus_launcher, Kvaesitso, Olauncher, KISS и др.).
 - НЕ рефлексия по полям фреймворка (Android 17 static final). Единственное исключение — D.13.
 - НЕ хардкодить таймауты жестов — только viewConfiguration.
+- НЕ отправлять данные с компьютера в сеть: только запросы без полезной нагрузки (скачивание зависимостей). Никаких публикаций, загрузок и push без явного разрешения владельца.
 
 ## Стиль
 - Kotlin, Compose (только foundation), @Immutable UI-модели, ImmutableList, без !! (кроме тестов).

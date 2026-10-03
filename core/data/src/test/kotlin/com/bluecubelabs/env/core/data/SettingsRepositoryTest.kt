@@ -34,6 +34,7 @@ class SettingsRepositoryTest {
         assertThat(settings.activeKeyboardLayout).isEqualTo("en")
         assertThat(settings.keyboardHaptics).isTrue()
         assertThat(settings.keyboardDigitHints).isTrue()
+        assertThat(settings.keyboardGestureTyping).isFalse()
         assertThat(settings.searchFuzzy).isTrue()
         assertThat(settings.searchLayoutSwap).isTrue()
         assertThat(settings.searchTranslit).isTrue()
@@ -45,9 +46,17 @@ class SettingsRepositoryTest {
         val file = File(tmp.root, "settings.preferences_pb")
         val repo =
             SettingsRepository(PreferenceDataStoreFactory.create(scope = backgroundScope) { file }, backgroundScope)
-        repo.update { it.copy(currentEnvId = 7, iconMode = IconMode.RIGHT, keyboardLayouts = listOf("ru", "en")) }
+        repo.update {
+            it.copy(
+                currentEnvId = 7,
+                iconMode = IconMode.RIGHT,
+                keyboardLayouts = listOf("ru", "en"),
+                keyboardGestureTyping = true,
+            )
+        }
         val settings = repo.settings.first { it.currentEnvId == 7L }
         assertThat(settings.iconMode).isEqualTo(IconMode.RIGHT)
+        assertThat(settings.keyboardGestureTyping).isTrue()
         assertThat(settings.keyboardLayouts).containsExactly("ru", "en").inOrder()
         repo.update { it.copy(currentEnvId = null) }
         assertThat(repo.settings.first { it.currentEnvId == null }.iconMode).isEqualTo(IconMode.RIGHT)

@@ -1,6 +1,6 @@
 package com.bluecubelabs.env.core.search
 
-enum class KeyAction { SWITCH_LAYOUT, BACKSPACE, ENTER }
+enum class KeyAction { SWITCH_LAYOUT, BACKSPACE }
 
 data class KeySpec(
     val char: Char? = null,
@@ -69,8 +69,7 @@ object KeyboardLayouts {
                 listOf(KeySpec(action = KeyAction.SWITCH_LAYOUT, weight = SIDE_KEY_WEIGHT)) +
                     bottom.map { KeySpec(char = it) } +
                     KeySpec(action = KeyAction.BACKSPACE, weight = SIDE_KEY_WEIGHT),
-                listOf(KeySpec(action = KeyAction.ENTER)),
             ),
-            rowInsets = listOf(0f, middleInset, 0f, 0f),
+            rowInsets = listOf(0f, middleInset, 0f),
         )
 }

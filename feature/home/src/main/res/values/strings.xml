@@ -3,7 +3,7 @@
     <string name="home_make_default">Сделать лаунчером по умолчанию</string>
     <string name="home_empty_env">Долгое нажатие → ⚙ → Энвы, чтобы добавить приложения</string>
     <string name="popup_settings">⚙  Настройки</string>
-    <string name="popup_about">Об приложении</string>
+    <string name="popup_about">О приложении</string>
     <string name="popup_rename">Переименовать</string>
     <string name="popup_hide">Скрыть</string>
     <string name="popup_show">Показать</string>

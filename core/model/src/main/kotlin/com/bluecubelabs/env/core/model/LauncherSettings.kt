@@ -16,6 +16,7 @@ data class LauncherSettings(
     val activeKeyboardLayout: String = "en",
     val keyboardHaptics: Boolean = true,
     val keyboardDigitHints: Boolean = true,
+    val keyboardGestureTyping: Boolean = false,
     val searchFuzzy: Boolean = true,
     val searchLayoutSwap: Boolean = true,
     val searchTranslit: Boolean = true,

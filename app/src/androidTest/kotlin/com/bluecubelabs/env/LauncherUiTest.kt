@@ -3,13 +3,17 @@ package com.bluecubelabs.env
 import android.view.KeyEvent
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
@@ -19,9 +23,13 @@ import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.bluecubelabs.env.core.model.EnvType
+import com.bluecubelabs.env.core.search.KeyboardLayouts
+import com.bluecubelabs.env.feature.search.KeyboardDimens
+import com.bluecubelabs.env.feature.search.KeyboardGeometry
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -33,11 +41,13 @@ class LauncherUiTest {
     val rule = createAndroidComposeRule<MainActivity>()
 
     private val container get() = ApplicationProvider.getApplicationContext<EnvApp>().container
+    private var normalId = 0L
 
     @Before
     fun seedFavorites() = runBlocking {
         val normal = container.environments.environments.first { it.isNotEmpty() }.first { it.type == EnvType.NORMAL }
-        container.settings.update { it.copy(currentEnvId = normal.id) }
+        normalId = normal.id
+        container.settings.update { it.copy(currentEnvId = normal.id, keyboardGestureTyping = false) }
         val apps = container.catalog.apps.first { it.size >= 3 }.sortedBy { it.label }.take(3)
         container.environments.setItems(normal.id, apps.map { it.key })
         rule.waitUntil(5_000) { rule.activity.overlay == Overlay.None }
@@ -46,7 +56,20 @@ class LauncherUiTest {
         }
     }
 
+    @After
+    fun resetGestureTyping() = runBlocking {
+        container.settings.update { it.copy(keyboardGestureTyping = false) }
+    }
+
     private fun backgroundPoint() = rule.onNodeWithTag("home")
+
+    private fun openSearch() {
+        backgroundPoint().performTouchInput { doubleClick(bottomCenter.copy(y = bottom - height * 0.15f)) }
+        rule.onNodeWithTag("search").assertIsDisplayed()
+    }
+
+    private fun envItems(): List<com.bluecubelabs.env.core.model.AppKey> =
+        runBlocking { container.environments.itemsOf(normalId) }
 
     @Test
     fun AC_03_2_rowsAreAtLeast48dpTall() {
@@ -152,5 +175,85 @@ class LauncherUiTest {
             )
         }
         rule.onNodeWithTag("keyboard").assertDoesNotExist()
+    }
+
+    @Test
+    fun enterButtonSitsUnderRecentsAboveKeyboard() {
+        openSearch()
+        val enter = rule.onNodeWithTag("enter").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        val recents = rule.onNodeWithTag("recents").fetchSemanticsNode().boundsInRoot
+        val keyboard = rule.onNodeWithTag("keyboard").fetchSemanticsNode().boundsInRoot
+        assertThat(enter.left).isAtLeast(recents.left - 2f)
+        assertThat(enter.top).isAtLeast(recents.bottom - 2f)
+        assertThat(enter.bottom).isAtMost(keyboard.top + 2f)
+    }
+
+    @Test
+    fun swipeDownOnKeyboardClosesSearch() {
+        openSearch()
+        rule.onNodeWithTag("keyboard").performTouchInput {
+            swipeDown(startY = top + 10f, endY = bottom - 10f, durationMillis = 200)
+        }
+        rule.runOnIdle { assertThat(rule.activity.overlay).isEqualTo(Overlay.None) }
+    }
+
+    @Test
+    fun swipeDownOnRecentsClosesSearch() {
+        openSearch()
+        rule.onNodeWithTag("recents").performTouchInput {
+            swipeDown(startY = top + height * 0.2f, endY = top + height * 0.7f, durationMillis = 200)
+        }
+        rule.runOnIdle { assertThat(rule.activity.overlay).isEqualTo(Overlay.None) }
+    }
+
+    @Test
+    fun longPressOnResultTogglesAppInCurrentEnv() {
+        openSearch()
+        val key = rule.runOnIdle { rule.activity.search.rows.first().key }
+        val before = key in envItems()
+        rule.onNodeWithTag("result_0").performTouchInput { longClick() }
+        rule.onNodeWithTag("menu_info").assertIsDisplayed()
+        rule.onNodeWithTag("menu_env").performClick()
+        rule.onNodeWithTag("popup").assertDoesNotExist()
+        rule.waitUntil(5_000) { (key in envItems()) != before }
+    }
+
+    @Test
+    fun pickerAppliesEachTapWithoutDone() {
+        backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
+        rule.onNodeWithTag("popup_settings").performClick()
+        rule.onNodeWithTag("nav_env_apps").performClick()
+        rule.onNodeWithTag("env_add").performClick()
+        val app = runBlocking { container.catalog.apps.first() }.first { it.key !in envItems() }
+        rule.onNodeWithTag("picker_filter").performTextInput(app.label)
+        rule.onNodeWithTag("pick_${app.label}").performClick()
+        rule.waitUntil(5_000) { app.key in envItems() }
+        rule.onNodeWithTag("pick_${app.label}").assertIsSelected()
+        rule.onNodeWithTag("pick_${app.label}").performClick()
+        rule.waitUntil(5_000) { app.key !in envItems() }
+        rule.onNodeWithTag("pick_${app.label}").assertIsNotSelected()
+        Espresso.closeSoftKeyboard()
+    }
+
+    @Test
+    fun gestureInputDecodesWordDrawnOnBlankPanel() {
+        runBlocking { container.settings.update { it.copy(keyboardGestureTyping = true) } }
+        rule.waitUntil(5_000) { container.settings.settings.value.keyboardGestureTyping }
+        openSearch()
+        rule.onNodeWithTag("keyboard").assertDoesNotExist()
+        rule.onNodeWithTag("gesture_panel").performTouchInput {
+            val keys = KeyboardGeometry.compute(
+                KeyboardLayouts.EN,
+                width.toFloat(),
+                KeyboardDimens.rowHeight.toPx(),
+                KeyboardDimens.verticalPadding.toPx(),
+                KeyboardDimens.gap.toPx(),
+            )
+            val points = "maps".map { c -> keys.first { it.spec.char == c }.rect.center }
+            down(points.first())
+            points.drop(1).forEach { moveTo(it) }
+            up()
+        }
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("maps")
     }
 }

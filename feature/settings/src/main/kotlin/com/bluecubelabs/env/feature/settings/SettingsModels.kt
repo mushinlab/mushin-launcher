@@ -21,6 +21,8 @@ sealed interface SettingsRoute {
 
     data class EnvEditor(val envId: Long) : SettingsRoute
 
+    data class EnvApps(val envId: Long) : SettingsRoute
+
     data class PickApps(val envId: Long) : SettingsRoute
 
     data class PickGestureApp(val direction: SwipeDirection) : SettingsRoute
@@ -134,6 +136,10 @@ interface SettingsActions {
     fun setPalette(id: Long, preset: PalettePreset)
 
     fun setEnvItems(id: Long, keys: List<AppKey>)
+
+    fun addEnvItem(id: Long, key: AppKey)
+
+    fun removeEnvItem(id: Long, key: AppKey)
 
     fun setGesture(direction: SwipeDirection, action: GestureAction)
 

@@ -16,8 +16,17 @@ import com.bluecubelabs.env.core.search.KeyboardLayouts
 import com.bluecubelabs.env.core.ui.HorizontalDivider
 
 @Composable
-internal fun RootScreen(push: (SettingsRoute) -> Unit, back: () -> Unit) {
+internal fun RootScreen(state: SettingsUiState, push: (SettingsRoute) -> Unit, back: () -> Unit) {
     SettingsPage(stringResource(R.string.settings_title), back) {
+        state.envs.firstOrNull { it.current }?.let { env ->
+            SectionHeader(stringResource(R.string.settings_current_env, env.name))
+            NavRow(
+                stringResource(R.string.env_items),
+                value = state.envItems[env.id].orEmpty().size.toString(),
+                tag = "nav_env_apps",
+            ) { push(SettingsRoute.EnvApps(env.id)) }
+            HorizontalDivider()
+        }
         NavRow(stringResource(R.string.settings_envs), tag = "nav_envs") { push(SettingsRoute.Environments) }
         NavRow(stringResource(R.string.settings_home), tag = "nav_home") { push(SettingsRoute.Home) }
         NavRow(stringResource(R.string.settings_search), tag = "nav_search") { push(SettingsRoute.Search) }
@@ -156,6 +165,11 @@ internal fun KeyboardSettingsScreen(state: SettingsUiState, actions: SettingsAct
         ToggleRow(stringResource(R.string.keyboard_digit_hints), s.keyboardDigitHints, tag = "kb_digits") { v ->
             actions.updateSettings { it.copy(keyboardDigitHints = v) }
         }
+        HorizontalDivider()
+        ToggleRow(stringResource(R.string.keyboard_gesture), s.keyboardGestureTyping, tag = "kb_gesture") { v ->
+            actions.updateSettings { it.copy(keyboardGestureTyping = v) }
+        }
+        NoteText(stringResource(R.string.keyboard_gesture_note))
     }
 }
 
