@@ -35,6 +35,16 @@ class AppCatalogTest {
     }
 
     @Test
+    fun hugeLabelFromAnotherAppIsCut() = runTest {
+        gateway.install("evil", "evil.Main", "x".repeat(1_000_000))
+        val catalog = AppCatalog(gateway, this, StandardTestDispatcher(testScheduler))
+        catalog.start()
+        advanceUntilIdle()
+        assertThat(catalog.apps.value.single { it.key.packageName == "evil" }.label)
+            .hasLength(AppCatalog.MAX_LABEL_LENGTH)
+    }
+
+    @Test
     fun AC_02_5_quietProfileAppsAreDimmed() = runTest {
         val catalog = AppCatalog(gateway, this, StandardTestDispatcher(testScheduler))
         catalog.start()

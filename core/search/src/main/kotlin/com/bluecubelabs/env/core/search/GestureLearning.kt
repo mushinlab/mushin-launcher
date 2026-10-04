@@ -7,6 +7,7 @@ import kotlin.math.max
 object GestureLearning {
     const val MIN_SIMILARITY = 0.6
     const val MAX_SAMPLES = 300
+    const val MAX_PATH = 64
     private const val COMPETITOR_DECAY = 0.5
     private const val MIN_WEIGHT = 0.25
 
@@ -17,7 +18,7 @@ object GestureLearning {
 
     fun learn(samples: List<LearnedGesture>, paths: List<String>, key: AppKey): List<LearnedGesture> {
         var result = samples
-        paths.distinct().forEach { path ->
+        paths.distinct().filter { it.length <= MAX_PATH }.forEach { path ->
             result = result.map { sample ->
                 if (sample.key != key && similarity(sample.path, path) >= MIN_SIMILARITY) {
                     sample.copy(weight = sample.weight * COMPETITOR_DECAY)

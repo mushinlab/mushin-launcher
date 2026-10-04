@@ -2,15 +2,18 @@ package com.bluecubelabs.env.core.data.settings
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.bluecubelabs.env.core.model.LauncherSettings
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -40,9 +43,16 @@ class SettingsRepository(
         const val FILE_NAME = "settings"
 
         fun create(context: Context, scope: CoroutineScope): SettingsRepository = SettingsRepository(
-            PreferenceDataStoreFactory.create(scope = scope) { context.preferencesDataStoreFile(FILE_NAME) },
+            dataStore(scope) { context.preferencesDataStoreFile(FILE_NAME) },
             scope,
         )
+
+        internal fun dataStore(scope: CoroutineScope, file: () -> File): DataStore<Preferences> =
+            PreferenceDataStoreFactory.create(
+                corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+                scope = scope,
+                produceFile = file,
+            )
 
         internal val CURRENT_ENV_ID = longPreferencesKey("current_env_id")
         internal val ICON_MODE = stringPreferencesKey("icon_mode")

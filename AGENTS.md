@@ -7,7 +7,7 @@
 
 ## Команды
 - Сборка: `./gradlew assembleDebug` | Тесты: `./gradlew testDebugUnitTest test` | UI: `./gradlew connectedDebugAndroidTest`
-- Перед коммитом: `./gradlew ktlintFormat detekt lintDebug testDebugUnitTest test checkModuleGraph`
+- Перед коммитом: `./gradlew ktlintFormat detekt lintDebug testDebugUnitTest test checkModuleGraph :app:checkReleasePermissions`
 - JVM-модули (`:core:model`, `:core:search`) тестируются задачей `test`, Android-модули — `testDebugUnitTest`.
 
 ## Устройство и замеры

@@ -118,6 +118,8 @@
     <string name="system_default_yes">Да</string>
     <string name="system_default_no">Нет — нажмите, чтобы назначить</string>
     <string name="system_version">Версия</string>
+    <string name="system_privacy">Конфиденциальность</string>
+    <string name="system_privacy_text">Энв не собирает и не передаёт никаких данных: у приложения нет доступа к интернету, в нём нет рекламы и аналитики. Энвы, история запусков, выученные жесты и настройки хранятся только на этом устройстве, не попадают в резервные копии и удаляются вместе с приложением. Список установленных приложений Энв получает от системы, чтобы показать их на главном экране и в поиске. Если включить счётчик уведомлений, Энв видит только количество уведомлений у каждого приложения — текст уведомлений не читается и не сохраняется.</string>
     <string name="system_licenses">Лицензии</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable — Apache License 2.0.</string>
 </resources>

@@ -119,7 +119,7 @@ class AppCatalog(
 
     private fun ActivityRecord.toEntry(profile: ProfileInfo) = AppEntry(
         key = key,
-        label = label,
+        label = label.take(MAX_LABEL_LENGTH),
         firstInstallTime = firstInstallTime,
         lastUpdateTime = lastUpdateTime,
         isSystem = isSystem,
@@ -127,4 +127,8 @@ class AppCatalog(
         isQuiet = profile.isQuiet,
         isSuspended = isSuspended,
     )
+
+    companion object {
+        const val MAX_LABEL_LENGTH = 100
+    }
 }

@@ -116,6 +116,7 @@ class GestureDecoder(private val keys: Map<Char, GesturePoint>) {
         sqrt(points.sumOf { distance(it, center).toDouble().let { d -> d * d } } / points.size).toFloat()
 
     private fun boosts(drawn: String, learned: List<LearnedGesture>): Map<AppKey, Float> {
+        if (drawn.length > GestureLearning.MAX_PATH) return emptyMap()
         val support = HashMap<AppKey, Double>()
         learned.forEach { sample ->
             val similarity = GestureLearning.similarity(drawn, sample.path)

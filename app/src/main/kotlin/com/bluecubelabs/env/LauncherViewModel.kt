@@ -224,11 +224,11 @@ class LauncherViewModel(
     }
 
     fun switchEnv(id: Long) {
-        viewModelScope.launch { container.settings.update { it.copy(currentEnvId = id) } }
+        container.scope.launch { container.settings.update { it.copy(currentEnvId = id) } }
     }
 
     fun setActiveLayout(id: String) {
-        viewModelScope.launch { container.settings.update { it.copy(activeKeyboardLayout = id) } }
+        container.scope.launch { container.settings.update { it.copy(activeKeyboardLayout = id) } }
     }
 
     fun setHidden(key: AppKey, hidden: Boolean) {

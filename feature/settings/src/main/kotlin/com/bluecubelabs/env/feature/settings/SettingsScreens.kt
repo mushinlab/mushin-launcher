@@ -332,6 +332,8 @@ internal fun SystemScreen(state: SettingsUiState, actions: SettingsActions, back
             tag = "system_default",
         ) { actions.requestDefaultLauncher() }
         NavRow(stringResource(R.string.system_version), value = state.versionName) {}
+        SectionHeader(stringResource(R.string.system_privacy))
+        NoteText(stringResource(R.string.system_privacy_text))
         SectionHeader(stringResource(R.string.system_licenses))
         NoteText(stringResource(R.string.system_licenses_text))
     }

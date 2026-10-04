@@ -7,6 +7,9 @@ on:
   schedule:
     - cron: "0 2 * * *"
 
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -19,7 +22,7 @@ jobs:
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
       - name: Checks
-        run: ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest test checkModuleGraph assembleRelease --continue
+        run: ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest test checkModuleGraph :app:checkReleasePermissions assembleRelease --continue
       - name: APK size gate
         run: |
           apk=$(ls app/build/outputs/apk/release/*.apk | head -n1)

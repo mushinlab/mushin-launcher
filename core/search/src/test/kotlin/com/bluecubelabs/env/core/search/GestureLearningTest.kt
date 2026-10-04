@@ -39,6 +39,13 @@ class GestureLearningTest {
     }
 
     @Test
+    fun overlongPathsAreNotLearned() {
+        val scribble = "qp".repeat(GestureLearning.MAX_PATH)
+        assertThat(GestureLearning.learn(emptyList(), listOf(scribble, "mnbvcxs"), maps))
+            .containsExactly(LearnedGesture("mnbvcxs", maps, 1.0))
+    }
+
+    @Test
     fun storeIsCapped() {
         val many = (0 until GestureLearning.MAX_SAMPLES).map { LearnedGesture("p$it", maps, 1.0) }
         val next = GestureLearning.learn(many, listOf("new"), mail)

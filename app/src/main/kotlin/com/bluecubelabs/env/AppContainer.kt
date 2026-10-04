@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.service.notification.NotificationListenerService
+import android.util.Log
 import com.bluecubelabs.env.core.apps.AndroidLauncherAppsGateway
 import com.bluecubelabs.env.core.apps.AppCatalog
 import com.bluecubelabs.env.core.apps.AppLauncher
@@ -22,6 +23,7 @@ import com.bluecubelabs.env.core.data.repo.OverrideRepository
 import com.bluecubelabs.env.core.data.repo.PackageDataCleaner
 import com.bluecubelabs.env.core.data.settings.SettingsRepository
 import com.bluecubelabs.env.core.data.snapshot.HomeSnapshotStore
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -32,7 +34,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class AppContainer(private val app: Application) {
-    val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    val scope = CoroutineScope(
+        SupervisorJob() +
+            Dispatchers.Default +
+            CoroutineExceptionHandler { _, e -> Log.w(TAG, "Background task failed", e) },
+    )
 
     val database by lazy { EnvDatabase.build(app) }
     val environments by lazy { EnvironmentRepository(database, scope) }
@@ -76,5 +82,9 @@ class AppContainer(private val app: Application) {
             }
         }
         scope.launch(Dispatchers.IO) { ExitLog(app).recordNewExits() }
+    }
+
+    private companion object {
+        const val TAG = "EnvContainer"
     }
 }

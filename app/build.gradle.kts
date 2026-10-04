@@ -1,7 +1,14 @@
+import com.android.build.api.artifact.SingleArtifact
+import java.util.Properties
+
 plugins {
     id("env.android.application")
     id("env.android.compose")
     alias(libs.plugins.baselineprofile)
+}
+
+val uploadKeystore = rootProject.file("keystore.properties").takeIf { it.isFile }?.let { file ->
+    Properties().apply { file.inputStream().use(::load) }
 }
 
 android {
@@ -11,16 +18,43 @@ android {
         versionCode = 1
         versionName = "0.1.0"
     }
+    signingConfigs {
+        if (uploadKeystore != null) {
+            create("upload") {
+                storeFile = rootProject.file(uploadKeystore.getProperty("storeFile"))
+                storePassword = uploadKeystore.getProperty("storePassword")
+                keyAlias = uploadKeystore.getProperty("keyAlias")
+                keyPassword = uploadKeystore.getProperty("keyPassword")
+            }
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
         }
     }
     buildFeatures {
         buildConfig = true
+    }
+}
+
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        val manifest = variant.artifacts.get(SingleArtifact.MERGED_MANIFEST)
+        val variantName = variant.name
+        tasks.register("check${variantName.replaceFirstChar(Char::uppercase)}Permissions") {
+            inputs.file(manifest)
+            doLast {
+                val text = manifest.get().asFile.readText()
+                val found = listOf("INTERNET", "QUERY_ALL_PACKAGES")
+                    .map { "android.permission.$it" }
+                    .filter { "\"$it\"" in text }
+                check(found.isEmpty()) { "Forbidden permissions in $variantName manifest: $found" }
+            }
+        }
     }
 }
 

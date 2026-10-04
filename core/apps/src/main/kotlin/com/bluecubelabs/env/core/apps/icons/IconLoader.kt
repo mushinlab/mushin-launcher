@@ -88,7 +88,9 @@ class IconLoader(
 
     private fun IconKey.normalized() = copy(sizePx = IconMath.bucketSize(sizePx))
 
-    private fun render(key: IconKey): LoadedIcon {
+    private fun render(key: IconKey): LoadedIcon = runCatching { renderMask(key) }.getOrDefault(LoadedIcon.Letter)
+
+    private fun renderMask(key: IconKey): LoadedIcon {
         val drawable = source.drawable(key.app, densityDpi) ?: return LoadedIcon.Letter
         val size = key.sizePx
         val mono = (drawable as? AdaptiveIconDrawable)?.monochrome

@@ -20,6 +20,13 @@ class SettingsRepositoryTest {
     val tmp = TemporaryFolder()
 
     @Test
+    fun corruptedFileFallsBackToDefaultsInsteadOfCrashing() = runTest {
+        val file = File(tmp.root, "settings.preferences_pb").apply { writeBytes(byteArrayOf(-1, -2, -3, 7, 0, 42)) }
+        val repo = SettingsRepository(SettingsRepository.dataStore(backgroundScope) { file }, backgroundScope)
+        assertThat(repo.settings.first()).isEqualTo(LauncherSettings())
+    }
+
+    @Test
     fun defaultsMatchSpecTable() = runTest {
         val file = File(tmp.root, "settings.preferences_pb")
         val repo =
