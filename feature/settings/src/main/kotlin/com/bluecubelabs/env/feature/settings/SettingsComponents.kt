@@ -4,6 +4,9 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.horizontalDrag
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,22 +34,33 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,6 +70,7 @@ import com.bluecubelabs.env.core.ui.LocalEnvColors
 import com.bluecubelabs.env.core.ui.Motion
 import com.bluecubelabs.env.core.ui.SingleLineText
 import com.bluecubelabs.env.core.ui.pressable
+import kotlin.math.roundToInt
 
 @Composable
 fun SettingsPage(
@@ -177,6 +192,80 @@ private fun Switch(checked: Boolean) {
                 .size(18.dp)
                 .clip(RoundedCornerShape(9.dp))
                 .background(if (checked) colors.background else colors.textSecondary),
+        )
+    }
+}
+
+@Composable
+fun SliderRow(
+    title: String,
+    value: Float,
+    range: ClosedFloatingPointRange<Float>,
+    step: Float,
+    tag: String,
+    onChange: (Float) -> Unit,
+) {
+    val colors = LocalEnvColors.current
+    val locale = LocalConfiguration.current.locales[0]
+    val steps = ((range.endInclusive - range.start) / step).roundToInt()
+    var shown by remember(value) { mutableFloatStateOf(value) }
+    val currentOnChange by rememberUpdatedState(onChange)
+    fun select(fraction: Float) {
+        val next = range.start + (fraction.coerceIn(0f, 1f) * steps).roundToInt() * step
+        if (next != shown) {
+            shown = next
+            currentOnChange(next)
+        }
+    }
+    Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            BasicText(title, style = EnvType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
+            Spacer(Modifier.width(16.dp))
+            SingleLineText(
+                String.format(locale, "%.2f", shown),
+                EnvType.style(15.sp, colors.textSecondary),
+            )
+        }
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(40.dp)
+                .testTag(tag)
+                .semantics {
+                    progressBarRangeInfo = ProgressBarRangeInfo(shown, range, steps - 1)
+                    setProgress { target ->
+                        select((target - range.start) / (range.endInclusive - range.start))
+                        true
+                    }
+                }
+                .pointerInput(range, step) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown()
+                        select(down.position.x / size.width)
+                        horizontalDrag(down.id) { change ->
+                            change.consume()
+                            select(change.position.x / size.width)
+                        }
+                    }
+                }
+                .drawBehind {
+                    val fraction = (shown - range.start) / (range.endInclusive - range.start)
+                    val track = SLIDER_TRACK.toPx()
+                    val y = size.height / 2
+                    drawRoundRect(
+                        colors.textSecondary.copy(alpha = SLIDER_REST_ALPHA),
+                        topLeft = Offset(0f, y - track / 2),
+                        size = Size(size.width, track),
+                        cornerRadius = CornerRadius(track / 2),
+                    )
+                    drawRoundRect(
+                        colors.accent,
+                        topLeft = Offset(0f, y - track / 2),
+                        size = Size(size.width * fraction, track),
+                        cornerRadius = CornerRadius(track / 2),
+                    )
+                    drawCircle(colors.accent, radius = SLIDER_THUMB.toPx(), center = Offset(size.width * fraction, y))
+                },
         )
     }
 }
@@ -315,3 +404,7 @@ private fun DialogButtons(buttons: List<Pair<String, () -> Unit>>) {
 internal const val DISABLED_ALPHA = 0.4f
 private const val SELECTED_ALPHA = 0.24f
 private const val SCRIM_ALPHA = 0.5f
+
+private val SLIDER_TRACK = 4.dp
+private val SLIDER_THUMB = 10.dp
+private const val SLIDER_REST_ALPHA = 0.35f

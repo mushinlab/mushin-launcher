@@ -31,6 +31,9 @@ sealed interface AppIconImage {
     @Immutable
     data class Mask(val bitmap: ImageBitmap) : AppIconImage
 
+    @Immutable
+    data class Full(val bitmap: ImageBitmap) : AppIconImage
+
     data object Letter : AppIconImage
 }
 
@@ -47,9 +50,9 @@ val LocalIconProvider = staticCompositionLocalOf<IconProvider?> { null }
 fun AppIcon(key: AppKey, label: String, size: Dp, modifier: Modifier = Modifier) {
     val provider = LocalIconProvider.current
     val sizePx = with(LocalDensity.current) { size.toPx().roundToInt() }
-    var image by remember(key, sizePx) { mutableStateOf(provider?.peek(key, sizePx)) }
+    var image by remember(provider, key, sizePx) { mutableStateOf(provider?.peek(key, sizePx)) }
     if (image == null && provider != null) {
-        LaunchedEffect(key, sizePx) { image = provider.load(key, sizePx) }
+        LaunchedEffect(provider, key, sizePx) { image = provider.load(key, sizePx) }
     }
     val colors = LocalEnvColors.current
     Box(modifier.size(size), contentAlignment = Alignment.Center) {
@@ -58,6 +61,12 @@ fun AppIcon(key: AppKey, label: String, size: Dp, modifier: Modifier = Modifier)
                 bitmap = current.bitmap,
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(colors.iconTint, BlendMode.SrcIn),
+                modifier = Modifier.size(size),
+            )
+
+            is AppIconImage.Full -> Image(
+                bitmap = current.bitmap,
+                contentDescription = null,
                 modifier = Modifier.size(size),
             )
 

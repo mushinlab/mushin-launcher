@@ -28,8 +28,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -76,6 +78,10 @@ class AppContainer(private val app: Application) {
             }
         }
         scope.launch { cleaner.purgeExpiredOverrides() }
+        scope.launch {
+            catalog.loaded.first { it }
+            catalog.apps.collectLatest { apps -> cleaner.reconcile(apps.map { it.key }) }
+        }
         scope.launch {
             settings.settings.map { it.notificationCounts }.distinctUntilChanged().filter { it }.collect {
                 if (hasNotificationAccess()) NotificationListenerService.requestRebind(notificationListener)

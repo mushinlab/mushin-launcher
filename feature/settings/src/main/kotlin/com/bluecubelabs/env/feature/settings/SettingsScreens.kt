@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.bluecubelabs.env.core.model.ClockFormat
 import com.bluecubelabs.env.core.model.GestureAction
+import com.bluecubelabs.env.core.model.GestureTuning
 import com.bluecubelabs.env.core.model.HomeTextSize
 import com.bluecubelabs.env.core.model.IconMode
 import com.bluecubelabs.env.core.model.PressFeedback
@@ -29,6 +30,7 @@ internal fun RootScreen(state: SettingsUiState, push: (SettingsRoute) -> Unit, b
             ) { push(SettingsRoute.EnvApps(env.id)) }
             HorizontalDivider()
         }
+        SectionHeader(stringResource(R.string.settings_app_wide))
         NavRow(stringResource(R.string.settings_envs), tag = "nav_envs") { push(SettingsRoute.Environments) }
         NavRow(stringResource(R.string.settings_home), tag = "nav_home") { push(SettingsRoute.Home) }
         NavRow(stringResource(R.string.settings_search), tag = "nav_search") { push(SettingsRoute.Search) }
@@ -40,6 +42,7 @@ internal fun RootScreen(state: SettingsUiState, push: (SettingsRoute) -> Unit, b
             tag = "nav_press",
         ) { push(SettingsRoute.Press) }
         NavRow(stringResource(R.string.settings_apps), tag = "nav_apps") { push(SettingsRoute.Apps) }
+        NavRow(stringResource(R.string.settings_memory), tag = "nav_memory") { push(SettingsRoute.Memory) }
         NavRow(stringResource(R.string.settings_system), tag = "nav_system") { push(SettingsRoute.System) }
     }
 }
@@ -58,6 +61,10 @@ internal fun HomeSettingsScreen(state: SettingsUiState, actions: SettingsActions
             s.iconMode,
             "icon_mode",
         ) { mode -> actions.updateSettings { it.copy(iconMode = mode) } }
+        ToggleRow(stringResource(R.string.home_colored_icons), s.coloredIcons, tag = "colored_icons") { value ->
+            actions.updateSettings { it.copy(coloredIcons = value) }
+        }
+        NoteText(stringResource(R.string.home_colored_icons_note))
         SectionHeader(stringResource(R.string.home_clock))
         ChoiceRows(
             listOf(
@@ -208,13 +215,6 @@ internal fun KeyboardSettingsScreen(state: SettingsUiState, actions: SettingsAct
         ToggleRow(stringResource(R.string.keyboard_digit_hints), s.keyboardDigitHints, tag = "kb_digits") { v ->
             actions.updateSettings { it.copy(keyboardDigitHints = v) }
         }
-        HorizontalDivider()
-        ToggleRow(
-            stringResource(R.string.keyboard_gesture_letters),
-            s.keyboardGestureLetters,
-            tag = "kb_gesture_letters",
-        ) { v -> actions.updateSettings { it.copy(keyboardGestureLetters = v) } }
-        NoteText(stringResource(R.string.keyboard_gesture_letters_note))
     }
 }
 
@@ -249,8 +249,16 @@ internal fun actionLabel(summary: GestureSummary?): String {
 }
 
 @Composable
-internal fun GesturesScreen(state: SettingsUiState, push: (SettingsRoute) -> Unit, back: () -> Unit) {
+internal fun GesturesScreen(
+    state: SettingsUiState,
+    actions: SettingsActions,
+    push: (SettingsRoute) -> Unit,
+    back: () -> Unit,
+) {
+    val s = state.settings
     SettingsPage(stringResource(R.string.settings_gestures), back) {
+        NoteText(stringResource(R.string.gestures_app_wide))
+        SectionHeader(stringResource(R.string.gestures_swipes))
         SwipeDirection.entries.forEach { direction ->
             NavRow(
                 directionLabel(direction),
@@ -261,6 +269,37 @@ internal fun GesturesScreen(state: SettingsUiState, push: (SettingsRoute) -> Uni
             }
         }
         NoteText(stringResource(R.string.gesture_shade_zone))
+        SectionHeader(stringResource(R.string.keyboard_gesture_tuning))
+        ToggleRow(
+            stringResource(R.string.keyboard_gesture_letters),
+            s.keyboardGestureLetters,
+            tag = "kb_gesture_letters",
+        ) { v -> actions.updateSettings { it.copy(keyboardGestureLetters = v) } }
+        NoteText(stringResource(R.string.keyboard_gesture_letters_note))
+        SliderRow(
+            stringResource(R.string.keyboard_gesture_shift),
+            s.gestureShiftPenalty,
+            GestureTuning.SHIFT_PENALTY_MIN..GestureTuning.SHIFT_PENALTY_MAX,
+            GestureTuning.STEP,
+            tag = "kb_gesture_shift",
+        ) { v -> actions.updateSettings { it.copy(gestureShiftPenalty = v) } }
+        NoteText(stringResource(R.string.keyboard_gesture_shift_note))
+        SliderRow(
+            stringResource(R.string.keyboard_gesture_margin),
+            s.gestureSuggestMargin,
+            GestureTuning.SUGGEST_MARGIN_MIN..GestureTuning.SUGGEST_MARGIN_MAX,
+            GestureTuning.STEP,
+            tag = "kb_gesture_margin",
+        ) { v -> actions.updateSettings { it.copy(gestureSuggestMargin = v) } }
+        NoteText(stringResource(R.string.keyboard_gesture_margin_note))
+        NavRow(stringResource(R.string.keyboard_gesture_tuning_reset), tag = "kb_gesture_tuning_reset") {
+            actions.updateSettings {
+                it.copy(
+                    gestureShiftPenalty = GestureTuning.SHIFT_PENALTY,
+                    gestureSuggestMargin = GestureTuning.SUGGEST_MARGIN,
+                )
+            }
+        }
     }
 }
 

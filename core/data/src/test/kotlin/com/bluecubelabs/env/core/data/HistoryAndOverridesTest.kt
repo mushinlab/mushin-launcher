@@ -45,6 +45,22 @@ class HistoryAndOverridesTest {
     }
 
     @Test
+    fun usageAndAllRecentsCanBeErased() = runTest {
+        val envs = EnvironmentRepository(rule.db, backgroundScope, rule.clock)
+        val history = HistoryRepository(rule.db, backgroundScope, rule.clock)
+        val normal = normalId(envs)
+        val work = envs.environments.first { it.isNotEmpty() }.first { it.type != EnvType.NORMAL }.id
+        history.recordLaunch(slack, normal, fromSearch = true)
+        history.recordLaunch(maps, work, fromSearch = true)
+        history.recents.first { it.size == 2 }
+        history.clearAllRecents()
+        assertThat(history.recents.first { it.isEmpty() }).isEmpty()
+        assertThat(history.usage.value).hasSize(2)
+        history.clearUsage()
+        assertThat(history.usage.first { it.isEmpty() }).isEmpty()
+    }
+
+    @Test
     fun recentsAreCappedPerEnvironment() = runTest {
         val envs = EnvironmentRepository(rule.db, backgroundScope, rule.clock)
         val history = HistoryRepository(rule.db, backgroundScope, rule.clock)

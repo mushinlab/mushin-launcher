@@ -6,8 +6,8 @@
     <string name="search_input_gesture">Жест</string>
     <string name="search_input_keys">АБВ</string>
     <string name="search_suggestions">варианты…</string>
-    <string name="menu_add_to_env">Добавить в энв</string>
-    <string name="menu_remove_from_env">Убрать из энва</string>
+    <string name="menu_add_to_env">Добавить в спейс</string>
+    <string name="menu_remove_from_env">Убрать из спейса</string>
     <string name="menu_app_info">О приложении</string>
     <string name="menu_uninstall">Удалить</string>
 </resources>

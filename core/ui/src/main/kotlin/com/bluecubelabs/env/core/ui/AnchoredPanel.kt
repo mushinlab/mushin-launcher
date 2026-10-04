@@ -1,5 +1,6 @@
 package com.bluecubelabs.env.core.ui
 
+import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -20,20 +21,25 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.withTimeoutOrNull
 
 object PanelDimens {
     val width = 240.dp
@@ -111,12 +117,43 @@ fun PanelHeader(text: String) {
 }
 
 @Composable
-fun PanelItem(text: String, tag: String, bold: Boolean = false, onClick: () -> Unit) {
+fun PanelItem(
+    text: String,
+    tag: String,
+    bold: Boolean = false,
+    onHold: (() -> Unit)? = null,
+    onClick: () -> Unit,
+) {
     val colors = LocalEnvColors.current
+    val view = LocalView.current
+    val currentOnHold by rememberUpdatedState(onHold)
     Box(
         Modifier
             .fillMaxWidth()
             .height(48.dp)
+            .pointerInput(onHold != null) {
+                if (onHold == null) return@pointerInput
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                    val released = withTimeoutOrNull(Motion.HOLD_MS) {
+                        do {
+                            val change = awaitPointerEvent(PointerEventPass.Initial).changes
+                                .firstOrNull { it.id == down.id }
+                            val moved = change != null &&
+                                (change.position - down.position).getDistance() > viewConfiguration.touchSlop
+                        } while (change != null && change.pressed && !moved)
+                        true
+                    }
+                    if (released == null) {
+                        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                        currentOnHold?.invoke()
+                        do {
+                            val event = awaitPointerEvent(PointerEventPass.Initial)
+                            event.changes.forEach { it.consume() }
+                        } while (event.changes.any { it.pressed })
+                    }
+                }
+            }
             .pressable(onClick = onClick)
             .testTag(tag)
             .padding(horizontal = 16.dp),

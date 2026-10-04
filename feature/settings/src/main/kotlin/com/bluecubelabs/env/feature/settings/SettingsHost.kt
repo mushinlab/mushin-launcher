@@ -81,7 +81,7 @@ private fun SettingsRouteScreen(
 
         SettingsRoute.Keyboard -> KeyboardSettingsScreen(state, actions, back)
 
-        SettingsRoute.Gestures -> GesturesScreen(state, push, back)
+        SettingsRoute.Gestures -> GesturesScreen(state, actions, push, back)
 
         SettingsRoute.Press -> PressSettingsScreen(state, actions, back)
 
@@ -90,5 +90,9 @@ private fun SettingsRouteScreen(
         SettingsRoute.Apps -> AppsSettingsScreen(state, actions, back)
 
         SettingsRoute.System -> SystemScreen(state, actions, back)
+
+        SettingsRoute.Memory -> MemoryScreen(state, actions, push, back)
+
+        is SettingsRoute.MemoryApp -> MemoryAppScreen(route.key, state, actions, back)
     }
 }

@@ -21,6 +21,8 @@ import kotlinx.coroutines.withContext
 sealed interface LoadedIcon {
     data class Mask(val bitmap: Bitmap) : LoadedIcon
 
+    data class Full(val bitmap: Bitmap) : LoadedIcon
+
     data object Letter : LoadedIcon
 }
 
@@ -28,6 +30,7 @@ data class IconKey(
     val app: AppKey,
     val lastUpdateTime: Long,
     val sizePx: Int,
+    val colored: Boolean = false,
 )
 
 interface IconSource {
@@ -57,6 +60,7 @@ class IconLoader(
     private val memory = object : LruCache<IconKey, LoadedIcon>(maxMemoryBytes) {
         override fun sizeOf(key: IconKey, value: LoadedIcon): Int = when (value) {
             is LoadedIcon.Mask -> value.bitmap.allocationByteCount
+            is LoadedIcon.Full -> value.bitmap.allocationByteCount
             LoadedIcon.Letter -> LETTER_COST
         }
     }
@@ -67,8 +71,12 @@ class IconLoader(
         val normalized = key.normalized()
         memory.get(normalized)?.let { return it }
         return withContext(dispatcher) {
-            memory.get(normalized) ?: (readDisk(normalized) ?: render(normalized).also { writeDisk(normalized, it) })
-                .also { memory.put(normalized, it) }
+            memory.get(normalized) ?: if (normalized.colored) {
+                renderFull(normalized).also { memory.put(normalized, it) }
+            } else {
+                (readDisk(normalized) ?: render(normalized).also { writeDisk(normalized, it) })
+                    .also { memory.put(normalized, it) }
+            }
         }
     }
 
@@ -89,6 +97,16 @@ class IconLoader(
     private fun IconKey.normalized() = copy(sizePx = IconMath.bucketSize(sizePx))
 
     private fun render(key: IconKey): LoadedIcon = runCatching { renderMask(key) }.getOrDefault(LoadedIcon.Letter)
+
+    private fun renderFull(key: IconKey): LoadedIcon = runCatching {
+        val drawable = source.drawable(key.app, densityDpi) ?: return@runCatching LoadedIcon.Letter
+        val bitmap = Bitmap.createBitmap(key.sizePx, key.sizePx, Bitmap.Config.ARGB_8888)
+        val oldBounds = drawable.copyBounds()
+        drawable.setBounds(0, 0, key.sizePx, key.sizePx)
+        drawable.draw(Canvas(bitmap))
+        drawable.bounds = oldBounds
+        LoadedIcon.Full(bitmap)
+    }.getOrDefault(LoadedIcon.Letter)
 
     private fun renderMask(key: IconKey): LoadedIcon {
         val drawable = source.drawable(key.app, densityDpi) ?: return LoadedIcon.Letter
@@ -158,6 +176,8 @@ class IconLoader(
                         val raw = buffer.array()
                         for (row in 0 until size) out.write(raw, row * rowBytes, size)
                     }
+
+                    is LoadedIcon.Full -> Unit
                 }
             }
         }

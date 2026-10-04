@@ -9,9 +9,11 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.bluecubelabs.env.core.model.GestureTuning
 import com.bluecubelabs.env.core.model.LauncherSettings
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
@@ -56,6 +58,7 @@ class SettingsRepository(
 
         internal val CURRENT_ENV_ID = longPreferencesKey("current_env_id")
         internal val ICON_MODE = stringPreferencesKey("icon_mode")
+        internal val COLORED_ICONS = booleanPreferencesKey("colored_icons")
         internal val CLOCK_FORMAT = stringPreferencesKey("clock_format")
         internal val SHOW_DATE = booleanPreferencesKey("show_date")
         internal val HOME_TEXT_SIZE = stringPreferencesKey("home_text_size")
@@ -67,6 +70,8 @@ class SettingsRepository(
         internal val KB_DIGIT_HINTS = booleanPreferencesKey("kb_digit_hints")
         internal val KB_GESTURE = booleanPreferencesKey("kb_gesture")
         internal val KB_GESTURE_LETTERS = booleanPreferencesKey("kb_gesture_letters")
+        internal val GESTURE_SHIFT_PENALTY = floatPreferencesKey("gesture_shift_penalty")
+        internal val GESTURE_SUGGEST_MARGIN = floatPreferencesKey("gesture_suggest_margin")
         internal val SEARCH_FUZZY = booleanPreferencesKey("search_fuzzy")
         internal val SEARCH_LAYOUT_SWAP = booleanPreferencesKey("search_layout_swap")
         internal val SEARCH_TRANSLIT = booleanPreferencesKey("search_translit")
@@ -77,6 +82,7 @@ class SettingsRepository(
             return LauncherSettings(
                 currentEnvId = prefs[CURRENT_ENV_ID],
                 iconMode = enumOr(prefs[ICON_MODE], defaults.iconMode),
+                coloredIcons = prefs[COLORED_ICONS] ?: defaults.coloredIcons,
                 clockFormat = enumOr(prefs[CLOCK_FORMAT], defaults.clockFormat),
                 showDate = prefs[SHOW_DATE] ?: defaults.showDate,
                 homeTextSize = enumOr(prefs[HOME_TEXT_SIZE], defaults.homeTextSize),
@@ -93,6 +99,10 @@ class SettingsRepository(
                 keyboardDigitHints = prefs[KB_DIGIT_HINTS] ?: defaults.keyboardDigitHints,
                 keyboardGestureTyping = prefs[KB_GESTURE] ?: defaults.keyboardGestureTyping,
                 keyboardGestureLetters = prefs[KB_GESTURE_LETTERS] ?: defaults.keyboardGestureLetters,
+                gestureShiftPenalty = (prefs[GESTURE_SHIFT_PENALTY] ?: defaults.gestureShiftPenalty)
+                    .coerceIn(GestureTuning.SHIFT_PENALTY_MIN, GestureTuning.SHIFT_PENALTY_MAX),
+                gestureSuggestMargin = (prefs[GESTURE_SUGGEST_MARGIN] ?: defaults.gestureSuggestMargin)
+                    .coerceIn(GestureTuning.SUGGEST_MARGIN_MIN, GestureTuning.SUGGEST_MARGIN_MAX),
                 searchFuzzy = prefs[SEARCH_FUZZY] ?: defaults.searchFuzzy,
                 searchLayoutSwap = prefs[SEARCH_LAYOUT_SWAP] ?: defaults.searchLayoutSwap,
                 searchTranslit = prefs[SEARCH_TRANSLIT] ?: defaults.searchTranslit,
@@ -104,6 +114,7 @@ class SettingsRepository(
             val envId = settings.currentEnvId
             if (envId == null) prefs.remove(CURRENT_ENV_ID) else prefs[CURRENT_ENV_ID] = envId
             prefs[ICON_MODE] = settings.iconMode.name
+            prefs[COLORED_ICONS] = settings.coloredIcons
             prefs[CLOCK_FORMAT] = settings.clockFormat.name
             prefs[SHOW_DATE] = settings.showDate
             prefs[HOME_TEXT_SIZE] = settings.homeTextSize.name
@@ -115,6 +126,8 @@ class SettingsRepository(
             prefs[KB_DIGIT_HINTS] = settings.keyboardDigitHints
             prefs[KB_GESTURE] = settings.keyboardGestureTyping
             prefs[KB_GESTURE_LETTERS] = settings.keyboardGestureLetters
+            prefs[GESTURE_SHIFT_PENALTY] = settings.gestureShiftPenalty
+            prefs[GESTURE_SUGGEST_MARGIN] = settings.gestureSuggestMargin
             prefs[SEARCH_FUZZY] = settings.searchFuzzy
             prefs[SEARCH_LAYOUT_SWAP] = settings.searchLayoutSwap
             prefs[SEARCH_TRANSLIT] = settings.searchTranslit

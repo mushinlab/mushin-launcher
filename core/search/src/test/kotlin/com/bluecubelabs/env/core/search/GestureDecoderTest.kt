@@ -67,6 +67,17 @@ class GestureDecoderTest {
     }
 
     @Test
+    fun tuningControlsShiftForgivenessAndHowManyAlternativesAreShown() {
+        val far = moved(path("telegram"), dx = 1f, dy = 1f)
+        assertThat(decoder.decode(far, vocabulary)?.words?.map { it.text }).containsExactly("telegram")
+        assertThat(GestureDecoder(keys, shiftPenalty = 1.5f).decode(far, vocabulary)?.words).isEmpty()
+        val both = listOf(GestureWord("pol", "pol", key(0)), GestureWord("poll", "poll", key(1)))
+        assertThat(decoder.decode(path("pol"), both)?.words).hasSize(2)
+        assertThat(GestureDecoder(keys, suggestMargin = 0.05f).decode(path("pol"), both)?.words?.map { it.text })
+            .containsExactly("pol")
+    }
+
+    @Test
     fun drawingInReverseIsNotTheWord() {
         val maps = listOf(GestureWord("maps", "maps", key(0)))
         assertThat(decodeTexts(path("spam"), maps)).isEmpty()

@@ -43,6 +43,8 @@ abstract class EnvDatabase : RoomDatabase() {
 
     abstract fun gestureSampleDao(): GestureSampleDao
 
+    abstract fun appKeyDao(): AppKeyDao
+
     companion object {
         const val NAME = "env.db"
 

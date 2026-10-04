@@ -28,6 +28,8 @@ interface PopupActions {
 
     fun onOpenSettings()
 
+    fun onOpenEnvSettings(id: Long)
+
     fun onAbout(key: AppKey)
 
     fun onRename(key: AppKey)
@@ -58,6 +60,7 @@ fun HomePopup(
                 text = if (env.current) "✓  ${env.name}" else env.name,
                 bold = env.current,
                 tag = "popup_env_${env.id}",
+                onHold = { actions.onOpenEnvSettings(env.id) },
                 onClick = { actions.onSelectEnv(env.id) },
             )
         }

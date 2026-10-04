@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Энв</string>
+    <string name="app_name">Mushin Launcher</string>
     <string name="notice_suspended">Приложение приостановлено</string>
     <string name="notice_launch_failed">Не удалось открыть</string>
-    <string name="notice_remove_from_env">Убрать из энва</string>
+    <string name="notice_remove_from_env">Убрать из спейса</string>
     <string name="notice_shade_unavailable">Шторка недоступна на этой версии Android</string>
     <string name="notice_added_to_env">Добавлено в «%1$s»</string>
     <string name="notice_removed_from_env">Убрано из «%1$s»</string>

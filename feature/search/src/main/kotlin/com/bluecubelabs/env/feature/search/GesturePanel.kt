@@ -54,6 +54,8 @@ internal fun GesturePanel(
     controller: SearchController,
     haptics: Boolean,
     showLetters: Boolean,
+    shiftPenalty: Float,
+    suggestMargin: Float,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalEnvColors.current
@@ -80,8 +82,14 @@ internal fun GesturePanel(
             with(density) { KeyboardDimens.gap.toPx() },
         ).mapNotNull { key -> key.spec.char?.let { it to key.rect.center } }.toMap()
     }
-    val decoder = remember(centers) {
-        GestureDecoder(centers.mapValues { (_, center) -> GesturePoint(center.x, center.y) })
+    val decoder = remember(centers, shiftPenalty, suggestMargin) {
+        GestureDecoder(
+            centers.mapValues { (_, center) ->
+                GesturePoint(center.x, center.y)
+            },
+            shiftPenalty,
+            suggestMargin,
+        )
     }
     val measurer = rememberTextMeasurer()
     val labels = remember(measurer, colors) {

@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.first
 class LauncherIconProvider(
     private val loader: IconLoader,
     private val catalog: AppCatalog,
+    private val colored: Boolean = false,
 ) : IconProvider {
     private val images = WeakHashMap<Bitmap, ImageBitmap>()
 
@@ -31,16 +32,19 @@ class LauncherIconProvider(
 
     private fun iconKey(key: AppKey, sizePx: Int): IconKey? {
         val entry = catalog.apps.value.firstOrNull { it.key == key } ?: return null
-        return IconKey(key, entry.lastUpdateTime, sizePx)
+        return IconKey(key, entry.lastUpdateTime, sizePx, colored)
     }
+
+    fun withColors(enabled: Boolean): LauncherIconProvider =
+        if (enabled == colored) this else LauncherIconProvider(loader, catalog, enabled)
 
     private fun LoadedIcon.toImage(): AppIconImage = when (this) {
         LoadedIcon.Letter -> AppIconImage.Letter
+        is LoadedIcon.Mask -> AppIconImage.Mask(image(bitmap))
+        is LoadedIcon.Full -> AppIconImage.Full(image(bitmap))
+    }
 
-        is LoadedIcon.Mask -> AppIconImage.Mask(
-            synchronized(images) {
-                images.getOrPut(bitmap) { bitmap.asImageBitmap() }
-            },
-        )
+    private fun image(bitmap: Bitmap): ImageBitmap = synchronized(images) {
+        images.getOrPut(bitmap) { bitmap.asImageBitmap() }
     }
 }

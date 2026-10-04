@@ -155,22 +155,23 @@ class LauncherViewModel(
     }.stateIn(viewModelScope, SharingStarted.Eagerly, persistentListOf())
 
     val settingsState: StateFlow<SettingsUiState> = combine(
-        data,
-        container.gestures.bindings,
-        roleHeld,
-        capacity,
-        notificationAccess,
-    ) { d, g, role, cap, access ->
-        if (d == null) {
-            SettingsUiState(capacity = cap, isDefaultLauncher = role, versionName = versionName)
-        } else {
-            settingsState(d, g, role, cap).copy(notificationAccess = access)
-        }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, SettingsUiState(versionName = versionName))
+        combine(data, container.gestures.bindings, roleHeld, capacity, notificationAccess) { d, g, role, cap, access ->
+            if (d == null) {
+                SettingsUiState(capacity = cap, isDefaultLauncher = role, versionName = versionName)
+            } else {
+                settingsState(d, g, role, cap).copy(notificationAccess = access)
+            }
+        },
+        container.gestureLearning.samples,
+        container.history.usage,
+    ) { state, samples, usage -> state.withMemory(samples, usage) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, SettingsUiState(versionName = versionName))
 
     val gestureBindings = container.gestures.bindings
 
     val learnedGestures = container.gestureLearning.samples
+
+    val memory = MemoryEditor(container)
 
     private val _iconsReady = MutableStateFlow(false)
     val iconsReady: StateFlow<Boolean> = _iconsReady
@@ -326,7 +327,7 @@ class LauncherViewModel(
             withContext(Dispatchers.IO) {
                 keys.forEach { key ->
                     d.apps[key]?.let { entry ->
-                        container.icons.load(IconKey(key, entry.lastUpdateTime, homeIconPx()))
+                        container.icons.load(IconKey(key, entry.lastUpdateTime, homeIconPx(), d.settings.coloredIcons))
                     }
                 }
             }

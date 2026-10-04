@@ -3,6 +3,7 @@ package com.bluecubelabs.env.feature.search
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
@@ -46,6 +48,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -79,6 +83,8 @@ data class SearchChrome(
     val haptics: Boolean,
     val gestureTyping: Boolean,
     val gestureLetters: Boolean,
+    val gestureShiftPenalty: Float,
+    val gestureSuggestMargin: Float,
 )
 
 interface SearchActions : KeyboardActions {
@@ -109,6 +115,8 @@ object SearchDimens {
     val enterInset: Dp = 6.dp
     val toggleWidth: Dp = 72.dp
     val deleteWidth: Dp = 64.dp
+    val suggestionIcon: Dp = 28.dp
+    val suggestionGap: Dp = 12.dp
     val closeSwipe: Dp = 72.dp
     const val MAX_RECENTS = 10
 }
@@ -171,7 +179,13 @@ fun SearchScreen(
             )
             if (typing) {
                 if (chrome.gestureTyping) {
-                    GesturePanel(controller, chrome.haptics, chrome.gestureLetters)
+                    GesturePanel(
+                        controller,
+                        chrome.haptics,
+                        chrome.gestureLetters,
+                        chrome.gestureShiftPenalty,
+                        chrome.gestureSuggestMargin,
+                    )
                 } else {
                     Keyboard(chrome.layout, chrome.nextLayoutLabel, chrome.digitHints, chrome.haptics, actions)
                 }
@@ -383,17 +397,18 @@ private fun QueryRow(
                 .padding(horizontal = SearchDimens.padding),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            BasicText(
-                text = if (controller.suggesting) stringResource(R.string.search_suggestions) else controller.query,
-                style = EnvType.style(
-                    EnvType.querySize,
-                    if (controller.suggesting) colors.textSecondary else colors.textPrimary,
-                ),
-                maxLines = 1,
-                modifier = Modifier.testTag("query"),
-            )
-            BasicText("▏", style = EnvType.style(EnvType.querySize, colors.accent, FontWeight.Light))
-            Spacer(Modifier.weight(1f))
+            if (controller.suggesting) {
+                SuggestionIcons(controller.rows, actions, Modifier.weight(1f))
+            } else {
+                BasicText(
+                    text = controller.query,
+                    style = EnvType.style(EnvType.querySize, colors.textPrimary),
+                    maxLines = 1,
+                    modifier = Modifier.testTag("query"),
+                )
+                BasicText("▏", style = EnvType.style(EnvType.querySize, colors.accent, FontWeight.Light))
+                Spacer(Modifier.weight(1f))
+            }
             if (!gestureDelete) {
                 BasicText(
                     text = controller.rows.size.toString(),
@@ -407,6 +422,31 @@ private fun QueryRow(
         }
         if (enterWidth != null) {
             QueryKey(stringResource(R.string.search_enter), enterWidth, "enter", EnvType.keySize, actions::onEnter)
+        }
+    }
+}
+
+@Composable
+private fun SuggestionIcons(rows: ImmutableList<SearchRow>, actions: SearchActions, modifier: Modifier) {
+    val description = stringResource(R.string.search_suggestions)
+    Row(
+        modifier
+            .horizontalScroll(rememberScrollState())
+            .semantics { contentDescription = description }
+            .testTag("suggestions"),
+        horizontalArrangement = Arrangement.spacedBy(SearchDimens.suggestionGap),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        rows.forEachIndexed { index, row ->
+            AppIcon(
+                row.key,
+                row.label,
+                SearchDimens.suggestionIcon,
+                Modifier
+                    .pressable { actions.onLaunch(row.key) }
+                    .semantics { contentDescription = row.label }
+                    .testTag("suggestion_$index"),
+            )
         }
     }
 }

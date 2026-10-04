@@ -1,6 +1,7 @@
 package com.bluecubelabs.env.core.search
 
 import com.bluecubelabs.env.core.model.AppKey
+import com.bluecubelabs.env.core.model.GestureTuning
 import com.bluecubelabs.env.core.model.LearnedGesture
 import kotlin.math.PI
 import kotlin.math.abs
@@ -16,7 +17,11 @@ data class GestureWord(val latin: String, val text: String, val key: AppKey)
 
 data class GestureResult(val path: String, val words: List<GestureWord>)
 
-class GestureDecoder(private val keys: Map<Char, GesturePoint>) {
+class GestureDecoder(
+    private val keys: Map<Char, GesturePoint>,
+    private val shiftPenalty: Float = GestureTuning.SHIFT_PENALTY,
+    private val suggestMargin: Float = GestureTuning.SUGGEST_MARGIN,
+) {
     private val pitch: Float = keys.values.toList().let { points ->
         points.flatMap { a -> points.filter { it != a }.map { b -> distance(a, b) } }.minOrNull() ?: 1f
     }
@@ -56,7 +61,7 @@ class GestureDecoder(private val keys: Map<Char, GesturePoint>) {
             .groupBy { it.first.key }
             .map { (_, scored) -> scored.minBy { it.second } }
             .sortedBy { it.second }
-        val limit = minOf((candidates.firstOrNull()?.second ?: MAX_SCORE) + SUGGEST_MARGIN, MAX_SCORE)
+        val limit = minOf((candidates.firstOrNull()?.second ?: MAX_SCORE) + suggestMargin, MAX_SCORE)
         return GestureResult(drawn, candidates.takeWhile { it.second <= limit }.map { it.first })
     }
 
@@ -88,7 +93,7 @@ class GestureDecoder(private val keys: Map<Char, GesturePoint>) {
             (idealRadius / drawnRadius).coerceIn(1 / MAX_SCALE, MAX_SCALE)
         }
         val moved = drawn.map { GesturePoint(to.x + (it.x - from.x) * scale, to.y + (it.y - from.y) * scale) }
-        return fit(moved, ideal) + SHIFT_WEIGHT * distance(from, to) / pitch + SCALE_WEIGHT * abs(ln(scale))
+        return fit(moved, ideal) + shiftPenalty * distance(from, to) / pitch + SCALE_WEIGHT * abs(ln(scale))
     }
 
     private fun direction(drawn: List<GesturePoint>, ideal: List<GesturePoint>): Float {
@@ -152,14 +157,12 @@ class GestureDecoder(private val keys: Map<Char, GesturePoint>) {
         const val SAMPLES = 32
         const val SAMPLES_PER_KEY = 3f
         const val ENDS_WEIGHT = 0.5f
-        const val SHIFT_WEIGHT = 0.5f
         const val SCALE_WEIGHT = 0.5f
         const val MAX_SCALE = 2f
         const val DIRECTION_WEIGHT = 1f
         const val MISSED_DOUBLE_PENALTY = 0.1f
         const val EXTRA_DWELL_PENALTY = 0.5f
         const val MAX_SCORE = 2f
-        const val SUGGEST_MARGIN = 0.3f
         const val LEARN_BONUS = 1.5
     }
 }

@@ -128,6 +128,7 @@ object Motion {
     const val TRANSITION_MS = 200
     const val PRESS_FADE_MS = 200
     const val PRESS_HOLD_MS = 100L
+    const val HOLD_MS = 1000L
 }
 
 fun Modifier.rowHeight(height: Dp): Modifier = this.fillMaxWidth().height(height)

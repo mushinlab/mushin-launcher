@@ -81,4 +81,12 @@ class HistoryRepository(
     suspend fun clearRecents(envId: Long) {
         recentDao.clear(envId)
     }
+
+    suspend fun clearAllRecents() {
+        recentDao.clearAll()
+    }
+
+    suspend fun clearUsage() {
+        usageDao.deleteAll()
+    }
 }

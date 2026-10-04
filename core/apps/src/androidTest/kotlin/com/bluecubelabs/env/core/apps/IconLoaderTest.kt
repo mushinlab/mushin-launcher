@@ -39,8 +39,33 @@ class IconLoaderTest {
                 }
 
                 LoadedIcon.Letter -> Unit
+
+                is LoadedIcon.Full -> error("monochrome key produced a colour icon")
             }
         }
+    }
+
+    @Test
+    fun colouredIconsKeepAppColoursAndSkipTheDiskCache() = runTest {
+        val loader = IconLoader(context, LauncherIconSource(context, gateway))
+        val icons = records.map { loader.load(IconKey(it.key, it.lastUpdateTime, 74, colored = true)) }
+        val full = icons.filterIsInstance<LoadedIcon.Full>()
+        assertThat(full).isNotEmpty()
+        assertThat(full.first().bitmap.config).isEqualTo(Bitmap.Config.ARGB_8888)
+        val saturated = full.any { icon ->
+            val b = icon.bitmap
+            (0 until b.width step 4).any { x ->
+                (0 until b.height step 4).any { y ->
+                    val c = b.getPixel(x, y)
+                    val r = (c shr 16) and 0xFF
+                    val g = (c shr 8) and 0xFF
+                    val bl = c and 0xFF
+                    maxOf(r, g, bl) - minOf(r, g, bl) > 60
+                }
+            }
+        }
+        assertThat(saturated).isTrue()
+        assertThat(context.cacheDir.resolve("icons").listFiles().orEmpty()).isEmpty()
     }
 
     @Test

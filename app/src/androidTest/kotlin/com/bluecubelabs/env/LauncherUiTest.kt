@@ -6,11 +6,13 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
@@ -24,11 +26,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.bluecubelabs.env.core.apps.NotificationSource
 import com.bluecubelabs.env.core.model.EnvType
+import com.bluecubelabs.env.core.model.GestureTuning
+import com.bluecubelabs.env.core.model.LearnedGesture
 import com.bluecubelabs.env.core.model.PressFeedback
 import com.bluecubelabs.env.core.search.KeyboardLayouts
 import com.bluecubelabs.env.feature.search.GestureDimens
 import com.bluecubelabs.env.feature.search.KeyboardDimens
 import com.bluecubelabs.env.feature.search.KeyboardGeometry
+import com.bluecubelabs.env.feature.settings.SettingsRoute
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -62,7 +67,14 @@ class LauncherUiTest {
     @After
     fun resetSettings() = runBlocking {
         container.settings.update {
-            it.copy(keyboardGestureTyping = false, notificationCounts = false, pressFeedback = PressFeedback.FLASH)
+            it.copy(
+                keyboardGestureTyping = false,
+                notificationCounts = false,
+                pressFeedback = PressFeedback.FLASH,
+                gestureShiftPenalty = GestureTuning.SHIFT_PENALTY,
+                gestureSuggestMargin = GestureTuning.SUGGEST_MARGIN,
+                coloredIcons = false,
+            )
         }
         container.notificationCounts.value = emptyMap()
     }
@@ -291,8 +303,9 @@ class LauncherUiTest {
             rule.onNodeWithTag("input_toggle").performClick()
             rule.waitUntil(5_000) { container.settings.settings.value.keyboardGestureTyping }
             drawOnGesturePanel("zebra")
-            val suggestions = rule.activity.getString(com.bluecubelabs.env.feature.search.R.string.search_suggestions)
-            rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals(suggestions)
+            rule.onNodeWithTag("suggestion_0").assertIsDisplayed()
+            rule.onNodeWithTag("suggestion_1").assertIsDisplayed()
+            rule.onNodeWithTag("query", useUnmergedTree = true).assertDoesNotExist()
             assertThat(rule.activity.search.rows.map { it.label }).containsExactly("Zebra One", "Zebra Two")
             rule.onNodeWithTag("gesture_delete").performClick()
             rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
@@ -339,5 +352,60 @@ class LauncherUiTest {
         rule.waitUntil(5_000) { container.settings.settings.value.pressFeedback == PressFeedback.DIM }
         rule.onNodeWithTag("press_DIM").assertIsSelected()
         rule.onNodeWithTag("press_FLASH").assertIsNotSelected()
+    }
+
+    @Test
+    fun gesturesSectionHoldsSwipesAndSwipeTypingSettings() {
+        rule.runOnIdle { rule.activity.settingsStack.open() }
+        rule.onNodeWithTag("nav_gestures").performClick()
+        rule.onNodeWithTag("gesture_UP").assertIsDisplayed()
+        rule.onNodeWithTag("kb_gesture_letters").performScrollTo().assertIsDisplayed()
+        rule.onNodeWithTag("kb_gesture_shift").performScrollTo().performTouchInput { click(centerLeft) }
+        rule.waitUntil(5_000) {
+            container.settings.settings.value.gestureShiftPenalty == GestureTuning.SHIFT_PENALTY_MIN
+        }
+        rule.onNodeWithTag("kb_gesture_margin").performScrollTo().performTouchInput { click(centerRight) }
+        rule.waitUntil(5_000) {
+            container.settings.settings.value.gestureSuggestMargin == GestureTuning.SUGGEST_MARGIN_MAX
+        }
+        rule.onNodeWithTag("kb_gesture_tuning_reset").performScrollTo().performClick()
+        rule.waitUntil(5_000) {
+            container.settings.settings.value.gestureShiftPenalty == GestureTuning.SHIFT_PENALTY &&
+                container.settings.settings.value.gestureSuggestMargin == GestureTuning.SUGGEST_MARGIN
+        }
+    }
+
+    @Test
+    fun memoryShowsLearnedDrawingsPerAppAndForgetsThem() {
+        val app = runBlocking { container.catalog.apps.first().sortedBy { it.label }.first() }
+        runBlocking {
+            container.gestureLearning.update { listOf(LearnedGesture("qwerty", app.key, 2.0)) }
+        }
+        try {
+            rule.runOnIdle { rule.activity.settingsStack.open() }
+            rule.onNodeWithTag("nav_memory").performScrollTo().performClick()
+            rule.onNodeWithTag("memory_app_${app.label}").performClick()
+            rule.onNodeWithTag("memory_drawing_0").assertIsDisplayed()
+            rule.onNodeWithTag("memory_forget_0").performClick()
+            rule.waitUntil(5_000) { container.gestureLearning.samples.value.isEmpty() }
+        } finally {
+            runBlocking { container.gestureLearning.update { emptyList() } }
+        }
+    }
+
+    @Test
+    fun holdingASpaceInThePopupForOneSecondOpensItsSettings() {
+        backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
+        rule.onNodeWithTag("popup_env_$normalId").performTouchInput { longClick(durationMillis = 1_200) }
+        rule.waitUntil(5_000) { rule.activity.settingsStack.top == SettingsRoute.EnvEditor(normalId) }
+        assertThat(rule.activity.overlay).isEqualTo(Overlay.None)
+    }
+
+    @Test
+    fun colouredIconsToggleIsStored() {
+        rule.runOnIdle { rule.activity.settingsStack.open() }
+        rule.onNodeWithTag("nav_home").performClick()
+        rule.onNodeWithTag("colored_icons").performClick()
+        rule.waitUntil(5_000) { container.settings.settings.value.coloredIcons }
     }
 }

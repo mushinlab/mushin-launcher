@@ -35,6 +35,7 @@ class SettingsRepositoryTest {
         assertThat(settings).isEqualTo(LauncherSettings())
         assertThat(settings.currentEnvId).isNull()
         assertThat(settings.iconMode).isEqualTo(IconMode.NONE)
+        assertThat(settings.coloredIcons).isFalse()
         assertThat(settings.clockFormat).isEqualTo(ClockFormat.SYSTEM)
         assertThat(settings.showDate).isTrue()
         assertThat(settings.homeTextSize).isEqualTo(HomeTextSize.M)
@@ -46,6 +47,8 @@ class SettingsRepositoryTest {
         assertThat(settings.keyboardDigitHints).isTrue()
         assertThat(settings.keyboardGestureTyping).isFalse()
         assertThat(settings.keyboardGestureLetters).isFalse()
+        assertThat(settings.gestureShiftPenalty).isEqualTo(0.5f)
+        assertThat(settings.gestureSuggestMargin).isEqualTo(0.3f)
         assertThat(settings.searchFuzzy).isTrue()
         assertThat(settings.searchLayoutSwap).isTrue()
         assertThat(settings.searchTranslit).isTrue()
@@ -61,19 +64,25 @@ class SettingsRepositoryTest {
             it.copy(
                 currentEnvId = 7,
                 iconMode = IconMode.RIGHT,
+                coloredIcons = true,
                 keyboardLayouts = listOf("ru", "en"),
                 keyboardGestureTyping = true,
                 keyboardGestureLetters = true,
                 notificationCounts = true,
                 pressFeedback = PressFeedback.DIM,
+                gestureShiftPenalty = 0.8f,
+                gestureSuggestMargin = 5f,
             )
         }
         val settings = repo.settings.first { it.currentEnvId == 7L }
         assertThat(settings.iconMode).isEqualTo(IconMode.RIGHT)
+        assertThat(settings.coloredIcons).isTrue()
         assertThat(settings.keyboardGestureTyping).isTrue()
         assertThat(settings.keyboardGestureLetters).isTrue()
         assertThat(settings.notificationCounts).isTrue()
         assertThat(settings.pressFeedback).isEqualTo(PressFeedback.DIM)
+        assertThat(settings.gestureShiftPenalty).isEqualTo(0.8f)
+        assertThat(settings.gestureSuggestMargin).isEqualTo(1f)
         assertThat(settings.keyboardLayouts).containsExactly("ru", "en").inOrder()
         repo.update { it.copy(currentEnvId = null) }
         assertThat(repo.settings.first { it.currentEnvId == null }.iconMode).isEqualTo(IconMode.RIGHT)

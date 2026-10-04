@@ -42,6 +42,10 @@ sealed interface SettingsRoute {
     data object Apps : SettingsRoute
 
     data object System : SettingsRoute
+
+    data object Memory : SettingsRoute
+
+    data class MemoryApp(val key: AppKey) : SettingsRoute
 }
 
 @Stable
@@ -112,6 +116,19 @@ data class GestureSummary(
 )
 
 @Immutable
+data class LearnedDrawing(val path: String, val weight: Double)
+
+@Immutable
+data class LearnedApp(
+    val key: AppKey,
+    val label: String,
+    val drawings: ImmutableList<LearnedDrawing>,
+)
+
+@Immutable
+data class UsageRow(val key: AppKey, val label: String, val launches: Int)
+
+@Immutable
 data class SettingsUiState(
     val settings: LauncherSettings = LauncherSettings(),
     val envs: ImmutableList<EnvSummary> = persistentListOf(),
@@ -123,6 +140,8 @@ data class SettingsUiState(
     val isDefaultLauncher: Boolean = false,
     val notificationAccess: Boolean = false,
     val versionName: String = "",
+    val learned: ImmutableList<LearnedApp> = persistentListOf(),
+    val usage: ImmutableList<UsageRow> = persistentListOf(),
 ) {
     val currentEnvId: Long? get() = envs.firstOrNull { it.current }?.id
 }
@@ -155,4 +174,12 @@ interface SettingsActions {
     fun requestDefaultLauncher()
 
     fun openNotificationAccess()
+
+    fun forgetDrawing(key: AppKey, path: String)
+
+    fun forgetApp(key: AppKey)
+
+    fun forgetAllGestures()
+
+    fun clearUsage()
 }

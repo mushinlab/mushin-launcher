@@ -11,6 +11,7 @@ enum class PressFeedback { FLASH, HOLD, ACCENT, DIM, SCALE }
 data class LauncherSettings(
     val currentEnvId: Long? = null,
     val iconMode: IconMode = IconMode.NONE,
+    val coloredIcons: Boolean = false,
     val clockFormat: ClockFormat = ClockFormat.SYSTEM,
     val showDate: Boolean = true,
     val homeTextSize: HomeTextSize = HomeTextSize.M,
@@ -22,6 +23,8 @@ data class LauncherSettings(
     val keyboardDigitHints: Boolean = true,
     val keyboardGestureTyping: Boolean = false,
     val keyboardGestureLetters: Boolean = false,
+    val gestureShiftPenalty: Float = GestureTuning.SHIFT_PENALTY,
+    val gestureSuggestMargin: Float = GestureTuning.SUGGEST_MARGIN,
     val searchFuzzy: Boolean = true,
     val searchLayoutSwap: Boolean = true,
     val searchTranslit: Boolean = true,

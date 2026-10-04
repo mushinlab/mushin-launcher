@@ -68,6 +68,7 @@ import com.bluecubelabs.env.feature.search.SearchChrome
 import com.bluecubelabs.env.feature.search.SearchScreen
 import com.bluecubelabs.env.feature.settings.SettingsActions
 import com.bluecubelabs.env.feature.settings.SettingsHost
+import com.bluecubelabs.env.feature.settings.SettingsRoute
 import com.bluecubelabs.env.feature.settings.TextInputDialog
 import kotlinx.coroutines.delay
 
@@ -82,9 +83,10 @@ fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: La
     ReportDrawnWhen { ready && iconsReady }
     BackHandler(enabled = true) { activity.handleBack() }
 
+    val icons = remember(iconProvider, settings.coloredIcons) { iconProvider.withColors(settings.coloredIcons) }
     EnvTheme(palette) {
         CompositionLocalProvider(
-            LocalIconProvider provides iconProvider,
+            LocalIconProvider provides icons,
             LocalPressFeedback provides settings.pressFeedback,
         ) {
             Box(
@@ -204,6 +206,8 @@ private fun SearchLayer(activity: MainActivity, vm: LauncherViewModel, settings:
             haptics = settings.keyboardHaptics,
             gestureTyping = settings.keyboardGestureTyping,
             gestureLetters = settings.keyboardGestureLetters,
+            gestureShiftPenalty = settings.gestureShiftPenalty,
+            gestureSuggestMargin = settings.gestureSuggestMargin,
         )
     }
     val actions = remember(activity) { searchActions(activity) }
@@ -321,6 +325,11 @@ private fun popupActions(activity: MainActivity, vm: LauncherViewModel) = object
         activity.settingsStack.open()
     }
 
+    override fun onOpenEnvSettings(id: Long) {
+        activity.overlay = Overlay.None
+        activity.settingsStack.open(SettingsRoute.EnvEditor(id))
+    }
+
     override fun onAbout(key: AppKey) {
         activity.overlay = Overlay.None
         container.launcher.openDetails(key)
@@ -387,6 +396,16 @@ private fun SettingsLayer(activity: MainActivity, vm: LauncherViewModel) {
             override fun requestDefaultLauncher() = activity.requestRole()
 
             override fun openNotificationAccess() = activity.openNotificationAccess()
+
+            override fun forgetDrawing(key: AppKey, path: String) = vm.memory.forget {
+                it.key == key && it.path == path
+            }
+
+            override fun forgetApp(key: AppKey) = vm.memory.forget { it.key == key }
+
+            override fun forgetAllGestures() = vm.memory.forget { true }
+
+            override fun clearUsage() = vm.memory.clearUsage()
         }
     }
     SettingsHost(activity.settingsStack, state, actions)

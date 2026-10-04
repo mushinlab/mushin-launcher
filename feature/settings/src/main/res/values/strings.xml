@@ -9,7 +9,7 @@
     <string name="settings_on">Вкл</string>
     <string name="settings_off">Выкл</string>
 
-    <string name="settings_envs">Энвы</string>
+    <string name="settings_envs">Спейсы</string>
     <string name="settings_home">Главный экран</string>
     <string name="settings_search">Поиск</string>
     <string name="settings_keyboard">Клавиатура</string>
@@ -17,10 +17,10 @@
     <string name="settings_press">Анимация нажатия</string>
     <string name="settings_apps">Скрытые и переименованные</string>
     <string name="settings_system">Система</string>
-    <string name="settings_current_env">Энв «%1$s»</string>
+    <string name="settings_current_env">Спейс «%1$s»</string>
 
-    <string name="env_create">+ Создать энв</string>
-    <string name="env_create_title">Новый энв</string>
+    <string name="env_create">+ Создать спейс</string>
+    <string name="env_create_title">Новый спейс</string>
     <string name="env_work_default_name">Работа</string>
     <string name="env_create_work">+ Создать «Работа»</string>
     <string name="env_type_normal">обычный</string>
@@ -28,13 +28,13 @@
     <string name="env_type_custom">свой</string>
     <string name="env_current">текущий</string>
     <string name="env_name">Название</string>
-    <string name="env_rename_title">Название энва</string>
+    <string name="env_rename_title">Название спейса</string>
     <string name="env_palette">Палитра</string>
     <string name="env_items">Приложения</string>
     <string name="env_add">+ Добавить</string>
     <string name="env_overflow">Помещается %1$d из %2$d — лишние не видны на главном экране</string>
-    <string name="env_delete">Удалить энв</string>
-    <string name="env_delete_confirm">Удалить энв «%1$s»? Приложения и история энва будут удалены</string>
+    <string name="env_delete">Удалить спейс</string>
+    <string name="env_delete_confirm">Удалить спейс «%1$s»? Приложения и история спейса будут удалены</string>
     <string name="env_item_hidden">скрыто</string>
     <string name="env_item_missing">удалено</string>
     <string name="env_move_up">Вверх</string>
@@ -45,8 +45,8 @@
     <string name="error_name_empty">Введите название</string>
     <string name="error_name_long">Не больше 24 символов</string>
     <string name="error_name_taken">Такое название уже есть</string>
-    <string name="error_work_limit">Энв «Работа» уже есть</string>
-    <string name="error_custom_limit">Не больше 20 своих энвов</string>
+    <string name="error_work_limit">Спейс «Работа» уже есть</string>
+    <string name="error_custom_limit">Не больше 20 своих спейсов</string>
     <string name="error_generic">Не получилось</string>
 
     <string name="palette_graphite">Graphite</string>
@@ -63,6 +63,8 @@
     <string name="home_icons_none">Без иконок</string>
     <string name="home_icons_left">Слева</string>
     <string name="home_icons_right">Справа</string>
+    <string name="home_colored_icons">Цветные иконки</string>
+    <string name="home_colored_icons_note">Иконки в цветах приложений вместо монохромных — на главном экране, в поиске и в вариантах рисунка. Работает, когда иконки включены.</string>
     <string name="home_clock">Формат часов</string>
     <string name="home_clock_system">Как в системе</string>
     <string name="home_clock_24">24 часа</string>
@@ -86,20 +88,29 @@
     <string name="search_fuzzy">Исправлять опечатки</string>
     <string name="search_layout_swap">Неправильная раскладка</string>
     <string name="search_translit">Транслит</string>
-    <string name="search_clear_history">Очистить историю энва</string>
-    <string name="search_clear_confirm">Очистить историю поиска энва «%1$s»?</string>
+    <string name="search_clear_history">Очистить историю спейса</string>
+    <string name="search_clear_confirm">Очистить историю поиска спейса «%1$s»?</string>
 
     <string name="keyboard_layouts">Раскладки</string>
     <string name="keyboard_haptics">Отклик вибрацией</string>
     <string name="keyboard_digit_hints">Подсказки цифр</string>
     <string name="keyboard_gesture_letters">Буквы на панели рисунка</string>
     <string name="keyboard_gesture_letters_note">Для обучения: бледная раскладка QWERTY под штрихом. Когда запомните, где какие буквы, выключите.</string>
+    <string name="keyboard_gesture_tuning">Ввод рисунком</string>
+    <string name="keyboard_gesture_shift">Штраф за сдвиг</string>
+    <string name="keyboard_gesture_shift_note">Меньше — рисунок, нарисованный в стороне от букв, узнаётся легче, но чаще бывают случайные совпадения. Больше — нужно попадать точнее. По умолчанию 0,50.</string>
+    <string name="keyboard_gesture_margin">Порог вариантов</string>
+    <string name="keyboard_gesture_margin_note">Больше — чаще показываются несколько приложений вместо одного. 0 — варианты только при одинаковом совпадении. По умолчанию 0,30.</string>
+    <string name="keyboard_gesture_tuning_reset">Вернуть значения по умолчанию</string>
     <string name="keyboard_need_one">Нужна хотя бы одна раскладка</string>
 
     <string name="gesture_up">Свайп вверх</string>
     <string name="gesture_down">Свайп вниз</string>
     <string name="gesture_left">Свайп влево</string>
     <string name="gesture_right">Свайп вправо</string>
+    <string name="settings_app_wide">Для всего приложения</string>
+    <string name="gestures_app_wide">Жесты общие для всех спейсов.</string>
+    <string name="gestures_swipes">Свайпы на главном экране</string>
     <string name="gesture_shade_zone">Свайп вниз из верхней пятой части экрана всегда открывает шторку уведомлений.</string>
     <string name="action_none">Ничего</string>
     <string name="action_notifications">Шторка уведомлений</string>
@@ -119,7 +130,30 @@
     <string name="system_default_no">Нет — нажмите, чтобы назначить</string>
     <string name="system_version">Версия</string>
     <string name="system_privacy">Конфиденциальность</string>
-    <string name="system_privacy_text">Энв не собирает и не передаёт никаких данных: у приложения нет доступа к интернету, в нём нет рекламы и аналитики. Энвы, история запусков, выученные жесты и настройки хранятся только на этом устройстве, не попадают в резервные копии и удаляются вместе с приложением. Список установленных приложений Энв получает от системы, чтобы показать их на главном экране и в поиске. Если включить счётчик уведомлений, Энв видит только количество уведомлений у каждого приложения — текст уведомлений не читается и не сохраняется.</string>
+    <string name="system_privacy_text">Mushin не собирает и не передаёт никаких данных: у приложения нет доступа к интернету, в нём нет рекламы и аналитики. Спейсы, история запусков, выученные жесты и настройки хранятся только на этом устройстве, не попадают в резервные копии и удаляются вместе с приложением. Список установленных приложений Mushin получает от системы, чтобы показать их на главном экране и в поиске. Если включить счётчик уведомлений, Mushin видит только количество уведомлений у каждого приложения — текст уведомлений не читается и не сохраняется.</string>
     <string name="system_licenses">Лицензии</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable — Apache License 2.0.</string>
+    <string name="settings_memory">Память</string>
+    <string name="memory_note">Всё, чему Mushin научился, хранится только на этом телефоне. Здесь это можно посмотреть и стереть.</string>
+    <string name="memory_gestures">Выученные жесты</string>
+    <string name="memory_gestures_none">Пока ничего. Жест запоминается, когда после исправленного рисунка или выбора из вариантов вы открываете приложение.</string>
+    <string name="memory_forget_gestures">Забыть все жесты</string>
+    <string name="memory_forget_gestures_confirm">Забыть все выученные жесты? Распознавание вернётся к начальному.</string>
+    <string name="memory_usage">Частота запусков</string>
+    <string name="memory_usage_note">По ней сортируются результаты поиска.</string>
+    <string name="memory_usage_none">Пока пусто.</string>
+    <string name="memory_clear_usage">Стереть счётчики запусков</string>
+    <string name="memory_clear_usage_confirm">Стереть счётчики запусков всех приложений? Поиск перестанет учитывать, как часто вы их открываете, пока счётчики не накопятся снова.</string>
+    <string name="memory_erase">Стереть</string>
+    <string name="memory_app_note">Рисунки, после которых вы открывали это приложение. Точка — начало линии, кружок — задержка на двойной букве. Чем больше вес, тем сильнее рисунок тянет к этому приложению.</string>
+    <string name="memory_forget_app">Забыть все рисунки приложения</string>
+    <string name="memory_forget_app_confirm">Забыть все рисунки для «%1$s»?</string>
+    <string name="memory_weight">Вес %1$s</string>
+    <string name="memory_forget">Забыть</string>
+    <plurals name="memory_drawings">
+        <item quantity="one">%d рисунок</item>
+        <item quantity="few">%d рисунка</item>
+        <item quantity="many">%d рисунков</item>
+        <item quantity="other">%d рисунка</item>
+    </plurals>
 </resources>

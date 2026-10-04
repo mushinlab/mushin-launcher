@@ -1,4 +1,6 @@
-# Env Launcher — правила для агента
+# Mushin Launcher — правила для агента
+
+Продукт называется Mushin Launcher, понятие «энв» в интерфейсе — «спейс» (ADR-0007). В коде, БД и `applicationId` осталось рабочее имя `env`.
 
 ## Источник истины
 - `docs/spec/*.md` — требования (AC Given/When/Then). `docs/plan.md` — эпики и DoD. `docs/adr/*.md` — неизменяемые решения.
