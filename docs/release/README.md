@@ -6,7 +6,7 @@
 - Вход `MAIN` + `INFO`. Кнопка «Открыть» в Google Play запускает Mushin Launcher: он открывается, когда задан лаунчером по умолчанию, иначе предлагает им стать. При этом лаунчер не появляется в списке приложений — ни в своём, ни в чужих лаунчерах (ADR-0006).
 - Текст политики конфиденциальности в приложении («Настройки → Система → Конфиденциальность») — это требование Play для всех приложений.
 - Тексты карточки — `store-listing.md`, скриншоты — `assets/screenshots/` (en, 1080 × 2160). Ответы на анкеты Play Console — `data-safety.md`. Политика для публикации на сайте — `privacy-policy.md`.
-- Ревью безопасности и исправления — `security-review.md`. Задача `./gradlew :app:checkReleasePermissions` падает, если в release-манифест попали `INTERNET` или `QUERY_ALL_PACKAGES`.
+- Ревью безопасности и исправления — `security-review.md`. Защита от копирования, патенты и маркетинг — `protection-and-marketing.md`. Задача `./gradlew :app:checkReleasePermissions` падает, если в release-манифест попали `INTERNET` или `QUERY_ALL_PACKAGES`.
 
 ## Первый шаг: аккаунт разработчика
 Зарегистрируйтесь в Play Console: https://play.google.com/console/signup.
