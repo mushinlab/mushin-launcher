@@ -10,31 +10,35 @@ import com.bluecubelabs.env.core.model.GestureBinding
 import com.bluecubelabs.env.core.model.LearnedGesture
 import com.bluecubelabs.env.core.model.Palette
 import com.bluecubelabs.env.core.model.PalettePreset
+import com.bluecubelabs.env.core.model.Palettes
 import com.bluecubelabs.env.core.model.SearchRecent
 import com.bluecubelabs.env.core.model.SwipeDirection
 
-internal fun EnvironmentEntity.toModel(): Environment = Environment(
-    id = id,
-    name = name,
-    type = EnvType.valueOf(type),
-    sortOrder = sortOrder,
-    preset = runCatching { PalettePreset.valueOf(palettePreset) }.getOrDefault(PalettePreset.CUSTOM),
-    palette = Palette(
-        background = background,
-        zebraA = zebraA,
-        zebraB = zebraB,
-        textPrimary = textPrimary,
-        textSecondary = textSecondary,
-        accent = accent,
-        iconTint = iconTint,
-        divider = divider,
-        surface = surface,
-        keyBackground = keyBackground,
-        keyPressed = keyPressed,
-        isDark = isDark,
-    ),
-    createdAt = createdAt,
-)
+internal fun EnvironmentEntity.toModel(): Environment {
+    val preset = runCatching { PalettePreset.valueOf(palettePreset) }.getOrDefault(PalettePreset.CUSTOM)
+    return Environment(
+        id = id,
+        name = name,
+        type = EnvType.valueOf(type),
+        sortOrder = sortOrder,
+        preset = preset,
+        palette = Palettes.presets[preset] ?: Palette(
+            background = background,
+            zebraA = zebraA,
+            zebraB = zebraB,
+            textPrimary = textPrimary,
+            textSecondary = textSecondary,
+            accent = accent,
+            iconTint = iconTint,
+            divider = divider,
+            surface = surface,
+            keyBackground = keyBackground,
+            keyPressed = keyPressed,
+            isDark = isDark,
+        ),
+        createdAt = createdAt,
+    )
+}
 
 internal fun EnvironmentItemEntity.key(): AppKey = AppKey(packageName, activityName, userSerial)
 

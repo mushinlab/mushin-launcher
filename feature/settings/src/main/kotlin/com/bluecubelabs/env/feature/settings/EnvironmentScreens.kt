@@ -234,9 +234,11 @@ private fun EnvItemsSection(
 private fun PalettePicker(selected: PalettePreset, onSelect: (PalettePreset) -> Unit) {
     val names = mapOf(
         PalettePreset.GRAPHITE to stringResource(R.string.palette_graphite),
+        PalettePreset.NIGHT to stringResource(R.string.palette_night),
         PalettePreset.NAVY to stringResource(R.string.palette_navy),
-        PalettePreset.PAPER to stringResource(R.string.palette_paper),
         PalettePreset.MOSS to stringResource(R.string.palette_moss),
+        PalettePreset.PAPER to stringResource(R.string.palette_paper),
+        PalettePreset.SAND to stringResource(R.string.palette_sand),
     )
     Palettes.presets.forEach { (preset, palette) ->
         val swatch = EnvColors.from(palette)

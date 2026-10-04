@@ -53,6 +53,8 @@
     <string name="palette_navy">Navy</string>
     <string name="palette_paper">Paper</string>
     <string name="palette_moss">Moss</string>
+    <string name="palette_night">Night</string>
+    <string name="palette_sand">Sand</string>
 
     <string name="picker_title">Приложения</string>
     <string name="picker_filter">Поиск</string>

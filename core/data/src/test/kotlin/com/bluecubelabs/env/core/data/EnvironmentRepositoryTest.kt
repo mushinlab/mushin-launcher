@@ -157,4 +157,31 @@ class EnvironmentRepositoryTest {
         val updated = repo.environments.first { envs -> envs.any { it.preset == PalettePreset.PAPER } }
         assertThat(updated.first { it.id == normal.id }.palette).isEqualTo(Palettes.Paper)
     }
+
+    @Test
+    fun presetSpacesFollowTheCurrentPaletteEvenWithOldStoredColours() = runTest {
+        val repo = EnvironmentRepository(rule.db, backgroundScope, rule.clock)
+        val normal = repo.environments.first { it.isNotEmpty() }.first { it.type == EnvType.NORMAL }
+        val old = 0x0E0E0E or 0xFF shl 24
+        rule.db.environmentDao().setPalette(
+            normal.id, PalettePreset.GRAPHITE.name, old, old, old, -1, -1, -1, -1, old, old, old, old, true,
+        )
+        val stored = repo.environments.first { envs ->
+            envs.any {
+                it.id == normal.id &&
+                    it.preset == PalettePreset.GRAPHITE
+            }
+        }
+        assertThat(stored.first { it.id == normal.id }.palette).isEqualTo(Palettes.Graphite)
+        rule.db.environmentDao().setPalette(
+            normal.id, PalettePreset.CUSTOM.name, old, old, old, -1, -1, -1, -1, old, old, old, old, true,
+        )
+        val custom = repo.environments.first { envs ->
+            envs.any {
+                it.id == normal.id &&
+                    it.preset == PalettePreset.CUSTOM
+            }
+        }
+        assertThat(custom.first { it.id == normal.id }.palette.textPrimary).isEqualTo(-1)
+    }
 }

@@ -24,6 +24,19 @@ class PaletteContrastTest {
     }
 
     @Test
+    fun sixPresetsWithAccentReadableAsTextAndNoPureWhiteText() {
+        assertWithMessage("presets").that(Palettes.presets.size).isEqualTo(6)
+        Palettes.presets.forEach { (preset, palette) ->
+            assertWithMessage("$preset accent")
+                .that(contrast(palette.accent, palette.background))
+                .isAtLeast(4.5)
+            assertWithMessage("$preset textPrimary is not pure white or black")
+                .that(palette.textPrimary and 0xFFFFFF)
+                .isNoneOf(0xFFFFFF, 0x000000)
+        }
+    }
+
+    @Test
     fun zebraBDiffersFromZebraAByThreeToFivePercentLightness() {
         Palettes.presets.forEach { (preset, palette) ->
             val delta = kotlin.math.abs(lightness(palette.zebraB) - lightness(palette.zebraA))
