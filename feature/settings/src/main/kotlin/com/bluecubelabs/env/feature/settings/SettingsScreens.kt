@@ -1,12 +1,37 @@
 package com.bluecubelabs.env.feature.settings
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.bluecubelabs.env.core.model.AppFont
+import com.bluecubelabs.env.core.model.AppFontWeight
 import com.bluecubelabs.env.core.model.ClockFormat
 import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.GestureTuning
@@ -15,35 +40,183 @@ import com.bluecubelabs.env.core.model.IconMode
 import com.bluecubelabs.env.core.model.PressFeedback
 import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.search.KeyboardLayouts
-import com.bluecubelabs.env.core.ui.HorizontalDivider
+import com.bluecubelabs.env.core.ui.EnvFonts
+import com.bluecubelabs.env.core.ui.EnvType
 import com.bluecubelabs.env.core.ui.LocalEnvColors
+import com.bluecubelabs.env.core.ui.SingleLineText
+import com.bluecubelabs.env.core.ui.pressable
 
 @Composable
-internal fun RootScreen(state: SettingsUiState, push: (SettingsRoute) -> Unit, back: () -> Unit) {
+internal fun RootScreen(
+    state: SettingsUiState,
+    actions: SettingsActions,
+    push: (SettingsRoute) -> Unit,
+    back: () -> Unit,
+) {
     SettingsPage(stringResource(R.string.settings_title), back) {
-        state.envs.firstOrNull { it.current }?.let { env ->
-            SectionHeader(stringResource(R.string.settings_current_env, env.name))
-            NavRow(
-                stringResource(R.string.env_items),
-                value = state.envItems[env.id].orEmpty().size.toString(),
-                tag = "nav_env_apps",
-            ) { push(SettingsRoute.EnvApps(env.id)) }
-            HorizontalDivider()
+        SpaceChips(state.envs, actions::switchEnv)
+        NavRow(
+            stringResource(R.string.settings_envs),
+            summary = stringResource(R.string.summary_envs),
+            tag = "nav_envs",
+        ) { push(SettingsRoute.Environments) }
+        NavRow(
+            stringResource(R.string.settings_style),
+            summary = stringResource(R.string.summary_style),
+            tag = "nav_style",
+        ) { push(SettingsRoute.Style) }
+        NavRow(
+            stringResource(R.string.settings_home),
+            summary = stringResource(R.string.summary_home),
+            tag = "nav_home",
+        ) { push(SettingsRoute.Home) }
+        NavRow(
+            stringResource(R.string.settings_keyboard),
+            summary = stringResource(R.string.summary_keyboard),
+            tag = "nav_keyboard",
+        ) { push(SettingsRoute.Keyboard) }
+        NavRow(
+            stringResource(R.string.settings_gestures),
+            summary = stringResource(R.string.summary_gestures),
+            tag = "nav_gestures",
+        ) { push(SettingsRoute.Gestures) }
+        NavRow(
+            stringResource(R.string.settings_apps),
+            summary = stringResource(R.string.summary_apps),
+            tag = "nav_apps",
+        ) { push(SettingsRoute.Apps) }
+        NavRow(
+            stringResource(R.string.settings_system),
+            summary = stringResource(R.string.summary_system),
+            tag = "nav_system",
+        ) { push(SettingsRoute.System) }
+    }
+}
+
+@Composable
+private fun SpaceChips(envs: List<EnvSummary>, onSelect: (Long) -> Unit) {
+    val colors = LocalEnvColors.current
+    val scroll = rememberScrollState()
+    val ordered = envs.sortedByDescending { it.current }
+    val currentId = ordered.firstOrNull()?.id
+    LaunchedEffect(currentId) { scroll.scrollTo(0) }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .horizontalScroll(scroll)
+            .padding(horizontal = CARD_MARGIN, vertical = 8.dp)
+            .testTag("space_chips"),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        ordered.forEach { env ->
+            Row(
+                Modifier
+                    .clip(RoundedCornerShape(CARD_RADIUS))
+                    .background(if (env.current) colors.accent.copy(alpha = CHIP_ALPHA) else colors.surface)
+                    .border(
+                        1.dp,
+                        if (env.current) colors.accent else colors.surface,
+                        RoundedCornerShape(CARD_RADIUS),
+                    )
+                    .pressable(role = Role.RadioButton) { onSelect(env.id) }
+                    .semantics { selected = env.current }
+                    .testTag("space_chip_${env.id}")
+                    .heightIn(min = 48.dp)
+                    .padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioMark(env.current)
+                Spacer(Modifier.width(8.dp))
+                SingleLineText(env.name, EnvType.style(16.sp, colors.textPrimary))
+            }
         }
-        SectionHeader(stringResource(R.string.settings_app_wide))
-        NavRow(stringResource(R.string.settings_envs), tag = "nav_envs") { push(SettingsRoute.Environments) }
-        NavRow(stringResource(R.string.settings_home), tag = "nav_home") { push(SettingsRoute.Home) }
-        NavRow(stringResource(R.string.settings_search), tag = "nav_search") { push(SettingsRoute.Search) }
-        NavRow(stringResource(R.string.settings_keyboard), tag = "nav_keyboard") { push(SettingsRoute.Keyboard) }
-        NavRow(stringResource(R.string.settings_gestures), tag = "nav_gestures") { push(SettingsRoute.Gestures) }
+    }
+}
+
+@Composable
+private fun RadioMark(selected: Boolean) {
+    val colors = LocalEnvColors.current
+    val ring = if (selected) colors.accent else colors.textSecondary
+    Canvas(Modifier.size(18.dp)) {
+        val stroke = size.width * RADIO_STROKE
+        drawCircle(ring, radius = size.width / 2 - stroke / 2, style = Stroke(stroke))
+        if (selected) drawCircle(ring, radius = size.width * RADIO_DOT)
+    }
+}
+
+@Composable
+internal fun StyleScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+    val s = state.settings
+    val colors = LocalEnvColors.current
+    SettingsPage(stringResource(R.string.settings_style), back) {
+        SectionHeader(stringResource(R.string.style_font))
+        listOf(
+            AppFont.SYSTEM to stringResource(R.string.font_system),
+            AppFont.INTER to "Inter",
+            AppFont.OPEN_SANS to "Open Sans",
+            AppFont.MONTSERRAT to "Montserrat",
+            AppFont.CONDENSED to "Roboto Condensed",
+        ).forEach { (font, label) ->
+            val family = EnvFonts.family(font)
+            Row(
+                Modifier
+                    .settingsCard()
+                    .heightIn(min = 56.dp)
+                    .selectedBackground(font == s.font)
+                    .pressable { actions.updateSettings { it.copy(font = font) } }
+                    .testTag("font_$font")
+                    .padding(horizontal = CARD_PADDING, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                BasicText(
+                    label,
+                    style = TextStyle(
+                        fontFamily = family,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight(s.fontWeight.value),
+                        color = colors.textPrimary,
+                    ),
+                )
+            }
+        }
+        SectionHeader(stringResource(R.string.style_weight))
+        ChoiceRows(
+            listOf(
+                AppFontWeight.LIGHT to stringResource(R.string.weight_light),
+                AppFontWeight.REGULAR to stringResource(R.string.weight_regular),
+                AppFontWeight.MEDIUM to stringResource(R.string.weight_medium),
+            ),
+            s.fontWeight,
+            "font_weight",
+        ) { weight -> actions.updateSettings { it.copy(fontWeight = weight) } }
+        SectionHeader(stringResource(R.string.home_text_size))
+        ChoiceRows(
+            listOf(
+                HomeTextSize.S to stringResource(R.string.home_text_s),
+                HomeTextSize.M to stringResource(R.string.home_text_m),
+                HomeTextSize.L to stringResource(R.string.home_text_l),
+            ),
+            s.homeTextSize,
+            "text_size",
+        ) { size -> actions.updateSettings { it.copy(homeTextSize = size) } }
+        NoteText(stringResource(R.string.style_note))
+    }
+}
+
+@Composable
+internal fun AdvancedScreen(state: SettingsUiState, push: (SettingsRoute) -> Unit, back: () -> Unit) {
+    SettingsPage(stringResource(R.string.settings_advanced), back) {
         NavRow(
             stringResource(R.string.settings_press),
             value = pressLabel(state.settings.pressFeedback),
+            summary = stringResource(R.string.summary_press),
             tag = "nav_press",
         ) { push(SettingsRoute.Press) }
-        NavRow(stringResource(R.string.settings_apps), tag = "nav_apps") { push(SettingsRoute.Apps) }
-        NavRow(stringResource(R.string.settings_memory), tag = "nav_memory") { push(SettingsRoute.Memory) }
-        NavRow(stringResource(R.string.settings_system), tag = "nav_system") { push(SettingsRoute.System) }
+        NavRow(
+            stringResource(R.string.settings_memory),
+            summary = stringResource(R.string.summary_memory),
+            tag = "nav_memory",
+        ) { push(SettingsRoute.Memory) }
     }
 }
 
@@ -71,21 +244,12 @@ internal fun HomeSettingsScreen(state: SettingsUiState, actions: SettingsActions
             s.clockFormat,
             "clock",
         ) { format -> actions.updateSettings { it.copy(clockFormat = format) } }
-        HorizontalDivider()
+        CardGap()
         ToggleRow(stringResource(R.string.home_show_date), s.showDate, tag = "show_date") { value ->
             actions.updateSettings { it.copy(showDate = value) }
         }
-        SectionHeader(stringResource(R.string.home_text_size))
-        ChoiceRows(
-            listOf(
-                HomeTextSize.S to stringResource(R.string.home_text_s),
-                HomeTextSize.M to stringResource(R.string.home_text_m),
-                HomeTextSize.L to stringResource(R.string.home_text_l),
-            ),
-            s.homeTextSize,
-            "text_size",
-        ) { size -> actions.updateSettings { it.copy(homeTextSize = size) } }
-        HorizontalDivider()
+        NoteText(stringResource(R.string.home_clock_note))
+        CardGap()
         ToggleRow(stringResource(R.string.home_notifications), s.notificationCounts, tag = "notification_counts") {
             actions.updateSettings { settings -> settings.copy(notificationCounts = it) }
             if (it && !state.notificationAccess) actions.openNotificationAccess()
@@ -121,46 +285,6 @@ internal fun PressSettingsScreen(state: SettingsUiState, actions: SettingsAction
             "press",
         ) { feedback -> actions.updateSettings { it.copy(pressFeedback = feedback) } }
         NoteText(stringResource(R.string.press_note))
-    }
-}
-
-@Composable
-internal fun SearchSettingsScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
-    val s = state.settings
-    var confirm by remember { mutableStateOf(false) }
-    val current = state.envs.firstOrNull { it.current }
-    Box {
-        SettingsPage(stringResource(R.string.settings_search), back) {
-            ToggleRow(stringResource(R.string.search_fuzzy), s.searchFuzzy, tag = "search_fuzzy") { v ->
-                actions.updateSettings { it.copy(searchFuzzy = v) }
-            }
-            ToggleRow(stringResource(R.string.search_layout_swap), s.searchLayoutSwap, tag = "search_swap") { v ->
-                actions.updateSettings { it.copy(searchLayoutSwap = v) }
-            }
-            ToggleRow(stringResource(R.string.search_translit), s.searchTranslit, tag = "search_translit") { v ->
-                actions.updateSettings { it.copy(searchTranslit = v) }
-            }
-            HorizontalDivider()
-            NavRow(
-                stringResource(R.string.search_clear_history),
-                value = current?.name,
-                enabled = current != null,
-                tag = "clear_history",
-            ) {
-                confirm = true
-            }
-        }
-        if (confirm && current != null) {
-            ConfirmDialog(
-                message = stringResource(R.string.search_clear_confirm, current.name),
-                confirm = stringResource(R.string.settings_clear),
-                onConfirm = {
-                    actions.clearHistory(current.id)
-                    confirm = false
-                },
-                onDismiss = { confirm = false },
-            )
-        }
     }
 }
 
@@ -204,7 +328,7 @@ internal fun KeyboardSettingsScreen(state: SettingsUiState, actions: SettingsAct
             }
         }
         NoteText(stringResource(R.string.keyboard_need_one))
-        HorizontalDivider()
+        CardGap()
         ToggleRow(stringResource(R.string.keyboard_haptics), s.keyboardHaptics, tag = "kb_haptics") { v ->
             actions.updateSettings { it.copy(keyboardHaptics = v) }
         }
@@ -253,7 +377,6 @@ internal fun GesturesScreen(
 ) {
     val s = state.settings
     SettingsPage(stringResource(R.string.settings_gestures), back) {
-        NoteText(stringResource(R.string.gestures_app_wide))
         SectionHeader(stringResource(R.string.gestures_swipes))
         SwipeDirection.entries.forEach { direction ->
             NavRow(
@@ -356,7 +479,12 @@ internal fun AppsSettingsScreen(state: SettingsUiState, actions: SettingsActions
 }
 
 @Composable
-internal fun SystemScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+internal fun SystemScreen(
+    state: SettingsUiState,
+    actions: SettingsActions,
+    push: (SettingsRoute) -> Unit,
+    back: () -> Unit,
+) {
     SettingsPage(stringResource(R.string.settings_system), back) {
         NavRow(
             stringResource(R.string.system_default),
@@ -367,9 +495,18 @@ internal fun SystemScreen(state: SettingsUiState, actions: SettingsActions, back
             tag = "system_default",
         ) { actions.requestDefaultLauncher() }
         NavRow(stringResource(R.string.system_version), value = state.versionName) {}
+        NavRow(
+            stringResource(R.string.settings_advanced),
+            summary = stringResource(R.string.summary_advanced),
+            tag = "nav_advanced",
+        ) { push(SettingsRoute.Advanced) }
         SectionHeader(stringResource(R.string.system_privacy))
         NoteText(stringResource(R.string.system_privacy_text))
         SectionHeader(stringResource(R.string.system_licenses))
         NoteText(stringResource(R.string.system_licenses_text))
     }
 }
+
+private const val CHIP_ALPHA = 0.16f
+private const val RADIO_STROKE = 0.11f
+private const val RADIO_DOT = 0.22f

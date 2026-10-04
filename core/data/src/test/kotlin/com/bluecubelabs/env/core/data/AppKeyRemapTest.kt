@@ -57,6 +57,8 @@ class AppKeyRemapTest {
         assertThat(usage[newIcon]?.lastLaunchedAt).isEqualTo(rule.now)
         val recents = history.recents.first { rows -> rows[env].orEmpty().none { it.key == oldIcon } }[env].orEmpty()
         assertThat(recents.map { it.key }).containsExactly(newIcon)
+        val space = history.spaceUsage.first { rows -> rows[env].orEmpty().none { it.key == oldIcon } }[env].orEmpty()
+        assertThat(space.map { it.key to it.launchCount }).containsExactly(newIcon to 4)
         assertThat(learning.samples.first { s -> s.none { it.key == oldIcon } })
             .containsExactly(LearnedGesture("tgh", newIcon, 3.0), LearnedGesture("trf", newIcon, 1.0))
     }

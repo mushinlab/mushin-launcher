@@ -1,6 +1,9 @@
 package com.bluecubelabs.env
 
+import android.content.IntentFilter
+import android.provider.AlarmClock
 import android.view.KeyEvent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
@@ -10,6 +13,7 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -18,6 +22,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.test.core.app.ApplicationProvider
@@ -25,12 +30,16 @@ import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.bluecubelabs.env.core.apps.NotificationSource
+import com.bluecubelabs.env.core.model.AppFont
+import com.bluecubelabs.env.core.model.AppFontWeight
+import com.bluecubelabs.env.core.model.ClockPosition
 import com.bluecubelabs.env.core.model.EnvType
 import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.GestureTuning
 import com.bluecubelabs.env.core.model.LearnedGesture
 import com.bluecubelabs.env.core.model.PressFeedback
 import com.bluecubelabs.env.core.model.SwipeDirection
+import com.bluecubelabs.env.core.model.Usefulness
 import com.bluecubelabs.env.core.search.KeyboardLayouts
 import com.bluecubelabs.env.feature.search.GestureDimens
 import com.bluecubelabs.env.feature.search.KeyboardDimens
@@ -75,8 +84,13 @@ class LauncherUiTest {
                 pressFeedback = PressFeedback.FLASH,
                 gestureShiftPenalty = GestureTuning.SHIFT_PENALTY,
                 gestureSuggestMargin = GestureTuning.SUGGEST_MARGIN,
+                clockPosition = ClockPosition.START,
+                font = AppFont.SYSTEM,
+                fontWeight = AppFontWeight.REGULAR,
+                searchFuzzy = true,
             )
         }
+        container.history.clearUsage()
         container.notificationCounts.value = emptyMap()
     }
 
@@ -239,10 +253,8 @@ class LauncherUiTest {
 
     @Test
     fun pickerAppliesEachTapWithoutDone() {
-        backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
-        rule.onNodeWithTag("popup_settings").performClick()
-        rule.onNodeWithTag("nav_env_apps").performClick()
-        rule.onNodeWithTag("env_add").performClick()
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("env_add").performScrollTo().performClick()
         val app = runBlocking { container.catalog.apps.first() }.first { it.key !in envItems() }
         rule.onNodeWithTag("picker_filter").performTextInput(app.label)
         rule.onNodeWithTag("pick_${app.label}").performClick()
@@ -340,13 +352,17 @@ class LauncherUiTest {
         rule.onNodeWithTag("badge_0", useUnmergedTree = true).assertDoesNotExist()
         runBlocking { container.settings.update { it.copy(notificationCounts = true) } }
         rule.waitUntil(5_000) {
-            runCatching { rule.onNodeWithTag("badge_0", useUnmergedTree = true).assertTextEquals("3") }.isSuccess
+            runCatching {
+                rule.onNodeWithTag("badge_0", useUnmergedTree = true).onChildAt(0).assertTextEquals("3")
+            }.isSuccess
         }
     }
 
     @Test
     fun selectedOptionIsMarkedByBackgroundAndPressStyleApplies() {
         rule.runOnIdle { rule.activity.settingsStack.open() }
+        rule.onNodeWithTag("nav_system").performScrollTo().performClick()
+        rule.onNodeWithTag("nav_advanced").performScrollTo().performClick()
         rule.onNodeWithTag("nav_press").performClick()
         rule.onNodeWithTag("press_FLASH").assertIsSelected()
         rule.onNodeWithTag("press_DIM").assertIsNotSelected().performClick()
@@ -383,8 +399,8 @@ class LauncherUiTest {
             container.gestureLearning.update { listOf(LearnedGesture("qwerty", app.key, 2.0)) }
         }
         try {
-            rule.runOnIdle { rule.activity.settingsStack.open() }
-            rule.onNodeWithTag("nav_memory").performScrollTo().performClick()
+            rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.Advanced) }
+            rule.onNodeWithTag("nav_memory").performClick()
             rule.onNodeWithTag("memory_app_${app.label}").performClick()
             rule.onNodeWithTag("memory_drawing_0").assertIsDisplayed()
             rule.onNodeWithTag("memory_forget_0").performClick()
@@ -438,9 +454,111 @@ class LauncherUiTest {
             rule.waitUntil(5_000) {
                 runCatching { rule.onNodeWithTag("swipe_0", useUnmergedTree = true).assertExists() }.isSuccess
             }
-            rule.onNodeWithTag("swipe_0", useUnmergedTree = true).assertTextEquals("←")
+            val icon = rule.onNodeWithTag("swipe_0", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+            val size = container.settings.settings.value.homeTextSize.sp
+            with(rule.density) { assertThat(icon.height).isWithin(2f).of(size.sp.toPx() * 0.82f) }
         } finally {
             runBlocking { container.gestures.set(SwipeDirection.LEFT, GestureAction.None) }
+        }
+    }
+
+    @Test
+    fun tappingTheClockOpensTheClockApp() {
+        val monitor = InstrumentationRegistry.getInstrumentation().addMonitor(
+            IntentFilter(AlarmClock.ACTION_SHOW_ALARMS),
+            null,
+            true,
+        )
+        try {
+            rule.onNodeWithTag("clock_block").performClick()
+            rule.waitUntil(5_000) { monitor.hits > 0 }
+            assertThat(rule.activity.overlay).isEqualTo(Overlay.None)
+        } finally {
+            InstrumentationRegistry.getInstrumentation().removeMonitor(monitor)
+        }
+    }
+
+    @Test
+    fun holdingTheClockShowsThreeSlotsAndDropsItIntoTheNearest() {
+        rule.onNodeWithTag("clock_block").performTouchInput {
+            down(center)
+            advanceEventTime(900)
+            moveBy(Offset(1f, 0f))
+        }
+        rule.onNodeWithTag("clock_slot_START").assertExists()
+        rule.onNodeWithTag("clock_slot_CENTER").assertExists()
+        rule.onNodeWithTag("clock_slot_END").assertExists()
+        val width = rule.onNodeWithTag("home").fetchSemanticsNode().boundsInRoot.width
+        rule.onNodeWithTag("clock_block").performTouchInput {
+            moveBy(Offset(width, 0f))
+            up()
+        }
+        rule.waitUntil(5_000) { container.settings.settings.value.clockPosition == ClockPosition.END }
+        rule.onNodeWithTag("clock_slot_END").assertDoesNotExist()
+    }
+
+    @Test
+    fun editButtonOpensTheCurrentSpace() {
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.waitUntil(5_000) { rule.activity.settingsStack.top == SettingsRoute.EnvEditor(normalId) }
+    }
+
+    @Test
+    fun frequentlyUsedAppIsSuggestedInsteadOfTheWeakestHomeApp() {
+        val home = envItems()
+        val frequent = runBlocking { container.catalog.apps.first() }.first { it.key !in home }.key
+        runBlocking {
+            container.history.clearUsage()
+            repeat(Usefulness.MIN_LAUNCHES) { container.history.recordLaunch(frequent, normalId, fromSearch = false) }
+        }
+        rule.waitUntil(5_000) {
+            runCatching { rule.onNodeWithTag("home_suggestion").assertIsDisplayed() }.isSuccess
+        }
+        rule.onNodeWithTag("home_suggestion").performClick()
+        rule.onNodeWithTag("suggest_replace").performClick()
+        rule.waitUntil(5_000) { envItems() == home.dropLast(1) + frequent }
+        rule.waitUntil(5_000) {
+            runCatching { rule.onNodeWithTag("home_suggestion").assertDoesNotExist() }.isSuccess
+        }
+    }
+
+    @Test
+    fun settingsRootListsSpacesAsRadioRowWithCurrentFirst() {
+        rule.runOnIdle { rule.activity.settingsStack.open() }
+        val work = container.environments.environments.value.first { it.type == EnvType.WORK }.id
+        rule.onNodeWithTag("space_chip_$normalId").assertIsSelected()
+        val normalLeft = rule.onNodeWithTag("space_chip_$normalId").fetchSemanticsNode().boundsInRoot.left
+        val workLeft = rule.onNodeWithTag("space_chip_$work").fetchSemanticsNode().boundsInRoot.left
+        assertThat(normalLeft).isLessThan(workLeft)
+        rule.onNodeWithTag("space_chip_$work").assertIsNotSelected().performClick()
+        rule.waitUntil(5_000) { container.settings.settings.value.currentEnvId == work }
+        rule.onNodeWithTag("space_chip_$work").assertIsSelected()
+        rule.onNodeWithTag("nav_search").assertDoesNotExist()
+    }
+
+    @Test
+    fun searchHeaderHoldsEyeAndSearchOptions() {
+        openSearch()
+        val header = rule.onNodeWithTag("search_header").fetchSemanticsNode().boundsInRoot
+        val eye = rule.onNodeWithTag("toggle_hidden").fetchSemanticsNode().boundsInRoot
+        val recents = rule.onNodeWithTag("recents").fetchSemanticsNode().boundsInRoot
+        assertThat(eye.bottom).isAtMost(header.bottom + 1f)
+        assertThat(eye.bottom).isAtMost(recents.top)
+        rule.onNodeWithTag("search_options").performClick()
+        rule.onNodeWithTag("search_option_FUZZY").performClick()
+        rule.waitUntil(5_000) { !container.settings.settings.value.searchFuzzy }
+    }
+
+    @Test
+    fun styleChangesTheFontOfTheWholeApp() {
+        rule.runOnIdle { rule.activity.settingsStack.open() }
+        rule.onNodeWithTag("nav_style").performClick()
+        rule.onNodeWithTag("font_MONTSERRAT").performClick()
+        rule.onNodeWithTag("font_weight_LIGHT").performScrollTo().performClick()
+        rule.waitUntil(5_000) {
+            container.settings.settings.value.let {
+                it.font == AppFont.MONTSERRAT && it.fontWeight == AppFontWeight.LIGHT
+            }
         }
     }
 }

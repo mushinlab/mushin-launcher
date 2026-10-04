@@ -8,11 +8,20 @@ enum class HomeTextSize(val sp: Int) { S(22), M(26), L(30) }
 
 enum class PressFeedback { FLASH, HOLD, ACCENT, DIM, SCALE }
 
+enum class ClockPosition { START, CENTER, END }
+
+enum class AppFont { SYSTEM, INTER, OPEN_SANS, MONTSERRAT, CONDENSED }
+
+enum class AppFontWeight(val value: Int) { LIGHT(300), REGULAR(400), MEDIUM(500) }
+
 data class LauncherSettings(
     val currentEnvId: Long? = null,
     val iconMode: IconMode = IconMode.NONE,
     val clockFormat: ClockFormat = ClockFormat.SYSTEM,
     val showDate: Boolean = true,
+    val clockPosition: ClockPosition = ClockPosition.START,
+    val font: AppFont = AppFont.SYSTEM,
+    val fontWeight: AppFontWeight = AppFontWeight.REGULAR,
     val homeTextSize: HomeTextSize = HomeTextSize.M,
     val notificationCounts: Boolean = false,
     val pressFeedback: PressFeedback = PressFeedback.FLASH,

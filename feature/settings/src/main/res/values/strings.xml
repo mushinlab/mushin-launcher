@@ -11,13 +11,11 @@
 
     <string name="settings_envs">Спейсы</string>
     <string name="settings_home">Главный экран</string>
-    <string name="settings_search">Поиск</string>
     <string name="settings_keyboard">Клавиатура</string>
     <string name="settings_gestures">Жесты</string>
     <string name="settings_press">Анимация нажатия</string>
     <string name="settings_apps">Скрытые и переименованные</string>
     <string name="settings_system">Система</string>
-    <string name="settings_current_env">Спейс «%1$s»</string>
 
     <string name="env_create">+ Создать спейс</string>
     <string name="env_create_title">Новый спейс</string>
@@ -87,12 +85,6 @@
     <string name="press_scale">Сжатие</string>
     <string name="press_note">Как строки и кнопки отвечают на касание. Нажмите на вариант, чтобы его попробовать.</string>
 
-    <string name="search_fuzzy">Исправлять опечатки</string>
-    <string name="search_layout_swap">Неправильная раскладка</string>
-    <string name="search_translit">Транслит</string>
-    <string name="search_clear_history">Очистить историю спейса</string>
-    <string name="search_clear_confirm">Очистить историю поиска спейса «%1$s»?</string>
-
     <string name="keyboard_layouts">Раскладки</string>
     <string name="keyboard_haptics">Отклик вибрацией</string>
     <string name="keyboard_digit_hints">Подсказки цифр</string>
@@ -110,8 +102,6 @@
     <string name="gesture_down">Свайп вниз</string>
     <string name="gesture_left">Свайп влево</string>
     <string name="gesture_right">Свайп вправо</string>
-    <string name="settings_app_wide">Для всего приложения</string>
-    <string name="gestures_app_wide">Жесты общие для всех спейсов.</string>
     <string name="gestures_swipes">Свайпы на главном экране</string>
     <string name="gesture_shade_zone">Свайп вниз из верхней пятой части экрана всегда открывает шторку уведомлений.</string>
     <string name="action_none">Ничего</string>
@@ -134,7 +124,7 @@
     <string name="system_privacy">Конфиденциальность</string>
     <string name="system_privacy_text">Mushin не собирает и не передаёт никаких данных: у приложения нет доступа к интернету, в нём нет рекламы и аналитики. Спейсы, история запусков, выученные жесты и настройки хранятся только на этом устройстве, не попадают в резервные копии и удаляются вместе с приложением. Список установленных приложений Mushin получает от системы, чтобы показать их на главном экране и в поиске. Если включить счётчик уведомлений, Mushin видит только количество уведомлений у каждого приложения — текст уведомлений не читается и не сохраняется.</string>
     <string name="system_licenses">Лицензии</string>
-    <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable — Apache License 2.0.</string>
+    <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, значки Material Symbols — Apache License 2.0. Шрифты Inter, Open Sans, Montserrat — SIL Open Font License 1.1 (тексты лицензий внутри приложения, assets/licenses).</string>
     <string name="settings_memory">Память</string>
     <string name="memory_note">Всё, чему Mushin научился, хранится только на этом телефоне. Здесь это можно посмотреть и стереть.</string>
     <string name="memory_gestures">Выученные жесты</string>
@@ -145,7 +135,7 @@
     <string name="memory_usage_note">По ней сортируются результаты поиска.</string>
     <string name="memory_usage_none">Пока пусто.</string>
     <string name="memory_clear_usage">Стереть счётчики запусков</string>
-    <string name="memory_clear_usage_confirm">Стереть счётчики запусков всех приложений? Поиск перестанет учитывать, как часто вы их открываете, пока счётчики не накопятся снова.</string>
+    <string name="memory_clear_usage_confirm">Стереть счётчики запусков всех приложений? Поиск перестанет учитывать, как часто вы их открываете, а оценки полезности в спейсах обнулятся, пока счётчики не накопятся снова.</string>
     <string name="memory_erase">Стереть</string>
     <string name="memory_app_note">Рисунки, после которых вы открывали это приложение. Точка — начало линии, кружок — задержка на двойной букве. Чем больше вес, тем сильнее рисунок тянет к этому приложению.</string>
     <string name="memory_forget_app">Забыть все рисунки приложения</string>
@@ -158,4 +148,27 @@
         <item quantity="many">%d рисунков</item>
         <item quantity="other">%d рисунка</item>
     </plurals>
+    <string name="settings_style">Стиль</string>
+    <string name="settings_advanced">Дополнительно</string>
+    <string name="summary_envs">Создание, названия, темы и приложения спейсов</string>
+    <string name="summary_style">Шрифт, насыщенность, размер текста</string>
+    <string name="summary_home">Иконки, часы и дата, счётчик уведомлений</string>
+    <string name="summary_keyboard">Раскладки, вибрация, подсказки цифр</string>
+    <string name="summary_gestures">Свайпы, ввод рисунком</string>
+    <string name="summary_apps">Скрытые приложения, свои названия</string>
+    <string name="summary_system">Лаунчер по умолчанию, конфиденциальность, дополнительно</string>
+    <string name="summary_advanced">Анимация нажатия, память</string>
+    <string name="summary_press">Как строки отвечают на касание</string>
+    <string name="summary_memory">Выученные жесты, частота запусков, полезность</string>
+    <string name="style_font">Шрифт</string>
+    <string name="style_weight">Насыщенность</string>
+    <string name="style_note">Шрифт и насыщенность действуют во всём приложении, размер — для списка на главном экране.</string>
+    <string name="font_system">Roboto (системный)</string>
+    <string name="weight_light">Тонкий</string>
+    <string name="weight_regular">Обычный</string>
+    <string name="weight_medium">Средний</string>
+    <string name="memory_usefulness">Полезность в спейсе «%1$s»</string>
+    <string name="memory_usefulness_note">Оценка от 1 до 100: как часто и как недавно вы открывали приложение в этом спейсе. Если приложение не на главном экране оценено заметно выше, чем одно из приложений на нём, внизу справа появится «?» с предложением.</string>
+    <string name="home_clock_note">Тап по часам открывает приложение «Часы». Удерживайте часы, чтобы передвинуть их влево, в центр или вправо.</string>
+    <string name="settings_back">Назад</string>
 </resources>

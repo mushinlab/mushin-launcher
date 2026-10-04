@@ -5,6 +5,7 @@ import com.bluecubelabs.env.core.data.snapshot.HomeSnapshotStore
 import com.bluecubelabs.env.core.data.snapshot.SnapshotRow
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.ClockFormat
+import com.bluecubelabs.env.core.model.ClockPosition
 import com.bluecubelabs.env.core.model.HomeTextSize
 import com.bluecubelabs.env.core.model.IconMode
 import com.bluecubelabs.env.core.model.Palettes
@@ -29,6 +30,7 @@ class HomeSnapshotStoreTest {
             clockFormat = ClockFormat.H12,
             showDate = false,
             rows = listOf(SnapshotRow(AppKey("com.slack", "Main", 10), "Слак", dimmed = true, work = true)),
+            clockPosition = ClockPosition.END,
         )
         store.write(snapshot)
         assertThat(store.read()).isEqualTo(snapshot)

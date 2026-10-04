@@ -50,6 +50,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -70,6 +72,9 @@ import com.bluecubelabs.env.core.search.KeyboardLayout
 import com.bluecubelabs.env.core.ui.AnchoredPanel
 import com.bluecubelabs.env.core.ui.AppIcon
 import com.bluecubelabs.env.core.ui.EnvType
+import com.bluecubelabs.env.core.ui.Glyph
+import com.bluecubelabs.env.core.ui.GlyphButton
+import com.bluecubelabs.env.core.ui.HorizontalDivider
 import com.bluecubelabs.env.core.ui.LocalEnvColors
 import com.bluecubelabs.env.core.ui.PanelHeader
 import com.bluecubelabs.env.core.ui.PanelItem
@@ -95,7 +100,12 @@ data class SearchChrome(
     val gestureLetters: Boolean,
     val gestureShiftPenalty: Float,
     val gestureSuggestMargin: Float,
+    val fuzzy: Boolean = true,
+    val layoutSwap: Boolean = true,
+    val translit: Boolean = true,
 )
+
+enum class SearchOption { FUZZY, LAYOUT_SWAP, TRANSLIT }
 
 interface SearchActions : KeyboardActions {
     fun onLaunch(key: AppKey)
@@ -116,6 +126,10 @@ interface SearchActions : KeyboardActions {
 
     fun onToggleShowHidden()
 
+    fun onSearchOption(option: SearchOption, enabled: Boolean)
+
+    fun onClearHistory()
+
     fun onDismissMenu()
 }
 
@@ -132,6 +146,7 @@ object SearchDimens {
     val suggestionIcon: Dp = 28.dp
     val suggestionGap: Dp = 12.dp
     val eyeSize: Dp = 48.dp
+    val headerHeight: Dp = 48.dp
     val paneGap: Dp = 8.dp
     val paneRadius: Dp = 16.dp
     val eyeGlyph: Dp = 22.dp
@@ -173,7 +188,7 @@ fun SearchScreen(
                 .swipeDownToClose(closePx, actions::onClose),
         ) {
             Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
-            Spacer(Modifier.height(gap))
+            SearchHeader(controller, actions)
             Row(Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(gap)) {
                 ResultsPane(
                     controller,
@@ -185,7 +200,6 @@ fun SearchScreen(
                 RecentsPane(
                     recents,
                     chrome.iconMode,
-                    controller.showHidden,
                     actions,
                     onLongPress,
                     Modifier.width(recentsWidth).fillMaxHeight().then(pane),
@@ -225,6 +239,56 @@ fun SearchScreen(
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
         controller.menu?.let { SearchMenuPanel(it, actions) }
+        controller.options?.let { OptionsPanel(it, chrome, actions, controller::closeOptions) }
+    }
+}
+
+@Composable
+private fun SearchHeader(controller: SearchController, actions: SearchActions) {
+    val colors = LocalEnvColors.current
+    var anchor by remember { mutableStateOf(Offset.Zero) }
+    Row(
+        Modifier.fillMaxWidth().height(SearchDimens.headerHeight).testTag("search_header"),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        HiddenToggle(controller.showHidden, actions::onToggleShowHidden, Modifier)
+        GlyphButton(
+            Glyph.SETTINGS,
+            stringResource(R.string.search_options),
+            colors.textSecondary,
+            tag = "search_options",
+            modifier = Modifier.onGloballyPositioned { anchor = it.boundsInRoot().bottomCenter },
+        ) { controller.openOptions(anchor) }
+    }
+}
+
+@Composable
+private fun OptionsPanel(anchor: Offset, chrome: SearchChrome, actions: SearchActions, onDismiss: () -> Unit) {
+    var confirm by remember { mutableStateOf(false) }
+    AnchoredPanel(anchor = anchor, onDismiss = onDismiss) {
+        if (confirm) {
+            PanelHeader(stringResource(R.string.search_clear_confirm))
+            PanelItem(stringResource(R.string.search_clear), tag = "search_clear_confirm") {
+                actions.onClearHistory()
+                onDismiss()
+            }
+            PanelItem(stringResource(R.string.search_cancel), tag = "search_clear_cancel") { confirm = false }
+        } else {
+            PanelHeader(stringResource(R.string.search_options))
+            listOf(
+                Triple(SearchOption.FUZZY, R.string.search_fuzzy, chrome.fuzzy),
+                Triple(SearchOption.LAYOUT_SWAP, R.string.search_layout_swap, chrome.layoutSwap),
+                Triple(SearchOption.TRANSLIT, R.string.search_translit, chrome.translit),
+            ).forEach { (option, label, on) ->
+                PanelItem(
+                    (if (on) "✓  " else "     ") + stringResource(label),
+                    tag = "search_option_$option",
+                ) { actions.onSearchOption(option, !on) }
+            }
+            HorizontalDivider()
+            PanelItem(stringResource(R.string.search_clear_history), tag = "search_clear_history") { confirm = true }
+        }
     }
 }
 
@@ -318,17 +382,13 @@ private fun ResultsPane(
 private fun RecentsPane(
     recents: ImmutableList<RecentRow>,
     iconMode: IconMode,
-    showHidden: Boolean,
     actions: SearchActions,
     onLongPress: (AppKey, String) -> Unit,
     modifier: Modifier,
 ) {
     BoxWithConstraints(modifier.testTag("recents")) {
-        val fit = ((maxHeight - SearchDimens.eyeSize) / SearchDimens.recentHeight).toInt()
-            .coerceIn(0, SearchDimens.MAX_RECENTS)
+        val fit = (maxHeight / SearchDimens.recentHeight).toInt().coerceIn(0, SearchDimens.MAX_RECENTS)
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
-            HiddenToggle(showHidden, actions::onToggleShowHidden, Modifier.align(Alignment.End))
-            Spacer(Modifier.weight(1f))
             recents.take(fit).asReversed().forEachIndexed { reversedIndex, row ->
                 val index = recents.take(fit).size - 1 - reversedIndex
                 AppRowItem(
@@ -373,7 +433,7 @@ private fun AppRowItem(
         index % 2 == 1 -> colors.textPrimary.copy(alpha = PANE_ZEBRA_ALPHA)
         else -> Color.Transparent
     }
-    val textStyle = remember(colors, textSize) { EnvType.style(textSize.sp, colors.textPrimary) }
+    val textStyle = EnvType.style(textSize.sp, colors.textPrimary)
     Row(
         Modifier
             .fillMaxWidth()
@@ -392,11 +452,7 @@ private fun AppRowItem(
             SingleLineText(label, textStyle, Modifier.weight(1f, fill = false))
             if (swipes.isNotEmpty()) {
                 Spacer(Modifier.width(8.dp))
-                SwipeMarks(
-                    swipes,
-                    EnvType.style(EnvType.recentSize, colors.textSecondary),
-                    Modifier.testTag("${tag}_swipe"),
-                )
+                SwipeMarks(swipes, textSize.sp, colors.textSecondary, Modifier.testTag("${tag}_swipe"))
             }
             if (hidden) {
                 Spacer(Modifier.width(6.dp))

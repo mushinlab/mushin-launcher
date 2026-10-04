@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_make_default">Сделать лаунчером по умолчанию</string>
-    <string name="home_empty_env">Долгое нажатие → ⚙ → Спейсы, чтобы добавить приложения</string>
+    <string name="home_empty_env">Нажмите ✎ внизу справа, чтобы добавить приложения</string>
     <string name="popup_settings">⚙  Настройки</string>
     <string name="popup_about">О приложении</string>
     <string name="popup_rename">Переименовать</string>
@@ -9,4 +9,10 @@
     <string name="popup_show">Показать</string>
     <string name="popup_remove_from_env">Убрать из спейса</string>
     <string name="popup_uninstall">Удалить</string>
+    <string name="home_suggestion">Подсказка: приложение, которое вы открываете чаще</string>
+    <string name="home_edit">Изменить спейс</string>
+    <string name="suggest_header">Чаще открываете «%1$s»</string>
+    <string name="suggest_replace">Поставить вместо «%1$s»</string>
+    <string name="suggest_add">Добавить на главный экран</string>
+    <string name="suggest_dismiss">Не предлагать</string>
 </resources>

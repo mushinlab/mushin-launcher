@@ -30,7 +30,6 @@ import com.bluecubelabs.env.core.search.SearchEngine
 import com.bluecubelabs.env.core.search.SearchIndex
 import com.bluecubelabs.env.core.search.SearchItem
 import com.bluecubelabs.env.core.ui.EnvType
-import com.bluecubelabs.env.core.ui.HorizontalDivider
 import com.bluecubelabs.env.core.ui.LocalEnvColors
 import com.bluecubelabs.env.core.ui.SingleLineText
 import com.bluecubelabs.env.core.ui.pressable
@@ -56,7 +55,7 @@ private fun FilterField(value: String, onChange: (String) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .border(1.dp, colors.divider, RoundedCornerShape(6.dp))
+            .border(1.dp, colors.divider, RoundedCornerShape(CARD_RADIUS))
             .padding(12.dp)
             .testTag("picker_filter"),
     )
@@ -87,7 +86,7 @@ internal fun EnvAppPicker(envId: Long, state: SettingsUiState, actions: Settings
                 if (full) LocalEnvColors.current.accent else LocalEnvColors.current.textSecondary,
             )
         }
-        HorizontalDivider()
+        CardGap()
         LazyColumn(Modifier.weight(1f)) {
             items(filterApps(visible, query), key = { it.key.id }) { app ->
                 val checked = app.key in selected
@@ -105,13 +104,13 @@ private fun PickerRow(label: String, selected: Boolean, enabled: Boolean, tag: S
     val colors = LocalEnvColors.current
     Box(
         Modifier
-            .fillMaxWidth()
+            .settingsCard()
             .heightIn(min = 56.dp)
             .selectedBackground(selected)
             .pressable(enabled = enabled, onClick = onClick)
             .testTag(tag)
             .alpha(if (enabled) 1f else DISABLED_ALPHA)
-            .padding(horizontal = 24.dp, vertical = 8.dp),
+            .padding(horizontal = CARD_PADDING, vertical = 8.dp),
         contentAlignment = Alignment.CenterStart,
     ) {
         SingleLineText(label, EnvType.style(17.sp, colors.textPrimary))

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.ui.EnvType
-import com.bluecubelabs.env.core.ui.HorizontalDivider
 import com.bluecubelabs.env.core.ui.LocalEnvColors
 import com.bluecubelabs.env.core.ui.SingleLineText
 import com.bluecubelabs.env.core.ui.pressable
@@ -69,7 +69,7 @@ internal fun MemoryScreen(
                 confirm = actions::forgetAllGestures
             }
         }
-        HorizontalDivider()
+        CardGap()
         SectionHeader(stringResource(R.string.memory_usage))
         NoteText(stringResource(R.string.memory_usage_note))
         if (state.usage.isEmpty()) NoteText(stringResource(R.string.memory_usage_none))
@@ -78,6 +78,15 @@ internal fun MemoryScreen(
             NavRow(stringResource(R.string.memory_clear_usage), tag = "memory_clear_usage") {
                 message = clearUsage
                 confirm = actions::clearUsage
+            }
+        }
+        state.envs.firstOrNull { it.current }?.let { env ->
+            CardGap()
+            SectionHeader(stringResource(R.string.memory_usefulness, env.name))
+            NoteText(stringResource(R.string.memory_usefulness_note))
+            if (state.usefulness.isEmpty()) NoteText(stringResource(R.string.memory_usage_none))
+            state.usefulness.forEach { row ->
+                ValueRow(row.label, row.score.toString(), "memory_score_${row.label}")
             }
         }
     }
@@ -127,7 +136,9 @@ internal fun MemoryAppScreen(key: AppKey, state: SettingsUiState, actions: Setti
 private fun DrawingRow(drawing: LearnedDrawing, index: Int, onForget: () -> Unit) {
     val colors = LocalEnvColors.current
     val locale = LocalConfiguration.current.locales[0]
-    Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp).testTag("memory_drawing_$index")) {
+    Column(
+        Modifier.settingsCard().padding(horizontal = CARD_PADDING, vertical = 10.dp).testTag("memory_drawing_$index"),
+    ) {
         GestureThumbnail(drawing.path, Modifier.fillMaxWidth().height(THUMBNAIL_HEIGHT))
         Row(
             Modifier.fillMaxWidth().padding(top = 4.dp),
@@ -140,7 +151,7 @@ private fun DrawingRow(drawing: LearnedDrawing, index: Int, onForget: () -> Unit
             )
             Box(
                 Modifier
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(CARD_RADIUS))
                     .pressable(onClick = onForget)
                     .testTag("memory_forget_$index")
                     .padding(horizontal = 12.dp, vertical = 8.dp),
@@ -155,11 +166,11 @@ private fun DrawingRow(drawing: LearnedDrawing, index: Int, onForget: () -> Unit
 internal fun GestureThumbnail(path: String, modifier: Modifier) {
     val colors = LocalEnvColors.current
     val measurer = rememberTextMeasurer()
-    val letters = remember(measurer, colors) {
-        val style = EnvType.style(11.sp, colors.textSecondary.copy(alpha = LETTER_ALPHA))
+    val style = EnvType.style(11.sp, colors.textSecondary.copy(alpha = LETTER_ALPHA))
+    val letters = remember(measurer, style) {
         QWERTY.flatMap { it.first.toList() }.associateWith { measurer.measure(it.toString(), style) }
     }
-    Canvas(modifier.clip(RoundedCornerShape(12.dp)).background(colors.keyBackground)) {
+    Canvas(modifier.clip(RoundedCornerShape(CARD_RADIUS)).background(colors.keyBackground)) {
         val centers = qwertyCenters(size)
         letters.forEach { (char, layout) ->
             val center = centers.getValue(char)
@@ -186,7 +197,7 @@ internal fun GestureThumbnail(path: String, modifier: Modifier) {
 private fun ValueRow(title: String, value: String, tag: String) {
     val colors = LocalEnvColors.current
     Row(
-        Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 10.dp).testTag(tag),
+        Modifier.settingsCard().heightIn(min = 48.dp).padding(horizontal = CARD_PADDING, vertical = 10.dp).testTag(tag),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BasicText(title, style = EnvType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))

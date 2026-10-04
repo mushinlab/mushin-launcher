@@ -14,17 +14,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.mandatorySystemGestures
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemGestures
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -37,6 +43,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
@@ -47,11 +54,15 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bluecubelabs.env.core.model.ClockPosition
 import com.bluecubelabs.env.core.model.IconMode
 import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.ui.AppIcon
 import com.bluecubelabs.env.core.ui.EnvType
+import com.bluecubelabs.env.core.ui.Glyph
+import com.bluecubelabs.env.core.ui.GlyphButton
 import com.bluecubelabs.env.core.ui.LocalEnvColors
+import com.bluecubelabs.env.core.ui.Motion
 import com.bluecubelabs.env.core.ui.SingleLineText
 import com.bluecubelabs.env.core.ui.SwipeMarks
 import com.bluecubelabs.env.core.ui.pressable
@@ -75,6 +86,14 @@ interface HomeActions {
     fun onRequestRole()
 
     fun onCapacityChanged(capacity: Int)
+
+    fun onClockTap()
+
+    fun onClockMoved(position: ClockPosition)
+
+    fun onEdit()
+
+    fun onSuggestion(anchor: Offset)
 }
 
 object HomeDimens {
@@ -85,6 +104,9 @@ object HomeDimens {
     val topGap: Dp = 40.dp
     val listGap: Dp = 32.dp
     val roleCardHeight: Dp = 56.dp
+    val barHeight: Dp = 56.dp
+    const val BADGE_TO_ICON = 0.55f
+    const val BADGE_TO_TEXT = 0.75f
 }
 
 @Composable
@@ -116,6 +138,10 @@ fun HomeScreen(
         }
     }
     val zone = rememberStartZone()
+    var clockDrag by remember { mutableStateOf<ClockDrag?>(null) }
+    var clockShown by remember(state.clockPosition) { mutableStateOf(state.clockPosition) }
+    val clockMetrics = remember { IntArray(2) }
+    val inset = with(density) { HomeDimens.rowPadding.roundToPx() }
     val callbacks = remember(view) {
         object : HomeGestureCallbacks {
             override fun onRowTap(index: Int) {
@@ -135,6 +161,33 @@ fun HomeScreen(
                 view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
                 currentActions.onSwipe(direction, fromShadeZone)
             }
+
+            override fun onClockTap() {
+                currentActions.onClockTap()
+            }
+
+            override fun onClockHold(x: Float) {
+                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                clockDrag = ClockDrag(x, x)
+            }
+
+            override fun onClockDrag(x: Float) {
+                clockDrag = clockDrag?.copy(x = x)
+            }
+
+            override fun onClockRelease() {
+                val drag = clockDrag ?: return
+                val (area, block) = clockMetrics.let { it[0] to it[1] }
+                val from = ClockSlots.left(clockShown, area, block, inset)
+                val left = (from + drag.x - drag.startX).toInt().coerceIn(0, maxOf(0, area - block))
+                val target = ClockSlots.nearest(left, area, block, inset)
+                clockDrag = null
+                if (target != clockShown) {
+                    view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                    clockShown = target
+                    currentActions.onClockMoved(target)
+                }
+            }
         }
     }
     Box(
@@ -143,7 +196,7 @@ fun HomeScreen(
             .background(colors.background)
             .testTag("home")
             .pointerInput(arbiter) {
-                detectHomeGestures(arbiter, registry, { zone.value }, gesturesEnabled, callbacks)
+                detectHomeGestures(arbiter, registry, { zone.value }, gesturesEnabled, callbacks, Motion.CLOCK_HOLD_MS)
             },
     ) {
         Column(Modifier.fillMaxSize()) {
@@ -151,12 +204,61 @@ fun HomeScreen(
             if (state.roleMissing) {
                 RoleCard(registry, onClick = { currentActions.onRequestRole() })
             }
-            ClockBlock(minute, state.clockFormat, state.showDate)
+            ClockArea(
+                minute = minute,
+                format = state.clockFormat,
+                showDate = state.showDate,
+                position = clockShown,
+                drag = clockDrag,
+                onBounds = registry::clock,
+                onTap = { currentActions.onClockTap() },
+                onMeasured = { area, block ->
+                    clockMetrics[0] = area
+                    clockMetrics[1] = block
+                },
+            )
             Spacer(Modifier.height(HomeDimens.listGap))
             FavoritesList(state, registry, Modifier.weight(1f).fillMaxWidth()) { capacity ->
                 currentActions.onCapacityChanged(capacity)
             }
+            HomeBar(state.suggestion, registry, currentActions)
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
+    }
+}
+
+@Composable
+private fun HomeBar(suggestion: HomeSuggestion?, registry: RowRegistry, actions: HomeActions) {
+    val colors = LocalEnvColors.current
+    val tint = colors.textSecondary.copy(alpha = BAR_ALPHA)
+    Row(
+        Modifier.fillMaxWidth().height(HomeDimens.barHeight).padding(end = 8.dp),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (suggestion != null) {
+            var anchor by remember { mutableStateOf(Offset.Zero) }
+            DisposableEffect(Unit) { onDispose { registry.block(BAR_SUGGEST, null) } }
+            GlyphButton(
+                Glyph.HELP,
+                stringResource(R.string.home_suggestion),
+                colors.accent,
+                tag = "home_suggestion",
+                modifier = Modifier.onGloballyPositioned {
+                    val bounds = it.boundsInRoot()
+                    anchor = bounds.topLeft
+                    registry.block(BAR_SUGGEST, bounds)
+                },
+            ) { actions.onSuggestion(anchor) }
+        }
+        GlyphButton(
+            Glyph.EDIT,
+            stringResource(R.string.home_edit),
+            tint,
+            tag = "home_edit",
+            modifier = Modifier.onGloballyPositioned { registry.block(BAR_EDIT, it.boundsInRoot()) },
+            onClick = actions::onEdit,
+        )
     }
 }
 
@@ -270,8 +372,9 @@ private fun FavoriteRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val rowAlpha = if (row.dimmed) DIMMED_ALPHA else 1f
+        val badgeOnIcon = iconMode != IconMode.NONE && row.notifications > 0
         if (iconMode == IconMode.LEFT) {
-            AppIcon(row.key, row.label, HomeDimens.iconSize, Modifier.alpha(rowAlpha))
+            BadgedIcon(row, index, badgeOnIcon, Modifier.alpha(rowAlpha))
             Spacer(Modifier.width(HomeDimens.iconGap))
         }
         Row(Modifier.weight(1f).alpha(rowAlpha), verticalAlignment = Alignment.CenterVertically) {
@@ -280,31 +383,44 @@ private fun FavoriteRow(
                 Spacer(Modifier.width(6.dp))
                 Briefcase(colors.textSecondary)
             }
+            if (row.notifications > 0 && !badgeOnIcon) {
+                Spacer(Modifier.width(8.dp))
+                val diameter = with(LocalDensity.current) { textStyle.fontSize.toDp() } * HomeDimens.BADGE_TO_TEXT
+                CountBadge(row.notifications, diameter, Modifier.testTag("badge_$index"))
+            }
             if (row.swipes.isNotEmpty()) {
                 Spacer(Modifier.width(8.dp))
-                SwipeMarks(
-                    row.swipes,
-                    EnvType.style(EnvType.recentSize, colors.textSecondary),
-                    Modifier.testTag("swipe_$index"),
-                )
-            }
-            if (row.notifications > 0) {
-                Spacer(Modifier.width(4.dp))
-                BasicText(
-                    if (row.notifications > MAX_BADGE) "$MAX_BADGE+" else row.notifications.toString(),
-                    style = EnvType.style(EnvType.badgeSize, colors.accent),
-                    modifier = Modifier.align(Alignment.Top).testTag("badge_$index"),
-                )
+                SwipeMarks(row.swipes, textStyle.fontSize, colors.textSecondary, Modifier.testTag("swipe_$index"))
             }
         }
         if (iconMode == IconMode.RIGHT) {
             Spacer(Modifier.width(HomeDimens.iconGap))
-            AppIcon(row.key, row.label, HomeDimens.iconSize, Modifier.alpha(rowAlpha))
+            BadgedIcon(row, index, badgeOnIcon, Modifier.alpha(rowAlpha))
+        }
+    }
+}
+
+@Composable
+private fun BadgedIcon(row: HomeRow, index: Int, badge: Boolean, modifier: Modifier) {
+    Box(modifier) {
+        AppIcon(row.key, row.label, HomeDimens.iconSize)
+        if (badge) {
+            val diameter = HomeDimens.iconSize * HomeDimens.BADGE_TO_ICON
+            CountBadge(
+                row.notifications,
+                diameter,
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(x = diameter / 4, y = diameter / 4)
+                    .testTag("badge_$index"),
+            )
         }
     }
 }
 
 private const val ROLE_CARD = "role_card"
+private const val BAR_EDIT = "bar_edit"
+private const val BAR_SUGGEST = "bar_suggest"
+private const val BAR_ALPHA = 0.7f
 private const val SHADE_ZONE = 0.2f
 private const val DIMMED_ALPHA = 0.5f
-private const val MAX_BADGE = 99

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,6 +24,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerId
@@ -42,7 +45,6 @@ import com.bluecubelabs.env.core.model.PalettePreset
 import com.bluecubelabs.env.core.model.Palettes
 import com.bluecubelabs.env.core.ui.EnvColors
 import com.bluecubelabs.env.core.ui.EnvType as Type
-import com.bluecubelabs.env.core.ui.HorizontalDivider
 import com.bluecubelabs.env.core.ui.LocalEnvColors
 import com.bluecubelabs.env.core.ui.SingleLineText
 import com.bluecubelabs.env.core.ui.pressable
@@ -94,7 +96,7 @@ internal fun EnvironmentsScreen(
                     push(SettingsRoute.EnvEditor(env.id))
                 }
             }
-            HorizontalDivider()
+            CardGap()
             NavRow(
                 stringResource(R.string.env_create),
                 enabled = customCount < EnvLimits.MAX_CUSTOM,
@@ -161,7 +163,7 @@ internal fun EnvEditorScreen(
             NoteText(stringResource(R.string.env_colored_icons_note))
             SectionHeader(stringResource(R.string.env_items))
             EnvItemsSection(envId, state, actions, push)
-            HorizontalDivider()
+            CardGap()
             NavRow(stringResource(R.string.env_delete), enabled = env.type != EnvType.NORMAL, tag = "env_delete") {
                 deleting = true
             }
@@ -198,24 +200,6 @@ internal fun EnvEditorScreen(
 }
 
 @Composable
-internal fun EnvAppsScreen(
-    envId: Long,
-    state: SettingsUiState,
-    actions: SettingsActions,
-    push: (SettingsRoute) -> Unit,
-    back: () -> Unit,
-) {
-    val env = state.envs.firstOrNull { it.id == envId }
-    if (env == null) {
-        back()
-        return
-    }
-    SettingsPage("${env.name} · ${stringResource(R.string.env_items)}", back) {
-        EnvItemsSection(envId, state, actions, push)
-    }
-}
-
-@Composable
 private fun EnvItemsSection(
     envId: Long,
     state: SettingsUiState,
@@ -248,18 +232,20 @@ private fun PalettePicker(selected: PalettePreset, onSelect: (PalettePreset) -> 
         val swatch = EnvColors.from(palette)
         Row(
             Modifier
-                .fillMaxWidth()
+                .settingsCard()
                 .height(56.dp)
                 .selectedBackground(preset == selected)
                 .pressable { onSelect(preset) }
                 .testTag("palette_$preset")
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = CARD_PADDING),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(Modifier.size(28.dp).background(swatch.background))
-            Box(Modifier.size(28.dp).background(swatch.zebraB))
-            Box(Modifier.size(28.dp).background(swatch.textPrimary))
-            Box(Modifier.size(28.dp).background(swatch.accent))
+            Row(Modifier.clip(RoundedCornerShape(CARD_RADIUS))) {
+                Box(Modifier.size(28.dp).background(swatch.background))
+                Box(Modifier.size(28.dp).background(swatch.zebraB))
+                Box(Modifier.size(28.dp).background(swatch.textPrimary))
+                Box(Modifier.size(28.dp).background(swatch.accent))
+            }
             Spacer(Modifier.width(16.dp))
             BasicText(
                 names[preset].orEmpty(),
@@ -277,7 +263,7 @@ private fun ReorderableItems(
 ) {
     val colors = LocalEnvColors.current
     val density = LocalDensity.current
-    val rowHeightPx = with(density) { ROW_HEIGHT.toPx() }
+    val rowHeightPx = with(density) { (ROW_HEIGHT + CARD_GAP).toPx() }
     var order by remember(items) { mutableStateOf(items) }
     var dragKey by remember { mutableStateOf<com.bluecubelabs.env.core.model.AppKey?>(null) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
@@ -296,10 +282,10 @@ private fun ReorderableItems(
             val dragging = dragKey == item.key
             Row(
                 Modifier
-                    .fillMaxWidth()
-                    .height(ROW_HEIGHT)
                     .graphicsLayer { translationY = if (dragging) dragOffset else 0f }
-                    .background(if (dragging) colors.accent.copy(alpha = DRAG_ALPHA) else colors.zebra(index))
+                    .settingsCard()
+                    .height(ROW_HEIGHT)
+                    .background(if (dragging) colors.accent.copy(alpha = DRAG_ALPHA) else Color.Transparent)
                     .semantics {
                         customActions = listOfNotNull(
                             if (index > 0) {

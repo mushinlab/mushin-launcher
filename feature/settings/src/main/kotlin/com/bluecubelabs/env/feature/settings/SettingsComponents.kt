@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
@@ -65,7 +66,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bluecubelabs.env.core.ui.EnvType
-import com.bluecubelabs.env.core.ui.HorizontalDivider
+import com.bluecubelabs.env.core.ui.Glyph
+import com.bluecubelabs.env.core.ui.GlyphButton
 import com.bluecubelabs.env.core.ui.LocalEnvColors
 import com.bluecubelabs.env.core.ui.Motion
 import com.bluecubelabs.env.core.ui.SingleLineText
@@ -92,17 +94,19 @@ fun SettingsPage(
             Modifier.fillMaxWidth().height(56.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(
-                Modifier.size(56.dp).pressable(onClick = onBack).testTag("settings_back"),
-                contentAlignment = Alignment.Center,
-            ) {
-                BasicText("←", style = EnvType.style(22.sp, colors.textPrimary))
-            }
-            SingleLineText(title, EnvType.style(20.sp, colors.textPrimary, FontWeight.Medium))
+            GlyphButton(
+                Glyph.BACK,
+                stringResource(R.string.settings_back),
+                colors.textPrimary,
+                tag = "settings_back",
+                modifier = Modifier.padding(horizontal = 12.dp).clip(CircleShape).background(colors.surface),
+                size = 40.dp,
+                onClick = onBack,
+            )
+            SingleLineText(title, EnvType.style(22.sp, colors.textPrimary))
         }
-        HorizontalDivider()
         val body = if (scrollable) Modifier.weight(1f).verticalScroll(rememberScrollState()) else Modifier.weight(1f)
-        Column(body) { content() }
+        Column(body.padding(vertical = 4.dp)) { content() }
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
 }
@@ -112,9 +116,21 @@ fun SectionHeader(text: String) {
     val colors = LocalEnvColors.current
     BasicText(
         text,
-        style = EnvType.style(13.sp, colors.textSecondary, FontWeight.Medium),
-        modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 6.dp),
+        style = EnvType.style(14.sp, colors.accent, FontWeight.Medium),
+        modifier = Modifier.padding(start = 28.dp, end = 28.dp, top = 20.dp, bottom = 8.dp),
     )
+}
+
+@Composable
+internal fun Modifier.settingsCard(): Modifier = this
+    .fillMaxWidth()
+    .padding(horizontal = CARD_MARGIN, vertical = CARD_GAP / 2)
+    .clip(RoundedCornerShape(CARD_RADIUS))
+    .background(LocalEnvColors.current.surface)
+
+@Composable
+fun CardGap() {
+    Spacer(Modifier.height(12.dp))
 }
 
 @Composable
@@ -132,6 +148,7 @@ internal fun Modifier.selectedBackground(selected: Boolean): Modifier {
 fun NavRow(
     title: String,
     value: String? = null,
+    summary: String? = null,
     enabled: Boolean = true,
     selected: Boolean = false,
     tag: String? = null,
@@ -140,17 +157,23 @@ fun NavRow(
     val colors = LocalEnvColors.current
     Row(
         Modifier
-            .fillMaxWidth()
+            .settingsCard()
             .heightIn(min = 56.dp)
             .selectedBackground(selected)
             .pressable(enabled = enabled, onClick = onClick)
             .let { if (tag != null) it.testTag(tag) else it }
             .alpha(if (enabled) 1f else DISABLED_ALPHA)
-            .padding(horizontal = 24.dp, vertical = 8.dp),
+            .padding(horizontal = CARD_PADDING, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        BasicText(title, style = EnvType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f, fill = false))
+        Column(Modifier.weight(1f, fill = false)) {
+            BasicText(title, style = EnvType.style(17.sp, colors.textPrimary))
+            if (summary != null) {
+                Spacer(Modifier.height(2.dp))
+                BasicText(summary, style = EnvType.style(14.sp, colors.textSecondary))
+            }
+        }
         if (value != null) {
             Spacer(Modifier.width(16.dp))
             SingleLineText(value, EnvType.style(15.sp, colors.textSecondary))
@@ -163,11 +186,11 @@ fun ToggleRow(title: String, checked: Boolean, tag: String? = null, onToggle: (B
     val colors = LocalEnvColors.current
     Row(
         Modifier
-            .fillMaxWidth()
+            .settingsCard()
             .heightIn(min = 56.dp)
             .pressable(role = Role.Switch) { onToggle(!checked) }
             .let { if (tag != null) it.testTag(tag) else it }
-            .padding(horizontal = 24.dp, vertical = 8.dp),
+            .padding(horizontal = CARD_PADDING, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BasicText(title, style = EnvType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
@@ -217,7 +240,7 @@ fun SliderRow(
             currentOnChange(next)
         }
     }
-    Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp)) {
+    Column(Modifier.settingsCard().padding(horizontal = CARD_PADDING, vertical = 10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             BasicText(title, style = EnvType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
             Spacer(Modifier.width(16.dp))
@@ -287,7 +310,7 @@ fun NoteText(text: String, color: Color = LocalEnvColors.current.textSecondary) 
     BasicText(
         text,
         style = EnvType.style(14.sp, color),
-        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+        modifier = Modifier.padding(horizontal = 28.dp, vertical = 8.dp),
     )
 }
 
@@ -402,6 +425,10 @@ private fun DialogButtons(buttons: List<Pair<String, () -> Unit>>) {
 }
 
 internal const val DISABLED_ALPHA = 0.4f
+internal val CARD_RADIUS = 6.dp
+internal val CARD_MARGIN = 16.dp
+internal val CARD_GAP = 4.dp
+internal val CARD_PADDING = 16.dp
 private const val SELECTED_ALPHA = 0.24f
 private const val SCRIM_ALPHA = 0.5f
 

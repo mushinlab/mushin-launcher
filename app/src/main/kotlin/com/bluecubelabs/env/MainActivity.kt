@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Trace
+import android.provider.AlarmClock
 import android.provider.Settings
 import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
@@ -36,6 +37,7 @@ import com.bluecubelabs.env.feature.search.KeyboardRouter
 import com.bluecubelabs.env.feature.search.SearchController
 import com.bluecubelabs.env.feature.search.SearchMenu
 import com.bluecubelabs.env.feature.search.SearchMode
+import com.bluecubelabs.env.feature.settings.SettingsRoute
 import com.bluecubelabs.env.feature.settings.SettingsStack
 
 class MainActivity : ComponentActivity() {
@@ -181,8 +183,9 @@ class MainActivity : ComponentActivity() {
     fun handleBack() {
         when {
             renameTarget != null -> renameTarget = null
-            overlay is Overlay.Popup -> overlay = Overlay.None
+            overlay is Overlay.Popup || overlay is Overlay.Suggestion -> overlay = Overlay.None
             search.menu != null -> search.closeMenu()
+            search.options != null -> search.closeOptions()
             overlay == Overlay.Search -> closeOverlays()
             settingsStack.isOpen -> settingsStack.pop()
         }
@@ -289,6 +292,20 @@ class MainActivity : ComponentActivity() {
 
             else -> Notice(getString(R.string.notice_env_full, env))
         }
+    }
+
+    fun openClock() {
+        try {
+            startActivity(Intent(AlarmClock.ACTION_SHOW_ALARMS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        } catch (_: ActivityNotFoundException) {
+            notice = Notice(getString(R.string.notice_no_clock))
+        }
+    }
+
+    fun editCurrentSpace() {
+        val envId = viewModel.currentEnvId() ?: return
+        overlay = Overlay.None
+        settingsStack.open(SettingsRoute.EnvEditor(envId))
     }
 
     fun toggleInput() {

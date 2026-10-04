@@ -92,9 +92,9 @@ internal fun GesturePanel(
         )
     }
     val measurer = rememberTextMeasurer()
-    val labels = remember(measurer, colors) {
-        val style = EnvType.style(EnvType.keySize, colors.textSecondary.copy(alpha = LETTERS_ALPHA))
-        letters.rows.flatten().mapNotNull { it.char }.associateWith { measurer.measure(it.toString(), style) }
+    val labelStyle = EnvType.style(EnvType.keySize, colors.textSecondary.copy(alpha = LETTERS_ALPHA))
+    val labels = remember(measurer, labelStyle) {
+        letters.rows.flatten().mapNotNull { it.char }.associateWith { measurer.measure(it.toString(), labelStyle) }
     }
     val radiusPx = with(density) { KeyboardDimens.radius.toPx() }
     val strokePx = with(density) { GestureDimens.trailWidth.toPx() }

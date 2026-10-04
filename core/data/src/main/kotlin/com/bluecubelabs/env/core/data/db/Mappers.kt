@@ -12,6 +12,7 @@ import com.bluecubelabs.env.core.model.Palette
 import com.bluecubelabs.env.core.model.PalettePreset
 import com.bluecubelabs.env.core.model.Palettes
 import com.bluecubelabs.env.core.model.SearchRecent
+import com.bluecubelabs.env.core.model.SpaceUsage
 import com.bluecubelabs.env.core.model.SwipeDirection
 
 internal fun EnvironmentEntity.toModel(): Environment {
@@ -56,6 +57,15 @@ internal fun AppUsageEntity.toModel(): AppUsage = AppUsage(
     launchCount = launchCount,
     lastLaunchedAt = lastLaunchedAt,
     decayedScore = decayedScore,
+)
+
+internal fun SpaceUsageEntity.toModel(): SpaceUsage = SpaceUsage(
+    envId = envId,
+    key = AppKey(packageName, activityName, userSerial),
+    launchCount = launchCount,
+    lastLaunchedAt = lastLaunchedAt,
+    decayedScore = decayedScore,
+    dismissedAt = dismissedAt,
 )
 
 internal fun GestureSampleEntity.toModel(): LearnedGesture =

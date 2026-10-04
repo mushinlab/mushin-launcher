@@ -102,6 +102,29 @@ data class AppUsageEntity(
     @ColumnInfo(name = "decayed_score") val decayedScore: Double,
 )
 
+@Entity(
+    tableName = "space_usage",
+    primaryKeys = ["env_id", "package_name", "activity_name", "user_serial"],
+    foreignKeys = [
+        ForeignKey(
+            entity = EnvironmentEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["env_id"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+)
+data class SpaceUsageEntity(
+    @ColumnInfo(name = "env_id") val envId: Long,
+    @ColumnInfo(name = "package_name") val packageName: String,
+    @ColumnInfo(name = "activity_name") val activityName: String,
+    @ColumnInfo(name = "user_serial") val userSerial: Long,
+    @ColumnInfo(name = "launch_count") val launchCount: Int,
+    @ColumnInfo(name = "last_launched_at") val lastLaunchedAt: Long,
+    @ColumnInfo(name = "decayed_score") val decayedScore: Double,
+    @ColumnInfo(name = "dismissed_at") val dismissedAt: Long?,
+)
+
 @Entity(tableName = "gesture_binding")
 data class GestureBindingEntity(
     @PrimaryKey @ColumnInfo(name = "direction") val direction: String,

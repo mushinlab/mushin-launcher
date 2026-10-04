@@ -13,4 +13,12 @@
     <string name="menu_hide">Скрыть</string>
     <string name="menu_unhide">Показать</string>
     <string name="search_show_hidden">Показывать скрытые</string>
+    <string name="search_options">Настройки поиска</string>
+    <string name="search_fuzzy">Исправлять опечатки</string>
+    <string name="search_layout_swap">Исправлять раскладку</string>
+    <string name="search_translit">Транслит</string>
+    <string name="search_clear_history">Очистить историю спейса</string>
+    <string name="search_clear_confirm">Очистить недавние этого спейса?</string>
+    <string name="search_clear">Очистить</string>
+    <string name="search_cancel">Отмена</string>
 </resources>

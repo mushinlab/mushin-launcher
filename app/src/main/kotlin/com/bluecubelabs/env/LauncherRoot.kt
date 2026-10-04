@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bluecubelabs.env.core.model.AppKey
+import com.bluecubelabs.env.core.model.ClockPosition
 import com.bluecubelabs.env.core.model.EnvType
 import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.LauncherSettings
@@ -51,6 +52,7 @@ import com.bluecubelabs.env.core.model.PalettePreset
 import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.model.swipesByApp
 import com.bluecubelabs.env.core.search.KeyboardLayouts
+import com.bluecubelabs.env.core.ui.EnvFont
 import com.bluecubelabs.env.core.ui.EnvTheme
 import com.bluecubelabs.env.core.ui.EnvType as Type
 import com.bluecubelabs.env.core.ui.LocalEnvColors
@@ -62,10 +64,14 @@ import com.bluecubelabs.env.feature.home.HomeActions
 import com.bluecubelabs.env.feature.home.HomePopup
 import com.bluecubelabs.env.feature.home.HomeRow
 import com.bluecubelabs.env.feature.home.HomeScreen
+import com.bluecubelabs.env.feature.home.HomeSuggestion
 import com.bluecubelabs.env.feature.home.PopupActions
 import com.bluecubelabs.env.feature.home.PopupApp
+import com.bluecubelabs.env.feature.home.SuggestionActions
+import com.bluecubelabs.env.feature.home.SuggestionPanel
 import com.bluecubelabs.env.feature.search.SearchActions
 import com.bluecubelabs.env.feature.search.SearchChrome
+import com.bluecubelabs.env.feature.search.SearchOption
 import com.bluecubelabs.env.feature.search.SearchScreen
 import com.bluecubelabs.env.feature.settings.SettingsActions
 import com.bluecubelabs.env.feature.settings.SettingsHost
@@ -86,7 +92,8 @@ fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: La
 
     val colored by vm.coloredIcons.collectAsStateWithLifecycle()
     val icons = remember(iconProvider, colored) { iconProvider.withColors(colored) }
-    EnvTheme(palette) {
+    val font = remember(settings.font, settings.fontWeight) { EnvFont.of(settings.font, settings.fontWeight) }
+    EnvTheme(palette, font) {
         CompositionLocalProvider(
             LocalIconProvider provides icons,
             LocalPressFeedback provides settings.pressFeedback,
@@ -118,6 +125,7 @@ fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: La
                 )
                 SearchLayer(activity, vm, settings)
                 PopupLayer(activity, vm)
+                SuggestionLayer(activity, vm, home.suggestion)
                 Box(Modifier.zIndex(3f)) { SettingsLayer(activity, vm) }
                 activity.renameTarget?.let { key ->
                     Box(Modifier.zIndex(4f)) { RenameDialog(activity, vm, key) }
@@ -170,6 +178,56 @@ private fun homeActions(activity: MainActivity, vm: LauncherViewModel) = object 
     override fun onCapacityChanged(capacity: Int) {
         vm.setCapacity(capacity)
     }
+
+    override fun onClockTap() {
+        activity.openClock()
+    }
+
+    override fun onClockMoved(position: ClockPosition) {
+        vm.updateSettings { it.copy(clockPosition = position) }
+    }
+
+    override fun onEdit() {
+        activity.editCurrentSpace()
+    }
+
+    override fun onSuggestion(anchor: Offset) {
+        activity.overlay = Overlay.Suggestion(anchor)
+    }
+}
+
+@Composable
+private fun SuggestionLayer(activity: MainActivity, vm: LauncherViewModel, suggestion: HomeSuggestion?) {
+    val overlay = activity.overlay as? Overlay.Suggestion ?: return
+    if (suggestion == null) {
+        LaunchedEffect(Unit) { activity.overlay = Overlay.None }
+        return
+    }
+    val actions = remember(activity) {
+        object : SuggestionActions {
+            override fun onReplace(suggestion: HomeSuggestion) {
+                activity.overlay = Overlay.None
+                vm.currentEnvId()?.let { vm.suggestions.accept(it, suggestion, replace = true) }
+            }
+
+            override fun onAdd(suggestion: HomeSuggestion) {
+                activity.overlay = Overlay.None
+                vm.currentEnvId()?.let { vm.suggestions.accept(it, suggestion, replace = false) }
+            }
+
+            override fun onDismissSuggestion(suggestion: HomeSuggestion) {
+                activity.overlay = Overlay.None
+                vm.currentEnvId()?.let { vm.suggestions.dismiss(it, suggestion) }
+            }
+
+            override fun onClose() {
+                activity.overlay = Overlay.None
+            }
+        }
+    }
+    Box(Modifier.zIndex(2f).fillMaxSize()) {
+        SuggestionPanel(overlay.anchor, suggestion, actions)
+    }
 }
 
 @Composable
@@ -212,9 +270,12 @@ private fun SearchLayer(activity: MainActivity, vm: LauncherViewModel, settings:
             gestureLetters = settings.keyboardGestureLetters,
             gestureShiftPenalty = settings.gestureShiftPenalty,
             gestureSuggestMargin = settings.gestureSuggestMargin,
+            fuzzy = settings.searchFuzzy,
+            layoutSwap = settings.searchLayoutSwap,
+            translit = settings.searchTranslit,
         )
     }
-    val actions = remember(activity) { searchActions(activity) }
+    val actions = remember(activity) { searchActions(activity, vm) }
     Box(
         Modifier
             .zIndex(if (active || shown) 1f else -1f)
@@ -238,7 +299,7 @@ private fun Modifier.blockInput(): Modifier = pointerInput(Unit) {
     }
 }
 
-private fun searchActions(activity: MainActivity) = object : SearchActions {
+private fun searchActions(activity: MainActivity, vm: LauncherViewModel) = object : SearchActions {
     private val container get() = (activity.application as EnvApp).container
 
     override fun onLaunch(key: AppKey) {
@@ -278,6 +339,20 @@ private fun searchActions(activity: MainActivity) = object : SearchActions {
 
     override fun onDismissMenu() {
         activity.search.closeMenu()
+    }
+
+    override fun onSearchOption(option: SearchOption, enabled: Boolean) {
+        vm.updateSettings {
+            when (option) {
+                SearchOption.FUZZY -> it.copy(searchFuzzy = enabled)
+                SearchOption.LAYOUT_SWAP -> it.copy(searchLayoutSwap = enabled)
+                SearchOption.TRANSLIT -> it.copy(searchTranslit = enabled)
+            }
+        }
+    }
+
+    override fun onClearHistory() {
+        vm.currentEnvId()?.let(vm::clearHistory)
     }
 
     override fun onClose() {
@@ -406,7 +481,7 @@ private fun SettingsLayer(activity: MainActivity, vm: LauncherViewModel) {
 
             override fun rename(key: AppKey, label: String?) = vm.rename(key, label)
 
-            override fun clearHistory(envId: Long) = vm.clearHistory(envId)
+            override fun switchEnv(id: Long) = vm.switchEnv(id)
 
             override fun requestDefaultLauncher() = activity.requestRole()
 

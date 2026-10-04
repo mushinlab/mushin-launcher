@@ -2,7 +2,10 @@ package com.bluecubelabs.env.core.data
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.bluecubelabs.env.core.data.settings.SettingsRepository
+import com.bluecubelabs.env.core.model.AppFont
+import com.bluecubelabs.env.core.model.AppFontWeight
 import com.bluecubelabs.env.core.model.ClockFormat
+import com.bluecubelabs.env.core.model.ClockPosition
 import com.bluecubelabs.env.core.model.HomeTextSize
 import com.bluecubelabs.env.core.model.IconMode
 import com.bluecubelabs.env.core.model.LauncherSettings
@@ -37,6 +40,9 @@ class SettingsRepositoryTest {
         assertThat(settings.iconMode).isEqualTo(IconMode.NONE)
         assertThat(settings.clockFormat).isEqualTo(ClockFormat.SYSTEM)
         assertThat(settings.showDate).isTrue()
+        assertThat(settings.clockPosition).isEqualTo(ClockPosition.START)
+        assertThat(settings.font).isEqualTo(AppFont.SYSTEM)
+        assertThat(settings.fontWeight).isEqualTo(AppFontWeight.REGULAR)
         assertThat(settings.homeTextSize).isEqualTo(HomeTextSize.M)
         assertThat(settings.notificationCounts).isFalse()
         assertThat(settings.pressFeedback).isEqualTo(PressFeedback.FLASH)
@@ -70,6 +76,9 @@ class SettingsRepositoryTest {
                 pressFeedback = PressFeedback.DIM,
                 gestureShiftPenalty = 0.8f,
                 gestureSuggestMargin = 5f,
+                clockPosition = ClockPosition.END,
+                font = AppFont.MONTSERRAT,
+                fontWeight = AppFontWeight.LIGHT,
             )
         }
         val settings = repo.settings.first { it.currentEnvId == 7L }
@@ -81,6 +90,9 @@ class SettingsRepositoryTest {
         assertThat(settings.gestureShiftPenalty).isEqualTo(0.8f)
         assertThat(settings.gestureSuggestMargin).isEqualTo(1f)
         assertThat(settings.keyboardLayouts).containsExactly("ru", "en").inOrder()
+        assertThat(settings.clockPosition).isEqualTo(ClockPosition.END)
+        assertThat(settings.font).isEqualTo(AppFont.MONTSERRAT)
+        assertThat(settings.fontWeight).isEqualTo(AppFontWeight.LIGHT)
         repo.update { it.copy(currentEnvId = null) }
         assertThat(repo.settings.first { it.currentEnvId == null }.iconMode).isEqualTo(IconMode.RIGHT)
     }

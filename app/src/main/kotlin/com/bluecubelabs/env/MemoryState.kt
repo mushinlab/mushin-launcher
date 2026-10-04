@@ -3,9 +3,12 @@ package com.bluecubelabs.env
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.AppUsage
 import com.bluecubelabs.env.core.model.LearnedGesture
+import com.bluecubelabs.env.core.model.SpaceUsage
+import com.bluecubelabs.env.core.model.Usefulness
 import com.bluecubelabs.env.core.search.Alphabet
 import com.bluecubelabs.env.feature.settings.LearnedApp
 import com.bluecubelabs.env.feature.settings.LearnedDrawing
+import com.bluecubelabs.env.feature.settings.ScoreRow
 import com.bluecubelabs.env.feature.settings.SettingsUiState
 import com.bluecubelabs.env.feature.settings.UsageRow
 import kotlinx.collections.immutable.toImmutableList
@@ -35,6 +38,16 @@ internal fun SettingsUiState.withMemory(samples: List<LearnedGesture>, usage: Ma
         usage = usage.values
             .mapNotNull { u -> labels[u.key]?.let { UsageRow(u.key, it, u.launchCount) } }
             .sortedByDescending { it.launches }
+            .toImmutableList(),
+    )
+}
+
+internal fun SettingsUiState.withUsefulness(usage: List<SpaceUsage>, now: Long): SettingsUiState {
+    val labels = apps.associate { it.key to it.label }
+    return copy(
+        usefulness = Usefulness.scores(usage, now)
+            .mapNotNull { (key, score) -> labels[key]?.let { ScoreRow(key, it, score) } }
+            .sortedByDescending { it.score }
             .toImmutableList(),
     )
 }

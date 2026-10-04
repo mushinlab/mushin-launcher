@@ -6,6 +6,7 @@ import androidx.compose.ui.geometry.Rect
 class RowRegistry {
     private val rows = HashMap<Int, Rect>()
     private val blocked = HashMap<String, Rect>()
+    private var clock: Rect? = null
 
     fun update(index: Int, bounds: Rect) {
         rows[index] = bounds
@@ -22,6 +23,12 @@ class RowRegistry {
     fun block(id: String, bounds: Rect?) {
         if (bounds == null) blocked.remove(id) else blocked[id] = bounds
     }
+
+    fun clock(bounds: Rect?) {
+        clock = bounds
+    }
+
+    fun isClock(position: Offset): Boolean = clock?.contains(position) == true
 
     fun hit(position: Offset): Int? = rows.entries.firstOrNull { it.value.contains(position) }?.key
 

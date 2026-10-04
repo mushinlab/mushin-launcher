@@ -87,3 +87,30 @@ private fun AppSection(app: PopupApp, actions: PopupActions) {
         PanelItem(stringResource(R.string.popup_uninstall), tag = "popup_uninstall") { actions.onUninstall(app.key) }
     }
 }
+
+interface SuggestionActions {
+    fun onReplace(suggestion: HomeSuggestion)
+
+    fun onAdd(suggestion: HomeSuggestion)
+
+    fun onDismissSuggestion(suggestion: HomeSuggestion)
+
+    fun onClose()
+}
+
+@Composable
+fun SuggestionPanel(anchor: Offset, suggestion: HomeSuggestion, actions: SuggestionActions) {
+    AnchoredPanel(anchor = anchor, onDismiss = actions::onClose) {
+        PanelHeader(stringResource(R.string.suggest_header, suggestion.addLabel))
+        PanelItem(
+            stringResource(R.string.suggest_replace, suggestion.replaceLabel),
+            tag = "suggest_replace",
+        ) { actions.onReplace(suggestion) }
+        if (suggestion.canAdd) {
+            PanelItem(stringResource(R.string.suggest_add), tag = "suggest_add") { actions.onAdd(suggestion) }
+        }
+        PanelItem(stringResource(R.string.suggest_dismiss), tag = "suggest_dismiss") {
+            actions.onDismissSuggestion(suggestion)
+        }
+    }
+}

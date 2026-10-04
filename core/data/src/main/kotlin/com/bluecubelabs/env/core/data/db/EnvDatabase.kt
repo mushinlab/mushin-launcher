@@ -23,10 +23,15 @@ import com.bluecubelabs.env.core.model.Palettes
         AppUsageEntity::class,
         GestureBindingEntity::class,
         GestureSampleEntity::class,
+        SpaceUsageEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
-    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3)],
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4),
+    ],
 )
 abstract class EnvDatabase : RoomDatabase() {
     abstract fun environmentDao(): EnvironmentDao
@@ -42,6 +47,8 @@ abstract class EnvDatabase : RoomDatabase() {
     abstract fun gestureBindingDao(): GestureBindingDao
 
     abstract fun gestureSampleDao(): GestureSampleDao
+
+    abstract fun spaceUsageDao(): SpaceUsageDao
 
     abstract fun appKeyDao(): AppKeyDao
 

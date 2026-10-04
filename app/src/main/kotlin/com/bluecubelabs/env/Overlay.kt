@@ -11,6 +11,9 @@ sealed interface Overlay {
     data class Popup(val anchor: Offset, val app: AppKey?) : Overlay
 
     data object Search : Overlay
+
+    @Immutable
+    data class Suggestion(val anchor: Offset) : Overlay
 }
 
 @Immutable

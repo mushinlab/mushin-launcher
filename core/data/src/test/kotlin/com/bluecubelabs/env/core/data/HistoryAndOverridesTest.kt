@@ -61,6 +61,28 @@ class HistoryAndOverridesTest {
     }
 
     @Test
+    fun everyLaunchIsCountedPerSpaceAndDismissalIsKept() = runTest {
+        val envs = EnvironmentRepository(rule.db, backgroundScope, rule.clock)
+        val history = HistoryRepository(rule.db, backgroundScope, rule.clock)
+        val normal = normalId(envs)
+        val work = envs.environments.first { it.isNotEmpty() }.first { it.type != EnvType.NORMAL }.id
+        history.recordLaunch(slack, normal, fromSearch = false)
+        history.recordLaunch(slack, normal, fromSearch = true)
+        history.recordLaunch(slack, work, fromSearch = false)
+        history.recordLaunch(maps, null, fromSearch = false)
+        val spaces = history.spaceUsage.first { it[normal]?.firstOrNull()?.launchCount == 2 && it[work] != null }
+        assertThat(spaces[normal]?.map { it.key }).containsExactly(slack)
+        assertThat(spaces[work]?.single()?.launchCount).isEqualTo(1)
+        history.dismissSuggestion(normal, slack)
+        rule.now += 1000
+        history.recordLaunch(slack, normal, fromSearch = false)
+        val after = history.spaceUsage.first { it[normal]?.single()?.launchCount == 3 }[normal]?.single()
+        assertThat(after?.dismissedAt).isEqualTo(rule.now - 1000)
+        history.clearUsage()
+        assertThat(history.spaceUsage.first { it.isEmpty() }).isEmpty()
+    }
+
+    @Test
     fun recentsAreCappedPerEnvironment() = runTest {
         val envs = EnvironmentRepository(rule.db, backgroundScope, rule.clock)
         val history = HistoryRepository(rule.db, backgroundScope, rule.clock)

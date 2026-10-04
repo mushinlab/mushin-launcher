@@ -21,15 +21,15 @@ sealed interface SettingsRoute {
 
     data class EnvEditor(val envId: Long) : SettingsRoute
 
-    data class EnvApps(val envId: Long) : SettingsRoute
-
     data class PickApps(val envId: Long) : SettingsRoute
 
     data class PickGestureApp(val direction: SwipeDirection) : SettingsRoute
 
     data object Home : SettingsRoute
 
-    data object Search : SettingsRoute
+    data object Style : SettingsRoute
+
+    data object Advanced : SettingsRoute
 
     data object Keyboard : SettingsRoute
 
@@ -130,6 +130,9 @@ data class LearnedApp(
 data class UsageRow(val key: AppKey, val label: String, val launches: Int)
 
 @Immutable
+data class ScoreRow(val key: AppKey, val label: String, val score: Int)
+
+@Immutable
 data class SettingsUiState(
     val settings: LauncherSettings = LauncherSettings(),
     val envs: ImmutableList<EnvSummary> = persistentListOf(),
@@ -143,6 +146,7 @@ data class SettingsUiState(
     val versionName: String = "",
     val learned: ImmutableList<LearnedApp> = persistentListOf(),
     val usage: ImmutableList<UsageRow> = persistentListOf(),
+    val usefulness: ImmutableList<ScoreRow> = persistentListOf(),
 ) {
     val currentEnvId: Long? get() = envs.firstOrNull { it.current }?.id
 }
@@ -172,7 +176,7 @@ interface SettingsActions {
 
     fun rename(key: AppKey, label: String?)
 
-    fun clearHistory(envId: Long)
+    fun switchEnv(id: Long)
 
     fun requestDefaultLauncher()
 

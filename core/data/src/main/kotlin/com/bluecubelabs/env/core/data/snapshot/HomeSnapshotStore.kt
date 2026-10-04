@@ -2,6 +2,7 @@ package com.bluecubelabs.env.core.data.snapshot
 
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.ClockFormat
+import com.bluecubelabs.env.core.model.ClockPosition
 import com.bluecubelabs.env.core.model.HomeTextSize
 import com.bluecubelabs.env.core.model.IconMode
 import com.bluecubelabs.env.core.model.Palette
@@ -24,6 +25,7 @@ data class HomeSnapshot(
     val clockFormat: ClockFormat,
     val showDate: Boolean,
     val rows: List<SnapshotRow>,
+    val clockPosition: ClockPosition = ClockPosition.START,
 )
 
 class HomeSnapshotStore(directory: File) {
@@ -53,6 +55,7 @@ class HomeSnapshotStore(directory: File) {
             val textSize = HomeTextSize.valueOf(input.readUTF())
             val clockFormat = ClockFormat.valueOf(input.readUTF())
             val showDate = input.readBoolean()
+            val clockPosition = ClockPosition.valueOf(input.readUTF())
             val rows = List(input.readInt()) {
                 SnapshotRow(
                     key = AppKey(input.readUTF(), input.readUTF(), input.readLong()),
@@ -61,7 +64,7 @@ class HomeSnapshotStore(directory: File) {
                     work = input.readBoolean(),
                 )
             }
-            HomeSnapshot(envId, palette, iconMode, textSize, clockFormat, showDate, rows)
+            HomeSnapshot(envId, palette, iconMode, textSize, clockFormat, showDate, rows, clockPosition)
         }
     }.getOrNull()
 
@@ -81,6 +84,7 @@ class HomeSnapshotStore(directory: File) {
                 out.writeUTF(snapshot.textSize.name)
                 out.writeUTF(snapshot.clockFormat.name)
                 out.writeBoolean(snapshot.showDate)
+                out.writeUTF(snapshot.clockPosition.name)
                 out.writeInt(snapshot.rows.size)
                 snapshot.rows.forEach { row ->
                     out.writeUTF(row.key.packageName)
@@ -97,6 +101,6 @@ class HomeSnapshotStore(directory: File) {
 
     private companion object {
         const val FILE_NAME = "home_snapshot.bin"
-        const val VERSION = 1
+        const val VERSION = 2
     }
 }

@@ -60,6 +60,9 @@ class SettingsRepository(
         internal val ICON_MODE = stringPreferencesKey("icon_mode")
         internal val CLOCK_FORMAT = stringPreferencesKey("clock_format")
         internal val SHOW_DATE = booleanPreferencesKey("show_date")
+        internal val CLOCK_POSITION = stringPreferencesKey("clock_position")
+        internal val FONT = stringPreferencesKey("font")
+        internal val FONT_WEIGHT = stringPreferencesKey("font_weight")
         internal val HOME_TEXT_SIZE = stringPreferencesKey("home_text_size")
         internal val NOTIFICATION_COUNTS = booleanPreferencesKey("notification_counts")
         internal val PRESS_FEEDBACK = stringPreferencesKey("press_feedback")
@@ -83,6 +86,9 @@ class SettingsRepository(
                 iconMode = enumOr(prefs[ICON_MODE], defaults.iconMode),
                 clockFormat = enumOr(prefs[CLOCK_FORMAT], defaults.clockFormat),
                 showDate = prefs[SHOW_DATE] ?: defaults.showDate,
+                clockPosition = enumOr(prefs[CLOCK_POSITION], defaults.clockPosition),
+                font = enumOr(prefs[FONT], defaults.font),
+                fontWeight = enumOr(prefs[FONT_WEIGHT], defaults.fontWeight),
                 homeTextSize = enumOr(prefs[HOME_TEXT_SIZE], defaults.homeTextSize),
                 notificationCounts = prefs[NOTIFICATION_COUNTS] ?: defaults.notificationCounts,
                 pressFeedback = enumOr(prefs[PRESS_FEEDBACK], defaults.pressFeedback),
@@ -114,6 +120,9 @@ class SettingsRepository(
             prefs[ICON_MODE] = settings.iconMode.name
             prefs[CLOCK_FORMAT] = settings.clockFormat.name
             prefs[SHOW_DATE] = settings.showDate
+            prefs[CLOCK_POSITION] = settings.clockPosition.name
+            prefs[FONT] = settings.font.name
+            prefs[FONT_WEIGHT] = settings.fontWeight.name
             prefs[HOME_TEXT_SIZE] = settings.homeTextSize.name
             prefs[NOTIFICATION_COUNTS] = settings.notificationCounts
             prefs[PRESS_FEEDBACK] = settings.pressFeedback.name

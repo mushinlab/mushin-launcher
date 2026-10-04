@@ -58,6 +58,8 @@ class SearchController(
         private set
     var showHidden by mutableStateOf(false)
         private set
+    var options by mutableStateOf<Offset?>(null)
+        private set
 
     private var index: SearchIndex = SearchIndex.EMPTY
     private var usage: Map<AppKey, AppUsage> = emptyMap()
@@ -148,6 +150,7 @@ class SearchController(
         showHidden = false
         selected = NO_SELECTION
         menu = null
+        options = null
         gesturePaths.clear()
         gestureCorrected = false
         session++
@@ -165,6 +168,14 @@ class SearchController(
 
     fun closeMenu() {
         menu = null
+    }
+
+    fun openOptions(anchor: Offset) {
+        options = anchor
+    }
+
+    fun closeOptions() {
+        options = null
     }
 
     fun target(): SearchRow? = rows.getOrNull(selected.coerceAtLeast(0))

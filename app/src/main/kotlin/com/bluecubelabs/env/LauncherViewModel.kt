@@ -31,6 +31,7 @@ import com.bluecubelabs.env.core.search.SearchIndex
 import com.bluecubelabs.env.core.search.SearchItem
 import com.bluecubelabs.env.core.search.SearchOptions
 import com.bluecubelabs.env.feature.home.HomeRow
+import com.bluecubelabs.env.feature.home.HomeSuggestion
 import com.bluecubelabs.env.feature.home.HomeUiState
 import com.bluecubelabs.env.feature.home.PopupEnv
 import com.bluecubelabs.env.feature.search.RecentRow
@@ -120,13 +121,27 @@ class LauncherViewModel(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    private val suggestion: StateFlow<HomeSuggestion?> = combine(
+        data,
+        container.history.spaceUsage,
+        capacity,
+    ) { d, usage, cap -> d?.let { suggestionFor(it, usage, cap, System.currentTimeMillis()) } }
+        .distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
     val home: StateFlow<HomeUiState> = combine(
         data,
         roleHeld,
         container.notificationCounts,
         container.gestures.bindings,
-    ) { d, role, counts, bindings ->
-        if (d == null) snapshotState(initial, role) else homeState(d, role, counts, bindings.swipesByApp())
+        suggestion,
+    ) { d, role, counts, bindings, hint ->
+        if (d == null) {
+            snapshotState(initial, role)
+        } else {
+            homeState(d, role, counts, bindings.swipesByApp()).copy(suggestion = hint)
+        }
     }
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, snapshotState(initial, roleHeld.value))
@@ -174,7 +189,13 @@ class LauncherViewModel(
         },
         container.gestureLearning.samples,
         container.history.usage,
-    ) { state, samples, usage -> state.withMemory(samples, usage) }
+        container.history.spaceUsage,
+    ) { state, samples, usage, spaces ->
+        state.withMemory(
+            samples,
+            usage,
+        ).withUsefulness(spaces[state.currentEnvId].orEmpty(), System.currentTimeMillis())
+    }
         .stateIn(viewModelScope, SharingStarted.Eagerly, SettingsUiState(versionName = versionName))
 
     val gestureBindings = container.gestures.bindings
@@ -184,6 +205,8 @@ class LauncherViewModel(
     val memory = MemoryEditor(container)
 
     val spaces = SpaceEditor(container)
+
+    val suggestions = SuggestionEditor(container) { id -> data.value?.items?.get(id).orEmpty() }
 
     private val _iconsReady = MutableStateFlow(false)
     val iconsReady: StateFlow<Boolean> = _iconsReady
@@ -382,6 +405,7 @@ class LauncherViewModel(
             textSize = d.settings.homeTextSize,
             clockFormat = d.settings.clockFormat,
             showDate = d.settings.showDate,
+            clockPosition = d.settings.clockPosition,
             roleMissing = !role,
         )
     }
@@ -437,6 +461,7 @@ class LauncherViewModel(
                 clockFormat = state.clockFormat,
                 showDate = state.showDate,
                 rows = state.rows.map { SnapshotRow(it.key, it.label, it.dimmed, it.work) },
+                clockPosition = state.clockPosition,
             ),
         )
     }
@@ -455,6 +480,7 @@ class LauncherViewModel(
                 textSize = snapshot.textSize,
                 clockFormat = snapshot.clockFormat,
                 showDate = snapshot.showDate,
+                clockPosition = snapshot.clockPosition,
                 roleMissing = !role,
             )
         }

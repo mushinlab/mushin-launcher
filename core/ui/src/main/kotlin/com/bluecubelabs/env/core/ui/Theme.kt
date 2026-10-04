@@ -3,6 +3,7 @@ package com.bluecubelabs.env.core.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -10,6 +11,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import com.bluecubelabs.env.core.model.AppFont
+import com.bluecubelabs.env.core.model.AppFontWeight
 import com.bluecubelabs.env.core.model.Palette
 import com.bluecubelabs.env.core.model.Palettes
 
@@ -50,18 +53,38 @@ data class EnvColors(
 
 val LocalEnvColors = staticCompositionLocalOf { EnvColors.from(Palettes.Graphite) }
 
+@Immutable
+data class EnvFont(val family: FontFamily, val weight: FontWeight) {
+    companion object {
+        val Default = EnvFont(FontFamily.Default, FontWeight.Normal)
+
+        fun of(font: AppFont, weight: AppFontWeight) = EnvFont(EnvFonts.family(font), FontWeight(weight.value))
+    }
+}
+
+val LocalEnvFont = staticCompositionLocalOf { EnvFont.Default }
+
 @Composable
-fun EnvTheme(palette: Palette, content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalEnvColors provides EnvColors.from(palette), content = content)
+fun EnvTheme(palette: Palette, font: EnvFont = EnvFont.Default, content: @Composable () -> Unit) {
+    CompositionLocalProvider(
+        LocalEnvColors provides EnvColors.from(palette),
+        LocalEnvFont provides font,
+        content = content,
+    )
 }
 
 object EnvType {
-    fun style(size: TextUnit, color: Color, weight: FontWeight = FontWeight.Normal) = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontSize = size,
-        fontWeight = weight,
-        color = color,
-    )
+    @Composable
+    @ReadOnlyComposable
+    fun style(size: TextUnit, color: Color, weight: FontWeight = FontWeight.Normal): TextStyle {
+        val font = LocalEnvFont.current
+        return TextStyle(
+            fontFamily = font.family,
+            fontSize = size,
+            fontWeight = if (weight == FontWeight.Normal) font.weight else weight,
+            color = color,
+        )
+    }
 
     val clockSize = 72.sp
     val dateSize = 18.sp

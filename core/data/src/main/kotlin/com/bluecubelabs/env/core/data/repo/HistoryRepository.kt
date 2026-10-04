@@ -4,11 +4,13 @@ import androidx.room.withTransaction
 import com.bluecubelabs.env.core.data.db.AppUsageEntity
 import com.bluecubelabs.env.core.data.db.EnvDatabase
 import com.bluecubelabs.env.core.data.db.SearchRecentEntity
+import com.bluecubelabs.env.core.data.db.SpaceUsageEntity
 import com.bluecubelabs.env.core.data.db.toModel
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.AppUsage
 import com.bluecubelabs.env.core.model.EnvLimits
 import com.bluecubelabs.env.core.model.SearchRecent
+import com.bluecubelabs.env.core.model.SpaceUsage
 import com.bluecubelabs.env.core.model.UsageDecay
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
@@ -28,6 +30,7 @@ class HistoryRepository(
 ) {
     private val usageDao = db.appUsageDao()
     private val recentDao = db.searchRecentDao()
+    private val spaceDao = db.spaceUsageDao()
 
     val usage: StateFlow<ImmutableMap<AppKey, AppUsage>> = usageDao.observeAll()
         .map { list -> list.map { it.toModel() }.associateBy { it.key }.toImmutableMap() }
@@ -39,6 +42,14 @@ class HistoryRepository(
                 .mapValues { (_, rows) ->
                     rows.sortedByDescending { it.lastLaunchedAt }.map { it.toModel() }.toImmutableList()
                 }
+                .toImmutableMap()
+        }
+        .stateIn(scope, SharingStarted.Eagerly, persistentMapOf())
+
+    val spaceUsage: StateFlow<ImmutableMap<Long, ImmutableList<SpaceUsage>>> = spaceDao.observeAll()
+        .map { list ->
+            list.groupBy { it.envId }
+                .mapValues { (_, rows) -> rows.map { it.toModel() }.toImmutableList() }
                 .toImmutableMap()
         }
         .stateIn(scope, SharingStarted.Eagerly, persistentMapOf())
@@ -61,6 +72,25 @@ class HistoryRepository(
                     },
                 ),
             )
+            if (envId != null) {
+                val space = spaceDao.get(envId, key.packageName, key.activityName, key.userSerial)
+                spaceDao.upsert(
+                    SpaceUsageEntity(
+                        envId = envId,
+                        packageName = key.packageName,
+                        activityName = key.activityName,
+                        userSerial = key.userSerial,
+                        launchCount = (space?.launchCount ?: 0) + 1,
+                        lastLaunchedAt = now,
+                        decayedScore = if (space == null) {
+                            1.0
+                        } else {
+                            UsageDecay.increment(space.decayedScore, space.lastLaunchedAt, now)
+                        },
+                        dismissedAt = space?.dismissedAt,
+                    ),
+                )
+            }
             if (fromSearch && envId != null) {
                 val recent = recentDao.get(envId, key.packageName, key.activityName, key.userSerial)
                 recentDao.upsert(
@@ -87,6 +117,13 @@ class HistoryRepository(
     }
 
     suspend fun clearUsage() {
-        usageDao.deleteAll()
+        db.withTransaction {
+            usageDao.deleteAll()
+            spaceDao.deleteAll()
+        }
+    }
+
+    suspend fun dismissSuggestion(envId: Long, key: AppKey) {
+        spaceDao.dismiss(envId, key.packageName, key.activityName, key.userSerial, clock())
     }
 }

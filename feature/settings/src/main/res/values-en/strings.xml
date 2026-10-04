@@ -11,13 +11,11 @@
 
     <string name="settings_envs">Spaces</string>
     <string name="settings_home">Home screen</string>
-    <string name="settings_search">Search</string>
     <string name="settings_keyboard">Keyboard</string>
     <string name="settings_gestures">Gestures</string>
     <string name="settings_press">Press animation</string>
     <string name="settings_apps">Hidden &amp; renamed</string>
     <string name="settings_system">System</string>
-    <string name="settings_current_env">Space “%1$s”</string>
 
     <string name="env_create">+ New space</string>
     <string name="env_create_title">New space</string>
@@ -87,12 +85,6 @@
     <string name="press_scale">Shrink</string>
     <string name="press_note">How rows and buttons react to a touch. Tap an option to try it.</string>
 
-    <string name="search_fuzzy">Fix typos</string>
-    <string name="search_layout_swap">Wrong keyboard layout</string>
-    <string name="search_translit">Transliteration</string>
-    <string name="search_clear_history">Clear space history</string>
-    <string name="search_clear_confirm">Clear search history of space “%1$s”?</string>
-
     <string name="keyboard_layouts">Layouts</string>
     <string name="keyboard_haptics">Haptic feedback</string>
     <string name="keyboard_digit_hints">Digit hints</string>
@@ -110,8 +102,6 @@
     <string name="gesture_down">Swipe down</string>
     <string name="gesture_left">Swipe left</string>
     <string name="gesture_right">Swipe right</string>
-    <string name="settings_app_wide">For the whole app</string>
-    <string name="gestures_app_wide">Gestures are the same in every space.</string>
     <string name="gestures_swipes">Swipes on the home screen</string>
     <string name="gesture_shade_zone">Swiping down from the top fifth of the screen always opens the notification shade.</string>
     <string name="action_none">Nothing</string>
@@ -134,7 +124,7 @@
     <string name="system_privacy">Privacy</string>
     <string name="system_privacy_text">Mushin collects and shares no data: the app has no internet access, no ads and no analytics. Your spaces, launch history, learned gestures and settings are stored only on this device, are excluded from backups and are deleted together with the app. Mushin reads the list of installed apps from the system to show them on the home screen and in search. If you turn on notification counts, Mushin sees only how many notifications each app has — notification text is never read or stored.</string>
     <string name="system_licenses">Licenses</string>
-    <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable — Apache License 2.0.</string>
+    <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, Material Symbols icons — Apache License 2.0. Inter, Open Sans and Montserrat fonts — SIL Open Font License 1.1 (licence texts are inside the app, assets/licenses).</string>
     <string name="settings_memory">Memory</string>
     <string name="memory_note">Everything Mushin has learned stays on this phone. Here you can see it and erase it.</string>
     <string name="memory_gestures">Learned gestures</string>
@@ -145,7 +135,7 @@
     <string name="memory_usage_note">Search results are ranked by it.</string>
     <string name="memory_usage_none">Empty so far.</string>
     <string name="memory_clear_usage">Erase launch counts</string>
-    <string name="memory_clear_usage_confirm">Erase launch counts for all apps? Search will stop taking into account how often you open them until the counts build up again.</string>
+    <string name="memory_clear_usage_confirm">Erase launch counts for all apps? Search will stop taking into account how often you open them, and usefulness scores in spaces will reset until the counts build up again.</string>
     <string name="memory_erase">Erase</string>
     <string name="memory_app_note">Drawings after which you opened this app. The dot marks where the line starts, a ring marks a pause on a double letter. The higher the weight, the more strongly the drawing points to this app.</string>
     <string name="memory_forget_app">Forget all drawings for this app</string>
@@ -156,4 +146,27 @@
         <item quantity="one">%d drawing</item>
         <item quantity="other">%d drawings</item>
     </plurals>
+    <string name="settings_style">Style</string>
+    <string name="settings_advanced">Advanced</string>
+    <string name="summary_envs">Create spaces, names, themes and apps</string>
+    <string name="summary_style">Font, weight, text size</string>
+    <string name="summary_home">Icons, clock and date, notification counts</string>
+    <string name="summary_keyboard">Layouts, vibration, digit hints</string>
+    <string name="summary_gestures">Swipes, drawing input</string>
+    <string name="summary_apps">Hidden apps, custom names</string>
+    <string name="summary_system">Default launcher, privacy, advanced</string>
+    <string name="summary_advanced">Press animation, memory</string>
+    <string name="summary_press">How rows respond to touch</string>
+    <string name="summary_memory">Learned gestures, launch counts, usefulness</string>
+    <string name="style_font">Font</string>
+    <string name="style_weight">Weight</string>
+    <string name="style_note">Font and weight apply to the whole app; the size applies to the home screen list.</string>
+    <string name="font_system">Roboto (system)</string>
+    <string name="weight_light">Light</string>
+    <string name="weight_regular">Regular</string>
+    <string name="weight_medium">Medium</string>
+    <string name="memory_usefulness">Usefulness in “%1$s”</string>
+    <string name="memory_usefulness_note">A score from 1 to 100: how often and how recently you opened the app in this space. If an app that is not on the home screen scores clearly higher than one that is, a “?” with a suggestion appears in the bottom right corner.</string>
+    <string name="home_clock_note">Tap the clock to open the Clock app. Hold the clock to move it left, centre or right.</string>
+    <string name="settings_back">Back</string>
 </resources>

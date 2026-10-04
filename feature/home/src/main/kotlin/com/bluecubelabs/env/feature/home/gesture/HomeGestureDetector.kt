@@ -18,6 +18,14 @@ interface HomeGestureCallbacks {
     fun onDoubleTap()
 
     fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean)
+
+    fun onClockTap()
+
+    fun onClockHold(x: Float)
+
+    fun onClockDrag(x: Float)
+
+    fun onClockRelease()
 }
 
 private sealed interface PressOutcome {
@@ -34,29 +42,41 @@ suspend fun PointerInputScope.detectHomeGestures(
     zone: () -> StartZone,
     enabled: () -> Boolean,
     callbacks: HomeGestureCallbacks,
+    clockHoldMs: Long,
 ) {
     awaitEachGesture {
         val down = awaitFirstDown(requireUnconsumed = false)
         if (!enabled() || registry.isBlocked(down.position)) return@awaitEachGesture
         val row = registry.hit(down.position)
-        if (arbiter.isDoubleTap(down.position.x, down.position.y, down.uptimeMillis, row != null)) {
+        val onClock = row == null && registry.isClock(down.position)
+        if (!onClock && arbiter.isDoubleTap(down.position.x, down.position.y, down.uptimeMillis, row != null)) {
             callbacks.onDoubleTap()
             consumeUntilUp(down.id)
             return@awaitEachGesture
         }
         val tracker = VelocityTracker()
         tracker.addPointerInputChange(down)
-        val outcome = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+        val holdMs = if (onClock) clockHoldMs else viewConfiguration.longPressTimeoutMillis
+        val outcome = withTimeoutOrNull(holdMs) {
             awaitSlopOrUp(down.id, down.position, tracker)
         }
         when (outcome) {
             null -> {
                 arbiter.reset()
-                callbacks.onLongPress(down.position, row)
-                consumeUntilUp(down.id)
+                if (onClock) {
+                    callbacks.onClockHold(down.position.x)
+                    dragUntilUp(down.id, callbacks::onClockDrag)
+                    callbacks.onClockRelease()
+                } else {
+                    callbacks.onLongPress(down.position, row)
+                    consumeUntilUp(down.id)
+                }
             }
 
-            is PressOutcome.Up -> {
+            is PressOutcome.Up -> if (onClock) {
+                arbiter.reset()
+                callbacks.onClockTap()
+            } else {
                 arbiter.onTapUp(outcome.position.x, outcome.position.y, outcome.timeMs, row != null)
                 if (row != null) callbacks.onRowTap(row)
             }
@@ -102,6 +122,16 @@ private suspend fun AwaitPointerEventScope.trackUntilUp(id: PointerId, tracker: 
         val change = event.changes.firstOrNull { it.id == id } ?: return null
         tracker.addPointerInputChange(change)
         if (!change.pressed) return change.position
+    }
+}
+
+private suspend fun AwaitPointerEventScope.dragUntilUp(id: PointerId, onMove: (Float) -> Unit) {
+    while (true) {
+        val event = awaitPointerEvent()
+        event.changes.forEach { it.consume() }
+        val change = event.changes.firstOrNull { it.id == id } ?: return
+        if (!change.pressed) return
+        onMove(change.position.x)
     }
 }
 

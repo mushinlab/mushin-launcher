@@ -172,6 +172,33 @@ interface AppUsageDao {
 }
 
 @Dao
+interface SpaceUsageDao {
+    @Query("SELECT * FROM space_usage")
+    fun observeAll(): Flow<List<SpaceUsageEntity>>
+
+    @Query(
+        "SELECT * FROM space_usage WHERE env_id = :envId AND package_name = :packageName " +
+            "AND activity_name = :activityName AND user_serial = :userSerial",
+    )
+    suspend fun get(envId: Long, packageName: String, activityName: String, userSerial: Long): SpaceUsageEntity?
+
+    @Upsert
+    suspend fun upsert(entity: SpaceUsageEntity)
+
+    @Query(
+        "UPDATE space_usage SET dismissed_at = :at WHERE env_id = :envId AND package_name = :packageName " +
+            "AND activity_name = :activityName AND user_serial = :userSerial",
+    )
+    suspend fun dismiss(envId: Long, packageName: String, activityName: String, userSerial: Long, at: Long)
+
+    @Query("DELETE FROM space_usage WHERE package_name = :packageName AND user_serial = :userSerial")
+    suspend fun deletePackage(packageName: String, userSerial: Long)
+
+    @Query("DELETE FROM space_usage")
+    suspend fun deleteAll()
+}
+
+@Dao
 interface GestureBindingDao {
     @Query("SELECT * FROM gesture_binding")
     fun observeAll(): Flow<List<GestureBindingEntity>>
@@ -221,6 +248,7 @@ interface AppKeyDao {
             "UNION SELECT package_name, activity_name, user_serial FROM app_override " +
             "UNION SELECT package_name, activity_name, user_serial FROM search_recent " +
             "UNION SELECT package_name, activity_name, user_serial FROM app_usage " +
+            "UNION SELECT package_name, activity_name, user_serial FROM space_usage " +
             "UNION SELECT package_name, activity_name, user_serial FROM gesture_sample " +
             "UNION SELECT package_name, activity_name, user_serial FROM gesture_binding " +
             "WHERE package_name IS NOT NULL AND activity_name IS NOT NULL AND user_serial IS NOT NULL",
@@ -247,6 +275,18 @@ interface AppKeyDao {
             TO_KEY + " AND EXISTS (SELECT 1 FROM app_usage " + FROM_KEY + ")",
     )
     suspend fun mergeUsage(packageName: String, userSerial: Long, from: String, to: String)
+
+    @Query(
+        "UPDATE space_usage SET " +
+            "launch_count = launch_count + (SELECT o.launch_count FROM space_usage AS o " +
+            "WHERE o.env_id = space_usage.env_id AND " + OLD_ROW + "), " +
+            "last_launched_at = MAX(last_launched_at, (SELECT o.last_launched_at FROM space_usage AS o " +
+            "WHERE o.env_id = space_usage.env_id AND " + OLD_ROW + ")), " +
+            "decayed_score = MAX(decayed_score, (SELECT o.decayed_score FROM space_usage AS o " +
+            "WHERE o.env_id = space_usage.env_id AND " + OLD_ROW + ")) " +
+            TO_KEY + " AND env_id IN (SELECT env_id FROM space_usage " + FROM_KEY + ")",
+    )
+    suspend fun mergeSpaceUsage(packageName: String, userSerial: Long, from: String, to: String)
 
     @Query(
         "UPDATE gesture_sample SET weight = weight + " +
@@ -281,6 +321,12 @@ interface AppKeyDao {
 
     @Query("DELETE FROM app_usage " + FROM_KEY)
     suspend fun deleteUsage(packageName: String, userSerial: Long, from: String)
+
+    @Query("UPDATE OR IGNORE space_usage SET activity_name = :to " + FROM_KEY)
+    suspend fun moveSpaceUsage(packageName: String, userSerial: Long, from: String, to: String)
+
+    @Query("DELETE FROM space_usage " + FROM_KEY)
+    suspend fun deleteSpaceUsage(packageName: String, userSerial: Long, from: String)
 
     @Query("UPDATE OR IGNORE gesture_sample SET activity_name = :to " + FROM_KEY)
     suspend fun moveSamples(packageName: String, userSerial: Long, from: String, to: String)

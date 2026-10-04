@@ -13,4 +13,12 @@
     <string name="menu_hide">Hide</string>
     <string name="menu_unhide">Unhide</string>
     <string name="search_show_hidden">Show hidden</string>
+    <string name="search_options">Search settings</string>
+    <string name="search_fuzzy">Fix typos</string>
+    <string name="search_layout_swap">Fix keyboard layout</string>
+    <string name="search_translit">Transliteration</string>
+    <string name="search_clear_history">Clear space history</string>
+    <string name="search_clear_confirm">Clear recent apps of this space?</string>
+    <string name="search_clear">Clear</string>
+    <string name="search_cancel">Cancel</string>
 </resources>

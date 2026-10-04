@@ -58,6 +58,23 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun migrationTo4KeepsSpacesAndAddsEmptySpaceUsage() {
+        helper.createDatabase(DB_NAME, 1).use { db ->
+            EnvDatabase.SeedCallback(EnvDatabase.SeedNames("Обычный", "Работа")).seed(db, createdAt = 0L)
+        }
+        helper.runMigrationsAndValidate(DB_NAME, 4, true).use { db ->
+            db.query("SELECT COUNT(*) FROM environment").use { cursor ->
+                cursor.moveToFirst()
+                assertThat(cursor.getInt(0)).isEqualTo(2)
+            }
+            db.query("SELECT COUNT(*) FROM space_usage").use { cursor ->
+                cursor.moveToFirst()
+                assertThat(cursor.getInt(0)).isEqualTo(0)
+            }
+        }
+    }
+
     private companion object {
         const val DB_NAME = "migration-test"
     }

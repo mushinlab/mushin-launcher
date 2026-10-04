@@ -58,13 +58,11 @@ private fun SettingsRouteScreen(
     val back: () -> Unit = { if (stack.top == route) stack.pop() }
     val push: (SettingsRoute) -> Unit = { if (stack.top == route) stack.push(it) }
     when (route) {
-        SettingsRoute.Root -> RootScreen(state, push, back)
+        SettingsRoute.Root -> RootScreen(state, actions, push, back)
 
         SettingsRoute.Environments -> EnvironmentsScreen(state, actions, push, back)
 
         is SettingsRoute.EnvEditor -> EnvEditorScreen(route.envId, state, actions, push, back)
-
-        is SettingsRoute.EnvApps -> EnvAppsScreen(route.envId, state, actions, push, back)
 
         is SettingsRoute.PickApps -> EnvAppPicker(route.envId, state, actions, back)
 
@@ -77,7 +75,9 @@ private fun SettingsRouteScreen(
 
         SettingsRoute.Home -> HomeSettingsScreen(state, actions, back)
 
-        SettingsRoute.Search -> SearchSettingsScreen(state, actions, back)
+        SettingsRoute.Style -> StyleScreen(state, actions, back)
+
+        SettingsRoute.Advanced -> AdvancedScreen(state, push, back)
 
         SettingsRoute.Keyboard -> KeyboardSettingsScreen(state, actions, back)
 
@@ -89,7 +89,7 @@ private fun SettingsRouteScreen(
 
         SettingsRoute.Apps -> AppsSettingsScreen(state, actions, back)
 
-        SettingsRoute.System -> SystemScreen(state, actions, back)
+        SettingsRoute.System -> SystemScreen(state, actions, push, back)
 
         SettingsRoute.Memory -> MemoryScreen(state, actions, push, back)
 
