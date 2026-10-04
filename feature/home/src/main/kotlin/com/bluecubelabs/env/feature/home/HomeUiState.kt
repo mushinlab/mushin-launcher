@@ -5,6 +5,7 @@ import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.ClockFormat
 import com.bluecubelabs.env.core.model.HomeTextSize
 import com.bluecubelabs.env.core.model.IconMode
+import com.bluecubelabs.env.core.model.SwipeDirection
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -15,6 +16,7 @@ data class HomeRow(
     val dimmed: Boolean = false,
     val work: Boolean = false,
     val notifications: Int = 0,
+    val swipes: ImmutableList<SwipeDirection> = persistentListOf(),
 )
 
 @Immutable

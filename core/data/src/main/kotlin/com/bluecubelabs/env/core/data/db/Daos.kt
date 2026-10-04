@@ -53,6 +53,9 @@ interface EnvironmentDao {
         isDark: Boolean,
     )
 
+    @Query("UPDATE environment SET colored_icons = :enabled WHERE id = :id")
+    suspend fun setColoredIcons(id: Long, enabled: Boolean)
+
     @Query("DELETE FROM environment WHERE id = :id")
     suspend fun delete(id: Long)
 

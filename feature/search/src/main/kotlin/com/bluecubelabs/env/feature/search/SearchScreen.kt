@@ -1,5 +1,6 @@
 package com.bluecubelabs.env.feature.search
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
@@ -40,6 +42,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -48,7 +53,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -58,6 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.IconMode
+import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.search.KeyboardLayout
 import com.bluecubelabs.env.core.ui.AnchoredPanel
 import com.bluecubelabs.env.core.ui.AppIcon
@@ -66,10 +74,12 @@ import com.bluecubelabs.env.core.ui.LocalEnvColors
 import com.bluecubelabs.env.core.ui.PanelHeader
 import com.bluecubelabs.env.core.ui.PanelItem
 import com.bluecubelabs.env.core.ui.SingleLineText
+import com.bluecubelabs.env.core.ui.SwipeMarks
 import com.bluecubelabs.env.core.ui.VerticalDivider
 import com.bluecubelabs.env.core.ui.pressable
 import kotlin.math.abs
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 @Immutable
 data class RecentRow(val key: AppKey, val label: String)
@@ -102,6 +112,10 @@ interface SearchActions : KeyboardActions {
 
     fun onUninstall(key: AppKey)
 
+    fun onToggleHidden(key: AppKey, hidden: Boolean)
+
+    fun onToggleShowHidden()
+
     fun onDismissMenu()
 }
 
@@ -117,6 +131,10 @@ object SearchDimens {
     val deleteWidth: Dp = 64.dp
     val suggestionIcon: Dp = 28.dp
     val suggestionGap: Dp = 12.dp
+    val eyeSize: Dp = 48.dp
+    val paneGap: Dp = 8.dp
+    val paneRadius: Dp = 16.dp
+    val eyeGlyph: Dp = 22.dp
     val closeSwipe: Dp = 72.dp
     const val MAX_RECENTS = 10
 }
@@ -140,10 +158,13 @@ fun SearchScreen(
             .background(colors.background)
             .testTag("search"),
     ) {
-        val recentsWidth = (maxWidth.value / 3).toInt().dp
+        val gap = SearchDimens.paneGap
+        val recentsWidth = ((maxWidth - gap * 3).value / 3).toInt().dp
+        val pane = Modifier.clip(RoundedCornerShape(SearchDimens.paneRadius)).background(colors.surface)
         Column(
             Modifier
                 .fillMaxSize()
+                .padding(horizontal = gap)
                 .pointerInput(Unit) {
                     awaitEachGesture {
                         lastDown = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial).position
@@ -152,45 +173,55 @@ fun SearchScreen(
                 .swipeDownToClose(closePx, actions::onClose),
         ) {
             Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
-            Row(Modifier.weight(1f).fillMaxWidth()) {
-                ResultsPane(controller, chrome.iconMode, actions, onLongPress, Modifier.weight(1f).fillMaxHeight())
-                VerticalDivider(Modifier.fillMaxHeight())
-                RecentsPane(
-                    recents,
+            Spacer(Modifier.height(gap))
+            Row(Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(gap)) {
+                ResultsPane(
+                    controller,
                     chrome.iconMode,
                     actions,
                     onLongPress,
-                    Modifier.width(recentsWidth).fillMaxHeight(),
+                    Modifier.weight(1f).fillMaxHeight().then(pane),
+                )
+                RecentsPane(
+                    recents,
+                    chrome.iconMode,
+                    controller.showHidden,
+                    actions,
+                    onLongPress,
+                    Modifier.width(recentsWidth).fillMaxHeight().then(pane),
                 )
             }
+            Spacer(Modifier.height(gap))
             val typing = mode == SearchMode.TYPING
-            QueryRow(
-                controller,
-                actions,
-                enterWidth = recentsWidth.takeIf { typing },
-                inputToggle = if (!typing) {
-                    null
-                } else {
-                    stringResource(
-                        if (chrome.gestureTyping) R.string.search_input_keys else R.string.search_input_gesture,
-                    )
-                },
-                gestureDelete = typing && chrome.gestureTyping,
-            )
-            if (typing) {
-                if (chrome.gestureTyping) {
-                    GesturePanel(
-                        controller,
-                        chrome.haptics,
-                        chrome.gestureLetters,
-                        chrome.gestureShiftPenalty,
-                        chrome.gestureSuggestMargin,
-                    )
-                } else {
-                    Keyboard(chrome.layout, chrome.nextLayoutLabel, chrome.digitHints, chrome.haptics, actions)
+            Column(Modifier.fillMaxWidth().then(pane).testTag("input_pane")) {
+                QueryRow(
+                    controller,
+                    actions,
+                    enterWidth = recentsWidth.takeIf { typing },
+                    inputToggle = if (!typing) {
+                        null
+                    } else {
+                        stringResource(
+                            if (chrome.gestureTyping) R.string.search_input_keys else R.string.search_input_gesture,
+                        )
+                    },
+                    gestureDelete = typing && chrome.gestureTyping,
+                )
+                if (typing) {
+                    if (chrome.gestureTyping) {
+                        GesturePanel(
+                            controller,
+                            chrome.haptics,
+                            chrome.gestureLetters,
+                            chrome.gestureShiftPenalty,
+                            chrome.gestureSuggestMargin,
+                        )
+                    } else {
+                        Keyboard(chrome.layout, chrome.nextLayoutLabel, chrome.digitHints, chrome.haptics, actions)
+                    }
                 }
-                Spacer(Modifier.height(KeyboardDimens.bottomLift))
             }
+            Spacer(Modifier.height(if (typing) KeyboardDimens.bottomLift else gap))
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
         controller.menu?.let { SearchMenuPanel(it, actions) }
@@ -273,6 +304,7 @@ private fun ResultsPane(
                 iconMode = iconMode,
                 iconSize = SearchDimens.resultIcon,
                 hidden = row.hidden,
+                swipes = row.swipes,
                 highlighted = index == selected,
                 tag = "result_$index",
                 onLongClick = { onLongPress(row.key, row.label) },
@@ -286,13 +318,17 @@ private fun ResultsPane(
 private fun RecentsPane(
     recents: ImmutableList<RecentRow>,
     iconMode: IconMode,
+    showHidden: Boolean,
     actions: SearchActions,
     onLongPress: (AppKey, String) -> Unit,
     modifier: Modifier,
 ) {
     BoxWithConstraints(modifier.testTag("recents")) {
-        val fit = (maxHeight / SearchDimens.recentHeight).toInt().coerceAtMost(SearchDimens.MAX_RECENTS)
+        val fit = ((maxHeight - SearchDimens.eyeSize) / SearchDimens.recentHeight).toInt()
+            .coerceIn(0, SearchDimens.MAX_RECENTS)
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
+            HiddenToggle(showHidden, actions::onToggleShowHidden, Modifier.align(Alignment.End))
+            Spacer(Modifier.weight(1f))
             recents.take(fit).asReversed().forEachIndexed { reversedIndex, row ->
                 val index = recents.take(fit).size - 1 - reversedIndex
                 AppRowItem(
@@ -304,6 +340,7 @@ private fun RecentsPane(
                     iconMode = iconMode,
                     iconSize = SearchDimens.recentIcon,
                     hidden = false,
+                    swipes = persistentListOf(),
                     highlighted = false,
                     tag = "recent_$index",
                     onLongClick = { onLongPress(row.key, row.label) },
@@ -324,13 +361,18 @@ private fun AppRowItem(
     iconMode: IconMode,
     iconSize: Dp,
     hidden: Boolean,
+    swipes: ImmutableList<SwipeDirection>,
     highlighted: Boolean,
     tag: String,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
 ) {
     val colors = LocalEnvColors.current
-    val background = if (highlighted) colors.accent.copy(alpha = HIGHLIGHT_ALPHA) else colors.zebra(index)
+    val background = when {
+        highlighted -> colors.accent.copy(alpha = HIGHLIGHT_ALPHA)
+        index % 2 == 1 -> colors.textPrimary.copy(alpha = PANE_ZEBRA_ALPHA)
+        else -> Color.Transparent
+    }
     val textStyle = remember(colors, textSize) { EnvType.style(textSize.sp, colors.textPrimary) }
     Row(
         Modifier
@@ -348,6 +390,14 @@ private fun AppRowItem(
         }
         Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
             SingleLineText(label, textStyle, Modifier.weight(1f, fill = false))
+            if (swipes.isNotEmpty()) {
+                Spacer(Modifier.width(8.dp))
+                SwipeMarks(
+                    swipes,
+                    EnvType.style(EnvType.recentSize, colors.textSecondary),
+                    Modifier.testTag("${tag}_swipe"),
+                )
+            }
             if (hidden) {
                 Spacer(Modifier.width(6.dp))
                 SingleLineText(
@@ -376,7 +426,7 @@ private fun QueryRow(
         Modifier
             .fillMaxWidth()
             .height(SearchDimens.queryHeight)
-            .background(colors.background),
+            .background(Color.Transparent),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (inputToggle != null) {
@@ -470,6 +520,47 @@ private fun QueryKey(label: String, width: Dp, tag: String, textSize: TextUnit, 
 }
 
 @Composable
+private fun HiddenToggle(showHidden: Boolean, onToggle: () -> Unit, modifier: Modifier) {
+    val colors = LocalEnvColors.current
+    val description = stringResource(R.string.search_show_hidden)
+    val tint = if (showHidden) colors.accent else colors.textSecondary
+    Box(
+        modifier
+            .size(SearchDimens.eyeSize)
+            .pressable(role = Role.Switch, onClick = onToggle)
+            .semantics {
+                contentDescription = description
+                selected = showHidden
+            }
+            .testTag("toggle_hidden"),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(Modifier.size(SearchDimens.eyeGlyph)) {
+            val stroke = Stroke(width = size.width * EYE_STROKE, cap = StrokeCap.Round)
+            val w = size.width
+            val h = size.height
+            val outline = Path().apply {
+                moveTo(w * 0.04f, h * 0.5f)
+                quadraticTo(w * 0.5f, h * 0.06f, w * 0.96f, h * 0.5f)
+                quadraticTo(w * 0.5f, h * 0.94f, w * 0.04f, h * 0.5f)
+                close()
+            }
+            drawPath(outline, tint, style = stroke)
+            drawCircle(tint, radius = w * 0.14f, center = center)
+            if (!showHidden) {
+                drawLine(
+                    tint,
+                    Offset(w * 0.12f, h * 0.88f),
+                    Offset(w * 0.88f, h * 0.12f),
+                    stroke.width,
+                    StrokeCap.Round,
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun SearchMenuPanel(menu: SearchMenu, actions: SearchActions) {
     AnchoredPanel(anchor = menu.anchor, onDismiss = actions::onDismissMenu) {
         PanelHeader(menu.label)
@@ -477,6 +568,10 @@ private fun SearchMenuPanel(menu: SearchMenu, actions: SearchActions) {
             stringResource(if (menu.inEnv) R.string.menu_remove_from_env else R.string.menu_add_to_env),
             tag = "menu_env",
         ) { actions.onToggleInEnv(menu.key, add = !menu.inEnv) }
+        PanelItem(
+            stringResource(if (menu.hidden) R.string.menu_unhide else R.string.menu_hide),
+            tag = "menu_hide",
+        ) { actions.onToggleHidden(menu.key, !menu.hidden) }
         PanelItem(stringResource(R.string.menu_app_info), tag = "menu_info") { actions.onAppInfo(menu.key) }
         if (menu.canUninstall) {
             PanelItem(stringResource(R.string.menu_uninstall), tag = "menu_uninstall") { actions.onUninstall(menu.key) }
@@ -485,3 +580,5 @@ private fun SearchMenuPanel(menu: SearchMenu, actions: SearchActions) {
 }
 
 private const val HIGHLIGHT_ALPHA = 0.12f
+private const val EYE_STROKE = 0.09f
+private const val PANE_ZEBRA_ALPHA = 0.05f

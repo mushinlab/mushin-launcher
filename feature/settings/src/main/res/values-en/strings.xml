@@ -49,6 +49,8 @@
     <string name="error_custom_limit">20 custom spaces at most</string>
     <string name="error_generic">Something went wrong</string>
 
+    <string name="env_colored_icons">Colour icons</string>
+    <string name="env_colored_icons_note">App icons in their own colours instead of monochrome while this space is active — on the home screen, in search and in swipe suggestions. Applies when icons are on in “Home screen”.</string>
     <string name="palette_graphite">Graphite</string>
     <string name="palette_navy">Navy</string>
     <string name="palette_paper">Paper</string>
@@ -65,8 +67,6 @@
     <string name="home_icons_none">No icons</string>
     <string name="home_icons_left">Left</string>
     <string name="home_icons_right">Right</string>
-    <string name="home_colored_icons">Colour icons</string>
-    <string name="home_colored_icons_note">App icons in their own colours instead of monochrome — on the home screen, in search and in swipe suggestions. Applies when icons are on.</string>
     <string name="home_clock">Clock format</string>
     <string name="home_clock_system">System</string>
     <string name="home_clock_24">24-hour</string>

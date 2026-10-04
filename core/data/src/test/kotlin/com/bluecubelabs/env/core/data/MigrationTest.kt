@@ -44,6 +44,20 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun migrationTo3KeepsSpacesWithMonochromeIcons() {
+        helper.createDatabase(DB_NAME, 1).use { db ->
+            EnvDatabase.SeedCallback(EnvDatabase.SeedNames("Обычный", "Работа")).seed(db, createdAt = 0L)
+        }
+        helper.runMigrationsAndValidate(DB_NAME, 3, true).use { db ->
+            db.query("SELECT COUNT(*), SUM(colored_icons) FROM environment").use { cursor ->
+                cursor.moveToFirst()
+                assertThat(cursor.getInt(0)).isEqualTo(2)
+                assertThat(cursor.getInt(1)).isEqualTo(0)
+            }
+        }
+    }
+
     private companion object {
         const val DB_NAME = "migration-test"
     }

@@ -38,6 +38,7 @@ class SearchEngine(private val options: SearchOptions = SearchOptions()) {
         usage: Map<AppKey, AppUsage> = emptyMap(),
         now: Long = 0L,
         limit: Int = MAX_RESULTS,
+        includeHidden: Boolean = false,
     ): List<SearchResult> {
         val variants = variants(query)
         if (variants.isEmpty()) return emptyList()
@@ -45,7 +46,7 @@ class SearchEngine(private val options: SearchOptions = SearchOptions()) {
         index.items.forEach { indexed ->
             val best = bestMatch(indexed, variants) ?: return@forEach
             val (level, score) = best
-            if (indexed.item.hidden && level.base < MatchLevel.PREFIX.base) return@forEach
+            if (indexed.item.hidden && !includeHidden && level.base < MatchLevel.PREFIX.base) return@forEach
             results += SearchResult(
                 key = indexed.item.key,
                 label = indexed.item.displayLabel,

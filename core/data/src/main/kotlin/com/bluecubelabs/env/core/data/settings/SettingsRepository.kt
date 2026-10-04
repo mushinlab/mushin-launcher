@@ -58,7 +58,6 @@ class SettingsRepository(
 
         internal val CURRENT_ENV_ID = longPreferencesKey("current_env_id")
         internal val ICON_MODE = stringPreferencesKey("icon_mode")
-        internal val COLORED_ICONS = booleanPreferencesKey("colored_icons")
         internal val CLOCK_FORMAT = stringPreferencesKey("clock_format")
         internal val SHOW_DATE = booleanPreferencesKey("show_date")
         internal val HOME_TEXT_SIZE = stringPreferencesKey("home_text_size")
@@ -82,7 +81,6 @@ class SettingsRepository(
             return LauncherSettings(
                 currentEnvId = prefs[CURRENT_ENV_ID],
                 iconMode = enumOr(prefs[ICON_MODE], defaults.iconMode),
-                coloredIcons = prefs[COLORED_ICONS] ?: defaults.coloredIcons,
                 clockFormat = enumOr(prefs[CLOCK_FORMAT], defaults.clockFormat),
                 showDate = prefs[SHOW_DATE] ?: defaults.showDate,
                 homeTextSize = enumOr(prefs[HOME_TEXT_SIZE], defaults.homeTextSize),
@@ -114,7 +112,6 @@ class SettingsRepository(
             val envId = settings.currentEnvId
             if (envId == null) prefs.remove(CURRENT_ENV_ID) else prefs[CURRENT_ENV_ID] = envId
             prefs[ICON_MODE] = settings.iconMode.name
-            prefs[COLORED_ICONS] = settings.coloredIcons
             prefs[CLOCK_FORMAT] = settings.clockFormat.name
             prefs[SHOW_DATE] = settings.showDate
             prefs[HOME_TEXT_SIZE] = settings.homeTextSize.name

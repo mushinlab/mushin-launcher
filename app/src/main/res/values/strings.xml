@@ -11,4 +11,6 @@
     <string name="rename_title">Переименовать «%1$s»</string>
     <string name="rename_save">Сохранить</string>
     <string name="rename_reset">Сбросить</string>
+    <string name="notice_hidden">«%1$s» скрыто. Показать скрытые — кнопка с глазом в поиске</string>
+    <string name="notice_unhidden">«%1$s» снова видно</string>
 </resources>

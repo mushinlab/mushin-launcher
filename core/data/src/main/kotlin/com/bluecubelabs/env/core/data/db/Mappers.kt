@@ -37,6 +37,7 @@ internal fun EnvironmentEntity.toModel(): Environment {
             isDark = isDark,
         ),
         createdAt = createdAt,
+        coloredIcons = coloredIcons,
     )
 }
 

@@ -35,7 +35,6 @@ class SettingsRepositoryTest {
         assertThat(settings).isEqualTo(LauncherSettings())
         assertThat(settings.currentEnvId).isNull()
         assertThat(settings.iconMode).isEqualTo(IconMode.NONE)
-        assertThat(settings.coloredIcons).isFalse()
         assertThat(settings.clockFormat).isEqualTo(ClockFormat.SYSTEM)
         assertThat(settings.showDate).isTrue()
         assertThat(settings.homeTextSize).isEqualTo(HomeTextSize.M)
@@ -64,7 +63,6 @@ class SettingsRepositoryTest {
             it.copy(
                 currentEnvId = 7,
                 iconMode = IconMode.RIGHT,
-                coloredIcons = true,
                 keyboardLayouts = listOf("ru", "en"),
                 keyboardGestureTyping = true,
                 keyboardGestureLetters = true,
@@ -76,7 +74,6 @@ class SettingsRepositoryTest {
         }
         val settings = repo.settings.first { it.currentEnvId == 7L }
         assertThat(settings.iconMode).isEqualTo(IconMode.RIGHT)
-        assertThat(settings.coloredIcons).isTrue()
         assertThat(settings.keyboardGestureTyping).isTrue()
         assertThat(settings.keyboardGestureLetters).isTrue()
         assertThat(settings.notificationCounts).isTrue()

@@ -184,4 +184,15 @@ class EnvironmentRepositoryTest {
         }
         assertThat(custom.first { it.id == normal.id }.palette.textPrimary).isEqualTo(-1)
     }
+
+    @Test
+    fun colouredIconsAreSetPerSpace() = runTest {
+        val repo = EnvironmentRepository(rule.db, backgroundScope, rule.clock)
+        val envs = repo.environments.first { it.size >= 2 }
+        val (normal, work) = envs.first { it.type == EnvType.NORMAL } to envs.first { it.type == EnvType.WORK }
+        assertThat(envs.none { it.coloredIcons }).isTrue()
+        repo.setColoredIcons(work.id, true)
+        val updated = repo.environments.first { list -> list.any { it.id == work.id && it.coloredIcons } }
+        assertThat(updated.first { it.id == normal.id }.coloredIcons).isFalse()
+    }
 }

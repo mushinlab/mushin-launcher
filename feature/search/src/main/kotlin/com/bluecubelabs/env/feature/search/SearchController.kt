@@ -10,6 +10,7 @@ import androidx.compose.ui.geometry.Offset
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.AppUsage
 import com.bluecubelabs.env.core.model.LearnedGesture
+import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.search.GestureDecoder
 import com.bluecubelabs.env.core.search.GesturePoint
 import com.bluecubelabs.env.core.search.SearchEngine
@@ -23,6 +24,7 @@ data class SearchRow(
     val key: AppKey,
     val label: String,
     val hidden: Boolean,
+    val swipes: ImmutableList<SwipeDirection> = persistentListOf(),
 )
 
 enum class SearchMode { TYPING, BROWSING }
@@ -34,6 +36,7 @@ data class SearchMenu(
     val anchor: Offset,
     val inEnv: Boolean,
     val canUninstall: Boolean,
+    val hidden: Boolean = false,
 )
 
 @Stable
@@ -53,10 +56,13 @@ class SearchController(
         private set
     var suggesting by mutableStateOf(false)
         private set
+    var showHidden by mutableStateOf(false)
+        private set
 
     private var index: SearchIndex = SearchIndex.EMPTY
     private var usage: Map<AppKey, AppUsage> = emptyMap()
     private var learned: List<LearnedGesture> = emptyList()
+    private var swipes: Map<AppKey, List<SwipeDirection>> = emptyMap()
     private var suggestions: List<AppKey> = emptyList()
     private val gesturePaths = mutableListOf<String>()
     private var gestureCorrected = false
@@ -69,6 +75,12 @@ class SearchController(
 
     fun setLearned(samples: List<LearnedGesture>) {
         learned = samples
+    }
+
+    fun setSwipes(byApp: Map<AppKey, List<SwipeDirection>>) {
+        if (byApp == swipes) return
+        swipes = byApp
+        refresh()
     }
 
     fun applyGesture(decoder: GestureDecoder, path: List<GesturePoint>): Boolean {
@@ -125,9 +137,15 @@ class SearchController(
         changeQuery("")
     }
 
+    fun toggleShowHidden() {
+        showHidden = !showHidden
+        refresh()
+    }
+
     fun reset() {
         query = ""
         suggesting = false
+        showHidden = false
         selected = NO_SELECTION
         menu = null
         gesturePaths.clear()
@@ -162,21 +180,28 @@ class SearchController(
         rows = when {
             suggesting -> {
                 val visible = index.alphabetical.associateBy { it.key }
-                suggestions.mapNotNull { key -> visible[key]?.let { SearchRow(key, it.displayLabel, hidden = false) } }
+                suggestions.mapNotNull { key ->
+                    visible[key]?.let { SearchRow(key, it.displayLabel, hidden = false, swipesOf(key)) }
+                }
                     .toImmutableList()
             }
 
             query.isEmpty() -> {
-                index.alphabetical.map { SearchRow(it.key, it.displayLabel, hidden = false) }.toImmutableList()
+                (if (showHidden) index.alphabeticalWithHidden else index.alphabetical)
+                    .map { SearchRow(it.key, it.displayLabel, it.hidden, swipesOf(it.key)) }
+                    .toImmutableList()
             }
 
             else -> {
-                engine.search(index, query, usage, clock())
-                    .map { SearchRow(it.key, it.label, it.hidden) }
+                engine.search(index, query, usage, clock(), includeHidden = showHidden)
+                    .map { SearchRow(it.key, it.label, it.hidden, swipesOf(it.key)) }
                     .toImmutableList()
             }
         }
     }
+
+    private fun swipesOf(key: AppKey): ImmutableList<SwipeDirection> =
+        swipes[key]?.toImmutableList() ?: persistentListOf()
 
     companion object {
         const val MAX_QUERY = 32

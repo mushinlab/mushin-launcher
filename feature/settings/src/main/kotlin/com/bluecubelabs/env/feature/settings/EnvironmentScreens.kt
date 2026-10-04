@@ -155,6 +155,10 @@ internal fun EnvEditorScreen(
             }
             SectionHeader(stringResource(R.string.env_palette))
             PalettePicker(env.preset) { actions.setPalette(envId, it) }
+            ToggleRow(stringResource(R.string.env_colored_icons), env.coloredIcons, tag = "env_colored_icons") {
+                actions.setColoredIcons(envId, it)
+            }
+            NoteText(stringResource(R.string.env_colored_icons_note))
             SectionHeader(stringResource(R.string.env_items))
             EnvItemsSection(envId, state, actions, push)
             HorizontalDivider()

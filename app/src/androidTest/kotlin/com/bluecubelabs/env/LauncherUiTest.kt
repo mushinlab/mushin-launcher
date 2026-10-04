@@ -26,9 +26,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.bluecubelabs.env.core.apps.NotificationSource
 import com.bluecubelabs.env.core.model.EnvType
+import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.GestureTuning
 import com.bluecubelabs.env.core.model.LearnedGesture
 import com.bluecubelabs.env.core.model.PressFeedback
+import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.search.KeyboardLayouts
 import com.bluecubelabs.env.feature.search.GestureDimens
 import com.bluecubelabs.env.feature.search.KeyboardDimens
@@ -73,7 +75,6 @@ class LauncherUiTest {
                 pressFeedback = PressFeedback.FLASH,
                 gestureShiftPenalty = GestureTuning.SHIFT_PENALTY,
                 gestureSuggestMargin = GestureTuning.SUGGEST_MARGIN,
-                coloredIcons = false,
             )
         }
         container.notificationCounts.value = emptyMap()
@@ -402,10 +403,44 @@ class LauncherUiTest {
     }
 
     @Test
-    fun colouredIconsToggleIsStored() {
-        rule.runOnIdle { rule.activity.settingsStack.open() }
-        rule.onNodeWithTag("nav_home").performClick()
-        rule.onNodeWithTag("colored_icons").performClick()
-        rule.waitUntil(5_000) { container.settings.settings.value.coloredIcons }
+    fun colouredIconsAreToggledInTheSpaceSettings() {
+        rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.EnvEditor(normalId)) }
+        rule.onNodeWithTag("env_colored_icons").performScrollTo().performClick()
+        rule.waitUntil(5_000) { container.environments.environments.value.first { it.id == normalId }.coloredIcons }
+        rule.onNodeWithTag("env_colored_icons").performClick()
+        rule.waitUntil(5_000) { !container.environments.environments.value.first { it.id == normalId }.coloredIcons }
+    }
+
+    @Test
+    fun searchMenuHidesAppAndEyeShowsHiddenApps() {
+        openSearch()
+        rule.onNodeWithTag("result_0").performTouchInput { longClick() }
+        val key = rule.activity.search.menu!!.key
+        val label = rule.activity.search.menu!!.label
+        rule.onNodeWithTag("menu_hide").performClick()
+        try {
+            rule.waitUntil(5_000) { container.overrides.overrides.value[key]?.hidden == true }
+            rule.waitUntil(5_000) { rule.activity.search.rows.none { it.key == key } }
+            rule.onNodeWithTag("toggle_hidden").performClick()
+            rule.waitUntil(5_000) { rule.activity.search.rows.any { it.key == key && it.hidden && it.label == label } }
+            rule.onNodeWithTag("toggle_hidden").performClick()
+            rule.waitUntil(5_000) { rule.activity.search.rows.none { it.key == key } }
+        } finally {
+            runBlocking { container.overrides.setHidden(key, false) }
+        }
+    }
+
+    @Test
+    fun appBoundToASwipeShowsTheArrowNextToItsName() {
+        val key = envItems().first()
+        runBlocking { container.gestures.set(SwipeDirection.LEFT, GestureAction.LaunchApp(key)) }
+        try {
+            rule.waitUntil(5_000) {
+                runCatching { rule.onNodeWithTag("swipe_0", useUnmergedTree = true).assertExists() }.isSuccess
+            }
+            rule.onNodeWithTag("swipe_0", useUnmergedTree = true).assertTextEquals("←")
+        } finally {
+            runBlocking { container.gestures.set(SwipeDirection.LEFT, GestureAction.None) }
+        }
     }
 }

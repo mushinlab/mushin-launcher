@@ -33,3 +33,7 @@ data class LearnedGesture(
     val key: AppKey,
     val weight: Double,
 )
+
+fun Map<SwipeDirection, GestureAction>.swipesByApp(): Map<AppKey, List<SwipeDirection>> = SwipeDirection.entries
+    .mapNotNull { direction -> (get(direction) as? GestureAction.LaunchApp)?.let { it.key to direction } }
+    .groupBy({ it.first }, { it.second })

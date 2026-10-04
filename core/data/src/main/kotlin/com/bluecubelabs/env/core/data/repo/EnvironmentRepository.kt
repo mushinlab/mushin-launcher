@@ -137,6 +137,10 @@ class EnvironmentRepository(
         EnvOutcome.Ok(Unit)
     }
 
+    suspend fun setColoredIcons(id: Long, enabled: Boolean) {
+        envDao.setColoredIcons(id, enabled)
+    }
+
     suspend fun setPalette(id: Long, preset: PalettePreset) {
         val p = Palettes.of(preset)
         envDao.setPalette(

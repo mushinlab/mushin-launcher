@@ -257,7 +257,22 @@ class MainActivity : ComponentActivity() {
 
     fun openSearchMenu(key: AppKey, label: String, anchor: Offset) {
         val entry = viewModel.entry(key) ?: return
-        search.openMenu(SearchMenu(key, label, anchor, viewModel.isInCurrentEnv(key), !entry.isSystem))
+        search.openMenu(
+            SearchMenu(
+                key,
+                label,
+                anchor,
+                viewModel.isInCurrentEnv(key),
+                !entry.isSystem,
+                viewModel.override(key)?.hidden == true,
+            ),
+        )
+    }
+
+    fun toggleHidden(key: AppKey, label: String, hidden: Boolean) {
+        search.closeMenu()
+        viewModel.setHidden(key, hidden)
+        notice = Notice(getString(if (hidden) R.string.notice_hidden else R.string.notice_unhidden, label))
     }
 
     fun toggleInEnv(key: AppKey, add: Boolean) {

@@ -37,6 +37,10 @@ class SearchIndex internal constructor(
 ) {
     val size: Int get() = items.size
 
+    val alphabeticalWithHidden: List<SearchItem> by lazy {
+        items.map { it.item }.sortedWith(Alphabet.comparator { it.displayLabel })
+    }
+
     val gestureVocabulary: List<GestureWord> by lazy {
         items.asSequence()
             .filterNot { it.item.hidden }

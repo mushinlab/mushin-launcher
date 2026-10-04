@@ -11,4 +11,6 @@
     <string name="rename_title">Rename “%1$s”</string>
     <string name="rename_save">Save</string>
     <string name="rename_reset">Reset</string>
+    <string name="notice_hidden">“%1$s” hidden. To see hidden apps, tap the eye in search</string>
+    <string name="notice_unhidden">“%1$s” is visible again</string>
 </resources>

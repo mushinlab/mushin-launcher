@@ -29,6 +29,7 @@ data class EnvironmentEntity(
     @ColumnInfo(name = "c_key_pressed") val keyPressed: Int,
     @ColumnInfo(name = "is_dark") val isDark: Boolean,
     @ColumnInfo(name = "created_at") val createdAt: Long,
+    @ColumnInfo(name = "colored_icons", defaultValue = "0") val coloredIcons: Boolean = false,
 )
 
 @Entity(

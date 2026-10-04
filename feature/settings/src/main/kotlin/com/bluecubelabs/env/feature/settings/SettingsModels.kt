@@ -84,6 +84,7 @@ data class EnvSummary(
     val type: EnvType,
     val preset: PalettePreset,
     val current: Boolean,
+    val coloredIcons: Boolean = false,
 )
 
 @Immutable
@@ -156,6 +157,8 @@ interface SettingsActions {
     fun deleteEnv(id: Long)
 
     fun setPalette(id: Long, preset: PalettePreset)
+
+    fun setColoredIcons(id: Long, enabled: Boolean)
 
     fun setEnvItems(id: Long, keys: List<AppKey>)
 

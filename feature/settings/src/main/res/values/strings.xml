@@ -49,6 +49,8 @@
     <string name="error_custom_limit">Не больше 20 своих спейсов</string>
     <string name="error_generic">Не получилось</string>
 
+    <string name="env_colored_icons">Цветные иконки</string>
+    <string name="env_colored_icons_note">Иконки в цветах приложений вместо монохромных, пока активен этот спейс: на главном экране, в поиске и в вариантах рисунка. Работает, когда иконки включены в «Главный экран».</string>
     <string name="palette_graphite">Graphite</string>
     <string name="palette_navy">Navy</string>
     <string name="palette_paper">Paper</string>
@@ -65,8 +67,6 @@
     <string name="home_icons_none">Без иконок</string>
     <string name="home_icons_left">Слева</string>
     <string name="home_icons_right">Справа</string>
-    <string name="home_colored_icons">Цветные иконки</string>
-    <string name="home_colored_icons_note">Иконки в цветах приложений вместо монохромных — на главном экране, в поиске и в вариантах рисунка. Работает, когда иконки включены.</string>
     <string name="home_clock">Формат часов</string>
     <string name="home_clock_system">Как в системе</string>
     <string name="home_clock_24">24 часа</string>

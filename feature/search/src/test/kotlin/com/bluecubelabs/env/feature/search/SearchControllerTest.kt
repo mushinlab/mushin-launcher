@@ -3,6 +3,7 @@ package com.bluecubelabs.env.feature.search
 import android.view.KeyEvent
 import androidx.compose.ui.geometry.Offset
 import com.bluecubelabs.env.core.model.AppKey
+import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.search.GestureDecoder
 import com.bluecubelabs.env.core.search.GesturePoint
 import com.bluecubelabs.env.core.search.KeyAction
@@ -195,6 +196,34 @@ class SearchControllerTest {
         controller.type('s')
         assertThat(controller.suggesting).isFalse()
         assertThat(controller.query).isEqualTo("s")
+    }
+
+    @Test
+    fun eyeToggleShowsHiddenAppsUntilSearchCloses() {
+        val controller = SearchController(clock = { 0L })
+        controller.update(index, emptyMap())
+        assertThat(controller.rows.map { it.label }).doesNotContain("Secret")
+        controller.toggleShowHidden()
+        assertThat(controller.rows.single { it.label == "Secret" }.hidden).isTrue()
+        controller.type('c')
+        controller.type('r')
+        assertThat(controller.rows.map { it.label }).contains("Secret")
+        controller.reset()
+        assertThat(controller.showHidden).isFalse()
+        assertThat(controller.rows.map { it.label }).doesNotContain("Secret")
+    }
+
+    @Test
+    fun rowsCarryTheSwipesTheirAppIsBoundTo() {
+        val controller = SearchController(clock = { 0L })
+        controller.update(index, emptyMap())
+        val slack = controller.rows.first { it.label == "Slack" }.key
+        controller.setSwipes(mapOf(slack to listOf(SwipeDirection.LEFT, SwipeDirection.UP)))
+        assertThat(controller.rows.first { it.label == "Slack" }.swipes)
+            .containsExactly(SwipeDirection.LEFT, SwipeDirection.UP).inOrder()
+        assertThat(controller.rows.first { it.label == "Telegram" }.swipes).isEmpty()
+        controller.type('s')
+        assertThat(controller.rows.first { it.label == "Slack" }.swipes).hasSize(2)
     }
 
     @Test

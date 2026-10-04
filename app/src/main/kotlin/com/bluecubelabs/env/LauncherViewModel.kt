@@ -23,6 +23,7 @@ import com.bluecubelabs.env.core.model.PalettePreset
 import com.bluecubelabs.env.core.model.Palettes
 import com.bluecubelabs.env.core.model.ProfileType
 import com.bluecubelabs.env.core.model.SwipeDirection
+import com.bluecubelabs.env.core.model.swipesByApp
 import com.bluecubelabs.env.core.search.Alphabet
 import com.bluecubelabs.env.core.search.GestureLearning
 import com.bluecubelabs.env.core.search.SearchEngine
@@ -115,8 +116,17 @@ class LauncherViewModel(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, initial?.palette ?: Palettes.Graphite)
 
-    val home: StateFlow<HomeUiState> = combine(data, roleHeld, container.notificationCounts) { d, role, counts ->
-        if (d == null) snapshotState(initial, role) else homeState(d, role, counts)
+    val coloredIcons: StateFlow<Boolean> = data.map { it?.current?.coloredIcons == true }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val home: StateFlow<HomeUiState> = combine(
+        data,
+        roleHeld,
+        container.notificationCounts,
+        container.gestures.bindings,
+    ) { d, role, counts, bindings ->
+        if (d == null) snapshotState(initial, role) else homeState(d, role, counts, bindings.swipesByApp())
     }
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, snapshotState(initial, roleHeld.value))
@@ -172,6 +182,8 @@ class LauncherViewModel(
     val learnedGestures = container.gestureLearning.samples
 
     val memory = MemoryEditor(container)
+
+    val spaces = SpaceEditor(container)
 
     private val _iconsReady = MutableStateFlow(false)
     val iconsReady: StateFlow<Boolean> = _iconsReady
@@ -294,10 +306,6 @@ class LauncherViewModel(
         container.scope.launch { container.environments.delete(id) }
     }
 
-    fun setPalette(id: Long, preset: PalettePreset) {
-        container.scope.launch { container.environments.setPalette(id, preset) }
-    }
-
     fun setEnvItems(id: Long, keys: List<AppKey>) {
         container.scope.launch { container.environments.setItems(id, keys) }
     }
@@ -327,7 +335,9 @@ class LauncherViewModel(
             withContext(Dispatchers.IO) {
                 keys.forEach { key ->
                     d.apps[key]?.let { entry ->
-                        container.icons.load(IconKey(key, entry.lastUpdateTime, homeIconPx(), d.settings.coloredIcons))
+                        container.icons.load(
+                            IconKey(key, entry.lastUpdateTime, homeIconPx(), env?.coloredIcons == true),
+                        )
                     }
                 }
             }
@@ -344,7 +354,12 @@ class LauncherViewModel(
         },
     )
 
-    private fun homeState(d: LauncherData, role: Boolean, counts: Map<NotificationSource, Int>): HomeUiState {
+    private fun homeState(
+        d: LauncherData,
+        role: Boolean,
+        counts: Map<NotificationSource, Int>,
+        swipes: Map<AppKey, List<SwipeDirection>>,
+    ): HomeUiState {
         val env = d.current
         val rows = env?.let { d.items[it.id] }.orEmpty().mapNotNull { key ->
             val entry = d.apps[key] ?: return@mapNotNull null
@@ -358,6 +373,7 @@ class LauncherViewModel(
                 } else {
                     0
                 },
+                swipes = swipes[key]?.toImmutableList() ?: persistentListOf(),
             )
         }
         return HomeUiState(
@@ -383,7 +399,7 @@ class LauncherViewModel(
         return SettingsUiState(
             settings = d.settings,
             envs = d.envs.map {
-                EnvSummary(it.id, it.name, it.type, it.preset, it.id == d.current?.id)
+                EnvSummary(it.id, it.name, it.type, it.preset, it.id == d.current?.id, it.coloredIcons)
             }.toImmutableList(),
             envItems = d.envs.associate { env ->
                 env.id to d.items[env.id].orEmpty().map { key ->

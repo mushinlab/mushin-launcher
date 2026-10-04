@@ -61,10 +61,6 @@ internal fun HomeSettingsScreen(state: SettingsUiState, actions: SettingsActions
             s.iconMode,
             "icon_mode",
         ) { mode -> actions.updateSettings { it.copy(iconMode = mode) } }
-        ToggleRow(stringResource(R.string.home_colored_icons), s.coloredIcons, tag = "colored_icons") { value ->
-            actions.updateSettings { it.copy(coloredIcons = value) }
-        }
-        NoteText(stringResource(R.string.home_colored_icons_note))
         SectionHeader(stringResource(R.string.home_clock))
         ChoiceRows(
             listOf(

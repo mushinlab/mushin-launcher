@@ -11,7 +11,6 @@ enum class PressFeedback { FLASH, HOLD, ACCENT, DIM, SCALE }
 data class LauncherSettings(
     val currentEnvId: Long? = null,
     val iconMode: IconMode = IconMode.NONE,
-    val coloredIcons: Boolean = false,
     val clockFormat: ClockFormat = ClockFormat.SYSTEM,
     val showDate: Boolean = true,
     val homeTextSize: HomeTextSize = HomeTextSize.M,

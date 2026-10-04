@@ -160,7 +160,6 @@ fun Keyboard(
         modifier
             .fillMaxWidth()
             .height(totalHeight)
-            .background(colors.background)
             .onSizeChanged { size = it }
             .testTag("keyboard")
             .pointerInput(keys) {

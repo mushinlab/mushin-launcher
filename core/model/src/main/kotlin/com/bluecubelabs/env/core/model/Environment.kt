@@ -10,6 +10,7 @@ data class Environment(
     val preset: PalettePreset,
     val palette: Palette,
     val createdAt: Long,
+    val coloredIcons: Boolean = false,
 )
 
 object EnvLimits {

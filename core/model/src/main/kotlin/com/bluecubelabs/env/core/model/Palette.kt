@@ -28,8 +28,8 @@ object Palettes {
         iconTint = argb(0xC8C8C8),
         divider = argb(0x2A2A2A),
         surface = argb(0x1E1E1E),
-        keyBackground = argb(0x202020),
-        keyPressed = argb(0x333333),
+        keyBackground = argb(0x2C2C2C),
+        keyPressed = argb(0x3C3C3C),
         isDark = true,
     )
 
@@ -43,8 +43,8 @@ object Palettes {
         iconTint = argb(0xC3CFE3),
         divider = argb(0x22304A),
         surface = argb(0x16213A),
-        keyBackground = argb(0x182437),
-        keyPressed = argb(0x26375A),
+        keyBackground = argb(0x233149),
+        keyPressed = argb(0x2F4060),
         isDark = true,
     )
 
@@ -73,8 +73,8 @@ object Palettes {
         iconTint = argb(0xC6D1C3),
         divider = argb(0x263226),
         surface = argb(0x1B241B),
-        keyBackground = argb(0x1D261D),
-        keyPressed = argb(0x2B382B),
+        keyBackground = argb(0x263226),
+        keyPressed = argb(0x334233),
         isDark = true,
     )
 
@@ -88,8 +88,8 @@ object Palettes {
         iconTint = argb(0xA8A8A8),
         divider = argb(0x1F1F1F),
         surface = argb(0x121212),
-        keyBackground = argb(0x141414),
-        keyPressed = argb(0x262626),
+        keyBackground = argb(0x222222),
+        keyPressed = argb(0x333333),
         isDark = true,
     )
 

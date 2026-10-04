@@ -53,6 +53,7 @@ import com.bluecubelabs.env.core.ui.AppIcon
 import com.bluecubelabs.env.core.ui.EnvType
 import com.bluecubelabs.env.core.ui.LocalEnvColors
 import com.bluecubelabs.env.core.ui.SingleLineText
+import com.bluecubelabs.env.core.ui.SwipeMarks
 import com.bluecubelabs.env.core.ui.pressable
 import com.bluecubelabs.env.feature.home.gesture.GestureArbiter
 import com.bluecubelabs.env.feature.home.gesture.GestureConfig
@@ -278,6 +279,14 @@ private fun FavoriteRow(
             if (row.work) {
                 Spacer(Modifier.width(6.dp))
                 Briefcase(colors.textSecondary)
+            }
+            if (row.swipes.isNotEmpty()) {
+                Spacer(Modifier.width(8.dp))
+                SwipeMarks(
+                    row.swipes,
+                    EnvType.style(EnvType.recentSize, colors.textSecondary),
+                    Modifier.testTag("swipe_$index"),
+                )
             }
             if (row.notifications > 0) {
                 Spacer(Modifier.width(4.dp))

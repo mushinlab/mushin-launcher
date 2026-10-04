@@ -102,7 +102,6 @@ internal fun GesturePanel(
         modifier
             .fillMaxWidth()
             .height(GestureDimens.height)
-            .background(colors.background)
             .onSizeChanged { size = it }
             .systemGestureExclusion()
             .testTag("gesture_panel")

@@ -136,6 +136,16 @@ class SearchEngineTest {
     }
 
     @Test
+    fun showHiddenModeFindsHiddenAppsLikeVisibleOnes() {
+        val hiddenSlack = app("Slack", hidden = true)
+        val index = SearchIndex.build(listOf(hiddenSlack, telegram))
+        assertThat(index.alphabeticalWithHidden.map { it.displayLabel }).containsExactly("Slack", "Telegram").inOrder()
+        val infix = engine.search(index, "ack", emptyMap(), now, includeHidden = true)
+        assertThat(infix.map { it.label }).containsExactly("Slack")
+        assertThat(infix.single().hidden).isTrue()
+    }
+
+    @Test
     fun wordPrefix_findsSecondWord() {
         val results = engine.search(SearchIndex.build(ten), "maps", emptyMap(), now)
         assertThat(results.first().label).isEqualTo("Google Maps")

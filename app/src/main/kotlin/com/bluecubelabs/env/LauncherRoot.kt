@@ -49,6 +49,7 @@ import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.LauncherSettings
 import com.bluecubelabs.env.core.model.PalettePreset
 import com.bluecubelabs.env.core.model.SwipeDirection
+import com.bluecubelabs.env.core.model.swipesByApp
 import com.bluecubelabs.env.core.search.KeyboardLayouts
 import com.bluecubelabs.env.core.ui.EnvTheme
 import com.bluecubelabs.env.core.ui.EnvType as Type
@@ -83,7 +84,8 @@ fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: La
     ReportDrawnWhen { ready && iconsReady }
     BackHandler(enabled = true) { activity.handleBack() }
 
-    val icons = remember(iconProvider, settings.coloredIcons) { iconProvider.withColors(settings.coloredIcons) }
+    val colored by vm.coloredIcons.collectAsStateWithLifecycle()
+    val icons = remember(iconProvider, colored) { iconProvider.withColors(colored) }
     EnvTheme(palette) {
         CompositionLocalProvider(
             LocalIconProvider provides icons,
@@ -184,6 +186,8 @@ private fun SearchLayer(activity: MainActivity, vm: LauncherViewModel, settings:
     val learned by vm.learnedGestures.collectAsStateWithLifecycle()
     LaunchedEffect(index, usage) { activity.search.update(index, usage) }
     LaunchedEffect(learned) { activity.search.setLearned(learned) }
+    val bindings by vm.gestureBindings.collectAsStateWithLifecycle()
+    LaunchedEffect(bindings) { activity.search.setSwipes(bindings.swipesByApp()) }
     LaunchedEffect(engine) { activity.search.setEngine(engine) }
     val active = activity.overlay == Overlay.Search
     val progress = remember { Animatable(0f) }
@@ -261,6 +265,15 @@ private fun searchActions(activity: MainActivity) = object : SearchActions {
     override fun onUninstall(key: AppKey) {
         activity.search.closeMenu()
         container.launcher.uninstall(key)
+    }
+
+    override fun onToggleHidden(key: AppKey, hidden: Boolean) {
+        val label = activity.search.menu?.label ?: return
+        activity.toggleHidden(key, label, hidden)
+    }
+
+    override fun onToggleShowHidden() {
+        activity.search.toggleShowHidden()
     }
 
     override fun onDismissMenu() {
@@ -375,7 +388,9 @@ private fun SettingsLayer(activity: MainActivity, vm: LauncherViewModel) {
 
             override fun deleteEnv(id: Long) = vm.deleteEnv(id)
 
-            override fun setPalette(id: Long, preset: PalettePreset) = vm.setPalette(id, preset)
+            override fun setPalette(id: Long, preset: PalettePreset) = vm.spaces.setPalette(id, preset)
+
+            override fun setColoredIcons(id: Long, enabled: Boolean) = vm.spaces.setColoredIcons(id, enabled)
 
             override fun setEnvItems(id: Long, keys: List<AppKey>) = vm.setEnvItems(id, keys)
 
