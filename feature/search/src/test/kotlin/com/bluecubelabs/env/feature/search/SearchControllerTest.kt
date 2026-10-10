@@ -165,7 +165,8 @@ class SearchControllerTest {
         assertThat(controller.session).isGreaterThan(session)
         assertThat(controller.gesturesToLearn()).isEmpty()
         controller.applyGesture(decoder, path("slack"))
-        controller.onInputSwitched()
+        controller.backspace()
+        controller.type('k')
         assertThat(controller.gesturesToLearn()).containsExactly(decoder.keysAlong(path("slack")))
     }
 

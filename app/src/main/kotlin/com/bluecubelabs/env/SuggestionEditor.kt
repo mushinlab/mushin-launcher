@@ -18,14 +18,23 @@ class SuggestionEditor(private val container: AppContainer, private val items: (
     }
 }
 
-internal fun suggestionFor(d: LauncherData, usage: Map<Long, List<SpaceUsage>>, cap: Int, now: Long): HomeSuggestion? {
+internal fun suggestionFor(
+    d: LauncherData,
+    usage: Map<Long, List<SpaceUsage>>,
+    swipeApps: Set<AppKey>,
+    cap: Int,
+    now: Long,
+): HomeSuggestion? {
     val env = d.current ?: return null
     val home = d.items[env.id].orEmpty()
+    val elsewhere = d.items.filterKeys { it != env.id }.values.flatten().toSet()
     val label = { key: AppKey -> d.overrides[key]?.customLabel ?: d.apps[key]?.label.orEmpty() }
     val hint = Usefulness.suggest(
         home = home,
         usage = usage[env.id].orEmpty(),
-        eligible = { key -> key in d.apps && d.overrides[key]?.hidden != true },
+        eligible = { key ->
+            key in d.apps && d.overrides[key]?.hidden != true && key !in swipeApps && key !in elsewhere
+        },
         now = now,
     ) ?: return null
     return HomeSuggestion(hint.add, label(hint.add), hint.replace, label(hint.replace), cap > 0 && home.size < cap)

@@ -88,8 +88,6 @@
     <string name="keyboard_layouts">Раскладки</string>
     <string name="keyboard_haptics">Отклик вибрацией</string>
     <string name="keyboard_digit_hints">Подсказки цифр</string>
-    <string name="keyboard_gesture_letters">Буквы на панели рисунка</string>
-    <string name="keyboard_gesture_letters_note">Для обучения: бледная раскладка QWERTY под штрихом. Когда запомните, где какие буквы, выключите.</string>
     <string name="keyboard_gesture_tuning">Ввод рисунком</string>
     <string name="keyboard_gesture_shift">Штраф за сдвиг</string>
     <string name="keyboard_gesture_shift_note">Меньше — рисунок, нарисованный в стороне от букв, узнаётся легче, но чаще бывают случайные совпадения. Больше — нужно попадать точнее. По умолчанию 0,50.</string>
@@ -171,4 +169,11 @@
     <string name="memory_usefulness_note">Оценка от 1 до 100: как часто и как недавно вы открывали приложение в этом спейсе. Если приложение не на главном экране оценено заметно выше, чем одно из приложений на нём, внизу справа появится «?» с предложением.</string>
     <string name="home_clock_note">Тап по часам открывает приложение «Часы». Удерживайте часы, чтобы передвинуть их влево, в центр или вправо.</string>
     <string name="settings_back">Назад</string>
+    <string name="env_list_note">Чтобы изменить спейс, сделайте его текущим (ряд сверху в настройках) и нажмите ✎ на главном экране.</string>
+    <string name="style_theme">Тема спейса «%1$s»</string>
+    <string name="style_text">Текст</string>
+    <string name="keyboard_fit">Размер и положение</string>
+    <string name="keyboard_width">Ширина клавиатуры</string>
+    <string name="keyboard_shift">Сдвиг по горизонтали</string>
+    <string name="keyboard_fit_note">Меняется только область клавиш. Сдвиг: −100 — к левому краю, 100 — к правому; работает, когда ширина меньше 100 %.</string>
 </resources>

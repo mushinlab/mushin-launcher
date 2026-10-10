@@ -36,14 +36,14 @@ import com.bluecubelabs.env.core.model.ClockPosition
 import com.bluecubelabs.env.core.model.EnvType
 import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.GestureTuning
+import com.bluecubelabs.env.core.model.KeyboardFit
 import com.bluecubelabs.env.core.model.LearnedGesture
 import com.bluecubelabs.env.core.model.PressFeedback
 import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.model.Usefulness
 import com.bluecubelabs.env.core.search.KeyboardLayouts
-import com.bluecubelabs.env.feature.search.GestureDimens
 import com.bluecubelabs.env.feature.search.KeyboardDimens
-import com.bluecubelabs.env.feature.search.KeyboardGeometry
+import com.bluecubelabs.env.feature.search.glideCenters
 import com.bluecubelabs.env.feature.settings.SettingsRoute
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
@@ -66,7 +66,7 @@ class LauncherUiTest {
     fun seedFavorites() = runBlocking {
         val normal = container.environments.environments.first { it.isNotEmpty() }.first { it.type == EnvType.NORMAL }
         normalId = normal.id
-        container.settings.update { it.copy(currentEnvId = normal.id, keyboardGestureTyping = false) }
+        container.settings.update { it.copy(currentEnvId = normal.id) }
         val apps = container.catalog.apps.first { it.size >= 3 }.sortedBy { it.label }.take(3)
         container.environments.setItems(normal.id, apps.map { it.key })
         rule.waitUntil(5_000) { rule.activity.overlay == Overlay.None }
@@ -79,8 +79,11 @@ class LauncherUiTest {
     fun resetSettings() = runBlocking {
         container.settings.update {
             it.copy(
-                keyboardGestureTyping = false,
                 notificationCounts = false,
+                keyboardWidth = KeyboardFit.WIDTH_MAX,
+                keyboardShift = 0f,
+                homeListOffset = 0,
+                searchColoredIcons = false,
                 pressFeedback = PressFeedback.FLASH,
                 gestureShiftPenalty = GestureTuning.SHIFT_PENALTY,
                 gestureSuggestMargin = GestureTuning.SUGGEST_MARGIN,
@@ -285,22 +288,20 @@ class LauncherUiTest {
     }
 
     @Test
-    fun gestureInputDecodesWordDrawnOnBlankPanel() {
+    fun drawingAcrossTheKeyboardIsDecodedAndTappingStillTypes() {
         openSearch()
-        rule.onNodeWithTag("input_toggle").performClick()
-        rule.waitUntil(5_000) { container.settings.settings.value.keyboardGestureTyping }
-        rule.onNodeWithTag("keyboard").assertDoesNotExist()
-        val panel = rule.onNodeWithTag("gesture_panel").fetchSemanticsNode().boundsInRoot
-        with(rule.density) { assertThat(panel.height).isWithin(2f).of(GestureDimens.height.toPx()) }
-        drawOnGesturePanel("maps")
-        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("maps")
-        rule.onNodeWithTag("result_count", useUnmergedTree = true).assertDoesNotExist()
-        rule.onNodeWithTag("gesture_delete").performClick()
+        rule.onNodeWithTag("input_toggle").assertDoesNotExist()
+        rule.onNodeWithTag("key_c").performClick()
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("c")
+        rule.onNodeWithTag("query_clear").performClick()
         rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
-        rule.onNodeWithTag("input_toggle").performClick()
-        rule.onNodeWithTag("keyboard").assertIsDisplayed()
-        rule.onNodeWithTag("gesture_delete").assertDoesNotExist()
-        rule.onNodeWithTag("result_count", useUnmergedTree = true).assertExists()
+        drawOnKeyboard("maps")
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("maps")
+        val trail = rule.onNodeWithTag("glide_trail").fetchSemanticsNode().boundsInRoot
+        val keyboard = rule.onNodeWithTag("keyboard").fetchSemanticsNode().boundsInRoot
+        assertThat(trail).isEqualTo(keyboard)
+        rule.onNodeWithTag("query_clear").performClick()
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
     }
 
     @Test
@@ -313,14 +314,12 @@ class LauncherUiTest {
         try {
             openSearch()
             rule.waitUntil(5_000) { rule.activity.search.rows.count { it.label.startsWith("Zebra") } == 2 }
-            rule.onNodeWithTag("input_toggle").performClick()
-            rule.waitUntil(5_000) { container.settings.settings.value.keyboardGestureTyping }
-            drawOnGesturePanel("zebra")
+            drawOnKeyboard("zebra")
             rule.onNodeWithTag("suggestion_0").assertIsDisplayed()
             rule.onNodeWithTag("suggestion_1").assertIsDisplayed()
             rule.onNodeWithTag("query", useUnmergedTree = true).assertDoesNotExist()
             assertThat(rule.activity.search.rows.map { it.label }).containsExactly("Zebra One", "Zebra Two")
-            rule.onNodeWithTag("gesture_delete").performClick()
+            rule.onNodeWithTag("query_clear").performClick()
             rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
             assertThat(rule.activity.search.rows.size).isGreaterThan(2)
         } finally {
@@ -328,19 +327,19 @@ class LauncherUiTest {
         }
     }
 
-    private fun drawOnGesturePanel(word: String) {
-        rule.onNodeWithTag("gesture_panel").performTouchInput {
-            val padding = KeyboardDimens.verticalPadding.toPx()
-            val keys = KeyboardGeometry.compute(
-                KeyboardLayouts.EN.copy(rows = KeyboardLayouts.EN.rows.take(KeyboardLayouts.LETTER_ROWS)),
+    private fun drawOnKeyboard(word: String) {
+        rule.onNodeWithTag("keyboard").performTouchInput {
+            val centers = glideCenters(
                 width.toFloat(),
-                (height - padding * 2) / KeyboardLayouts.LETTER_ROWS,
-                padding,
+                KeyboardDimens.rowHeight.toPx(),
+                KeyboardDimens.verticalPadding.toPx(),
                 KeyboardDimens.gap.toPx(),
             )
-            val points = word.map { c -> keys.first { it.spec.char == c }.rect.center }
+            val points = word.map { c -> centers.getValue(c).let { Offset(it.x, it.y) } }
             down(points.first())
-            points.drop(1).forEach { moveTo(it) }
+            points.zipWithNext { from, target ->
+                repeat(STEPS) { i -> moveTo(from + (target - from) * ((i + 1f) / STEPS)) }
+            }
             up()
         }
     }
@@ -364,9 +363,12 @@ class LauncherUiTest {
         rule.onNodeWithTag("nav_system").performScrollTo().performClick()
         rule.onNodeWithTag("nav_advanced").performScrollTo().performClick()
         rule.onNodeWithTag("nav_press").performClick()
+        rule.onNodeWithTag("press_dropdown").performClick()
         rule.onNodeWithTag("press_FLASH").assertIsSelected()
         rule.onNodeWithTag("press_DIM").assertIsNotSelected().performClick()
         rule.waitUntil(5_000) { container.settings.settings.value.pressFeedback == PressFeedback.DIM }
+        rule.onNodeWithTag("press_menu").assertDoesNotExist()
+        rule.onNodeWithTag("press_dropdown").performClick()
         rule.onNodeWithTag("press_DIM").assertIsSelected()
         rule.onNodeWithTag("press_FLASH").assertIsNotSelected()
     }
@@ -375,8 +377,8 @@ class LauncherUiTest {
     fun gesturesSectionHoldsSwipesAndSwipeTypingSettings() {
         rule.runOnIdle { rule.activity.settingsStack.open() }
         rule.onNodeWithTag("nav_gestures").performClick()
-        rule.onNodeWithTag("gesture_UP").assertIsDisplayed()
-        rule.onNodeWithTag("kb_gesture_letters").performScrollTo().assertIsDisplayed()
+        rule.onNodeWithTag("gesture_UP_dropdown").assertIsDisplayed()
+        rule.onNodeWithTag("kb_gesture_letters").assertDoesNotExist()
         rule.onNodeWithTag("kb_gesture_shift").performScrollTo().performTouchInput { click(centerLeft) }
         rule.waitUntil(5_000) {
             container.settings.settings.value.gestureShiftPenalty == GestureTuning.SHIFT_PENALTY_MIN
@@ -553,12 +555,108 @@ class LauncherUiTest {
     fun styleChangesTheFontOfTheWholeApp() {
         rule.runOnIdle { rule.activity.settingsStack.open() }
         rule.onNodeWithTag("nav_style").performClick()
+        rule.onNodeWithTag("palette_dropdown").assertIsDisplayed()
+        rule.onNodeWithTag("style_colored_icons").assertIsDisplayed()
+        rule.onNodeWithTag("font_dropdown").performScrollTo().performClick()
         rule.onNodeWithTag("font_MONTSERRAT").performClick()
-        rule.onNodeWithTag("font_weight_LIGHT").performScrollTo().performClick()
+        rule.onNodeWithTag("font_weight_dropdown").performScrollTo().performClick()
+        rule.onNodeWithTag("font_weight_LIGHT").performClick()
         rule.waitUntil(5_000) {
             container.settings.settings.value.let {
                 it.font == AppFont.MONTSERRAT && it.fontWeight == AppFontWeight.LIGHT
             }
         }
+    }
+
+    @Test
+    fun holdingTheHandleAndDraggingMovesTheList() {
+        val before = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.top
+        rule.onNodeWithTag("list_handle").performTouchInput {
+            down(center)
+            advanceEventTime(viewConfiguration.longPressTimeoutMillis + 200)
+            moveBy(Offset(0f, 1f))
+        }
+        rule.onNodeWithTag("list_handle").performTouchInput {
+            moveBy(Offset(0f, 200f))
+            up()
+        }
+        rule.waitUntil(5_000) { container.settings.settings.value.homeListOffset > 0 }
+        val after = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.top
+        assertThat(after - before).isWithin(4f).of(200f)
+    }
+
+    @Test
+    fun drawingAWordOnTheHomeScreenFindsTheApp() {
+        rule.onNodeWithTag("home").performTouchInput {
+            val centers = glideCenters(
+                width.toFloat(),
+                KeyboardDimens.rowHeight.toPx(),
+                KeyboardDimens.verticalPadding.toPx(),
+                KeyboardDimens.gap.toPx(),
+            )
+            val lift = height * 0.55f
+            val points = "maps".map { c -> centers.getValue(c).let { Offset(it.x, it.y + lift) } }
+            down(points.first())
+            points.zipWithNext { from, target ->
+                repeat(STEPS) { i -> moveTo(from + (target - from) * ((i + 1f) / STEPS)) }
+            }
+            up()
+        }
+        rule.waitUntil(5_000) { rule.activity.overlay == Overlay.Search }
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("maps")
+    }
+
+    @Test
+    fun searchMenuRenamesTheApp() {
+        openSearch()
+        rule.onNodeWithTag("result_0").performTouchInput { longClick() }
+        val key = rule.activity.search.menu!!.key
+        rule.onNodeWithTag("menu_rename").performClick()
+        rule.onNodeWithTag("text_input").assertIsDisplayed()
+        assertThat(rule.activity.renameTarget).isEqualTo(key)
+        Espresso.pressBack()
+    }
+
+    @Test
+    fun popupListsSpacesAsVerticalRadioButtons() {
+        backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
+        val work = container.environments.environments.value.first { it.type == EnvType.WORK }.id
+        rule.onNodeWithTag("popup_env_$normalId").assertIsSelected()
+        rule.onNodeWithTag("popup_env_$work").assertIsNotSelected()
+        val first = rule.onNodeWithTag("popup_env_$normalId").fetchSemanticsNode().boundsInRoot
+        val second = rule.onNodeWithTag("popup_env_$work").fetchSemanticsNode().boundsInRoot
+        assertThat(second.top).isAtLeast(first.bottom - 1f)
+    }
+
+    @Test
+    fun everySettingsPageShowsTheCurrentSpaceName() {
+        val name = container.environments.environments.value.first { it.id == normalId }.name
+        rule.runOnIdle { rule.activity.settingsStack.open() }
+        rule.onNodeWithTag("settings_space", useUnmergedTree = true).assertTextEquals(name)
+        rule.onNodeWithTag("nav_keyboard").performClick()
+        rule.onNodeWithTag("settings_space", useUnmergedTree = true).assertTextEquals(name)
+    }
+
+    @Test
+    fun keyboardWidthAndShiftMoveOnlyTheKeys() {
+        runBlocking { container.settings.update { it.copy(keyboardWidth = 0.6f, keyboardShift = 1f) } }
+        openSearch()
+        rule.waitForIdle()
+        val pane = rule.onNodeWithTag("input_pane").fetchSemanticsNode().boundsInRoot
+        val keyboard = rule.onNodeWithTag("keyboard").fetchSemanticsNode().boundsInRoot
+        assertThat(keyboard.width).isWithin(2f).of(pane.width * 0.6f)
+        assertThat(keyboard.right).isWithin(2f).of(pane.right)
+    }
+
+    @Test
+    fun searchOptionsTurnOnColouredIcons() {
+        openSearch()
+        rule.onNodeWithTag("search_options").performClick()
+        rule.onNodeWithTag("search_option_COLORED_ICONS").performClick()
+        rule.waitUntil(5_000) { container.settings.settings.value.searchColoredIcons }
+    }
+
+    private companion object {
+        const val STEPS = 6
     }
 }

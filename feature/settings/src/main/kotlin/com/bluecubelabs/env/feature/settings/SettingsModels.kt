@@ -37,8 +37,6 @@ sealed interface SettingsRoute {
 
     data object Press : SettingsRoute
 
-    data class GestureAction(val direction: SwipeDirection) : SettingsRoute
-
     data object Apps : SettingsRoute
 
     data object System : SettingsRoute

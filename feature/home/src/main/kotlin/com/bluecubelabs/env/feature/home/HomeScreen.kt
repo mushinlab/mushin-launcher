@@ -27,6 +27,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -38,6 +39,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
@@ -55,6 +57,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bluecubelabs.env.core.model.ClockPosition
+import com.bluecubelabs.env.core.model.HomeListOffset
 import com.bluecubelabs.env.core.model.IconMode
 import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.ui.AppIcon
@@ -94,6 +97,10 @@ interface HomeActions {
     fun onEdit()
 
     fun onSuggestion(anchor: Offset)
+
+    fun onListOffset(dp: Int)
+
+    fun onDraw(points: List<Offset>, width: Float)
 }
 
 object HomeDimens {
@@ -133,15 +140,25 @@ fun HomeScreen(
                     swipeDistancePx = 96.dp.toPx(),
                     flingDistancePx = 48.dp.toPx(),
                     flingVelocityPxPerSec = 1000.dp.toPx(),
+                    drawMinPx = 144.dp.toPx(),
                 ),
             )
         }
     }
     val zone = rememberStartZone()
     var clockDrag by remember { mutableStateOf<ClockDrag?>(null) }
-    var clockShown by remember(state.clockPosition) { mutableStateOf(state.clockPosition) }
+    var clockShown by remember { mutableStateOf(state.clockPosition) }
+    LaunchedEffect(state.clockPosition) { if (clockDrag == null) clockShown = state.clockPosition }
     val clockMetrics = remember { IntArray(2) }
     val inset = with(density) { HomeDimens.rowPadding.roundToPx() }
+    val trace = remember { Trace() }
+    var handleDrag by remember { mutableStateOf<Float?>(null) }
+    var listOffsetPx by remember { mutableFloatStateOf(with(density) { state.homeListOffset.dp.toPx() }) }
+    LaunchedEffect(state.homeListOffset, density) {
+        if (handleDrag == null) listOffsetPx = with(density) { state.homeListOffset.dp.toPx() }
+    }
+    val maxOffsetPx = with(density) { HomeListOffset.MAX_DP.dp.toPx() }
+    var homeWidth by remember { mutableFloatStateOf(0f) }
     val callbacks = remember(view) {
         object : HomeGestureCallbacks {
             override fun onRowTap(index: Int) {
@@ -188,12 +205,37 @@ fun HomeScreen(
                     currentActions.onClockMoved(target)
                 }
             }
+
+            override fun onHandleHold(y: Float) {
+                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                handleDrag = y
+            }
+
+            override fun onHandleDrag(y: Float) {
+                val last = handleDrag ?: return
+                listOffsetPx = (listOffsetPx + y - last).coerceIn(0f, maxOffsetPx)
+                handleDrag = y
+            }
+
+            override fun onHandleRelease() {
+                handleDrag = null
+                currentActions.onListOffset(with(density) { listOffsetPx.toDp().value.toInt() })
+            }
+
+            override fun onTrace(position: Offset, timeMs: Long) {
+                trace.add(position, timeMs)
+            }
+
+            override fun onDraw(points: List<Offset>) {
+                currentActions.onDraw(points, homeWidth)
+            }
         }
     }
     Box(
         modifier
             .fillMaxSize()
             .background(colors.background)
+            .onSizeChanged { homeWidth = it.width.toFloat() }
             .testTag("home")
             .pointerInput(arbiter) {
                 detectHomeGestures(arbiter, registry, { zone.value }, gesturesEnabled, callbacks, Motion.CLOCK_HOLD_MS)
@@ -217,13 +259,16 @@ fun HomeScreen(
                     clockMetrics[1] = block
                 },
             )
-            Spacer(Modifier.height(HomeDimens.listGap))
+            Spacer(Modifier.height(HomeDimens.listGap - HANDLE_HEIGHT))
+            ListHandle(active = handleDrag != null, onBounds = registry::handle)
+            Spacer(Modifier.height(with(density) { listOffsetPx.toDp() }))
             FavoritesList(state, registry, Modifier.weight(1f).fillMaxWidth()) { capacity ->
                 currentActions.onCapacityChanged(capacity)
             }
             HomeBar(state.suggestion, registry, currentActions)
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
+        TraceLayer(trace)
     }
 }
 

@@ -26,6 +26,7 @@ data class HomeSnapshot(
     val showDate: Boolean,
     val rows: List<SnapshotRow>,
     val clockPosition: ClockPosition = ClockPosition.START,
+    val listOffset: Int = 0,
 )
 
 class HomeSnapshotStore(directory: File) {
@@ -56,6 +57,7 @@ class HomeSnapshotStore(directory: File) {
             val clockFormat = ClockFormat.valueOf(input.readUTF())
             val showDate = input.readBoolean()
             val clockPosition = ClockPosition.valueOf(input.readUTF())
+            val listOffset = input.readInt()
             val rows = List(input.readInt()) {
                 SnapshotRow(
                     key = AppKey(input.readUTF(), input.readUTF(), input.readLong()),
@@ -64,7 +66,7 @@ class HomeSnapshotStore(directory: File) {
                     work = input.readBoolean(),
                 )
             }
-            HomeSnapshot(envId, palette, iconMode, textSize, clockFormat, showDate, rows, clockPosition)
+            HomeSnapshot(envId, palette, iconMode, textSize, clockFormat, showDate, rows, clockPosition, listOffset)
         }
     }.getOrNull()
 
@@ -85,6 +87,7 @@ class HomeSnapshotStore(directory: File) {
                 out.writeUTF(snapshot.clockFormat.name)
                 out.writeBoolean(snapshot.showDate)
                 out.writeUTF(snapshot.clockPosition.name)
+                out.writeInt(snapshot.listOffset)
                 out.writeInt(snapshot.rows.size)
                 snapshot.rows.forEach { row ->
                     out.writeUTF(row.key.packageName)
@@ -101,6 +104,6 @@ class HomeSnapshotStore(directory: File) {
 
     private companion object {
         const val FILE_NAME = "home_snapshot.bin"
-        const val VERSION = 2
+        const val VERSION = 3
     }
 }

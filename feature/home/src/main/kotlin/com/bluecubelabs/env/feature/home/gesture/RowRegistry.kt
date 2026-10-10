@@ -7,6 +7,7 @@ class RowRegistry {
     private val rows = HashMap<Int, Rect>()
     private val blocked = HashMap<String, Rect>()
     private var clock: Rect? = null
+    private var handle: Rect? = null
 
     fun update(index: Int, bounds: Rect) {
         rows[index] = bounds
@@ -29,6 +30,12 @@ class RowRegistry {
     }
 
     fun isClock(position: Offset): Boolean = clock?.contains(position) == true
+
+    fun handle(bounds: Rect?) {
+        handle = bounds
+    }
+
+    fun isHandle(position: Offset): Boolean = handle?.contains(position) == true
 
     fun hit(position: Offset): Int? = rows.entries.firstOrNull { it.value.contains(position) }?.key
 

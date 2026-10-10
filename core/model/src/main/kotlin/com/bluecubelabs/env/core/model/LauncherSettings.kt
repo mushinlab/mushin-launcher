@@ -8,6 +8,18 @@ enum class HomeTextSize(val sp: Int) { S(22), M(26), L(30) }
 
 enum class PressFeedback { FLASH, HOLD, ACCENT, DIM, SCALE }
 
+object KeyboardFit {
+    const val WIDTH_MIN = 0.6f
+    const val WIDTH_MAX = 1f
+    const val SHIFT_MIN = -1f
+    const val SHIFT_MAX = 1f
+    const val STEP = 0.05f
+}
+
+object HomeListOffset {
+    const val MAX_DP = 480
+}
+
 enum class ClockPosition { START, CENTER, END }
 
 enum class AppFont { SYSTEM, INTER, OPEN_SANS, MONTSERRAT, CONDENSED }
@@ -20,6 +32,7 @@ data class LauncherSettings(
     val clockFormat: ClockFormat = ClockFormat.SYSTEM,
     val showDate: Boolean = true,
     val clockPosition: ClockPosition = ClockPosition.START,
+    val homeListOffset: Int = 0,
     val font: AppFont = AppFont.SYSTEM,
     val fontWeight: AppFontWeight = AppFontWeight.REGULAR,
     val homeTextSize: HomeTextSize = HomeTextSize.M,
@@ -29,12 +42,13 @@ data class LauncherSettings(
     val activeKeyboardLayout: String = "en",
     val keyboardHaptics: Boolean = true,
     val keyboardDigitHints: Boolean = true,
-    val keyboardGestureTyping: Boolean = false,
-    val keyboardGestureLetters: Boolean = false,
+    val keyboardWidth: Float = KeyboardFit.WIDTH_MAX,
+    val keyboardShift: Float = 0f,
     val gestureShiftPenalty: Float = GestureTuning.SHIFT_PENALTY,
     val gestureSuggestMargin: Float = GestureTuning.SUGGEST_MARGIN,
     val searchFuzzy: Boolean = true,
     val searchLayoutSwap: Boolean = true,
     val searchTranslit: Boolean = true,
+    val searchColoredIcons: Boolean = false,
     val onboardingDone: Boolean = false,
 )

@@ -77,12 +77,7 @@ const val ERR_WORK = "work"
 const val ERR_CUSTOM = "custom"
 
 @Composable
-internal fun EnvironmentsScreen(
-    state: SettingsUiState,
-    actions: SettingsActions,
-    push: (SettingsRoute) -> Unit,
-    back: () -> Unit,
-) {
+internal fun EnvironmentsScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
     var createType by remember { mutableStateOf<EnvType?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
@@ -92,10 +87,9 @@ internal fun EnvironmentsScreen(
         SettingsPage(stringResource(R.string.settings_envs), back) {
             state.envs.forEach { env ->
                 val suffix = if (env.current) " · ${stringResource(R.string.env_current)}" else ""
-                NavRow(env.name, value = envTypeLabel(env.type) + suffix, tag = "env_${env.id}") {
-                    push(SettingsRoute.EnvEditor(env.id))
-                }
+                InfoRow(env.name, envTypeLabel(env.type) + suffix, tag = "env_${env.id}")
             }
+            NoteText(stringResource(R.string.env_list_note))
             CardGap()
             NavRow(
                 stringResource(R.string.env_create),
@@ -155,8 +149,8 @@ internal fun EnvEditorScreen(
                 renameError = null
                 renaming = true
             }
-            SectionHeader(stringResource(R.string.env_palette))
-            PalettePicker(env.preset) { actions.setPalette(envId, it) }
+            CardGap()
+            PaletteDropdown(env.preset) { actions.setPalette(envId, it) }
             ToggleRow(stringResource(R.string.env_colored_icons), env.coloredIcons, tag = "env_colored_icons") {
                 actions.setColoredIcons(envId, it)
             }
@@ -219,7 +213,7 @@ private fun EnvItemsSection(
 }
 
 @Composable
-private fun PalettePicker(selected: PalettePreset, onSelect: (PalettePreset) -> Unit) {
+internal fun PaletteDropdown(selected: PalettePreset, onSelect: (PalettePreset) -> Unit) {
     val names = mapOf(
         PalettePreset.GRAPHITE to stringResource(R.string.palette_graphite),
         PalettePreset.NIGHT to stringResource(R.string.palette_night),
@@ -228,30 +222,21 @@ private fun PalettePicker(selected: PalettePreset, onSelect: (PalettePreset) -> 
         PalettePreset.PAPER to stringResource(R.string.palette_paper),
         PalettePreset.SAND to stringResource(R.string.palette_sand),
     )
-    Palettes.presets.forEach { (preset, palette) ->
-        val swatch = EnvColors.from(palette)
-        Row(
-            Modifier
-                .settingsCard()
-                .height(56.dp)
-                .selectedBackground(preset == selected)
-                .pressable { onSelect(preset) }
-                .testTag("palette_$preset")
-                .padding(horizontal = CARD_PADDING),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Row(Modifier.clip(RoundedCornerShape(CARD_RADIUS))) {
-                Box(Modifier.size(28.dp).background(swatch.background))
-                Box(Modifier.size(28.dp).background(swatch.zebraB))
-                Box(Modifier.size(28.dp).background(swatch.textPrimary))
-                Box(Modifier.size(28.dp).background(swatch.accent))
-            }
-            Spacer(Modifier.width(16.dp))
-            BasicText(
-                names[preset].orEmpty(),
-                style = Type.style(17.sp, LocalEnvColors.current.textPrimary),
-                modifier = Modifier.weight(1f),
-            )
+    DropdownRow(
+        stringResource(R.string.env_palette),
+        Palettes.presets.keys.map { it to names[it].orEmpty() },
+        selected,
+        "palette",
+        leading = { preset -> Palettes.presets[preset]?.let { Swatch(EnvColors.from(it)) } },
+        onSelect = onSelect,
+    )
+}
+
+@Composable
+private fun Swatch(swatch: EnvColors) {
+    Row(Modifier.clip(RoundedCornerShape(CARD_RADIUS))) {
+        listOf(swatch.background, swatch.zebraB, swatch.textPrimary, swatch.accent).forEach {
+            Box(Modifier.size(SWATCH).background(it))
         }
     }
 }
@@ -374,5 +359,6 @@ private suspend fun AwaitPointerEventScope.dragUntilUp(id: PointerId, onDelta: (
 }
 
 private val ROW_HEIGHT = 56.dp
+private val SWATCH = 20.dp
 private const val DRAG_ALPHA = 0.12f
 private const val HANDLE_HOLD_MS = 200L

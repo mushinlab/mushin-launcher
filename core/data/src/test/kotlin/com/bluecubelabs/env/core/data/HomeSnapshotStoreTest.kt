@@ -31,6 +31,7 @@ class HomeSnapshotStoreTest {
             showDate = false,
             rows = listOf(SnapshotRow(AppKey("com.slack", "Main", 10), "Слак", dimmed = true, work = true)),
             clockPosition = ClockPosition.END,
+            listOffset = 64,
         )
         store.write(snapshot)
         assertThat(store.read()).isEqualTo(snapshot)

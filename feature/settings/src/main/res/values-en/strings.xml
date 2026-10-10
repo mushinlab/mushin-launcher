@@ -47,8 +47,8 @@
     <string name="error_custom_limit">20 custom spaces at most</string>
     <string name="error_generic">Something went wrong</string>
 
-    <string name="env_colored_icons">Colour icons</string>
-    <string name="env_colored_icons_note">App icons in their own colours instead of monochrome while this space is active — on the home screen, in search and in swipe suggestions. Applies when icons are on in “Home screen”.</string>
+    <string name="env_colored_icons">Color icons</string>
+    <string name="env_colored_icons_note">App icons in their own colors instead of monochrome while this space is active — on the home screen, in search and in swipe suggestions. Applies when icons are on in “Home screen”.</string>
     <string name="palette_graphite">Graphite</string>
     <string name="palette_navy">Navy</string>
     <string name="palette_paper">Paper</string>
@@ -88,8 +88,6 @@
     <string name="keyboard_layouts">Layouts</string>
     <string name="keyboard_haptics">Haptic feedback</string>
     <string name="keyboard_digit_hints">Digit hints</string>
-    <string name="keyboard_gesture_letters">Letters on the gesture pad</string>
-    <string name="keyboard_gesture_letters_note">A learning aid: a faint QWERTY layout under the stroke. Turn it off once you remember where the letters are.</string>
     <string name="keyboard_gesture_tuning">Swipe typing</string>
     <string name="keyboard_gesture_shift">Shift penalty</string>
     <string name="keyboard_gesture_shift_note">Lower: a drawing made away from the letters is recognised more easily, but accidental matches get more frequent. Higher: you need to be more precise. Default 0.50.</string>
@@ -169,4 +167,11 @@
     <string name="memory_usefulness_note">A score from 1 to 100: how often and how recently you opened the app in this space. If an app that is not on the home screen scores clearly higher than one that is, a “?” with a suggestion appears in the bottom right corner.</string>
     <string name="home_clock_note">Tap the clock to open the Clock app. Hold the clock to move it left, centre or right.</string>
     <string name="settings_back">Back</string>
+    <string name="env_list_note">To change a space, make it current (the row at the top of settings) and tap ✎ on the home screen.</string>
+    <string name="style_theme">Theme of “%1$s”</string>
+    <string name="style_text">Text</string>
+    <string name="keyboard_fit">Size and position</string>
+    <string name="keyboard_width">Keyboard width</string>
+    <string name="keyboard_shift">Horizontal shift</string>
+    <string name="keyboard_fit_note">Only the key area changes. Shift: −100 is the left edge, 100 the right; it works when the width is below 100 %.</string>
 </resources>

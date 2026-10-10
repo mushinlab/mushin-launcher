@@ -40,6 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -103,13 +104,24 @@ fun SettingsPage(
                 size = 40.dp,
                 onClick = onBack,
             )
-            SingleLineText(title, EnvType.style(22.sp, colors.textPrimary))
+            Column {
+                SingleLineText(title, EnvType.style(22.sp, colors.textPrimary))
+                LocalSpaceName.current?.let { space ->
+                    SingleLineText(
+                        space,
+                        EnvType.style(12.sp, colors.textSecondary),
+                        Modifier.testTag("settings_space"),
+                    )
+                }
+            }
         }
         val body = if (scrollable) Modifier.weight(1f).verticalScroll(rememberScrollState()) else Modifier.weight(1f)
         Column(body.padding(vertical = 4.dp)) { content() }
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
 }
+
+val LocalSpaceName = staticCompositionLocalOf<String?> { null }
 
 @Composable
 fun SectionHeader(text: String) {
@@ -182,6 +194,23 @@ fun NavRow(
 }
 
 @Composable
+fun InfoRow(title: String, value: String, tag: String) {
+    val colors = LocalEnvColors.current
+    Row(
+        Modifier
+            .settingsCard()
+            .heightIn(min = 56.dp)
+            .testTag(tag)
+            .padding(horizontal = CARD_PADDING, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        BasicText(title, style = EnvType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
+        Spacer(Modifier.width(16.dp))
+        SingleLineText(value, EnvType.style(15.sp, colors.textSecondary))
+    }
+}
+
+@Composable
 fun ToggleRow(title: String, checked: Boolean, tag: String? = null, onToggle: (Boolean) -> Unit) {
     val colors = LocalEnvColors.current
     Row(
@@ -226,6 +255,7 @@ fun SliderRow(
     range: ClosedFloatingPointRange<Float>,
     step: Float,
     tag: String,
+    format: ((Float) -> String)? = null,
     onChange: (Float) -> Unit,
 ) {
     val colors = LocalEnvColors.current
@@ -245,7 +275,7 @@ fun SliderRow(
             BasicText(title, style = EnvType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
             Spacer(Modifier.width(16.dp))
             SingleLineText(
-                String.format(locale, "%.2f", shown),
+                format?.invoke(shown) ?: String.format(locale, "%.2f", shown),
                 EnvType.style(15.sp, colors.textSecondary),
             )
         }

@@ -57,8 +57,8 @@ fun HomePopup(
         }
         envs.forEach { env ->
             PanelItem(
-                text = if (env.current) "✓  ${env.name}" else env.name,
-                bold = env.current,
+                text = env.name,
+                radio = env.current,
                 tag = "popup_env_${env.id}",
                 onHold = { actions.onOpenEnvSettings(env.id) },
                 onClick = { actions.onSelectEnv(env.id) },

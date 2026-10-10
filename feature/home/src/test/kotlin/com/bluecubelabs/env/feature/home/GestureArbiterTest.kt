@@ -15,6 +15,7 @@ class GestureArbiterTest {
         swipeDistancePx = 96 * dp,
         flingDistancePx = 48 * dp,
         flingVelocityPxPerSec = 1000 * dp,
+        drawMinPx = 144 * dp,
     )
     private val arbiter = GestureArbiter(config)
     private val zone = StartZone(
@@ -139,5 +140,12 @@ class GestureArbiterTest {
         assertThat(arbiter.isShadeSwipe(SwipeDirection.DOWN, 479f, zone)).isTrue()
         assertThat(arbiter.isShadeSwipe(SwipeDirection.DOWN, 480f, zone)).isFalse()
         assertThat(arbiter.isShadeSwipe(SwipeDirection.UP, 100f, zone)).isFalse()
+    }
+
+    @Test
+    fun longWindingStrokeIsADrawingAndStraightOrShortOnesAreNot() {
+        assertThat(arbiter.isDrawing(pathLength = 600 * dp, chord = 120 * dp)).isTrue()
+        assertThat(arbiter.isDrawing(pathLength = 600 * dp, chord = 560 * dp)).isFalse()
+        assertThat(arbiter.isDrawing(pathLength = 100 * dp, chord = 10 * dp)).isFalse()
     }
 }

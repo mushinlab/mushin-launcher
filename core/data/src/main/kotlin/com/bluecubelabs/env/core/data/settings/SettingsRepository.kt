@@ -10,10 +10,13 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.bluecubelabs.env.core.model.GestureTuning
+import com.bluecubelabs.env.core.model.HomeListOffset
+import com.bluecubelabs.env.core.model.KeyboardFit
 import com.bluecubelabs.env.core.model.LauncherSettings
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
@@ -70,8 +73,10 @@ class SettingsRepository(
         internal val KB_ACTIVE_LAYOUT = stringPreferencesKey("kb_active_layout")
         internal val KB_HAPTICS = booleanPreferencesKey("kb_haptics")
         internal val KB_DIGIT_HINTS = booleanPreferencesKey("kb_digit_hints")
-        internal val KB_GESTURE = booleanPreferencesKey("kb_gesture")
-        internal val KB_GESTURE_LETTERS = booleanPreferencesKey("kb_gesture_letters")
+        internal val KB_WIDTH = floatPreferencesKey("kb_width")
+        internal val KB_SHIFT = floatPreferencesKey("kb_shift")
+        internal val HOME_LIST_OFFSET = intPreferencesKey("home_list_offset")
+        internal val SEARCH_COLORED_ICONS = booleanPreferencesKey("search_colored_icons")
         internal val GESTURE_SHIFT_PENALTY = floatPreferencesKey("gesture_shift_penalty")
         internal val GESTURE_SUGGEST_MARGIN = floatPreferencesKey("gesture_suggest_margin")
         internal val SEARCH_FUZZY = booleanPreferencesKey("search_fuzzy")
@@ -101,8 +106,13 @@ class SettingsRepository(
                 activeKeyboardLayout = prefs[KB_ACTIVE_LAYOUT] ?: defaults.activeKeyboardLayout,
                 keyboardHaptics = prefs[KB_HAPTICS] ?: defaults.keyboardHaptics,
                 keyboardDigitHints = prefs[KB_DIGIT_HINTS] ?: defaults.keyboardDigitHints,
-                keyboardGestureTyping = prefs[KB_GESTURE] ?: defaults.keyboardGestureTyping,
-                keyboardGestureLetters = prefs[KB_GESTURE_LETTERS] ?: defaults.keyboardGestureLetters,
+                keyboardWidth = (prefs[KB_WIDTH] ?: defaults.keyboardWidth)
+                    .coerceIn(KeyboardFit.WIDTH_MIN, KeyboardFit.WIDTH_MAX),
+                keyboardShift = (prefs[KB_SHIFT] ?: defaults.keyboardShift)
+                    .coerceIn(KeyboardFit.SHIFT_MIN, KeyboardFit.SHIFT_MAX),
+                homeListOffset = (prefs[HOME_LIST_OFFSET] ?: defaults.homeListOffset)
+                    .coerceIn(0, HomeListOffset.MAX_DP),
+                searchColoredIcons = prefs[SEARCH_COLORED_ICONS] ?: defaults.searchColoredIcons,
                 gestureShiftPenalty = (prefs[GESTURE_SHIFT_PENALTY] ?: defaults.gestureShiftPenalty)
                     .coerceIn(GestureTuning.SHIFT_PENALTY_MIN, GestureTuning.SHIFT_PENALTY_MAX),
                 gestureSuggestMargin = (prefs[GESTURE_SUGGEST_MARGIN] ?: defaults.gestureSuggestMargin)
@@ -130,8 +140,10 @@ class SettingsRepository(
             prefs[KB_ACTIVE_LAYOUT] = settings.activeKeyboardLayout
             prefs[KB_HAPTICS] = settings.keyboardHaptics
             prefs[KB_DIGIT_HINTS] = settings.keyboardDigitHints
-            prefs[KB_GESTURE] = settings.keyboardGestureTyping
-            prefs[KB_GESTURE_LETTERS] = settings.keyboardGestureLetters
+            prefs[KB_WIDTH] = settings.keyboardWidth
+            prefs[KB_SHIFT] = settings.keyboardShift
+            prefs[HOME_LIST_OFFSET] = settings.homeListOffset
+            prefs[SEARCH_COLORED_ICONS] = settings.searchColoredIcons
             prefs[GESTURE_SHIFT_PENALTY] = settings.gestureShiftPenalty
             prefs[GESTURE_SUGGEST_MARGIN] = settings.gestureSuggestMargin
             prefs[SEARCH_FUZZY] = settings.searchFuzzy

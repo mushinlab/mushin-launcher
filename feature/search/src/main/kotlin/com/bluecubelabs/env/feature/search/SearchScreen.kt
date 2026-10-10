@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -96,23 +97,24 @@ data class SearchChrome(
     val nextLayoutLabel: String,
     val digitHints: Boolean,
     val haptics: Boolean,
-    val gestureTyping: Boolean,
-    val gestureLetters: Boolean,
     val gestureShiftPenalty: Float,
     val gestureSuggestMargin: Float,
+    val keyboardWidth: Float = 1f,
+    val keyboardShift: Float = 0f,
     val fuzzy: Boolean = true,
     val layoutSwap: Boolean = true,
     val translit: Boolean = true,
+    val coloredIcons: Boolean = false,
 )
 
-enum class SearchOption { FUZZY, LAYOUT_SWAP, TRANSLIT }
+enum class SearchOption { FUZZY, LAYOUT_SWAP, TRANSLIT, COLORED_ICONS }
 
 interface SearchActions : KeyboardActions {
     fun onLaunch(key: AppKey)
 
     fun onShowKeyboard()
 
-    fun onToggleInput()
+    fun onRename(key: AppKey)
 
     fun onLongPress(key: AppKey, label: String, anchor: Offset)
 
@@ -136,13 +138,13 @@ interface SearchActions : KeyboardActions {
 object SearchDimens {
     val resultHeight: Dp = 56.dp
     val recentHeight: Dp = 52.dp
-    val queryHeight: Dp = 64.dp
+    val queryHeight: Dp = 32.dp
+    val queryTextSize: TextUnit = 18.sp
+    val clearWidth: Dp = 40.dp
     val padding: Dp = 16.dp
     val resultIcon: Dp = 24.dp
     val recentIcon: Dp = 20.dp
-    val enterInset: Dp = 6.dp
-    val toggleWidth: Dp = 72.dp
-    val deleteWidth: Dp = 64.dp
+    val enterInset: Dp = 3.dp
     val suggestionIcon: Dp = 28.dp
     val suggestionGap: Dp = 12.dp
     val eyeSize: Dp = 48.dp
@@ -208,30 +210,24 @@ fun SearchScreen(
             Spacer(Modifier.height(gap))
             val typing = mode == SearchMode.TYPING
             Column(Modifier.fillMaxWidth().then(pane).testTag("input_pane")) {
-                QueryRow(
-                    controller,
-                    actions,
-                    enterWidth = recentsWidth.takeIf { typing },
-                    inputToggle = if (!typing) {
-                        null
-                    } else {
-                        stringResource(
-                            if (chrome.gestureTyping) R.string.search_input_keys else R.string.search_input_gesture,
-                        )
-                    },
-                    gestureDelete = typing && chrome.gestureTyping,
-                )
+                QueryRow(controller, actions, enterWidth = recentsWidth.takeIf { typing })
                 if (typing) {
-                    if (chrome.gestureTyping) {
-                        GesturePanel(
-                            controller,
+                    val glide = remember(chrome.gestureShiftPenalty, chrome.gestureSuggestMargin, controller) {
+                        Glide(chrome.gestureShiftPenalty, chrome.gestureSuggestMargin, controller::applyGesture)
+                    }
+                    Box(Modifier.fillMaxWidth()) {
+                        Keyboard(
+                            chrome.layout,
+                            chrome.nextLayoutLabel,
+                            chrome.digitHints,
                             chrome.haptics,
-                            chrome.gestureLetters,
-                            chrome.gestureShiftPenalty,
-                            chrome.gestureSuggestMargin,
+                            actions,
+                            glide,
+                            clearTrail = controller.query.isEmpty() && !controller.suggesting,
+                            modifier = Modifier
+                                .fillMaxWidth(chrome.keyboardWidth)
+                                .align(BiasAlignment(chrome.keyboardShift, 0f)),
                         )
-                    } else {
-                        Keyboard(chrome.layout, chrome.nextLayoutLabel, chrome.digitHints, chrome.haptics, actions)
                     }
                 }
             }
@@ -280,6 +276,7 @@ private fun OptionsPanel(anchor: Offset, chrome: SearchChrome, actions: SearchAc
                 Triple(SearchOption.FUZZY, R.string.search_fuzzy, chrome.fuzzy),
                 Triple(SearchOption.LAYOUT_SWAP, R.string.search_layout_swap, chrome.layoutSwap),
                 Triple(SearchOption.TRANSLIT, R.string.search_translit, chrome.translit),
+                Triple(SearchOption.COLORED_ICONS, R.string.search_colored_icons, chrome.coloredIcons),
             ).forEach { (option, label, on) ->
                 PanelItem(
                     (if (on) "✓  " else "     ") + stringResource(label),
@@ -470,30 +467,14 @@ private fun AppRowItem(
 }
 
 @Composable
-private fun QueryRow(
-    controller: SearchController,
-    actions: SearchActions,
-    enterWidth: Dp?,
-    inputToggle: String?,
-    gestureDelete: Boolean,
-) {
+private fun QueryRow(controller: SearchController, actions: SearchActions, enterWidth: Dp?) {
     val colors = LocalEnvColors.current
     Row(
         Modifier
             .fillMaxWidth()
-            .height(SearchDimens.queryHeight)
-            .background(Color.Transparent),
+            .height(SearchDimens.queryHeight),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (inputToggle != null) {
-            QueryKey(
-                inputToggle,
-                SearchDimens.toggleWidth,
-                "input_toggle",
-                EnvType.secondarySize,
-                actions::onToggleInput,
-            )
-        }
         Row(
             Modifier
                 .weight(1f)
@@ -508,26 +489,33 @@ private fun QueryRow(
             } else {
                 BasicText(
                     text = controller.query,
-                    style = EnvType.style(EnvType.querySize, colors.textPrimary),
+                    style = EnvType.style(SearchDimens.queryTextSize, colors.textPrimary),
                     maxLines = 1,
                     modifier = Modifier.testTag("query"),
                 )
-                BasicText("▏", style = EnvType.style(EnvType.querySize, colors.accent, FontWeight.Light))
+                BasicText("▏", style = EnvType.style(SearchDimens.queryTextSize, colors.accent, FontWeight.Light))
                 Spacer(Modifier.weight(1f))
             }
-            if (!gestureDelete) {
-                BasicText(
-                    text = controller.rows.size.toString(),
-                    style = EnvType.style(14.sp, colors.textSecondary),
-                    modifier = Modifier.testTag("result_count"),
-                )
+            BasicText(
+                text = controller.rows.size.toString(),
+                style = EnvType.style(13.sp, colors.textSecondary),
+                modifier = Modifier.testTag("result_count"),
+            )
+        }
+        if (controller.query.isNotEmpty() || controller.suggesting) {
+            Box(
+                Modifier
+                    .width(SearchDimens.clearWidth)
+                    .fillMaxHeight()
+                    .pressable(pressedColor = Color.Transparent, onClick = actions::onClear)
+                    .testTag("query_clear"),
+                contentAlignment = Alignment.Center,
+            ) {
+                BasicText("×", style = EnvType.style(SearchDimens.queryTextSize, colors.textSecondary))
             }
         }
-        if (gestureDelete) {
-            QueryKey("⌫", SearchDimens.deleteWidth, "gesture_delete", EnvType.secondarySize, actions::onClear)
-        }
         if (enterWidth != null) {
-            QueryKey(stringResource(R.string.search_enter), enterWidth, "enter", EnvType.keySize, actions::onEnter)
+            QueryKey("⏎", enterWidth, "enter", SearchDimens.queryTextSize, actions::onEnter)
         }
     }
 }
@@ -628,6 +616,7 @@ private fun SearchMenuPanel(menu: SearchMenu, actions: SearchActions) {
             stringResource(if (menu.hidden) R.string.menu_unhide else R.string.menu_hide),
             tag = "menu_hide",
         ) { actions.onToggleHidden(menu.key, !menu.hidden) }
+        PanelItem(stringResource(R.string.menu_rename), tag = "menu_rename") { actions.onRename(menu.key) }
         PanelItem(stringResource(R.string.menu_app_info), tag = "menu_info") { actions.onAppInfo(menu.key) }
         if (menu.canUninstall) {
             PanelItem(stringResource(R.string.menu_uninstall), tag = "menu_uninstall") { actions.onUninstall(menu.key) }

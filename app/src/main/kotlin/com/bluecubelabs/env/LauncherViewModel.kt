@@ -124,8 +124,11 @@ class LauncherViewModel(
     private val suggestion: StateFlow<HomeSuggestion?> = combine(
         data,
         container.history.spaceUsage,
+        container.gestures.bindings,
         capacity,
-    ) { d, usage, cap -> d?.let { suggestionFor(it, usage, cap, System.currentTimeMillis()) } }
+    ) { d, usage, bindings, cap ->
+        d?.let { suggestionFor(it, usage, bindings.swipesByApp().keys, cap, System.currentTimeMillis()) }
+    }
         .distinctUntilChanged()
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -406,6 +409,7 @@ class LauncherViewModel(
             clockFormat = d.settings.clockFormat,
             showDate = d.settings.showDate,
             clockPosition = d.settings.clockPosition,
+            homeListOffset = d.settings.homeListOffset,
             roleMissing = !role,
         )
     }
@@ -462,6 +466,7 @@ class LauncherViewModel(
                 showDate = state.showDate,
                 rows = state.rows.map { SnapshotRow(it.key, it.label, it.dimmed, it.work) },
                 clockPosition = state.clockPosition,
+                listOffset = state.homeListOffset,
             ),
         )
     }
@@ -481,6 +486,7 @@ class LauncherViewModel(
                 clockFormat = snapshot.clockFormat,
                 showDate = snapshot.showDate,
                 clockPosition = snapshot.clockPosition,
+                homeListOffset = snapshot.listOffset,
                 roleMissing = !role,
             )
         }

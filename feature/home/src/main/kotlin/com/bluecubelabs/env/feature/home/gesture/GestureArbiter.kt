@@ -9,10 +9,12 @@ data class GestureConfig(
     val swipeDistancePx: Float,
     val flingDistancePx: Float,
     val flingVelocityPxPerSec: Float,
+    val drawMinPx: Float = Float.MAX_VALUE,
     val axisRatio: Float = AXIS_RATIO,
 ) {
     companion object {
         const val AXIS_RATIO = 1.5f
+        const val STRAIGHTNESS = 0.8f
     }
 }
 
@@ -78,6 +80,9 @@ class GestureArbiter(private val config: GestureConfig) {
             else -> SwipeDirection.DOWN
         }
     }
+
+    fun isDrawing(pathLength: Float, chord: Float): Boolean =
+        pathLength >= config.drawMinPx && chord < pathLength * GestureConfig.STRAIGHTNESS
 
     fun isAllowedStart(direction: SwipeDirection, startX: Float, startY: Float, zone: StartZone): Boolean =
         when (direction) {

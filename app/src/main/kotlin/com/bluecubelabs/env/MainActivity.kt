@@ -31,12 +31,16 @@ import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.Palette
 import com.bluecubelabs.env.core.model.SwipeDirection
+import com.bluecubelabs.env.core.search.GestureDecoder
+import com.bluecubelabs.env.core.search.GesturePoint
 import com.bluecubelabs.env.core.search.KeyboardLayouts
 import com.bluecubelabs.env.feature.search.HardwareKey
+import com.bluecubelabs.env.feature.search.KeyboardDimens
 import com.bluecubelabs.env.feature.search.KeyboardRouter
 import com.bluecubelabs.env.feature.search.SearchController
 import com.bluecubelabs.env.feature.search.SearchMenu
 import com.bluecubelabs.env.feature.search.SearchMode
+import com.bluecubelabs.env.feature.search.glideCenters
 import com.bluecubelabs.env.feature.settings.SettingsRoute
 import com.bluecubelabs.env.feature.settings.SettingsStack
 
@@ -53,6 +57,7 @@ class MainActivity : ComponentActivity() {
         private set
     private var pendingSwipeLaunch: AppKey? = null
     val search = SearchController()
+    val iconProvider by lazy { LauncherIconProvider(container.icons, container.catalog) }
     val settingsStack = SettingsStack()
     var searchTracePending = false
     private var shadeWarned = false
@@ -83,7 +88,7 @@ class MainActivity : ComponentActivity() {
         applySystemBars(viewModel.palette.value)
         window.isNavigationBarContrastEnforced = false
         setContent {
-            LauncherRoot(this, viewModel, LauncherIconProvider(container.icons, container.catalog))
+            LauncherRoot(this, viewModel, iconProvider)
         }
     }
 
@@ -308,9 +313,25 @@ class MainActivity : ComponentActivity() {
         settingsStack.open(SettingsRoute.EnvEditor(envId))
     }
 
-    fun toggleInput() {
-        search.onInputSwitched()
-        viewModel.updateSettings { it.copy(keyboardGestureTyping = !it.keyboardGestureTyping) }
+    fun onHomeDrawing(points: List<Offset>, width: Float) {
+        if (overlay != Overlay.None || points.size < 2 || width <= 0f) return
+        val density = resources.displayMetrics.density
+        val rowHeight = KeyboardDimens.rowHeight.value * density
+        val padding = KeyboardDimens.verticalPadding.value * density
+        val centers = glideCenters(width, rowHeight, padding, KeyboardDimens.gap.value * density)
+        val shift = (points.minOf { it.y } + points.maxOf { it.y }) / 2 -
+            (padding + rowHeight * KeyboardLayouts.LETTER_ROWS / 2)
+        val settings = viewModel.settings.value
+        val decoder = GestureDecoder(
+            centers.mapValues { (_, center) -> GesturePoint(center.x, center.y + shift) },
+            settings.gestureShiftPenalty,
+            settings.gestureSuggestMargin,
+        )
+        openSearch(SearchMode.TYPING)
+        if (!search.applyGesture(decoder, points.map { GesturePoint(it.x, it.y) })) {
+            closeOverlays()
+            window.decorView.performHapticFeedback(HapticFeedbackConstants.REJECT)
+        }
     }
 
     fun openNotificationAccess() {

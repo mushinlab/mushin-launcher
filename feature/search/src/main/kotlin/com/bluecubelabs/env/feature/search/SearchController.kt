@@ -106,10 +106,6 @@ class SearchController(
         return true
     }
 
-    fun onInputSwitched() {
-        if (gesturePaths.isNotEmpty()) gestureCorrected = true
-    }
-
     fun gesturesToLearn(): List<String> = if (gestureCorrected) gesturePaths.toList() else emptyList()
 
     fun setEngine(engine: SearchEngine) {
@@ -120,12 +116,14 @@ class SearchController(
     fun type(c: Char): Boolean {
         if (query.length >= MAX_QUERY) return false
         if (c == ' ' && (query.isEmpty() || query.last() == ' ')) return false
+        markCorrected()
         changeQuery(query + c)
         return true
     }
 
     fun backspace(): Boolean {
         if (query.isEmpty() && !suggesting) return false
+        markCorrected()
         changeQuery(query.dropLast(1))
         return true
     }
@@ -176,6 +174,10 @@ class SearchController(
 
     fun closeOptions() {
         options = null
+    }
+
+    private fun markCorrected() {
+        if (gesturePaths.isNotEmpty()) gestureCorrected = true
     }
 
     fun target(): SearchRow? = rows.getOrNull(selected.coerceAtLeast(0))

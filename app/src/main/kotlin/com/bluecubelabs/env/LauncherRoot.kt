@@ -194,6 +194,14 @@ private fun homeActions(activity: MainActivity, vm: LauncherViewModel) = object 
     override fun onSuggestion(anchor: Offset) {
         activity.overlay = Overlay.Suggestion(anchor)
     }
+
+    override fun onListOffset(dp: Int) {
+        vm.updateSettings { it.copy(homeListOffset = dp) }
+    }
+
+    override fun onDraw(points: List<Offset>, width: Float) {
+        activity.onHomeDrawing(points, width)
+    }
 }
 
 @Composable
@@ -266,13 +274,14 @@ private fun SearchLayer(activity: MainActivity, vm: LauncherViewModel, settings:
             nextLayoutLabel = next.label,
             digitHints = settings.keyboardDigitHints,
             haptics = settings.keyboardHaptics,
-            gestureTyping = settings.keyboardGestureTyping,
-            gestureLetters = settings.keyboardGestureLetters,
             gestureShiftPenalty = settings.gestureShiftPenalty,
             gestureSuggestMargin = settings.gestureSuggestMargin,
             fuzzy = settings.searchFuzzy,
             layoutSwap = settings.searchLayoutSwap,
             translit = settings.searchTranslit,
+            coloredIcons = settings.searchColoredIcons,
+            keyboardWidth = settings.keyboardWidth,
+            keyboardShift = settings.keyboardShift,
         )
     }
     val actions = remember(activity) { searchActions(activity, vm) }
@@ -289,7 +298,13 @@ private fun SearchLayer(activity: MainActivity, vm: LauncherViewModel, settings:
                 if (active) activity.onSearchDrawn()
             },
     ) {
-        SearchScreen(activity.search, activity.searchMode, recents, chrome, actions)
+        val provider = LocalIconProvider.current
+        val searchIcons = remember(provider, settings.searchColoredIcons) {
+            if (settings.searchColoredIcons) activity.iconProvider.withColors(true) else provider
+        }
+        CompositionLocalProvider(LocalIconProvider provides searchIcons) {
+            SearchScreen(activity.search, activity.searchMode, recents, chrome, actions)
+        }
     }
 }
 
@@ -306,8 +321,9 @@ private fun searchActions(activity: MainActivity, vm: LauncherViewModel) = objec
         activity.launch(key, fromSearch = true)
     }
 
-    override fun onToggleInput() {
-        activity.toggleInput()
+    override fun onRename(key: AppKey) {
+        activity.search.closeMenu()
+        activity.renameTarget = key
     }
 
     override fun onLongPress(key: AppKey, label: String, anchor: Offset) {
@@ -347,6 +363,7 @@ private fun searchActions(activity: MainActivity, vm: LauncherViewModel) = objec
                 SearchOption.FUZZY -> it.copy(searchFuzzy = enabled)
                 SearchOption.LAYOUT_SWAP -> it.copy(searchLayoutSwap = enabled)
                 SearchOption.TRANSLIT -> it.copy(searchTranslit = enabled)
+                SearchOption.COLORED_ICONS -> it.copy(searchColoredIcons = enabled)
             }
         }
     }

@@ -50,8 +50,10 @@ class SettingsRepositoryTest {
         assertThat(settings.activeKeyboardLayout).isEqualTo("en")
         assertThat(settings.keyboardHaptics).isTrue()
         assertThat(settings.keyboardDigitHints).isTrue()
-        assertThat(settings.keyboardGestureTyping).isFalse()
-        assertThat(settings.keyboardGestureLetters).isFalse()
+        assertThat(settings.keyboardWidth).isEqualTo(1f)
+        assertThat(settings.keyboardShift).isEqualTo(0f)
+        assertThat(settings.homeListOffset).isEqualTo(0)
+        assertThat(settings.searchColoredIcons).isFalse()
         assertThat(settings.gestureShiftPenalty).isEqualTo(0.5f)
         assertThat(settings.gestureSuggestMargin).isEqualTo(0.3f)
         assertThat(settings.searchFuzzy).isTrue()
@@ -70,8 +72,10 @@ class SettingsRepositoryTest {
                 currentEnvId = 7,
                 iconMode = IconMode.RIGHT,
                 keyboardLayouts = listOf("ru", "en"),
-                keyboardGestureTyping = true,
-                keyboardGestureLetters = true,
+                keyboardWidth = 0.1f,
+                keyboardShift = -0.5f,
+                homeListOffset = 10_000,
+                searchColoredIcons = true,
                 notificationCounts = true,
                 pressFeedback = PressFeedback.DIM,
                 gestureShiftPenalty = 0.8f,
@@ -83,8 +87,10 @@ class SettingsRepositoryTest {
         }
         val settings = repo.settings.first { it.currentEnvId == 7L }
         assertThat(settings.iconMode).isEqualTo(IconMode.RIGHT)
-        assertThat(settings.keyboardGestureTyping).isTrue()
-        assertThat(settings.keyboardGestureLetters).isTrue()
+        assertThat(settings.keyboardWidth).isEqualTo(0.6f)
+        assertThat(settings.keyboardShift).isEqualTo(-0.5f)
+        assertThat(settings.homeListOffset).isEqualTo(480)
+        assertThat(settings.searchColoredIcons).isTrue()
         assertThat(settings.notificationCounts).isTrue()
         assertThat(settings.pressFeedback).isEqualTo(PressFeedback.DIM)
         assertThat(settings.gestureShiftPenalty).isEqualTo(0.8f)
