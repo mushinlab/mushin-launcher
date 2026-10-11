@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -42,6 +43,7 @@ import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -53,6 +55,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -132,6 +135,8 @@ interface SearchActions : KeyboardActions {
 
     fun onClearHistory()
 
+    fun onKeyboardFit(width: Float, shift: Float)
+
     fun onDismissMenu()
 }
 
@@ -140,11 +145,14 @@ object SearchDimens {
     val recentHeight: Dp = 52.dp
     val queryHeight: Dp = 32.dp
     val queryTextSize: TextUnit = 18.sp
-    val clearWidth: Dp = 40.dp
     val padding: Dp = 16.dp
     val resultIcon: Dp = 24.dp
     val recentIcon: Dp = 20.dp
-    val enterInset: Dp = 3.dp
+    val paneTop: Dp = 12.dp
+    val anchorLength: Dp = 48.dp
+    val anchorThickness: Dp = 6.dp
+    val anchorInset: Dp = 10.dp
+    val anchorTouch: Dp = 32.dp
     val suggestionIcon: Dp = 28.dp
     val suggestionGap: Dp = 12.dp
     val eyeSize: Dp = 48.dp
@@ -209,28 +217,7 @@ fun SearchScreen(
             }
             Spacer(Modifier.height(gap))
             val typing = mode == SearchMode.TYPING
-            Column(Modifier.fillMaxWidth().then(pane).testTag("input_pane")) {
-                QueryRow(controller, actions, enterWidth = recentsWidth.takeIf { typing })
-                if (typing) {
-                    val glide = remember(chrome.gestureShiftPenalty, chrome.gestureSuggestMargin, controller) {
-                        Glide(chrome.gestureShiftPenalty, chrome.gestureSuggestMargin, controller::applyGesture)
-                    }
-                    Box(Modifier.fillMaxWidth()) {
-                        Keyboard(
-                            chrome.layout,
-                            chrome.nextLayoutLabel,
-                            chrome.digitHints,
-                            chrome.haptics,
-                            actions,
-                            glide,
-                            clearTrail = controller.query.isEmpty() && !controller.suggesting,
-                            modifier = Modifier
-                                .fillMaxWidth(chrome.keyboardWidth)
-                                .align(BiasAlignment(chrome.keyboardShift, 0f)),
-                        )
-                    }
-                }
-            }
+            InputPane(controller, chrome, actions, typing, pane)
             Spacer(Modifier.height(if (typing) KeyboardDimens.bottomLift else gap))
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
@@ -467,55 +454,156 @@ private fun AppRowItem(
 }
 
 @Composable
-private fun QueryRow(controller: SearchController, actions: SearchActions, enterWidth: Dp?) {
+private fun InputPane(
+    controller: SearchController,
+    chrome: SearchChrome,
+    actions: SearchActions,
+    typing: Boolean,
+    pane: Modifier,
+) {
+    var total by remember { mutableFloatStateOf(0f) }
+    var dragged by remember { mutableStateOf<KeyboardFrame?>(null) }
+    val width = dragged?.fraction(total) ?: chrome.keyboardWidth
+    val shift = dragged?.shift(total) ?: chrome.keyboardShift
+    Box(Modifier.fillMaxWidth().onSizeChanged { total = it.width.toFloat() }) {
+        Column(
+            Modifier
+                .fillMaxWidth(width)
+                .align(BiasAlignment(shift, 0f))
+                .then(pane)
+                .padding(top = SearchDimens.paneTop)
+                .testTag("input_pane"),
+        ) {
+            QueryRow(controller, actions)
+            if (typing) {
+                val glide = remember(chrome.gestureShiftPenalty, chrome.gestureSuggestMargin, controller) {
+                    Glide(chrome.gestureShiftPenalty, chrome.gestureSuggestMargin, controller::applyGesture)
+                }
+                Keyboard(
+                    chrome.layout,
+                    chrome.nextLayoutLabel,
+                    chrome.digitHints,
+                    chrome.haptics,
+                    actions,
+                    glide,
+                    clearTrail = controller.query.isEmpty() && !controller.suggesting,
+                )
+            }
+        }
+        if (typing && controller.resizing && total > 0f) {
+            ResizeOverlay(
+                frame = dragged ?: KeyboardFrame.of(width, shift, total),
+                total = total,
+                onDrag = { dragged = it },
+                onRelease = { frame ->
+                    actions.onKeyboardFit(frame.fraction(total), frame.shift(total))
+                },
+                onExit = controller::toggleResize,
+                modifier = Modifier.matchParentSize(),
+            )
+        }
+    }
+    LaunchedEffect(chrome.keyboardWidth, chrome.keyboardShift) { dragged = null }
+}
+
+private enum class Anchor { START, END, MOVE }
+
+@Composable
+private fun ResizeOverlay(
+    frame: KeyboardFrame,
+    total: Float,
+    onDrag: (KeyboardFrame) -> Unit,
+    onRelease: (KeyboardFrame) -> Unit,
+    onExit: () -> Unit,
+    modifier: Modifier,
+) {
+    val colors = LocalEnvColors.current
+    val current by rememberUpdatedState(frame)
+    val density = LocalDensity.current
+    val inset = with(density) { SearchDimens.anchorInset.toPx() }
+    val touch = with(density) { SearchDimens.anchorTouch.toPx() }
+    Canvas(
+        modifier
+            .testTag("resize_overlay")
+            .pointerInput(total) {
+                awaitEachGesture {
+                    val down = awaitFirstDown()
+                    down.consume()
+                    val start = current
+                    val p = down.position
+                    val anchor = when {
+                        abs(p.x - start.left - inset) < touch -> Anchor.START
+                        abs(p.x - start.right + inset) < touch -> Anchor.END
+                        abs(p.y - size.height + inset) < touch && p.x in start.left..start.right -> Anchor.MOVE
+                        else -> null
+                    }
+                    var moved = start
+                    var change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
+                    while (change != null && change.pressed) {
+                        change.consume()
+                        val dx = change.position.x - p.x
+                        moved = when (anchor) {
+                            Anchor.START -> start.dragStart(dx, total)
+                            Anchor.END -> start.dragEnd(dx, total)
+                            Anchor.MOVE -> start.move(dx, total)
+                            null -> start
+                        }
+                        if (anchor != null) onDrag(moved)
+                        change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
+                    }
+                    change?.consume()
+                    if (anchor == null) onExit() else onRelease(moved)
+                }
+            },
+    ) {
+        val length = SearchDimens.anchorLength.toPx()
+        val thickness = SearchDimens.anchorThickness.toPx()
+        drawRect(colors.background.copy(alpha = RESIZE_SCRIM), Offset(frame.left, 0f), Size(frame.width, size.height))
+        val mid = size.height / 2
+        listOf(frame.left + inset, frame.right - inset).forEach { x ->
+            drawLine(
+                colors.accent,
+                Offset(x, mid - length / 2),
+                Offset(x, mid + length / 2),
+                thickness,
+                StrokeCap.Round,
+            )
+        }
+        val center = frame.left + frame.width / 2
+        val bottom = size.height - inset
+        drawLine(
+            colors.accent,
+            Offset(center - length / 2, bottom),
+            Offset(center + length / 2, bottom),
+            thickness,
+            StrokeCap.Round,
+        )
+    }
+}
+
+@Composable
+private fun QueryRow(controller: SearchController, actions: SearchActions) {
     val colors = LocalEnvColors.current
     Row(
         Modifier
             .fillMaxWidth()
-            .height(SearchDimens.queryHeight),
+            .height(SearchDimens.queryHeight)
+            .pressable(pressedColor = Color.Transparent, onClick = actions::onShowKeyboard)
+            .testTag("query_row")
+            .padding(horizontal = SearchDimens.padding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .pressable(pressedColor = Color.Transparent, onClick = actions::onShowKeyboard)
-                .testTag("query_row")
-                .padding(horizontal = SearchDimens.padding),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (controller.suggesting) {
-                SuggestionIcons(controller.rows, actions, Modifier.weight(1f))
-            } else {
-                BasicText(
-                    text = controller.query,
-                    style = EnvType.style(SearchDimens.queryTextSize, colors.textPrimary),
-                    maxLines = 1,
-                    modifier = Modifier.testTag("query"),
-                )
-                BasicText("▏", style = EnvType.style(SearchDimens.queryTextSize, colors.accent, FontWeight.Light))
-                Spacer(Modifier.weight(1f))
-            }
+        if (controller.suggesting) {
+            SuggestionIcons(controller.rows, actions, Modifier.weight(1f))
+        } else {
             BasicText(
-                text = controller.rows.size.toString(),
-                style = EnvType.style(13.sp, colors.textSecondary),
-                modifier = Modifier.testTag("result_count"),
+                text = controller.query,
+                style = EnvType.style(SearchDimens.queryTextSize, colors.textPrimary),
+                maxLines = 1,
+                modifier = Modifier.testTag("query"),
             )
-        }
-        if (controller.query.isNotEmpty() || controller.suggesting) {
-            Box(
-                Modifier
-                    .width(SearchDimens.clearWidth)
-                    .fillMaxHeight()
-                    .pressable(pressedColor = Color.Transparent, onClick = actions::onClear)
-                    .testTag("query_clear"),
-                contentAlignment = Alignment.Center,
-            ) {
-                BasicText("×", style = EnvType.style(SearchDimens.queryTextSize, colors.textSecondary))
-            }
-        }
-        if (enterWidth != null) {
-            QueryKey("⏎", enterWidth, "enter", SearchDimens.queryTextSize, actions::onEnter)
+            BasicText("▏", style = EnvType.style(SearchDimens.queryTextSize, colors.accent, FontWeight.Light))
+            Spacer(Modifier.weight(1f))
         }
     }
 }
@@ -542,24 +630,6 @@ private fun SuggestionIcons(rows: ImmutableList<SearchRow>, actions: SearchActio
                     .testTag("suggestion_$index"),
             )
         }
-    }
-}
-
-@Composable
-private fun QueryKey(label: String, width: Dp, tag: String, textSize: TextUnit, onClick: () -> Unit) {
-    val colors = LocalEnvColors.current
-    Box(
-        Modifier
-            .width(width)
-            .fillMaxHeight()
-            .padding(SearchDimens.enterInset)
-            .clip(RoundedCornerShape(KeyboardDimens.radius))
-            .background(colors.keyBackground)
-            .pressable(onClick = onClick)
-            .testTag(tag),
-        contentAlignment = Alignment.Center,
-    ) {
-        BasicText(label, style = EnvType.style(textSize, colors.textPrimary, FontWeight.Medium))
     }
 }
 
@@ -627,3 +697,4 @@ private fun SearchMenuPanel(menu: SearchMenu, actions: SearchActions) {
 private const val HIGHLIGHT_ALPHA = 0.12f
 private const val EYE_STROKE = 0.09f
 private const val PANE_ZEBRA_ALPHA = 0.05f
+private const val RESIZE_SCRIM = 0.55f

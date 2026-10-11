@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -42,6 +43,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.bluecubelabs.env.core.search.GestureDecoder
 import com.bluecubelabs.env.core.search.GesturePoint
 import com.bluecubelabs.env.core.search.KeyAction
@@ -50,6 +52,7 @@ import com.bluecubelabs.env.core.search.KeyboardLayout
 import com.bluecubelabs.env.core.search.KeyboardLayouts
 import com.bluecubelabs.env.core.ui.EnvType
 import com.bluecubelabs.env.core.ui.LocalEnvColors
+import com.bluecubelabs.env.core.ui.LocalEnvStroke
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
@@ -70,12 +73,14 @@ interface KeyboardActions {
     fun onSwitchLayout()
 
     fun onClose()
+
+    fun onResize()
 }
 
 object KeyboardDimens {
     val rowHeight = 66.dp
     val verticalPadding = 4.dp
-    val bottomLift = rowHeight / 2
+    val bottomLift = rowHeight
     val gap = 4.dp
     val radius = 6.dp
     val digitSwipe = 24.dp
@@ -84,7 +89,8 @@ object KeyboardDimens {
     val bubbleWidth = 48.dp
     val bubbleHeight = 56.dp
     val glideStart = 20.dp
-    val trailWidth = 6.dp
+    val crossSize = 32.sp
+    val resizeMark = 22.dp
     const val DWELL_MS = 1000L
     const val VERTICAL_RATIO = 0.5f
     const val DIGIT_HOLD_MS = 300L
@@ -103,20 +109,25 @@ object KeyboardGeometry {
         gap: Float,
     ): List<KeyGeometry> {
         val keys = ArrayList<KeyGeometry>()
+        var top = topPadding
         layout.rows.forEachIndexed { rowIndex, row ->
             val inset = width * layout.rowInsets.getOrElse(rowIndex) { 0f }
             val usable = width - 2 * inset
             val totalWeight = row.sumOf { it.weight.toDouble() }.toFloat()
+            val height = rowHeight * layout.rowScales.getOrElse(rowIndex) { 1f }
             var x = inset
-            val top = topPadding + rowIndex * rowHeight
             row.forEach { spec ->
                 val w = usable * spec.weight / totalWeight
-                keys += KeyGeometry(spec, Rect(x + gap / 2, top + gap / 2, x + w - gap / 2, top + rowHeight - gap / 2))
+                keys += KeyGeometry(spec, Rect(x + gap / 2, top + gap / 2, x + w - gap / 2, top + height - gap / 2))
                 x += w
             }
+            top += height
         }
         return keys
     }
+
+    fun height(layout: KeyboardLayout, rowHeight: Float, padding: Float): Float =
+        rowHeight * layout.rowScales.sum() + padding * 2
 
     fun hit(keys: List<KeyGeometry>, position: Offset): Int? {
         keys.forEachIndexed { i, k -> if (k.rect.contains(position)) return i }
@@ -202,8 +213,10 @@ fun Keyboard(
             state.dwells.clear()
         }
     }
-    val strokePx = with(density) { KeyboardDimens.trailWidth.toPx() }
-    val totalHeight = KeyboardDimens.rowHeight * layout.rows.size + KeyboardDimens.verticalPadding * 2
+    val stroke = LocalEnvStroke.current
+    val strokeColor = stroke.color(colors)
+    val strokePx = with(density) { stroke.width.toPx() }
+    val totalHeight = KeyboardDimens.rowHeight * layout.rowScales.sum() + KeyboardDimens.verticalPadding * 2
     Box(
         modifier
             .fillMaxWidth()
@@ -261,9 +274,9 @@ fun Keyboard(
                     moveTo(state.trail.first().x, state.trail.first().y)
                     state.trail.drop(1).forEach { lineTo(it.x, it.y) }
                 }
-                drawPath(path, colors.accent, style = Stroke(strokePx, cap = StrokeCap.Round, join = StrokeJoin.Round))
+                drawPath(path, strokeColor, style = Stroke(strokePx, cap = StrokeCap.Round, join = StrokeJoin.Round))
             }
-            state.dwells.forEach { drawCircle(colors.accent, radius = strokePx * 2, center = it) }
+            state.dwells.forEach { drawCircle(strokeColor, radius = strokePx * 2, center = it) }
         }
     }
 }
@@ -406,6 +419,8 @@ private class KeyboardGestureHandler(
                 KeyAction.BACKSPACE -> target.onBackspace()
                 KeyAction.SWITCH_LAYOUT -> target.onSwitchLayout()
                 KeyAction.SPACE -> type(' ')
+                KeyAction.RESIZE -> target.onResize()
+                KeyAction.ENTER -> target.onEnter()
                 null -> spec.char?.let(::type)
             }
         }
@@ -429,10 +444,16 @@ private fun KeyView(index: Int, key: KeyGeometry, state: KeyboardState, nextLayo
     val density = LocalDensity.current
     val pressed by remember(index) { derivedStateOf { state.pressed[index] == true } }
     val label = when (key.spec.action) {
-        KeyAction.BACKSPACE -> "⌫"
+        KeyAction.BACKSPACE -> "×"
         KeyAction.SWITCH_LAYOUT -> nextLayoutLabel
-        KeyAction.SPACE -> ""
+        KeyAction.ENTER -> "⏎"
+        KeyAction.SPACE, KeyAction.RESIZE -> ""
         null -> key.spec.char?.toString().orEmpty()
+    }
+    val size = when (key.spec.action) {
+        null, KeyAction.ENTER -> EnvType.keySize
+        KeyAction.BACKSPACE -> KeyboardDimens.crossSize
+        else -> EnvType.secondarySize
     }
     val widthDp = with(density) { key.rect.width.toDp() }
     val heightDp = with(density) { key.rect.height.toDp() }
@@ -445,19 +466,8 @@ private fun KeyView(index: Int, key: KeyGeometry, state: KeyboardState, nextLayo
             .testTag("key_${key.spec.char ?: key.spec.action?.name}"),
         contentAlignment = Alignment.Center,
     ) {
-        BasicText(
-            label,
-            style = EnvType.style(
-                if (key.spec.action ==
-                    null
-                ) {
-                    EnvType.keySize
-                } else {
-                    EnvType.secondarySize
-                },
-                colors.textPrimary,
-            ),
-        )
+        BasicText(label, style = EnvType.style(size, colors.textPrimary))
+        if (key.spec.action == KeyAction.RESIZE) ResizeMark(colors.textPrimary)
         val digit = key.spec.digit
         if (digitHints && digit != null) {
             BasicText(
@@ -490,3 +500,23 @@ private fun DigitBubble(key: KeyGeometry) {
         BasicText(digit.toString(), style = EnvType.style(EnvType.querySize, colors.textPrimary))
     }
 }
+
+@Composable
+private fun ResizeMark(color: Color) {
+    Canvas(Modifier.size(KeyboardDimens.resizeMark).testTag("resize_mark")) {
+        val w = size.width
+        val h = size.height
+        val stroke = w * RESIZE_STROKE
+        val mid = h / 2
+        drawLine(color, Offset(stroke, h * 0.2f), Offset(stroke, h * 0.8f), stroke, StrokeCap.Round)
+        drawLine(color, Offset(w - stroke, h * 0.2f), Offset(w - stroke, h * 0.8f), stroke, StrokeCap.Round)
+        drawLine(color, Offset(w * 0.22f, mid), Offset(w * 0.78f, mid), stroke, StrokeCap.Round)
+        val head = w * 0.14f
+        listOf(w * 0.22f to 1f, w * 0.78f to -1f).forEach { (x, dir) ->
+            drawLine(color, Offset(x, mid), Offset(x + head * dir, mid - head), stroke, StrokeCap.Round)
+            drawLine(color, Offset(x, mid), Offset(x + head * dir, mid + head), stroke, StrokeCap.Round)
+        }
+    }
+}
+
+private const val RESIZE_STROKE = 0.08f

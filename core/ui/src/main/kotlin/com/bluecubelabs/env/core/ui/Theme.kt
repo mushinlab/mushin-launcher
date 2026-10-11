@@ -65,10 +65,16 @@ data class EnvFont(val family: FontFamily, val weight: FontWeight) {
 val LocalEnvFont = staticCompositionLocalOf { EnvFont.Default }
 
 @Composable
-fun EnvTheme(palette: Palette, font: EnvFont = EnvFont.Default, content: @Composable () -> Unit) {
+fun EnvTheme(
+    palette: Palette,
+    font: EnvFont = EnvFont.Default,
+    stroke: EnvStroke = EnvStroke.Default,
+    content: @Composable () -> Unit,
+) {
     CompositionLocalProvider(
         LocalEnvColors provides EnvColors.from(palette),
         LocalEnvFont provides font,
+        LocalEnvStroke provides stroke,
         content = content,
     )
 }

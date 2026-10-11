@@ -5,7 +5,9 @@ import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -23,10 +26,12 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.GraphicsLayerScope
@@ -39,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -53,6 +59,7 @@ import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.model.swipesByApp
 import com.bluecubelabs.env.core.search.KeyboardLayouts
 import com.bluecubelabs.env.core.ui.EnvFont
+import com.bluecubelabs.env.core.ui.EnvStroke
 import com.bluecubelabs.env.core.ui.EnvTheme
 import com.bluecubelabs.env.core.ui.EnvType as Type
 import com.bluecubelabs.env.core.ui.LocalEnvColors
@@ -77,7 +84,9 @@ import com.bluecubelabs.env.feature.settings.SettingsActions
 import com.bluecubelabs.env.feature.settings.SettingsHost
 import com.bluecubelabs.env.feature.settings.SettingsRoute
 import com.bluecubelabs.env.feature.settings.TextInputDialog
+import kotlin.math.abs
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
@@ -93,7 +102,10 @@ fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: La
     val colored by vm.coloredIcons.collectAsStateWithLifecycle()
     val icons = remember(iconProvider, colored) { iconProvider.withColors(colored) }
     val font = remember(settings.font, settings.fontWeight) { EnvFont.of(settings.font, settings.fontWeight) }
-    EnvTheme(palette, font) {
+    val stroke = remember(settings.strokeWidth, settings.strokeColor) {
+        EnvStroke(settings.strokeWidth.dp, settings.strokeColor)
+    }
+    EnvTheme(palette, font, stroke) {
         CompositionLocalProvider(
             LocalIconProvider provides icons,
             LocalPressFeedback provides settings.pressFeedback,
@@ -129,6 +141,11 @@ fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: La
                 Box(Modifier.zIndex(3f)) { SettingsLayer(activity, vm) }
                 activity.renameTarget?.let { key ->
                     Box(Modifier.zIndex(4f)) { RenameDialog(activity, vm, key) }
+                }
+                if (activity.learnHint) {
+                    Box(Modifier.zIndex(5f).fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+                        LearnHint(onOpen = activity::openLearning, onDismiss = { activity.learnHint = false })
+                    }
                 }
                 activity.notice?.let { notice ->
                     val top = activity.overlay == Overlay.Search
@@ -395,6 +412,14 @@ private fun searchActions(activity: MainActivity, vm: LauncherViewModel) = objec
     override fun onSwitchLayout() {
         activity.switchLayout()
     }
+
+    override fun onResize() {
+        activity.search.toggleResize()
+    }
+
+    override fun onKeyboardFit(width: Float, shift: Float) {
+        vm.updateSettings { it.copy(keyboardWidth = width, keyboardShift = shift) }
+    }
 }
 
 @Composable
@@ -510,6 +535,8 @@ private fun SettingsLayer(activity: MainActivity, vm: LauncherViewModel) {
 
             override fun forgetApp(key: AppKey) = vm.memory.forget { it.key == key }
 
+            override fun addDrawing(key: AppKey, path: String) = vm.memory.add(key, path)
+
             override fun forgetAllGestures() = vm.memory.forget { true }
 
             override fun clearUsage() = vm.memory.clearUsage()
@@ -538,6 +565,56 @@ private fun RenameDialog(activity: MainActivity, vm: LauncherViewModel, key: App
         },
         onDismiss = { activity.renameTarget = null },
     )
+}
+
+@Composable
+private fun LearnHint(onOpen: () -> Unit, onDismiss: () -> Unit) {
+    val colors = LocalEnvColors.current
+    val offset = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+    val dismissPx = with(LocalDensity.current) { LEARN_HINT_SWIPE.toPx() }
+    LaunchedEffect(Unit) {
+        delay(LEARN_HINT_MS)
+        onDismiss()
+    }
+    Column(
+        Modifier
+            .windowInsetsPadding(WindowInsets.statusBars)
+            .padding(16.dp)
+            .fillMaxWidth()
+            .graphicsLayer {
+                translationX = offset.value
+                alpha = 1f - (abs(offset.value) / (size.width.takeIf { it > 0f } ?: 1f)).coerceIn(0f, 1f)
+            }
+            .clip(RoundedCornerShape(LEARN_HINT_RADIUS))
+            .background(colors.surface)
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onDragEnd = {
+                        scope.launch {
+                            if (abs(offset.value) > dismissPx) {
+                                onDismiss()
+                            } else {
+                                offset.animateTo(0f, tween(Motion.TRANSITION_MS))
+                            }
+                        }
+                    },
+                ) { change, amount ->
+                    change.consume()
+                    scope.launch { offset.snapTo(offset.value + amount) }
+                }
+            }
+            .pressable(onClick = onOpen)
+            .semantics(mergeDescendants = true) { }
+            .testTag("learn_hint")
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+    ) {
+        BasicText(
+            stringResource(R.string.learn_hint_title),
+            style = Type.style(17.sp, colors.textPrimary, FontWeight.Medium),
+        )
+        BasicText(stringResource(R.string.learn_hint_subtitle), style = Type.style(15.sp, colors.accent))
+    }
 }
 
 @Composable
@@ -575,3 +652,6 @@ private fun NoticeBar(notice: Notice, top: Boolean, onDismiss: () -> Unit) {
 
 private const val NOTICE_MS = 4000L
 private val SEARCH_SLIDE = 24.dp
+private const val LEARN_HINT_MS = 8000L
+private val LEARN_HINT_SWIPE = 96.dp
+private val LEARN_HINT_RADIUS = 12.dp

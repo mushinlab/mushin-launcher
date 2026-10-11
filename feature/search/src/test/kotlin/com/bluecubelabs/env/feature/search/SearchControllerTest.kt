@@ -115,11 +115,16 @@ class SearchControllerTest {
             topPadding = 10f,
             gap = 10f,
         )
-        assertThat(keys.size).isEqualTo(10 + 9 + 9 + 1)
+        assertThat(keys.size).isEqualTo(10 + 9 + 9 + 3)
         val space = keys.single { it.spec.action == KeyAction.SPACE }
-        assertThat(space.rect.left).isGreaterThan(200f)
-        assertThat(space.rect.right).isLessThan(880f)
-        assertThat(space.rect.height).isEqualTo(keys[0].rect.height)
+        val resize = keys.single { it.spec.action == KeyAction.RESIZE }
+        val enter = keys.single { it.spec.action == KeyAction.ENTER }
+        assertThat(resize.rect.right).isLessThan(space.rect.left)
+        assertThat(enter.rect.left).isGreaterThan(space.rect.right)
+        assertThat(space.rect.height + 10f).isEqualTo((keys[0].rect.height + 10f) / 2)
+        assertThat(enter.rect.width).isAtLeast(enter.rect.height)
+        assertThat(space.rect.bottom + 5f + 10f)
+            .isEqualTo(KeyboardGeometry.height(KeyboardLayouts.EN, rowHeight = 136f, padding = 10f))
         val q = keys.indexOfFirst { it.spec.char == 'q' }
         assertThat(KeyboardGeometry.hit(keys, Offset(20f, 60f))).isEqualTo(q)
         val gapBetweenQandW = Offset(keys[q].rect.right + 2f, keys[q].rect.center.y)

@@ -60,6 +60,8 @@ class SearchController(
         private set
     var options by mutableStateOf<Offset?>(null)
         private set
+    var resizing by mutableStateOf(false)
+        private set
 
     private var index: SearchIndex = SearchIndex.EMPTY
     private var usage: Map<AppKey, AppUsage> = emptyMap()
@@ -149,6 +151,7 @@ class SearchController(
         selected = NO_SELECTION
         menu = null
         options = null
+        resizing = false
         gesturePaths.clear()
         gestureCorrected = false
         session++
@@ -174,6 +177,17 @@ class SearchController(
 
     fun closeOptions() {
         options = null
+    }
+
+    fun toggleResize() {
+        resizing = !resizing
+    }
+
+    fun suggest(keys: List<AppKey>) {
+        suggestions = keys
+        query = ""
+        suggesting = true
+        refresh()
     }
 
     private fun markCorrected() {

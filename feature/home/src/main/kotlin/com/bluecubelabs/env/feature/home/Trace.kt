@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.bluecubelabs.env.core.ui.LocalEnvColors
+import com.bluecubelabs.env.core.ui.LocalEnvStroke
 import com.bluecubelabs.env.core.ui.Motion
 import kotlinx.coroutines.flow.first
 
@@ -48,8 +49,9 @@ class Trace {
 
 @Composable
 fun TraceLayer(trace: Trace, modifier: Modifier = Modifier) {
-    val colors = LocalEnvColors.current
-    val widthPx = with(LocalDensity.current) { TRACE_WIDTH.toPx() }
+    val stroke = LocalEnvStroke.current
+    val color = stroke.color(LocalEnvColors.current)
+    val widthPx = with(LocalDensity.current) { stroke.width.toPx() }
     LaunchedEffect(trace) {
         while (true) {
             snapshotFlow { trace.points.isNotEmpty() }.first { it }
@@ -64,7 +66,7 @@ fun TraceLayer(trace: Trace, modifier: Modifier = Modifier) {
             val age = (trace.now - points[i].timeMs).coerceAtLeast(0L)
             val alpha = (1f - age.toFloat() / Motion.TRANSITION_MS).coerceIn(0f, 1f) * TRACE_ALPHA
             drawLine(
-                colors.accent.copy(alpha = alpha),
+                color.copy(alpha = alpha),
                 points[i - 1].position,
                 points[i].position,
                 widthPx,
@@ -96,7 +98,6 @@ fun ListHandle(active: Boolean, onBounds: (Rect) -> Unit) {
     }
 }
 
-private val TRACE_WIDTH = 4.dp
 private const val TRACE_ALPHA = 0.6f
 val HANDLE_HEIGHT = 24.dp
 private val HANDLE_WIDTH = 36.dp

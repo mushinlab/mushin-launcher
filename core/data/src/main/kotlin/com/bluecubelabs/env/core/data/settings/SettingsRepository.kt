@@ -18,6 +18,7 @@ import com.bluecubelabs.env.core.model.GestureTuning
 import com.bluecubelabs.env.core.model.HomeListOffset
 import com.bluecubelabs.env.core.model.KeyboardFit
 import com.bluecubelabs.env.core.model.LauncherSettings
+import com.bluecubelabs.env.core.model.StrokeWidth
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
@@ -67,6 +68,8 @@ class SettingsRepository(
         internal val FONT = stringPreferencesKey("font")
         internal val FONT_WEIGHT = stringPreferencesKey("font_weight")
         internal val HOME_TEXT_SIZE = stringPreferencesKey("home_text_size")
+        internal val STROKE_WIDTH = intPreferencesKey("stroke_width")
+        internal val STROKE_COLOR = stringPreferencesKey("stroke_color")
         internal val NOTIFICATION_COUNTS = booleanPreferencesKey("notification_counts")
         internal val PRESS_FEEDBACK = stringPreferencesKey("press_feedback")
         internal val KB_LAYOUTS = stringPreferencesKey("kb_layouts")
@@ -95,6 +98,9 @@ class SettingsRepository(
                 font = enumOr(prefs[FONT], defaults.font),
                 fontWeight = enumOr(prefs[FONT_WEIGHT], defaults.fontWeight),
                 homeTextSize = enumOr(prefs[HOME_TEXT_SIZE], defaults.homeTextSize),
+                strokeWidth = (prefs[STROKE_WIDTH] ?: defaults.strokeWidth)
+                    .coerceIn(StrokeWidth.MIN_DP, StrokeWidth.MAX_DP),
+                strokeColor = enumOr(prefs[STROKE_COLOR], defaults.strokeColor),
                 notificationCounts = prefs[NOTIFICATION_COUNTS] ?: defaults.notificationCounts,
                 pressFeedback = enumOr(prefs[PRESS_FEEDBACK], defaults.pressFeedback),
                 keyboardLayouts = prefs[KB_LAYOUTS]
@@ -134,6 +140,8 @@ class SettingsRepository(
             prefs[FONT] = settings.font.name
             prefs[FONT_WEIGHT] = settings.fontWeight.name
             prefs[HOME_TEXT_SIZE] = settings.homeTextSize.name
+            prefs[STROKE_WIDTH] = settings.strokeWidth
+            prefs[STROKE_COLOR] = settings.strokeColor.name
             prefs[NOTIFICATION_COUNTS] = settings.notificationCounts
             prefs[PRESS_FEEDBACK] = settings.pressFeedback.name
             prefs[KB_LAYOUTS] = settings.keyboardLayouts.joinToString(",")

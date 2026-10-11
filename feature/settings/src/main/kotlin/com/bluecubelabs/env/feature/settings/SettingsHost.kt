@@ -77,6 +77,7 @@ private fun SettingsRouteScreen(
         SettingsRoute.Apps -> AppsSettingsScreen(state, actions, back)
         SettingsRoute.System -> SystemScreen(state, actions, push, back)
         SettingsRoute.Memory -> MemoryScreen(state, actions, push, back)
-        is SettingsRoute.MemoryApp -> MemoryAppScreen(route.key, state, actions, back)
+        is SettingsRoute.MemoryApp -> MemoryAppScreen(route.key, state, actions, stack, back)
+        SettingsRoute.MemoryPickApp -> MemoryAppPicker(state, push, back)
     }
 }

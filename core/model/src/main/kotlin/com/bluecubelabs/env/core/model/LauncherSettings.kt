@@ -26,6 +26,27 @@ enum class AppFont { SYSTEM, INTER, OPEN_SANS, MONTSERRAT, CONDENSED }
 
 enum class AppFontWeight(val value: Int) { LIGHT(300), REGULAR(400), MEDIUM(500) }
 
+enum class StrokeColor(val argb: Long?) {
+    ACCENT(null),
+    TEXT(null),
+    CORAL(0xFFFF6B6B),
+    ORANGE(0xFFFF9F43),
+    AMBER(0xFFFFC93C),
+    LIME(0xFFA3E635),
+    GREEN(0xFF34D399),
+    TEAL(0xFF2DD4BF),
+    SKY(0xFF38BDF8),
+    BLUE(0xFF6C8CFF),
+    VIOLET(0xFFA78BFA),
+    PINK(0xFFF472B6),
+}
+
+object StrokeWidth {
+    const val MIN_DP = 2
+    const val MAX_DP = 12
+    const val DEFAULT_DP = 5
+}
+
 data class LauncherSettings(
     val currentEnvId: Long? = null,
     val iconMode: IconMode = IconMode.NONE,
@@ -36,6 +57,8 @@ data class LauncherSettings(
     val font: AppFont = AppFont.SYSTEM,
     val fontWeight: AppFontWeight = AppFontWeight.REGULAR,
     val homeTextSize: HomeTextSize = HomeTextSize.M,
+    val strokeWidth: Int = StrokeWidth.DEFAULT_DP,
+    val strokeColor: StrokeColor = StrokeColor.ACCENT,
     val notificationCounts: Boolean = false,
     val pressFeedback: PressFeedback = PressFeedback.FLASH,
     val keyboardLayouts: List<String> = listOf("en", "ru"),

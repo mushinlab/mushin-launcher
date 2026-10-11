@@ -20,6 +20,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +40,7 @@ import com.bluecubelabs.env.core.model.GestureTuning
 import com.bluecubelabs.env.core.model.KeyboardFit
 import com.bluecubelabs.env.core.model.LearnedGesture
 import com.bluecubelabs.env.core.model.PressFeedback
+import com.bluecubelabs.env.core.model.StrokeColor
 import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.model.Usefulness
 import com.bluecubelabs.env.core.search.KeyboardLayouts
@@ -91,6 +93,7 @@ class LauncherUiTest {
                 font = AppFont.SYSTEM,
                 fontWeight = AppFontWeight.REGULAR,
                 searchFuzzy = true,
+                strokeColor = StrokeColor.ACCENT,
             )
         }
         container.history.clearUsage()
@@ -214,14 +217,17 @@ class LauncherUiTest {
     }
 
     @Test
-    fun enterButtonSitsUnderRecentsAboveKeyboard() {
+    fun bottomRowHasResizeSpaceAndAtLeastSquareEnter() {
         openSearch()
-        val enter = rule.onNodeWithTag("enter").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
-        val recents = rule.onNodeWithTag("recents").fetchSemanticsNode().boundsInRoot
-        val keyboard = rule.onNodeWithTag("keyboard").fetchSemanticsNode().boundsInRoot
-        assertThat(enter.left).isAtLeast(recents.left - 2f)
-        assertThat(enter.top).isAtLeast(recents.bottom - 2f)
-        assertThat(enter.bottom).isAtMost(keyboard.top + 2f)
+        val resize = rule.onNodeWithTag("key_RESIZE").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        val space = rule.onNodeWithTag("key_SPACE").fetchSemanticsNode().boundsInRoot
+        val enter = rule.onNodeWithTag("key_ENTER").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        assertThat(resize.right).isLessThan(space.left)
+        assertThat(enter.left).isGreaterThan(space.right)
+        assertThat(enter.width).isAtLeast(enter.height)
+        rule.onNodeWithTag("enter").assertDoesNotExist()
+        rule.onNodeWithTag("query_clear").assertDoesNotExist()
+        rule.onNodeWithTag("result_count").assertDoesNotExist()
     }
 
     @Test
@@ -270,7 +276,7 @@ class LauncherUiTest {
     }
 
     @Test
-    fun keyboardHasSpaceRowAndSitsHalfAKeyAboveTheBottom() {
+    fun spaceRowIsHalfAsTallAndKeyboardSitsAKeyAboveTheBottom() {
         openSearch()
         val q = rule.onNodeWithTag("key_q").fetchSemanticsNode().boundsInRoot
         val space = rule.onNodeWithTag("key_SPACE").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
@@ -279,8 +285,9 @@ class LauncherUiTest {
         val navBar = ViewCompat.getRootWindowInsets(rule.activity.window.decorView)
             ?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
         with(rule.density) {
-            assertThat(space.height).isWithin(1f).of(q.height)
-            assertThat(search.bottom - navBar - keyboard.bottom).isWithin(2f).of((KeyboardDimens.rowHeight / 2).toPx())
+            assertThat(space.height + KeyboardDimens.gap.toPx())
+                .isWithin(2f).of((q.height + KeyboardDimens.gap.toPx()) / 2)
+            assertThat(search.bottom - navBar - keyboard.bottom).isWithin(2f).of(KeyboardDimens.rowHeight.toPx())
         }
         rule.onNodeWithTag("key_s").performClick()
         rule.onNodeWithTag("key_SPACE").performClick()
@@ -293,14 +300,14 @@ class LauncherUiTest {
         rule.onNodeWithTag("input_toggle").assertDoesNotExist()
         rule.onNodeWithTag("key_c").performClick()
         rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("c")
-        rule.onNodeWithTag("query_clear").performClick()
+        clearQuery()
         rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
         drawOnKeyboard("maps")
         rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("maps")
         val trail = rule.onNodeWithTag("glide_trail").fetchSemanticsNode().boundsInRoot
         val keyboard = rule.onNodeWithTag("keyboard").fetchSemanticsNode().boundsInRoot
         assertThat(trail).isEqualTo(keyboard)
-        rule.onNodeWithTag("query_clear").performClick()
+        clearQuery()
         rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
     }
 
@@ -319,11 +326,19 @@ class LauncherUiTest {
             rule.onNodeWithTag("suggestion_1").assertIsDisplayed()
             rule.onNodeWithTag("query", useUnmergedTree = true).assertDoesNotExist()
             assertThat(rule.activity.search.rows.map { it.label }).containsExactly("Zebra One", "Zebra Two")
-            rule.onNodeWithTag("query_clear").performClick()
+            clearQuery()
             rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
             assertThat(rule.activity.search.rows.size).isGreaterThan(2)
         } finally {
             runBlocking { twins.forEach { container.overrides.rename(it, null) } }
+        }
+    }
+
+    private fun clearQuery() {
+        rule.onNodeWithTag("key_BACKSPACE").performTouchInput {
+            down(centerRight - Offset(4f, 0f))
+            repeat(STEPS) { i -> moveTo(centerRight - Offset(4f + 200f * (i + 1) / STEPS, 0f)) }
+            up()
         }
     }
 
@@ -569,7 +584,7 @@ class LauncherUiTest {
     }
 
     @Test
-    fun holdingTheHandleAndDraggingMovesTheList() {
+    fun holdingTheHandleAndDraggingMovesTheListTogetherWithTheHandle() {
         val before = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.top
         rule.onNodeWithTag("list_handle").performTouchInput {
             down(center)
@@ -583,10 +598,44 @@ class LauncherUiTest {
         rule.waitUntil(5_000) { container.settings.settings.value.homeListOffset > 0 }
         val after = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.top
         assertThat(after - before).isWithin(4f).of(200f)
+        val handle = rule.onNodeWithTag("list_handle").fetchSemanticsNode().boundsInRoot
+        assertThat(after - handle.bottom).isWithin(2f).of(0f)
     }
 
     @Test
-    fun drawingAWordOnTheHomeScreenFindsTheApp() {
+    fun drawingALearnedShapeOnTheHomeScreenFindsTheAppAtAnotherScale() {
+        val key = envItems().first()
+        runBlocking { container.gestureLearning.update { listOf(LearnedGesture("mapsdfghjkl", key, 1.0)) } }
+        rule.waitUntil(5_000) { container.gestureLearning.samples.value.isNotEmpty() }
+        drawOnHome("mapsdfghjkl".filterIndexed { i, _ -> i in listOf(0, 1, 2, 3, 10) }, scale = 1.5f)
+        rule.waitUntil(5_000) { rule.activity.overlay == Overlay.Search }
+        rule.runOnIdle {
+            assertThat(rule.activity.search.suggesting).isTrue()
+            assertThat(rule.activity.search.rows.map { it.key }).containsExactly(key)
+        }
+    }
+
+    @Test
+    fun fiveUnknownDrawingsAskWhatYouMeantAndOpenLearning() {
+        runBlocking { container.gestureLearning.update { emptyList() } }
+        repeat(MainActivity.LEARN_HINT_MISSES - 1) {
+            drawOnHome("qazwsx", scale = 1f)
+            rule.onNodeWithTag("learn_hint").assertDoesNotExist()
+        }
+        drawOnHome("qazwsx", scale = 1f)
+        rule.onNodeWithTag("learn_hint").assertIsDisplayed().performClick()
+        rule.runOnIdle { assertThat(rule.activity.settingsStack.top).isEqualTo(SettingsRoute.MemoryPickApp) }
+    }
+
+    @Test
+    fun learnHintCanBeSwipedAway() {
+        rule.runOnIdle { rule.activity.learnHint = true }
+        rule.onNodeWithTag("learn_hint").performTouchInput { swipeRight(startX = left + 10f, endX = right) }
+        rule.onNodeWithTag("learn_hint").assertDoesNotExist()
+        rule.runOnIdle { assertThat(rule.activity.settingsStack.isOpen).isFalse() }
+    }
+
+    private fun drawOnHome(word: String, scale: Float) {
         rule.onNodeWithTag("home").performTouchInput {
             val centers = glideCenters(
                 width.toFloat(),
@@ -594,16 +643,56 @@ class LauncherUiTest {
                 KeyboardDimens.verticalPadding.toPx(),
                 KeyboardDimens.gap.toPx(),
             )
-            val lift = height * 0.55f
-            val points = "maps".map { c -> centers.getValue(c).let { Offset(it.x, it.y + lift) } }
+            val raw = word.map { c -> centers.getValue(c).let { Offset(it.x, it.y) } }
+            val cx = raw.map { it.x }.average().toFloat()
+            val cy = raw.map { it.y }.average().toFloat()
+            val origin = Offset(width / 2f, height * 0.7f)
+            val points = raw.map { origin + Offset(it.x - cx, it.y - cy) * scale }
             down(points.first())
             points.zipWithNext { from, target ->
                 repeat(STEPS) { i -> moveTo(from + (target - from) * ((i + 1f) / STEPS)) }
             }
             up()
         }
-        rule.waitUntil(5_000) { rule.activity.overlay == Overlay.Search }
-        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("maps")
+    }
+
+    @Test
+    fun memoryAddsAGestureDrawnInTheSheet() {
+        runBlocking { container.gestureLearning.update { emptyList() } }
+        val app = runBlocking { container.catalog.apps.first() }.minBy { it.label }
+        rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.Memory) }
+        rule.onNodeWithTag("memory_add_gesture").performClick()
+        rule.onNodeWithTag("pick_${app.label}").performClick()
+        rule.onNodeWithTag("memory_add").performClick()
+        rule.onNodeWithTag("gesture_sheet").assertIsDisplayed()
+        rule.onNodeWithTag("sheet_add").performClick()
+        rule.onNodeWithTag("gesture_sheet").assertIsDisplayed()
+        rule.onNodeWithTag("gesture_pad").performTouchInput {
+            down(Offset(width * 0.05f, height / 6f))
+            repeat(STEPS) { i -> moveTo(Offset(width * (0.05f + 0.9f * (i + 1) / STEPS), height / 6f)) }
+            up()
+        }
+        rule.onNodeWithTag("sheet_add").performClick()
+        rule.onNodeWithTag("gesture_sheet").assertDoesNotExist()
+        rule.waitUntil(5_000) {
+            container.gestureLearning.samples.value.any { it.key == app.key && it.path == "qwertyuiop" }
+        }
+        rule.onNodeWithTag("memory_drawing_0").assertIsDisplayed()
+    }
+
+    @Test
+    fun gestureSheetClosesWhenPulledDown() {
+        val app = runBlocking { container.catalog.apps.first() }.first()
+        rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.MemoryApp(app.key)) }
+        rule.onNodeWithTag("memory_add").performClick()
+        rule.onNodeWithTag("gesture_sheet_handle").performTouchInput {
+            swipeDown(startY = centerY, endY = centerY + 900f, durationMillis = 300)
+        }
+        rule.onNodeWithTag("gesture_sheet").assertDoesNotExist()
+        rule.onNodeWithTag("memory_add").performClick()
+        Espresso.pressBack()
+        rule.onNodeWithTag("gesture_sheet").assertDoesNotExist()
+        rule.onNodeWithTag("memory_add").assertIsDisplayed()
     }
 
     @Test
@@ -638,14 +727,41 @@ class LauncherUiTest {
     }
 
     @Test
-    fun keyboardWidthAndShiftMoveOnlyTheKeys() {
+    fun keyboardWidthAndShiftMoveTheWholeInputPanel() {
         runBlocking { container.settings.update { it.copy(keyboardWidth = 0.6f, keyboardShift = 1f) } }
         openSearch()
         rule.waitForIdle()
         val pane = rule.onNodeWithTag("input_pane").fetchSemanticsNode().boundsInRoot
         val keyboard = rule.onNodeWithTag("keyboard").fetchSemanticsNode().boundsInRoot
-        assertThat(keyboard.width).isWithin(2f).of(pane.width * 0.6f)
-        assertThat(keyboard.right).isWithin(2f).of(pane.right)
+        val results = rule.onNodeWithTag("recents").fetchSemanticsNode().boundsInRoot
+        val full = results.right - rule.onNodeWithTag("results").fetchSemanticsNode().boundsInRoot.left
+        assertThat(pane.width).isWithin(3f).of(full * 0.6f)
+        assertThat(pane.right).isWithin(3f).of(results.right)
+        assertThat(keyboard.width).isWithin(2f).of(pane.width)
+    }
+
+    @Test
+    fun resizeKeyShowsAnchorsAndDraggingASideAnchorNarrowsTheKeyboard() {
+        openSearch()
+        rule.onNodeWithTag("key_RESIZE").performClick()
+        rule.onNodeWithTag("resize_overlay").assertIsDisplayed().performTouchInput {
+            val inset = 10.dp.toPx()
+            down(Offset(left + inset, centerY))
+            repeat(STEPS) { i -> moveTo(Offset(left + inset + 200f * (i + 1) / STEPS, centerY)) }
+            up()
+        }
+        rule.waitUntil(5_000) { container.settings.settings.value.keyboardWidth < 0.9f }
+        rule.runOnIdle { assertThat(container.settings.settings.value.keyboardShift).isEqualTo(1f) }
+        rule.onNodeWithTag("resize_overlay").performTouchInput { click(Offset(centerX, top + 4f)) }
+        rule.onNodeWithTag("resize_overlay").assertDoesNotExist()
+    }
+
+    @Test
+    fun styleChangesStrokeColour() {
+        rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.Style) }
+        rule.onNodeWithTag("stroke_color_dropdown").performScrollTo().performClick()
+        rule.onNodeWithTag("stroke_color_PINK").performScrollTo().performClick()
+        rule.waitUntil(5_000) { container.settings.settings.value.strokeColor == StrokeColor.PINK }
     }
 
     @Test

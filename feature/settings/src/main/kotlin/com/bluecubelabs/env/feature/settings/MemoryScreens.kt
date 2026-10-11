@@ -55,6 +55,9 @@ internal fun MemoryScreen(
     SettingsPage(stringResource(R.string.settings_memory), back) {
         NoteText(stringResource(R.string.memory_note))
         SectionHeader(stringResource(R.string.memory_gestures))
+        NavRow(stringResource(R.string.memory_add_gesture), tag = "memory_add_gesture") {
+            push(SettingsRoute.MemoryPickApp)
+        }
         if (state.learned.isEmpty()) NoteText(stringResource(R.string.memory_gestures_none))
         state.learned.forEach { app ->
             NavRow(
@@ -104,19 +107,38 @@ internal fun MemoryScreen(
 }
 
 @Composable
-internal fun MemoryAppScreen(key: AppKey, state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+internal fun MemoryAppScreen(
+    key: AppKey,
+    state: SettingsUiState,
+    actions: SettingsActions,
+    stack: SettingsStack,
+    back: () -> Unit,
+) {
     val app = state.learned.firstOrNull { it.key == key }
+    val label =
+        app?.label ?: state.apps.firstOrNull { it.key == key }?.label ?: stringResource(R.string.settings_memory)
     var confirmAll by remember { mutableStateOf(false) }
-    SettingsPage(app?.label ?: stringResource(R.string.settings_memory), back) {
+    var drawing by remember { mutableStateOf(false) }
+    SettingsPage(label, back) {
         NoteText(stringResource(R.string.memory_app_note))
-        if (app == null) {
-            NoteText(stringResource(R.string.memory_gestures_none))
-            return@SettingsPage
-        }
-        app.drawings.forEachIndexed { index, drawing ->
+        NavRow(stringResource(R.string.memory_add), tag = "memory_add") { drawing = true }
+        app?.drawings?.forEachIndexed { index, drawing ->
             DrawingRow(drawing, index) { actions.forgetDrawing(key, drawing.path) }
         }
-        NavRow(stringResource(R.string.memory_forget_app), tag = "memory_forget_app") { confirmAll = true }
+        if (app != null) {
+            NavRow(stringResource(R.string.memory_forget_app), tag = "memory_forget_app") { confirmAll = true }
+        }
+    }
+    if (drawing) {
+        GestureSheet(
+            label = label,
+            stack = stack,
+            onAdd = { path ->
+                actions.addDrawing(key, path)
+                drawing = false
+            },
+            onClose = { drawing = false },
+        )
     }
     if (confirmAll && app != null) {
         ConfirmDialog(
@@ -205,7 +227,7 @@ private fun ValueRow(title: String, value: String, tag: String) {
     }
 }
 
-private fun simplify(points: List<Offset>, tolerance: Float): List<Offset> {
+internal fun simplify(points: List<Offset>, tolerance: Float): List<Offset> {
     val distinct = points.filterIndexed { i, p -> i == 0 || p != points[i - 1] }
     if (distinct.size < 3) return distinct
     val first = distinct.first()
@@ -227,7 +249,7 @@ private fun distanceToSegment(p: Offset, a: Offset, b: Offset): Float {
     return (p - (a + ab * t)).getDistance()
 }
 
-private fun qwertyCenters(size: Size): Map<Char, Offset> {
+internal fun qwertyCenters(size: Size): Map<Char, Offset> {
     val keyWidth = size.width / QWERTY.first().first.length
     val rowHeight = size.height / QWERTY.size
     return buildMap {
@@ -237,8 +259,8 @@ private fun qwertyCenters(size: Size): Map<Char, Offset> {
     }
 }
 
-private val QWERTY = listOf("qwertyuiop" to 0f, "asdfghjkl" to 0.5f, "zxcvbnm" to 1.5f)
+internal val QWERTY = listOf("qwertyuiop" to 0f, "asdfghjkl" to 0.5f, "zxcvbnm" to 1.5f)
 private val THUMBNAIL_HEIGHT = 104.dp
 private val STROKE = 3.dp
 private const val LETTER_ALPHA = 0.6f
-private const val SIMPLIFY_TOLERANCE = 0.9f
+internal const val SIMPLIFY_TOLERANCE = 0.9f

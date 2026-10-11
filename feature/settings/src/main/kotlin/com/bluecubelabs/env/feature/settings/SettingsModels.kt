@@ -44,11 +44,14 @@ sealed interface SettingsRoute {
     data object Memory : SettingsRoute
 
     data class MemoryApp(val key: AppKey) : SettingsRoute
+
+    data object MemoryPickApp : SettingsRoute
 }
 
 @Stable
 class SettingsStack {
     private val routes = mutableStateListOf<SettingsRoute>()
+    var sheet: (() -> Unit)? = null
 
     val top: SettingsRoute? get() = routes.lastOrNull()
     val isOpen: Boolean get() = routes.isNotEmpty()
@@ -63,6 +66,10 @@ class SettingsStack {
     }
 
     fun pop(): Boolean {
+        sheet?.let { close ->
+            close()
+            return true
+        }
         if (routes.isEmpty()) return false
         routes.removeAt(routes.lastIndex)
         return true
@@ -149,7 +156,7 @@ data class SettingsUiState(
     val currentEnvId: Long? get() = envs.firstOrNull { it.current }?.id
 }
 
-interface SettingsActions {
+interface SettingsActions : MemoryActions {
     fun updateSettings(transform: (LauncherSettings) -> LauncherSettings)
 
     suspend fun createEnv(name: String, type: EnvType): String?
@@ -179,8 +186,12 @@ interface SettingsActions {
     fun requestDefaultLauncher()
 
     fun openNotificationAccess()
+}
 
+interface MemoryActions {
     fun forgetDrawing(key: AppKey, path: String)
+
+    fun addDrawing(key: AppKey, path: String)
 
     fun forgetApp(key: AppKey)
 

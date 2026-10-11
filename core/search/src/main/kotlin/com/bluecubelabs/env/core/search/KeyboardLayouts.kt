@@ -1,6 +1,6 @@
 package com.bluecubelabs.env.core.search
 
-enum class KeyAction { SWITCH_LAYOUT, BACKSPACE, SPACE }
+enum class KeyAction { SWITCH_LAYOUT, BACKSPACE, SPACE, RESIZE, ENTER }
 
 data class KeySpec(
     val char: Char? = null,
@@ -14,12 +14,14 @@ data class KeyboardLayout(
     val label: String,
     val rows: List<List<KeySpec>>,
     val rowInsets: List<Float>,
+    val rowScales: List<Float> = rows.map { 1f },
 )
 
 object KeyboardLayouts {
     private const val DIGITS = "1234567890"
     private const val SIDE_KEY_WEIGHT = 1.5f
-    private const val SPACE_INSET = 0.2f
+    private const val SPACE_WEIGHT = 7f
+    private const val SPACE_ROW_SCALE = 0.5f
     const val LETTER_ROWS = 3
 
     val EN: KeyboardLayout = layout(
@@ -71,8 +73,13 @@ object KeyboardLayouts {
                 listOf(KeySpec(action = KeyAction.SWITCH_LAYOUT, weight = SIDE_KEY_WEIGHT)) +
                     bottom.map { KeySpec(char = it) } +
                     KeySpec(action = KeyAction.BACKSPACE, weight = SIDE_KEY_WEIGHT),
-                listOf(KeySpec(action = KeyAction.SPACE)),
+                listOf(
+                    KeySpec(action = KeyAction.RESIZE, weight = SIDE_KEY_WEIGHT),
+                    KeySpec(action = KeyAction.SPACE, weight = SPACE_WEIGHT),
+                    KeySpec(action = KeyAction.ENTER, weight = SIDE_KEY_WEIGHT),
+                ),
             ),
-            rowInsets = listOf(0f, middleInset, 0f, SPACE_INSET),
+            rowInsets = listOf(0f, middleInset, 0f, 0f),
+            rowScales = listOf(1f, 1f, 1f, SPACE_ROW_SCALE),
         )
 }

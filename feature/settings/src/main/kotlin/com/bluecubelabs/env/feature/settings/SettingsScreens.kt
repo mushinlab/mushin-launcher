@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
@@ -37,11 +39,13 @@ import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.GestureTuning
 import com.bluecubelabs.env.core.model.HomeTextSize
 import com.bluecubelabs.env.core.model.IconMode
-import com.bluecubelabs.env.core.model.KeyboardFit
 import com.bluecubelabs.env.core.model.PressFeedback
+import com.bluecubelabs.env.core.model.StrokeColor
+import com.bluecubelabs.env.core.model.StrokeWidth
 import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.search.KeyboardLayouts
 import com.bluecubelabs.env.core.ui.EnvFonts
+import com.bluecubelabs.env.core.ui.EnvStroke
 import com.bluecubelabs.env.core.ui.EnvType
 import com.bluecubelabs.env.core.ui.LocalEnvColors
 import com.bluecubelabs.env.core.ui.RadioMark
@@ -187,6 +191,16 @@ internal fun StyleScreen(state: SettingsUiState, actions: SettingsActions, back:
             "text_size",
         ) { size -> actions.updateSettings { it.copy(homeTextSize = size) } }
         NoteText(stringResource(R.string.style_note))
+        SectionHeader(stringResource(R.string.style_stroke))
+        SliderRow(
+            stringResource(R.string.style_stroke_width),
+            s.strokeWidth.toFloat(),
+            StrokeWidth.MIN_DP.toFloat()..StrokeWidth.MAX_DP.toFloat(),
+            1f,
+            tag = "stroke_width",
+            format = { "${it.roundToInt()} dp" },
+        ) { v -> actions.updateSettings { it.copy(strokeWidth = v.roundToInt()) } }
+        StrokeColorDropdown(s.strokeColor) { color -> actions.updateSettings { it.copy(strokeColor = color) } }
     }
 }
 
@@ -323,23 +337,6 @@ internal fun KeyboardSettingsScreen(state: SettingsUiState, actions: SettingsAct
         ToggleRow(stringResource(R.string.keyboard_digit_hints), s.keyboardDigitHints, tag = "kb_digits") { v ->
             actions.updateSettings { it.copy(keyboardDigitHints = v) }
         }
-        SectionHeader(stringResource(R.string.keyboard_fit))
-        SliderRow(
-            stringResource(R.string.keyboard_width),
-            s.keyboardWidth,
-            KeyboardFit.WIDTH_MIN..KeyboardFit.WIDTH_MAX,
-            KeyboardFit.STEP,
-            tag = "kb_width",
-            format = { "${(it * PERCENT).roundToInt()} %" },
-        ) { v -> actions.updateSettings { it.copy(keyboardWidth = v) } }
-        SliderRow(
-            stringResource(R.string.keyboard_shift),
-            s.keyboardShift,
-            KeyboardFit.SHIFT_MIN..KeyboardFit.SHIFT_MAX,
-            KeyboardFit.STEP * 2,
-            tag = "kb_shift",
-            format = { "${(it * PERCENT).roundToInt()}" },
-        ) { v -> actions.updateSettings { it.copy(keyboardShift = v) } }
         NoteText(stringResource(R.string.keyboard_fit_note))
     }
 }
@@ -512,4 +509,39 @@ internal fun SystemScreen(
 }
 
 private const val CHIP_ALPHA = 0.16f
-private const val PERCENT = 100
+
+@Composable
+private fun StrokeColorDropdown(selected: StrokeColor, onSelect: (StrokeColor) -> Unit) {
+    val colors = LocalEnvColors.current
+    val names = mapOf(
+        StrokeColor.ACCENT to stringResource(R.string.stroke_accent),
+        StrokeColor.TEXT to stringResource(R.string.stroke_text),
+        StrokeColor.CORAL to stringResource(R.string.stroke_coral),
+        StrokeColor.ORANGE to stringResource(R.string.stroke_orange),
+        StrokeColor.AMBER to stringResource(R.string.stroke_amber),
+        StrokeColor.LIME to stringResource(R.string.stroke_lime),
+        StrokeColor.GREEN to stringResource(R.string.stroke_green),
+        StrokeColor.TEAL to stringResource(R.string.stroke_teal),
+        StrokeColor.SKY to stringResource(R.string.stroke_sky),
+        StrokeColor.BLUE to stringResource(R.string.stroke_blue),
+        StrokeColor.VIOLET to stringResource(R.string.stroke_violet),
+        StrokeColor.PINK to stringResource(R.string.stroke_pink),
+    )
+    DropdownRow(
+        stringResource(R.string.style_stroke_color),
+        StrokeColor.entries.map { it to names[it].orEmpty() },
+        selected,
+        "stroke_color",
+        leading = { color ->
+            Box(
+                Modifier
+                    .size(STROKE_SWATCH)
+                    .clip(CircleShape)
+                    .background(EnvStroke(StrokeWidth.DEFAULT_DP.dp, color).color(colors)),
+            )
+        },
+        onSelect = onSelect,
+    )
+}
+
+private val STROKE_SWATCH = 18.dp

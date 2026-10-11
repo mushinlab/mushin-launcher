@@ -260,8 +260,8 @@ fun HomeScreen(
                 },
             )
             Spacer(Modifier.height(HomeDimens.listGap - HANDLE_HEIGHT))
-            ListHandle(active = handleDrag != null, onBounds = registry::handle)
             Spacer(Modifier.height(with(density) { listOffsetPx.toDp() }))
+            ListHandle(active = handleDrag != null, onBounds = registry::handle)
             FavoritesList(state, registry, Modifier.weight(1f).fillMaxWidth()) { capacity ->
                 currentActions.onCapacityChanged(capacity)
             }

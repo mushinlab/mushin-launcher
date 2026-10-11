@@ -31,9 +31,9 @@ import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.Palette
 import com.bluecubelabs.env.core.model.SwipeDirection
-import com.bluecubelabs.env.core.search.GestureDecoder
 import com.bluecubelabs.env.core.search.GesturePoint
 import com.bluecubelabs.env.core.search.KeyboardLayouts
+import com.bluecubelabs.env.core.search.ShapeMatcher
 import com.bluecubelabs.env.feature.search.HardwareKey
 import com.bluecubelabs.env.feature.search.KeyboardDimens
 import com.bluecubelabs.env.feature.search.KeyboardRouter
@@ -53,6 +53,8 @@ class MainActivity : ComponentActivity() {
     var searchMode by mutableStateOf(SearchMode.TYPING)
     var renameTarget by mutableStateOf<AppKey?>(null)
     var notice by mutableStateOf<Notice?>(null)
+    var learnHint by mutableStateOf(false)
+    private var missedDrawings = 0
     var homeExit by mutableStateOf<SwipeDirection?>(null)
         private set
     private var pendingSwipeLaunch: AppKey? = null
@@ -191,6 +193,7 @@ class MainActivity : ComponentActivity() {
             overlay is Overlay.Popup || overlay is Overlay.Suggestion -> overlay = Overlay.None
             search.menu != null -> search.closeMenu()
             search.options != null -> search.closeOptions()
+            search.resizing -> search.toggleResize()
             overlay == Overlay.Search -> closeOverlays()
             settingsStack.isOpen -> settingsStack.pop()
         }
@@ -316,22 +319,34 @@ class MainActivity : ComponentActivity() {
     fun onHomeDrawing(points: List<Offset>, width: Float) {
         if (overlay != Overlay.None || points.size < 2 || width <= 0f) return
         val density = resources.displayMetrics.density
-        val rowHeight = KeyboardDimens.rowHeight.value * density
-        val padding = KeyboardDimens.verticalPadding.value * density
-        val centers = glideCenters(width, rowHeight, padding, KeyboardDimens.gap.value * density)
-        val shift = (points.minOf { it.y } + points.maxOf { it.y }) / 2 -
-            (padding + rowHeight * KeyboardLayouts.LETTER_ROWS / 2)
-        val settings = viewModel.settings.value
-        val decoder = GestureDecoder(
-            centers.mapValues { (_, center) -> GesturePoint(center.x, center.y + shift) },
-            settings.gestureShiftPenalty,
-            settings.gestureSuggestMargin,
+        val centers = glideCenters(
+            width * viewModel.settings.value.keyboardWidth,
+            KeyboardDimens.rowHeight.value * density,
+            KeyboardDimens.verticalPadding.value * density,
+            KeyboardDimens.gap.value * density,
         )
-        openSearch(SearchMode.TYPING)
-        if (!search.applyGesture(decoder, points.map { GesturePoint(it.x, it.y) })) {
-            closeOverlays()
+        val matches = ShapeMatcher(centers)
+            .match(points.map { GesturePoint(it.x, it.y) }, viewModel.learnedGestures.value)
+            .filter { viewModel.entry(it) != null }
+        if (matches.isEmpty()) {
             window.decorView.performHapticFeedback(HapticFeedbackConstants.REJECT)
+            missedDrawings++
+            if (missedDrawings >= LEARN_HINT_MISSES) {
+                missedDrawings = 0
+                learnHint = true
+            }
+            return
         }
+        missedDrawings = 0
+        openSearch(SearchMode.TYPING)
+        search.suggest(matches)
+    }
+
+    fun openLearning() {
+        learnHint = false
+        closeOverlays()
+        settingsStack.open(SettingsRoute.Memory)
+        settingsStack.push(SettingsRoute.MemoryPickApp)
     }
 
     fun openNotificationAccess() {
@@ -381,5 +396,6 @@ class MainActivity : ComponentActivity() {
     companion object {
         const val SEARCH_TRACE = "search_open"
         private const val SEARCH_TRACE_COOKIE = 7
+        const val LEARN_HINT_MISSES = 5
     }
 }

@@ -6,6 +6,7 @@ import com.bluecubelabs.env.core.model.LearnedGesture
 import com.bluecubelabs.env.core.model.SpaceUsage
 import com.bluecubelabs.env.core.model.Usefulness
 import com.bluecubelabs.env.core.search.Alphabet
+import com.bluecubelabs.env.core.search.GestureLearning
 import com.bluecubelabs.env.feature.settings.LearnedApp
 import com.bluecubelabs.env.feature.settings.LearnedDrawing
 import com.bluecubelabs.env.feature.settings.ScoreRow
@@ -17,6 +18,10 @@ import kotlinx.coroutines.launch
 class MemoryEditor(private val container: AppContainer) {
     fun forget(match: (LearnedGesture) -> Boolean) {
         container.scope.launch { container.gestureLearning.update { samples -> samples.filterNot(match) } }
+    }
+
+    fun add(key: AppKey, path: String) {
+        container.scope.launch { container.gestureLearning.update { GestureLearning.learn(it, listOf(path), key) } }
     }
 
     fun clearUsage() {
