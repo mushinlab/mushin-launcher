@@ -10,6 +10,7 @@ import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.EnvLimits
 import com.bluecubelabs.env.core.model.EnvType
 import com.bluecubelabs.env.core.model.Environment
+import com.bluecubelabs.env.core.model.HomeListOffset
 import com.bluecubelabs.env.core.model.PalettePreset
 import com.bluecubelabs.env.core.model.Palettes
 import java.util.Locale
@@ -139,6 +140,10 @@ class EnvironmentRepository(
 
     suspend fun setColoredIcons(id: Long, enabled: Boolean) {
         envDao.setColoredIcons(id, enabled)
+    }
+
+    suspend fun setListOffset(id: Long, dp: Int) {
+        envDao.setListOffset(id, dp.coerceIn(0, HomeListOffset.MAX_DP))
     }
 
     suspend fun setPalette(id: Long, preset: PalettePreset) {

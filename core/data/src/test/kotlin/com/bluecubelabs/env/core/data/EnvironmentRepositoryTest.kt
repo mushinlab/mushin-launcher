@@ -7,6 +7,7 @@ import com.bluecubelabs.env.core.data.repo.HistoryRepository
 import com.bluecubelabs.env.core.data.repo.resolveCurrentEnvironment
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.EnvType
+import com.bluecubelabs.env.core.model.HomeListOffset
 import com.bluecubelabs.env.core.model.PalettePreset
 import com.bluecubelabs.env.core.model.Palettes
 import com.google.common.truth.Truth.assertThat
@@ -194,5 +195,18 @@ class EnvironmentRepositoryTest {
         repo.setColoredIcons(work.id, true)
         val updated = repo.environments.first { list -> list.any { it.id == work.id && it.coloredIcons } }
         assertThat(updated.first { it.id == normal.id }.coloredIcons).isFalse()
+    }
+
+    @Test
+    fun listPositionIsSetPerSpace() = runTest {
+        val repo = EnvironmentRepository(rule.db, backgroundScope, rule.clock)
+        val envs = repo.environments.first { it.size >= 2 }
+        val (normal, work) = envs.first { it.type == EnvType.NORMAL } to envs.first { it.type == EnvType.WORK }
+        assertThat(envs.all { it.listOffset == null }).isTrue()
+        repo.setListOffset(work.id, 120)
+        repo.setListOffset(normal.id, HomeListOffset.MAX_DP + 100)
+        val updated = repo.environments.first { list -> list.all { it.listOffset != null } }
+        assertThat(updated.first { it.id == work.id }.listOffset).isEqualTo(120)
+        assertThat(updated.first { it.id == normal.id }.listOffset).isEqualTo(HomeListOffset.MAX_DP)
     }
 }

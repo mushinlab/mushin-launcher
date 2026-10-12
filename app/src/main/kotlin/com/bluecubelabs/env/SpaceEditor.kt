@@ -11,4 +11,8 @@ class SpaceEditor(private val container: AppContainer) {
     fun setColoredIcons(id: Long, enabled: Boolean) {
         container.scope.launch { container.environments.setColoredIcons(id, enabled) }
     }
+
+    fun setListOffset(id: Long, dp: Int) {
+        container.scope.launch { container.environments.setListOffset(id, dp) }
+    }
 }

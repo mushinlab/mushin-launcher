@@ -55,6 +55,11 @@
     <string name="palette_moss">Moss</string>
     <string name="palette_night">Night</string>
     <string name="palette_sand">Sand</string>
+    <string name="palette_lagoon">Lagoon</string>
+    <string name="palette_plum">Plum</string>
+    <string name="palette_ember">Ember</string>
+    <string name="palette_mist">Mist</string>
+    <string name="palette_rose">Rose</string>
 
     <string name="picker_title">Приложения</string>
     <string name="picker_filter">Поиск</string>

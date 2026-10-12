@@ -11,6 +11,7 @@ data class Environment(
     val palette: Palette,
     val createdAt: Long,
     val coloredIcons: Boolean = false,
+    val listOffset: Int? = null,
 )
 
 object EnvLimits {

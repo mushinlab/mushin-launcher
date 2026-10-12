@@ -30,6 +30,7 @@ data class EnvironmentEntity(
     @ColumnInfo(name = "is_dark") val isDark: Boolean,
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "colored_icons", defaultValue = "0") val coloredIcons: Boolean = false,
+    @ColumnInfo(name = "list_offset") val listOffset: Int? = null,
 )
 
 @Entity(

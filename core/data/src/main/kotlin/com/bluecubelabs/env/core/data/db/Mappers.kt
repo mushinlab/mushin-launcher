@@ -40,6 +40,7 @@ internal fun EnvironmentEntity.toModel(): Environment {
         ),
         createdAt = createdAt,
         coloredIcons = coloredIcons,
+        listOffset = listOffset,
     )
 }
 

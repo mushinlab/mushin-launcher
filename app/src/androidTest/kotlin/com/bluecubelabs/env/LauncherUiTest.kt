@@ -40,6 +40,7 @@ import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.GestureTuning
 import com.bluecubelabs.env.core.model.KeyboardFit
 import com.bluecubelabs.env.core.model.LearnedGesture
+import com.bluecubelabs.env.core.model.PalettePreset
 import com.bluecubelabs.env.core.model.PressFeedback
 import com.bluecubelabs.env.core.model.StrokeColor
 import com.bluecubelabs.env.core.model.SwipeDirection
@@ -49,6 +50,7 @@ import com.bluecubelabs.env.feature.search.KeyboardDimens
 import com.bluecubelabs.env.feature.search.glideCenters
 import com.bluecubelabs.env.feature.settings.SettingsRoute
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.abs
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -97,6 +99,7 @@ class LauncherUiTest {
                 strokeColor = StrokeColor.ACCENT,
             )
         }
+        container.environments.environments.value.forEach { container.environments.setListOffset(it.id, 0) }
         container.history.clearUsage()
         container.notificationCounts.value = emptyMap()
     }
@@ -107,6 +110,9 @@ class LauncherUiTest {
         backgroundPoint().performTouchInput { doubleClick(bottomCenter.copy(y = bottom - height * 0.15f)) }
         rule.onNodeWithTag("search").assertIsDisplayed()
     }
+
+    private fun listOffsetOf(id: Long): Int =
+        container.environments.environments.value.first { it.id == id }.listOffset ?: 0
 
     private fun envItems(): List<com.bluecubelabs.env.core.model.AppKey> =
         runBlocking { container.environments.itemsOf(normalId) }
@@ -452,7 +458,7 @@ class LauncherUiTest {
     }
 
     @Test
-    fun searchMenuHidesAppAndEyeShowsHiddenApps() {
+    fun searchMenuHidesAppAndOptionsShowHiddenApps() {
         openSearch()
         rule.onNodeWithTag("result_0").performTouchInput { longClick() }
         val key = rule.activity.search.menu!!.key
@@ -461,9 +467,10 @@ class LauncherUiTest {
         try {
             rule.waitUntil(5_000) { container.overrides.overrides.value[key]?.hidden == true }
             rule.waitUntil(5_000) { rule.activity.search.rows.none { it.key == key } }
-            rule.onNodeWithTag("toggle_hidden").performClick()
+            rule.onNodeWithTag("search_options").performClick()
+            rule.onNodeWithTag("search_option_show_hidden").performClick()
             rule.waitUntil(5_000) { rule.activity.search.rows.any { it.key == key && it.hidden && it.label == label } }
-            rule.onNodeWithTag("toggle_hidden").performClick()
+            rule.onNodeWithTag("search_option_show_hidden").performClick()
             rule.waitUntil(5_000) { rule.activity.search.rows.none { it.key == key } }
         } finally {
             runBlocking { container.overrides.setHidden(key, false) }
@@ -561,13 +568,14 @@ class LauncherUiTest {
     }
 
     @Test
-    fun searchHeaderHoldsEyeAndSearchOptions() {
+    fun searchHeaderHoldsOnlySearchOptions() {
         openSearch()
+        rule.onNodeWithTag("toggle_hidden").assertDoesNotExist()
         val header = rule.onNodeWithTag("search_header").fetchSemanticsNode().boundsInRoot
-        val eye = rule.onNodeWithTag("toggle_hidden").fetchSemanticsNode().boundsInRoot
+        val options = rule.onNodeWithTag("search_options").fetchSemanticsNode().boundsInRoot
         val recents = rule.onNodeWithTag("recents").fetchSemanticsNode().boundsInRoot
-        assertThat(eye.bottom).isAtMost(header.bottom + 1f)
-        assertThat(eye.bottom).isAtMost(recents.top)
+        assertThat(options.bottom).isAtMost(header.bottom + 1f)
+        assertThat(options.bottom).isAtMost(recents.top)
         rule.onNodeWithTag("search_options").performClick()
         rule.onNodeWithTag("search_option_FUZZY").performClick()
         rule.waitUntil(5_000) { !container.settings.settings.value.searchFuzzy }
@@ -602,11 +610,44 @@ class LauncherUiTest {
             moveBy(Offset(0f, 200f))
             up()
         }
-        rule.waitUntil(5_000) { container.settings.settings.value.homeListOffset > 0 }
+        rule.waitUntil(5_000) { listOffsetOf(normalId) > 0 }
         val after = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.top
         assertThat(after - before).isWithin(4f).of(200f)
         val handle = rule.onNodeWithTag("list_handle").fetchSemanticsNode().boundsInRoot
         assertThat(after - handle.bottom).isWithin(2f).of(0f)
+    }
+
+    @Test
+    fun eachSpaceKeepsItsOwnListPosition() {
+        val work = container.environments.environments.value.first { it.type == EnvType.WORK }.id
+        val top = { rule.onNodeWithTag("list_handle").fetchSemanticsNode().boundsInRoot.top }
+        val start = top()
+        runBlocking { container.environments.setListOffset(normalId, 100) }
+        rule.waitUntil(5_000) { top() - start > 50f }
+        val moved = top()
+        runBlocking { container.settings.update { it.copy(currentEnvId = work) } }
+        rule.waitUntil(5_000) { abs(top() - start) < 2f }
+        runBlocking { container.settings.update { it.copy(currentEnvId = normalId) } }
+        rule.waitUntil(5_000) { abs(top() - moved) < 2f }
+    }
+
+    @Test
+    fun styleOffersElevenThemesIncludingTheNewOnes() {
+        rule.runOnIdle { rule.activity.settingsStack.open() }
+        rule.onNodeWithTag("nav_style").performClick()
+        rule.onNodeWithTag("palette_dropdown").performClick()
+        listOf("LAGOON", "PLUM", "EMBER", "MIST", "ROSE").forEach {
+            rule.onNodeWithTag("palette_$it").performScrollTo().assertIsDisplayed()
+        }
+        val original = container.environments.environments.value.first { it.id == normalId }.preset
+        rule.onNodeWithTag("palette_ROSE").performClick()
+        try {
+            rule.waitUntil(5_000) {
+                container.environments.environments.value.first { it.id == normalId }.preset == PalettePreset.ROSE
+            }
+        } finally {
+            runBlocking { container.environments.setPalette(normalId, original) }
+        }
     }
 
     @Test

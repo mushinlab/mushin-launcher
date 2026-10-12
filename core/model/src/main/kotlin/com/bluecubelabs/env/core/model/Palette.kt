@@ -1,6 +1,6 @@
 package com.bluecubelabs.env.core.model
 
-enum class PalettePreset { GRAPHITE, NAVY, PAPER, MOSS, NIGHT, SAND, CUSTOM }
+enum class PalettePreset { GRAPHITE, NAVY, PAPER, MOSS, NIGHT, SAND, LAGOON, PLUM, EMBER, MIST, ROSE, CUSTOM }
 
 data class Palette(
     val background: Int,
@@ -108,13 +108,93 @@ object Palettes {
         isDark = false,
     )
 
+    val Lagoon = Palette(
+        background = argb(0x0D1717),
+        zebraA = argb(0x0D1717),
+        zebraB = argb(0x152222),
+        textPrimary = argb(0xD6E8E6),
+        textSecondary = argb(0x8CA8A5),
+        accent = argb(0x6FD6CB),
+        iconTint = argb(0xBFD6D3),
+        divider = argb(0x1F3333),
+        surface = argb(0x142222),
+        keyBackground = argb(0x1E3030),
+        keyPressed = argb(0x2A4140),
+        isDark = true,
+    )
+
+    val Plum = Palette(
+        background = argb(0x17121C),
+        zebraA = argb(0x17121C),
+        zebraB = argb(0x211A28),
+        textPrimary = argb(0xE6DCEE),
+        textSecondary = argb(0xA597B3),
+        accent = argb(0xD7A8F0),
+        iconTint = argb(0xD2C6DD),
+        divider = argb(0x2C2236),
+        surface = argb(0x221A2A),
+        keyBackground = argb(0x2E2438),
+        keyPressed = argb(0x3D3049),
+        isDark = true,
+    )
+
+    val Ember = Palette(
+        background = argb(0x1A1411),
+        zebraA = argb(0x1A1411),
+        zebraB = argb(0x251D18),
+        textPrimary = argb(0xEDE0D6),
+        textSecondary = argb(0xAE9A8B),
+        accent = argb(0xF0A070),
+        iconTint = argb(0xD8C9BD),
+        divider = argb(0x33281F),
+        surface = argb(0x241C17),
+        keyBackground = argb(0x30261F),
+        keyPressed = argb(0x40332A),
+        isDark = true,
+    )
+
+    val Mist = Palette(
+        background = argb(0xE9EEF2),
+        zebraA = argb(0xE9EEF2),
+        zebraB = argb(0xDDE4EA),
+        textPrimary = argb(0x1B232B),
+        textSecondary = argb(0x51606E),
+        accent = argb(0x2A62A8),
+        iconTint = argb(0x26313C),
+        divider = argb(0xCDD6DE),
+        surface = argb(0xF5F8FA),
+        keyBackground = argb(0xDAE1E8),
+        keyPressed = argb(0xC5CFD9),
+        isDark = false,
+    )
+
+    val Rose = Palette(
+        background = argb(0xF4E9EA),
+        zebraA = argb(0xF4E9EA),
+        zebraB = argb(0xEADCDE),
+        textPrimary = argb(0x2A1E20),
+        textSecondary = argb(0x6B5558),
+        accent = argb(0xA83A55),
+        iconTint = argb(0x3A2B2E),
+        divider = argb(0xE0CDD0),
+        surface = argb(0xFBF4F5),
+        keyBackground = argb(0xE8D8DB),
+        keyPressed = argb(0xD8C3C7),
+        isDark = false,
+    )
+
     val presets: Map<PalettePreset, Palette> = mapOf(
         PalettePreset.GRAPHITE to Graphite,
         PalettePreset.NIGHT to Night,
         PalettePreset.NAVY to Navy,
         PalettePreset.MOSS to Moss,
+        PalettePreset.LAGOON to Lagoon,
+        PalettePreset.PLUM to Plum,
+        PalettePreset.EMBER to Ember,
         PalettePreset.PAPER to Paper,
         PalettePreset.SAND to Sand,
+        PalettePreset.MIST to Mist,
+        PalettePreset.ROSE to Rose,
     )
 
     fun of(preset: PalettePreset): Palette = presets[preset] ?: Graphite

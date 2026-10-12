@@ -214,7 +214,7 @@ private fun homeActions(activity: MainActivity, vm: LauncherViewModel) = object 
     }
 
     override fun onListOffset(dp: Int) {
-        vm.updateSettings { it.copy(homeListOffset = dp) }
+        vm.currentEnvId()?.let { vm.spaces.setListOffset(it, dp) }
     }
 
     override fun onDraw(points: List<Offset>, width: Float) {

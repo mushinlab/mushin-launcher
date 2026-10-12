@@ -415,7 +415,7 @@ class LauncherViewModel(
             clockFormat = d.settings.clockFormat,
             showDate = d.settings.showDate,
             clockPosition = d.settings.clockPosition,
-            homeListOffset = d.settings.homeListOffset,
+            homeListOffset = d.current?.listOffset ?: d.settings.homeListOffset,
             roleMissing = !role,
         )
     }

@@ -221,6 +221,11 @@ internal fun PaletteDropdown(selected: PalettePreset, onSelect: (PalettePreset) 
         PalettePreset.MOSS to stringResource(R.string.palette_moss),
         PalettePreset.PAPER to stringResource(R.string.palette_paper),
         PalettePreset.SAND to stringResource(R.string.palette_sand),
+        PalettePreset.LAGOON to stringResource(R.string.palette_lagoon),
+        PalettePreset.PLUM to stringResource(R.string.palette_plum),
+        PalettePreset.EMBER to stringResource(R.string.palette_ember),
+        PalettePreset.MIST to stringResource(R.string.palette_mist),
+        PalettePreset.ROSE to stringResource(R.string.palette_rose),
     )
     DropdownRow(
         stringResource(R.string.env_palette),

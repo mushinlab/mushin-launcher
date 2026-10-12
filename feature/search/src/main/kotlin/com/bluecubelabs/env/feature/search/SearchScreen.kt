@@ -47,7 +47,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -63,9 +62,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -161,11 +158,9 @@ object SearchDimens {
     val anchorTouch: Dp = 32.dp
     val suggestionIcon: Dp = 28.dp
     val suggestionGap: Dp = 12.dp
-    val eyeSize: Dp = 48.dp
     val headerHeight: Dp = 48.dp
     val paneGap: Dp = 8.dp
     val paneRadius: Dp = 16.dp
-    val eyeGlyph: Dp = 22.dp
     val closeSwipe: Dp = 72.dp
     const val MAX_RECENTS = 10
 }
@@ -205,7 +200,7 @@ fun SearchScreen(
                 .swipeDownToClose(closePx, actions::onClose),
         ) {
             Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
-            SearchHeader(controller, actions)
+            SearchHeader(controller)
             Row(Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(gap)) {
                 ResultsPane(
                     controller,
@@ -229,12 +224,12 @@ fun SearchScreen(
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
         controller.menu?.let { SearchMenuPanel(it, actions) }
-        controller.options?.let { OptionsPanel(it, chrome, actions, controller::closeOptions) }
+        controller.options?.let { OptionsPanel(it, chrome, controller.showHidden, actions, controller::closeOptions) }
     }
 }
 
 @Composable
-private fun SearchHeader(controller: SearchController, actions: SearchActions) {
+private fun SearchHeader(controller: SearchController) {
     val colors = LocalEnvColors.current
     var anchor by remember { mutableStateOf(Offset.Zero) }
     Row(
@@ -242,7 +237,6 @@ private fun SearchHeader(controller: SearchController, actions: SearchActions) {
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        HiddenToggle(controller.showHidden, actions::onToggleShowHidden, Modifier)
         GlyphButton(
             Glyph.SETTINGS,
             stringResource(R.string.search_options),
@@ -254,7 +248,13 @@ private fun SearchHeader(controller: SearchController, actions: SearchActions) {
 }
 
 @Composable
-private fun OptionsPanel(anchor: Offset, chrome: SearchChrome, actions: SearchActions, onDismiss: () -> Unit) {
+private fun OptionsPanel(
+    anchor: Offset,
+    chrome: SearchChrome,
+    showHidden: Boolean,
+    actions: SearchActions,
+    onDismiss: () -> Unit,
+) {
     var confirm by remember { mutableStateOf(false) }
     AnchoredPanel(anchor = anchor, onDismiss = onDismiss) {
         if (confirm) {
@@ -277,6 +277,10 @@ private fun OptionsPanel(anchor: Offset, chrome: SearchChrome, actions: SearchAc
                     tag = "search_option_$option",
                 ) { actions.onSearchOption(option, !on) }
             }
+            PanelItem(
+                (if (showHidden) "✓  " else "     ") + stringResource(R.string.search_show_hidden),
+                tag = "search_option_show_hidden",
+            ) { actions.onToggleShowHidden() }
             HorizontalDivider()
             PanelItem(stringResource(R.string.search_clear_history), tag = "search_clear_history") { confirm = true }
         }
@@ -674,47 +678,6 @@ private fun SuggestionIcons(rows: ImmutableList<SearchRow>, actions: SearchActio
 }
 
 @Composable
-private fun HiddenToggle(showHidden: Boolean, onToggle: () -> Unit, modifier: Modifier) {
-    val colors = LocalEnvColors.current
-    val description = stringResource(R.string.search_show_hidden)
-    val tint = if (showHidden) colors.accent else colors.textSecondary
-    Box(
-        modifier
-            .size(SearchDimens.eyeSize)
-            .pressable(role = Role.Switch, onClick = onToggle)
-            .semantics {
-                contentDescription = description
-                selected = showHidden
-            }
-            .testTag("toggle_hidden"),
-        contentAlignment = Alignment.Center,
-    ) {
-        Canvas(Modifier.size(SearchDimens.eyeGlyph)) {
-            val stroke = Stroke(width = size.width * EYE_STROKE, cap = StrokeCap.Round)
-            val w = size.width
-            val h = size.height
-            val outline = Path().apply {
-                moveTo(w * 0.04f, h * 0.5f)
-                quadraticTo(w * 0.5f, h * 0.06f, w * 0.96f, h * 0.5f)
-                quadraticTo(w * 0.5f, h * 0.94f, w * 0.04f, h * 0.5f)
-                close()
-            }
-            drawPath(outline, tint, style = stroke)
-            drawCircle(tint, radius = w * 0.14f, center = center)
-            if (!showHidden) {
-                drawLine(
-                    tint,
-                    Offset(w * 0.12f, h * 0.88f),
-                    Offset(w * 0.88f, h * 0.12f),
-                    stroke.width,
-                    StrokeCap.Round,
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun SearchMenuPanel(menu: SearchMenu, actions: SearchActions) {
     AnchoredPanel(anchor = menu.anchor, onDismiss = actions::onDismissMenu) {
         PanelHeader(menu.label)
@@ -739,7 +702,6 @@ private fun SearchMenuPanel(menu: SearchMenu, actions: SearchActions) {
 }
 
 private const val HIGHLIGHT_ALPHA = 0.12f
-private const val EYE_STROKE = 0.09f
 private const val PANE_ZEBRA_ALPHA = 0.05f
 private const val RESIZE_SCRIM = 0.55f
 private const val GRABBED_SCALE = 1.6f

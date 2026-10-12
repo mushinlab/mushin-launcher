@@ -24,8 +24,8 @@ class PaletteContrastTest {
     }
 
     @Test
-    fun sixPresetsWithAccentReadableAsTextAndNoPureWhiteText() {
-        assertWithMessage("presets").that(Palettes.presets.size).isEqualTo(6)
+    fun elevenPresetsWithAccentReadableAsTextAndNoPureWhiteText() {
+        assertWithMessage("presets").that(Palettes.presets.size).isEqualTo(11)
         Palettes.presets.forEach { (preset, palette) ->
             assertWithMessage("$preset accent")
                 .that(contrast(palette.accent, palette.background))
