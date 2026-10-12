@@ -135,7 +135,7 @@
     <string name="memory_clear_usage">Стереть счётчики запусков</string>
     <string name="memory_clear_usage_confirm">Стереть счётчики запусков всех приложений? Поиск перестанет учитывать, как часто вы их открываете, а оценки полезности в спейсах обнулятся, пока счётчики не накопятся снова.</string>
     <string name="memory_erase">Стереть</string>
-    <string name="memory_app_note">Рисунки, после которых вы открывали это приложение. Точка — начало линии, кружок — задержка на двойной букве. Чем больше вес, тем сильнее рисунок тянет к этому приложению.</string>
+    <string name="memory_app_note">Рисунки, по которым узнаётся это приложение, — в виде векторов. Точка — начало линии, кольцо — место, где палец задержался: чем дольше, тем больше кольцо. Чем больше вес, тем сильнее рисунок тянет к этому приложению.</string>
     <string name="memory_forget_app">Забыть все рисунки приложения</string>
     <string name="memory_forget_app_confirm">Забыть все рисунки для «%1$s»?</string>
     <string name="memory_weight">Вес %1$s</string>
@@ -192,7 +192,14 @@
     <string name="memory_pick_title">Выберите приложение</string>
     <string name="memory_add">Добавить</string>
     <string name="memory_repeat">Повторить</string>
-    <string name="memory_sheet_hint">Нарисуйте жест одним движением по буквам.</string>
-    <string name="memory_sheet_short">Слишком коротко: проведите хотя бы через две буквы.</string>
+    <string name="memory_sheet_hint">Нарисуйте любую фигуру одним движением — по буквам или нет.</string>
+    <string name="memory_sheet_short">Слишком коротко: проведите линию.</string>
     <string name="memory_sheet_result">Так жест будет запомнен. Добавить, повторить или отменить?</string>
+    <string name="style_stroke_dots">Точки на линии</string>
+    <string name="memory_sheet_draft">Это усреднённый рисунок из ваших последних попыток. Добавьте его или нарисуйте заново.</string>
+    <string name="gestures_anywhere">Поиск поверх приложений</string>
+    <string name="gestures_assistant">Помощник по умолчанию</string>
+    <string name="gestures_assistant_summary">Выберите Mushin Launcher цифровым помощником — поиск откроется удержанием кнопки питания или нижней полоски, или свайпом из нижнего угла (зависит от телефона).</string>
+    <string name="gestures_tile">Плитка в быстрых настройках</string>
+    <string name="gestures_tile_summary">Плитка «Поиск Mushin» в шторке открывает поиск из любого приложения.</string>
 </resources>

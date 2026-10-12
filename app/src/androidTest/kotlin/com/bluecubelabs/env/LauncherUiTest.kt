@@ -15,6 +15,7 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
@@ -217,24 +218,30 @@ class LauncherUiTest {
     }
 
     @Test
-    fun bottomRowHasResizeSpaceAndAtLeastSquareEnter() {
+    fun bottomRowHasResizeAndSpaceOnly() {
         openSearch()
         val resize = rule.onNodeWithTag("key_RESIZE").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
         val space = rule.onNodeWithTag("key_SPACE").fetchSemanticsNode().boundsInRoot
-        val enter = rule.onNodeWithTag("key_ENTER").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        val keyboard = rule.onNodeWithTag("keyboard").fetchSemanticsNode().boundsInRoot
         assertThat(resize.right).isLessThan(space.left)
-        assertThat(enter.left).isGreaterThan(space.right)
-        assertThat(enter.width).isAtLeast(enter.height)
+        assertThat(keyboard.right - space.right).isLessThan(20f)
+        rule.onNodeWithTag("key_ENTER").assertDoesNotExist()
         rule.onNodeWithTag("enter").assertDoesNotExist()
         rule.onNodeWithTag("query_clear").assertDoesNotExist()
         rule.onNodeWithTag("result_count").assertDoesNotExist()
     }
 
     @Test
-    fun swipeDownOnKeyboardClosesSearch() {
+    fun swipeDownAboveTheKeyboardClosesSearchButDrawingDownFromAKeyDoesNot() {
         openSearch()
-        rule.onNodeWithTag("keyboard").performTouchInput {
-            swipeDown(startY = top + 10f, endY = bottom - 10f, durationMillis = 200)
+        rule.onNodeWithTag("key_y").performTouchInput {
+            down(center)
+            repeat(STEPS) { i -> moveTo(center + Offset(0f, 400f * (i + 1) / STEPS)) }
+            up()
+        }
+        rule.runOnIdle { assertThat(rule.activity.overlay).isEqualTo(Overlay.Search) }
+        rule.onNodeWithTag("query_row").performTouchInput {
+            swipeDown(startY = centerY, endY = centerY + 600f, durationMillis = 200)
         }
         rule.runOnIdle { assertThat(rule.activity.overlay).isEqualTo(Overlay.None) }
     }
@@ -628,6 +635,22 @@ class LauncherUiTest {
     }
 
     @Test
+    fun learningFromMissesOpensTheSheetWithTheAveragePattern() {
+        runBlocking { container.gestureLearning.update { emptyList() } }
+        repeat(MainActivity.LEARN_HINT_MISSES) { drawOnHome("qazwsx", scale = 1f + it * 0.05f) }
+        rule.onNodeWithTag("learn_hint").performClick()
+        val app = runBlocking { container.catalog.apps.first() }.minBy { it.label }
+        rule.runOnIdle { assertThat(rule.activity.settingsStack.draft).isNotEmpty() }
+        rule.onNodeWithTag("pick_${app.label}").performClick()
+        rule.onNodeWithTag("gesture_sheet").assertIsDisplayed()
+        rule.onNodeWithTag("sheet_add").performClick()
+        rule.waitUntil(5_000) {
+            container.gestureLearning.samples.value.any { it.key == app.key && it.shape.size >= 2 }
+        }
+        rule.runOnIdle { assertThat(rule.activity.settingsStack.draft).isNull() }
+    }
+
+    @Test
     fun learnHintCanBeSwipedAway() {
         rule.runOnIdle { rule.activity.learnHint = true }
         rule.onNodeWithTag("learn_hint").performTouchInput { swipeRight(startX = left + 10f, endX = right) }
@@ -675,7 +698,9 @@ class LauncherUiTest {
         rule.onNodeWithTag("sheet_add").performClick()
         rule.onNodeWithTag("gesture_sheet").assertDoesNotExist()
         rule.waitUntil(5_000) {
-            container.gestureLearning.samples.value.any { it.key == app.key && it.path == "qwertyuiop" }
+            container.gestureLearning.samples.value.any {
+                it.key == app.key && it.path == "qwertyuiop" && it.shape.size >= 2
+            }
         }
         rule.onNodeWithTag("memory_drawing_0").assertIsDisplayed()
     }
@@ -762,6 +787,70 @@ class LauncherUiTest {
         rule.onNodeWithTag("stroke_color_dropdown").performScrollTo().performClick()
         rule.onNodeWithTag("stroke_color_PINK").performScrollTo().performClick()
         rule.waitUntil(5_000) { container.settings.settings.value.strokeColor == StrokeColor.PINK }
+    }
+
+    @Test
+    fun deleteKeyIsACrossAfterADrawingAndBackspaceWhileTyping() {
+        openSearch()
+        drawOnKeyboard("maps")
+        rule.onNodeWithText("×", useUnmergedTree = true).assertIsDisplayed()
+        rule.onNodeWithTag("key_BACKSPACE").performClick()
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
+        rule.onNodeWithTag("key_m").performClick()
+        rule.onNodeWithText("⌫", useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun digitBubbleIsNotCutByTheQueryRow() {
+        openSearch()
+        rule.onNodeWithTag("key_u").performTouchInput { down(center) }
+        rule.waitUntil(2_000) { runCatching { rule.onNodeWithTag("digit_bubble").assertExists() }.isSuccess }
+        val bubble = rule.onNodeWithTag("digit_bubble").fetchSemanticsNode().boundsInRoot
+        val keyboard = rule.onNodeWithTag("keyboard").fetchSemanticsNode().boundsInRoot
+        assertThat(bubble.top).isLessThan(keyboard.top)
+        rule.onNodeWithTag("digit_bubble").assertIsDisplayed()
+        rule.onNodeWithTag("key_u").performTouchInput { up() }
+    }
+
+    @Test
+    fun suggestionIconsHaveEqualGapsAboveAndBelow() {
+        openSearch()
+        rule.runOnIdle { rule.activity.search.suggest(envItems().take(2)) }
+        val icon = rule.onNodeWithTag("suggestion_0").fetchSemanticsNode().boundsInRoot
+        val pane = rule.onNodeWithTag("input_pane").fetchSemanticsNode().boundsInRoot
+        val q = rule.onNodeWithTag("key_q").fetchSemanticsNode().boundsInRoot
+        assertThat(icon.top - pane.top).isWithin(2f).of(q.top - icon.bottom)
+    }
+
+    @Test
+    fun appBoundToASystemGestureIsMarkedInSearchAndOnHome() {
+        val key = envItems().first()
+        openSearch()
+        val label = rule.runOnIdle { rule.activity.search.rows.first { it.key == key }.label }
+        rule.runOnIdle { rule.activity.openSearchMenu(key, label, Offset(100f, 100f)) }
+        rule.onNodeWithTag("menu_shortcut").performClick()
+        rule.waitUntil(5_000) { container.overrides.overrides.value[key]?.systemShortcut == true }
+        rule.waitUntil(5_000) { rule.activity.search.rows.first { it.key == key }.shortcut }
+        Espresso.pressBack()
+        rule.onNodeWithTag("swipe_0", useUnmergedTree = true).assertIsDisplayed()
+        runBlocking { container.overrides.setSystemShortcut(key, false) }
+    }
+
+    @Test
+    fun assistIntentOpensSearchFromAnywhere() {
+        rule.runOnUiThread {
+            rule.activity.handleHomeIntent(android.content.Intent(android.content.Intent.ACTION_ASSIST))
+        }
+        rule.runOnIdle { assertThat(rule.activity.overlay).isEqualTo(Overlay.Search) }
+        rule.onNodeWithTag("keyboard").assertIsDisplayed()
+    }
+
+    @Test
+    fun styleTurnsOffDotsOnTheLine() {
+        rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.Style) }
+        rule.onNodeWithTag("stroke_dots").performScrollTo().performClick()
+        rule.waitUntil(5_000) { !container.settings.settings.value.strokeDots }
+        runBlocking { container.settings.update { it.copy(strokeDots = true) } }
     }
 
     @Test

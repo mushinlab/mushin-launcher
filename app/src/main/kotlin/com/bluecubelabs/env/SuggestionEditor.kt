@@ -33,7 +33,9 @@ internal fun suggestionFor(
         home = home,
         usage = usage[env.id].orEmpty(),
         eligible = { key ->
-            key in d.apps && d.overrides[key]?.hidden != true && key !in swipeApps && key !in elsewhere
+            val override = d.overrides[key]
+            key in d.apps && override?.hidden != true && override?.systemShortcut != true &&
+                key !in swipeApps && key !in elsewhere
         },
         now = now,
     ) ?: return null

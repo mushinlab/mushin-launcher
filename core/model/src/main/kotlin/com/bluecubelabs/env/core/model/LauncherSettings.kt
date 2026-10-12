@@ -59,6 +59,7 @@ data class LauncherSettings(
     val homeTextSize: HomeTextSize = HomeTextSize.M,
     val strokeWidth: Int = StrokeWidth.DEFAULT_DP,
     val strokeColor: StrokeColor = StrokeColor.ACCENT,
+    val strokeDots: Boolean = true,
     val notificationCounts: Boolean = false,
     val pressFeedback: PressFeedback = PressFeedback.FLASH,
     val keyboardLayouts: List<String> = listOf("en", "ru"),

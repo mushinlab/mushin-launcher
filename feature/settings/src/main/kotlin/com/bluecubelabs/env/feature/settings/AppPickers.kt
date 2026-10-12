@@ -140,13 +140,20 @@ internal fun GestureAppPicker(
 }
 
 @Composable
-internal fun MemoryAppPicker(state: SettingsUiState, push: (SettingsRoute) -> Unit, back: () -> Unit) {
+internal fun MemoryAppPicker(
+    state: SettingsUiState,
+    stack: SettingsStack,
+    push: (SettingsRoute) -> Unit,
+    back: () -> Unit,
+) {
     var query by remember { mutableStateOf("") }
     SettingsPage(stringResource(R.string.memory_pick_title), back, scrollable = false) {
         FilterField(query) { query = it }
         LazyColumn(Modifier.weight(1f)) {
             items(filterApps(state.apps, query), key = { it.key.id }) { app ->
-                NavRow(app.label, tag = "pick_${app.label}") { push(SettingsRoute.MemoryApp(app.key)) }
+                NavRow(app.label, tag = "pick_${app.label}") {
+                    push(SettingsRoute.MemoryApp(app.key, sketch = stack.draft != null))
+                }
             }
         }
     }

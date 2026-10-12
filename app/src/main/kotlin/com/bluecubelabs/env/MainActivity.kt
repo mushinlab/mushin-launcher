@@ -30,10 +30,12 @@ import com.bluecubelabs.env.core.apps.LaunchResult
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.Palette
+import com.bluecubelabs.env.core.model.ShapeVertex
 import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.search.GesturePoint
 import com.bluecubelabs.env.core.search.KeyboardLayouts
 import com.bluecubelabs.env.core.search.ShapeMatcher
+import com.bluecubelabs.env.core.search.Shapes
 import com.bluecubelabs.env.feature.search.HardwareKey
 import com.bluecubelabs.env.feature.search.KeyboardDimens
 import com.bluecubelabs.env.feature.search.KeyboardRouter
@@ -54,7 +56,8 @@ class MainActivity : ComponentActivity() {
     var renameTarget by mutableStateOf<AppKey?>(null)
     var notice by mutableStateOf<Notice?>(null)
     var learnHint by mutableStateOf(false)
-    private var missedDrawings = 0
+    private var missedDrawings = emptyList<List<GesturePoint>>()
+    private var learnDraft: List<GesturePoint>? = null
     var homeExit by mutableStateOf<SwipeDirection?>(null)
         private set
     private var pendingSwipeLaunch: AppKey? = null
@@ -92,6 +95,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             LauncherRoot(this, viewModel, iconProvider)
         }
+        if (intent?.action == Intent.ACTION_ASSIST) openSearch(SearchMode.TYPING)
     }
 
     override fun onStart() {
@@ -126,6 +130,10 @@ class MainActivity : ComponentActivity() {
     fun handleHomeIntent(intent: Intent) {
         val isHome = intent.action == Intent.ACTION_MAIN && intent.hasCategory(Intent.CATEGORY_HOME)
         if (isHome) closeAll()
+        if (intent.action == Intent.ACTION_ASSIST) {
+            closeAll()
+            openSearch(SearchMode.TYPING)
+        }
     }
 
     @SuppressLint("RestrictedApi")
@@ -201,7 +209,7 @@ class MainActivity : ComponentActivity() {
 
     fun launch(key: AppKey, fromSearch: Boolean, animate: Boolean = true): Boolean {
         val entry = viewModel.entry(key)
-        val gestures = if (fromSearch) search.gesturesToLearn() else emptyList()
+        val gestures = if (fromSearch) search.gesturesToLearn(key) else emptyList()
         val result = viewModel.launch(key, fromSearch, animate, gestures)
         when (result) {
             LaunchResult.Started -> if (fromSearch) closeOverlays()
@@ -276,6 +284,7 @@ class MainActivity : ComponentActivity() {
                 viewModel.isInCurrentEnv(key),
                 !entry.isSystem,
                 viewModel.override(key)?.hidden == true,
+                viewModel.override(key)?.systemShortcut == true,
             ),
         )
     }
@@ -319,25 +328,29 @@ class MainActivity : ComponentActivity() {
     fun onHomeDrawing(points: List<Offset>, width: Float) {
         if (overlay != Overlay.None || points.size < 2 || width <= 0f) return
         val density = resources.displayMetrics.density
+        val keyboardWidth = width * viewModel.settings.value.keyboardWidth
+        val rowHeight = KeyboardDimens.rowHeight.value * density
         val centers = glideCenters(
-            width * viewModel.settings.value.keyboardWidth,
-            KeyboardDimens.rowHeight.value * density,
+            keyboardWidth,
+            rowHeight,
             KeyboardDimens.verticalPadding.value * density,
             KeyboardDimens.gap.value * density,
         )
-        val matches = ShapeMatcher(centers)
-            .match(points.map { GesturePoint(it.x, it.y) }, viewModel.learnedGestures.value)
+        val drawn = points.map { GesturePoint(it.x, it.y) }
+        val matches = ShapeMatcher(centers, keyboardWidth, rowHeight * KeyboardLayouts.LETTER_ROWS)
+            .match(drawn, viewModel.learnedGestures.value)
             .filter { viewModel.entry(it) != null }
         if (matches.isEmpty()) {
             window.decorView.performHapticFeedback(HapticFeedbackConstants.REJECT)
-            missedDrawings++
-            if (missedDrawings >= LEARN_HINT_MISSES) {
-                missedDrawings = 0
+            missedDrawings += listOf(drawn)
+            if (missedDrawings.size >= LEARN_HINT_MISSES) {
+                learnDraft = Shapes.average(missedDrawings)
+                missedDrawings = emptyList()
                 learnHint = true
             }
             return
         }
-        missedDrawings = 0
+        missedDrawings = emptyList()
         openSearch(SearchMode.TYPING)
         search.suggest(matches)
     }
@@ -346,6 +359,8 @@ class MainActivity : ComponentActivity() {
         learnHint = false
         closeOverlays()
         settingsStack.open(SettingsRoute.Memory)
+        settingsStack.draft = learnDraft?.map { ShapeVertex(it.x, it.y) }
+        learnDraft = null
         settingsStack.push(SettingsRoute.MemoryPickApp)
     }
 

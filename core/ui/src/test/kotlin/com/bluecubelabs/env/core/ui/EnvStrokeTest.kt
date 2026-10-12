@@ -24,4 +24,10 @@ class EnvStrokeTest {
         }
         assertThat(StrokeColor.entries).hasSize(12)
     }
+
+    @Test
+    fun longerDwellGivesABiggerRingUpToTwoSeconds() {
+        assertThat(VectorDots.ringScale(1000)).isGreaterThan(VectorDots.ringScale(300))
+        assertThat(VectorDots.ringScale(5000)).isEqualTo(VectorDots.ringScale(2000))
+    }
 }

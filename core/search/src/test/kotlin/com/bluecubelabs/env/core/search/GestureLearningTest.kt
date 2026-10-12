@@ -2,6 +2,7 @@ package com.bluecubelabs.env.core.search
 
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.LearnedGesture
+import com.bluecubelabs.env.core.model.ShapeVertex
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -50,5 +51,32 @@ class GestureLearningTest {
         val many = (0 until GestureLearning.MAX_SAMPLES).map { LearnedGesture("p$it", maps, 1.0) }
         val next = GestureLearning.learn(many, listOf("new"), mail)
         assertThat(next).hasSize(GestureLearning.MAX_SAMPLES)
+    }
+
+    @Test
+    fun learningKeepsTheShapeOfTheDrawing() {
+        val shape = listOf(ShapeVertex(0f, 0f), ShapeVertex(0.5f, 1f, 700), ShapeVertex(1f, 0f))
+        val once = GestureLearning.learn(emptyList(), listOf(GestureSample("mnb", shape)), maps)
+        assertThat(once.single().shape).isEqualTo(shape)
+        val again = GestureLearning.learn(once, listOf(GestureSample("mnb")), maps)
+        assertThat(again.single().shape).isEqualTo(shape)
+        assertThat(again.single().weight).isEqualTo(2.0)
+    }
+
+    @Test
+    fun passiveLearningNeedsADrawingThatResemblesTheAppName() {
+        val keys: Map<Char, GesturePoint> = buildMap {
+            listOf("qwertyuiop" to 0f, "asdfghjkl" to 0.5f, "zxcvbnm" to 1.5f).forEachIndexed { row, (letters, shift) ->
+                letters.forEachIndexed { i, c -> put(c, GesturePoint(i + shift, row.toFloat())) }
+            }
+        }
+        val decoder = GestureDecoder(keys)
+        val sloppy = "discord".mapIndexed { i, c ->
+            keys.getValue(c).let { GesturePoint(it.x + if (i % 2 == 0) 0.6f else -0.6f, it.y + 0.4f) }
+        }
+        val unrelated = "ijn".map { keys.getValue(it) }
+        assertThat(GestureLearning.resembles(decoder, sloppy, listOf("discord"))).isTrue()
+        assertThat(GestureLearning.resembles(decoder, unrelated, listOf("discord"))).isFalse()
+        assertThat(GestureLearning.resembles(decoder, unrelated, listOf("1x"))).isFalse()
     }
 }

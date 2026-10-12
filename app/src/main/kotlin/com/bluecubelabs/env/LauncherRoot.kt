@@ -57,6 +57,7 @@ import com.bluecubelabs.env.core.model.LauncherSettings
 import com.bluecubelabs.env.core.model.PalettePreset
 import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.model.swipesByApp
+import com.bluecubelabs.env.core.search.GestureSample
 import com.bluecubelabs.env.core.search.KeyboardLayouts
 import com.bluecubelabs.env.core.ui.EnvFont
 import com.bluecubelabs.env.core.ui.EnvStroke
@@ -102,8 +103,8 @@ fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: La
     val colored by vm.coloredIcons.collectAsStateWithLifecycle()
     val icons = remember(iconProvider, colored) { iconProvider.withColors(colored) }
     val font = remember(settings.font, settings.fontWeight) { EnvFont.of(settings.font, settings.fontWeight) }
-    val stroke = remember(settings.strokeWidth, settings.strokeColor) {
-        EnvStroke(settings.strokeWidth.dp, settings.strokeColor)
+    val stroke = remember(settings.strokeWidth, settings.strokeColor, settings.strokeDots) {
+        EnvStroke(settings.strokeWidth.dp, settings.strokeColor, settings.strokeDots)
     }
     EnvTheme(palette, font, stroke) {
         CompositionLocalProvider(
@@ -271,6 +272,10 @@ private fun SearchLayer(activity: MainActivity, vm: LauncherViewModel, settings:
     LaunchedEffect(learned) { activity.search.setLearned(learned) }
     val bindings by vm.gestureBindings.collectAsStateWithLifecycle()
     LaunchedEffect(bindings) { activity.search.setSwipes(bindings.swipesByApp()) }
+    val overrides by (activity.application as EnvApp).container.overrides.overrides.collectAsStateWithLifecycle()
+    LaunchedEffect(overrides) {
+        activity.search.setShortcuts(overrides.values.filter { it.systemShortcut }.map { it.key }.toSet())
+    }
     LaunchedEffect(engine) { activity.search.setEngine(engine) }
     val active = activity.overlay == Overlay.Search
     val progress = remember { Animatable(0f) }
@@ -366,6 +371,11 @@ private fun searchActions(activity: MainActivity, vm: LauncherViewModel) = objec
         activity.toggleHidden(key, label, hidden)
     }
 
+    override fun onToggleShortcut(key: AppKey, bound: Boolean) {
+        activity.search.closeMenu()
+        vm.setSystemShortcut(key, bound)
+    }
+
     override fun onToggleShowHidden() {
         activity.search.toggleShowHidden()
     }
@@ -403,10 +413,6 @@ private fun searchActions(activity: MainActivity, vm: LauncherViewModel) = objec
 
     override fun onClear() {
         activity.search.clear()
-    }
-
-    override fun onEnter() {
-        activity.launchSearchTarget()
     }
 
     override fun onSwitchLayout() {
@@ -529,13 +535,17 @@ private fun SettingsLayer(activity: MainActivity, vm: LauncherViewModel) {
 
             override fun openNotificationAccess() = activity.openNotificationAccess()
 
+            override fun openAssistantSettings() = activity.openAssistantSettings()
+
+            override fun requestSearchTile() = activity.requestSearchTile()
+
             override fun forgetDrawing(key: AppKey, path: String) = vm.memory.forget {
                 it.key == key && it.path == path
             }
 
             override fun forgetApp(key: AppKey) = vm.memory.forget { it.key == key }
 
-            override fun addDrawing(key: AppKey, path: String) = vm.memory.add(key, path)
+            override fun addDrawing(key: AppKey, sample: GestureSample) = vm.memory.add(key, sample)
 
             override fun forgetAllGestures() = vm.memory.forget { true }
 

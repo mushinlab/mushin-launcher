@@ -75,6 +75,32 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun migrationTo5KeepsGestureSamplesWithoutShapeAndOverridesWithoutShortcut() {
+        helper.createDatabase(DB_NAME, 4).use { db ->
+            db.execSQL(
+                "INSERT INTO gesture_sample (path, package_name, activity_name, user_serial, weight) " +
+                    "VALUES ('sdfg', 'p', 'a', 0, 2.0)",
+            )
+            db.execSQL(
+                "INSERT INTO app_override (package_name, activity_name, user_serial, custom_label, hidden, " +
+                    "orphaned_at, updated_at) VALUES ('p', 'a', 0, 'Name', 0, NULL, 1)",
+            )
+        }
+        helper.runMigrationsAndValidate(DB_NAME, 5, true).use { db ->
+            db.query("SELECT weight, shape FROM gesture_sample").use { cursor ->
+                cursor.moveToFirst()
+                assertThat(cursor.getDouble(0)).isEqualTo(2.0)
+                assertThat(cursor.isNull(1)).isTrue()
+            }
+            db.query("SELECT custom_label, system_shortcut FROM app_override").use { cursor ->
+                cursor.moveToFirst()
+                assertThat(cursor.getString(0)).isEqualTo("Name")
+                assertThat(cursor.getInt(1)).isEqualTo(0)
+            }
+        }
+    }
+
     private companion object {
         const val DB_NAME = "migration-test"
     }

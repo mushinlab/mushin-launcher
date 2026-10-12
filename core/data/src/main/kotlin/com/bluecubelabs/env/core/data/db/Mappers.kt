@@ -12,6 +12,7 @@ import com.bluecubelabs.env.core.model.Palette
 import com.bluecubelabs.env.core.model.PalettePreset
 import com.bluecubelabs.env.core.model.Palettes
 import com.bluecubelabs.env.core.model.SearchRecent
+import com.bluecubelabs.env.core.model.ShapeVertex
 import com.bluecubelabs.env.core.model.SpaceUsage
 import com.bluecubelabs.env.core.model.SwipeDirection
 
@@ -50,6 +51,7 @@ internal fun AppOverrideEntity.toModel(): AppOverride = AppOverride(
     hidden = hidden,
     orphanedAt = orphanedAt,
     updatedAt = updatedAt,
+    systemShortcut = systemShortcut,
 )
 
 internal fun AppUsageEntity.toModel(): AppUsage = AppUsage(
@@ -69,16 +71,31 @@ internal fun SpaceUsageEntity.toModel(): SpaceUsage = SpaceUsage(
 )
 
 internal fun GestureSampleEntity.toModel(): LearnedGesture =
-    LearnedGesture(path, AppKey(packageName, activityName, userSerial), weight)
+    LearnedGesture(path, AppKey(packageName, activityName, userSerial), weight, ShapeCodec.decode(shape))
 
 internal fun LearnedGesture.toEntity(): GestureSampleEntity =
-    GestureSampleEntity(path, key.packageName, key.activityName, key.userSerial, weight)
+    GestureSampleEntity(path, key.packageName, key.activityName, key.userSerial, weight, ShapeCodec.encode(shape))
 
 internal fun SearchRecentEntity.toModel(): SearchRecent = SearchRecent(
     key = AppKey(packageName, activityName, userSerial),
     lastLaunchedAt = lastLaunchedAt,
     launchCount = launchCount,
 )
+
+internal object ShapeCodec {
+    fun encode(shape: List<ShapeVertex>): String? =
+        shape.takeIf { it.isNotEmpty() }?.joinToString(";") { "${it.x},${it.y},${it.dwellMs}" }
+
+    fun decode(raw: String?): List<ShapeVertex> = raw.orEmpty().split(';').mapNotNull { part ->
+        val fields = part.split(',')
+        if (fields.size != FIELDS) return@mapNotNull null
+        val x = fields[0].toFloatOrNull() ?: return@mapNotNull null
+        val y = fields[1].toFloatOrNull() ?: return@mapNotNull null
+        ShapeVertex(x, y, fields[2].toLongOrNull() ?: 0)
+    }
+
+    private const val FIELDS = 3
+}
 
 internal object GestureCodec {
     fun actionName(action: GestureAction): String = when (action) {

@@ -7,6 +7,7 @@ import com.bluecubelabs.env.core.model.SpaceUsage
 import com.bluecubelabs.env.core.model.Usefulness
 import com.bluecubelabs.env.core.search.Alphabet
 import com.bluecubelabs.env.core.search.GestureLearning
+import com.bluecubelabs.env.core.search.GestureSample
 import com.bluecubelabs.env.feature.settings.LearnedApp
 import com.bluecubelabs.env.feature.settings.LearnedDrawing
 import com.bluecubelabs.env.feature.settings.ScoreRow
@@ -20,8 +21,8 @@ class MemoryEditor(private val container: AppContainer) {
         container.scope.launch { container.gestureLearning.update { samples -> samples.filterNot(match) } }
     }
 
-    fun add(key: AppKey, path: String) {
-        container.scope.launch { container.gestureLearning.update { GestureLearning.learn(it, listOf(path), key) } }
+    fun add(key: AppKey, sample: GestureSample) {
+        container.scope.launch { container.gestureLearning.update { GestureLearning.learn(it, listOf(sample), key) } }
     }
 
     fun clearUsage() {
@@ -35,7 +36,9 @@ internal fun SettingsUiState.withMemory(samples: List<LearnedGesture>, usage: Ma
         learned = samples.groupBy { it.key }
             .mapNotNull { (key, list) ->
                 val label = labels[key] ?: return@mapNotNull null
-                val drawings = list.sortedByDescending { it.weight }.map { LearnedDrawing(it.path, it.weight) }
+                val drawings = list.sortedByDescending {
+                    it.weight
+                }.map { LearnedDrawing(it.path, it.weight, it.shape) }
                 LearnedApp(key, label, drawings.toImmutableList())
             }
             .sortedWith(Alphabet.comparator { it.label })

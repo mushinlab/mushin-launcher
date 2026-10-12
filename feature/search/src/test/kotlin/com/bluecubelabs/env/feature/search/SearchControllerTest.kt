@@ -115,14 +115,12 @@ class SearchControllerTest {
             topPadding = 10f,
             gap = 10f,
         )
-        assertThat(keys.size).isEqualTo(10 + 9 + 9 + 3)
+        assertThat(keys.size).isEqualTo(10 + 9 + 9 + 2)
         val space = keys.single { it.spec.action == KeyAction.SPACE }
         val resize = keys.single { it.spec.action == KeyAction.RESIZE }
-        val enter = keys.single { it.spec.action == KeyAction.ENTER }
         assertThat(resize.rect.right).isLessThan(space.rect.left)
-        assertThat(enter.rect.left).isGreaterThan(space.rect.right)
+        assertThat(space.rect.right).isGreaterThan(1060f)
         assertThat(space.rect.height + 10f).isEqualTo((keys[0].rect.height + 10f) / 2)
-        assertThat(enter.rect.width).isAtLeast(enter.rect.height)
         assertThat(space.rect.bottom + 5f + 10f)
             .isEqualTo(KeyboardGeometry.height(KeyboardLayouts.EN, rowHeight = 136f, padding = 10f))
         val q = keys.indexOfFirst { it.spec.char == 'q' }
@@ -158,21 +156,28 @@ class SearchControllerTest {
         controller.update(index, emptyMap())
         val session = controller.session
 
+        val slack = AppKey("p.Slack", "A", 0)
         assertThat(controller.applyGesture(decoder, path("kamera"))).isTrue()
         assertThat(controller.query).isEqualTo("камера")
-        assertThat(controller.gesturesToLearn()).isEmpty()
+        assertThat(controller.fromGesture).isTrue()
+        assertThat(controller.gesturesToLearn(slack)).isEmpty()
 
         controller.applyGesture(decoder, path("slack"))
         assertThat(controller.query).isEqualTo("slack")
-        assertThat(controller.gesturesToLearn()).hasSize(2)
+        assertThat(controller.gesturesToLearn(slack).map { it.path }).containsExactly(decoder.keysAlong(path("slack")))
 
         controller.reset()
         assertThat(controller.session).isGreaterThan(session)
-        assertThat(controller.gesturesToLearn()).isEmpty()
+        assertThat(controller.gesturesToLearn(slack)).isEmpty()
         controller.applyGesture(decoder, path("slack"))
         controller.backspace()
+        assertThat(controller.query).isEmpty()
+        assertThat(controller.fromGesture).isFalse()
         controller.type('k')
-        assertThat(controller.gesturesToLearn()).containsExactly(decoder.keysAlong(path("slack")))
+        assertThat(controller.gesturesToLearn(slack).map { it.path }).containsExactly(decoder.keysAlong(path("slack")))
+        controller.type('a')
+        controller.backspace()
+        assertThat(controller.query).isEqualTo("k")
     }
 
     @Test
@@ -192,7 +197,9 @@ class SearchControllerTest {
         assertThat(controller.query).isEmpty()
         assertThat(controller.rows.map { it.label }).containsExactly("Google Maps", "Files by Google")
         assertThat(controller.target()?.label).isEqualTo(controller.rows.first().label)
-        assertThat(controller.gesturesToLearn()).containsExactly(decoder.keysAlong("google".map { keys.getValue(it) }))
+        val maps = AppKey("p.Google Maps", "A", 0)
+        assertThat(controller.gesturesToLearn(maps).map { it.path })
+            .containsExactly(decoder.keysAlong("google".map { keys.getValue(it) }))
 
         assertThat(controller.backspace()).isTrue()
         assertThat(controller.suggesting).isFalse()
@@ -237,5 +244,18 @@ class SearchControllerTest {
         val en = KeyboardGeometry.compute(KeyboardLayouts.EN, 1080f, 136f, 10f, 10f).first()
         val ru = KeyboardGeometry.compute(KeyboardLayouts.RU, 1080f, 136f, 10f, 10f).first()
         assertThat(ru.rect.width).isLessThan(en.rect.width)
+    }
+
+    @Test
+    fun unrelatedDrawingIsNotLearnedForTheAppOpenedAfterIt() {
+        val keys = KeyboardGeometry.compute(KeyboardLayouts.EN, 1080f, 136f, 10f, 10f)
+            .mapNotNull { k -> k.spec.char?.let { it to GesturePoint(k.rect.center.x, k.rect.center.y) } }
+            .toMap()
+        val decoder = GestureDecoder(keys)
+        val controller = SearchController(clock = { 0L })
+        controller.update(index, emptyMap())
+        controller.applyGesture(decoder, "ijn".map { keys.getValue(it) })
+        controller.type('s')
+        assertThat(controller.gesturesToLearn(AppKey("p.Telegram", "A", 0))).isEmpty()
     }
 }

@@ -8,7 +8,9 @@ import com.bluecubelabs.env.core.model.EnvType
 import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.LauncherSettings
 import com.bluecubelabs.env.core.model.PalettePreset
+import com.bluecubelabs.env.core.model.ShapeVertex
 import com.bluecubelabs.env.core.model.SwipeDirection
+import com.bluecubelabs.env.core.search.GestureSample
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentListOf
@@ -43,7 +45,7 @@ sealed interface SettingsRoute {
 
     data object Memory : SettingsRoute
 
-    data class MemoryApp(val key: AppKey) : SettingsRoute
+    data class MemoryApp(val key: AppKey, val sketch: Boolean = false) : SettingsRoute
 
     data object MemoryPickApp : SettingsRoute
 }
@@ -52,6 +54,7 @@ sealed interface SettingsRoute {
 class SettingsStack {
     private val routes = mutableStateListOf<SettingsRoute>()
     var sheet: (() -> Unit)? = null
+    var draft: List<ShapeVertex>? = null
 
     val top: SettingsRoute? get() = routes.lastOrNull()
     val isOpen: Boolean get() = routes.isNotEmpty()
@@ -122,7 +125,7 @@ data class GestureSummary(
 )
 
 @Immutable
-data class LearnedDrawing(val path: String, val weight: Double)
+data class LearnedDrawing(val path: String, val weight: Double, val shape: List<ShapeVertex> = emptyList())
 
 @Immutable
 data class LearnedApp(
@@ -186,12 +189,16 @@ interface SettingsActions : MemoryActions {
     fun requestDefaultLauncher()
 
     fun openNotificationAccess()
+
+    fun openAssistantSettings()
+
+    fun requestSearchTile()
 }
 
 interface MemoryActions {
     fun forgetDrawing(key: AppKey, path: String)
 
-    fun addDrawing(key: AppKey, path: String)
+    fun addDrawing(key: AppKey, sample: GestureSample)
 
     fun forgetApp(key: AppKey)
 

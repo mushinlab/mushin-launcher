@@ -2,6 +2,7 @@ package com.bluecubelabs.env.core.search
 
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.LearnedGesture
+import com.bluecubelabs.env.core.model.ShapeVertex
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -12,7 +13,7 @@ class ShapeMatcherTest {
         }
     }
     private val decoder = GestureDecoder(keys)
-    private val matcher = ShapeMatcher(keys)
+    private val matcher = ShapeMatcher(keys, 10 * KEY, 3 * KEY)
     private val maps = AppKey("maps", "A", 0)
     private val slack = AppKey("slack", "A", 0)
     private val learned = listOf(
@@ -52,6 +53,17 @@ class ShapeMatcherTest {
         assertThat(matcher.match(drawn("qp", 1f), learned)).isEmpty()
         assertThat(matcher.match(drawn("zqm", 1f), learned)).isEmpty()
         assertThat(matcher.match(drawn("maps", 1f), emptyList())).isEmpty()
+    }
+
+    @Test
+    fun anyFigureStoredAsVectorsIsFound() {
+        val ring = (0..12).map { i ->
+            val a = i * 2 * Math.PI / 12
+            ShapeVertex((0.5 + 0.1 * kotlin.math.cos(a)).toFloat(), (0.5 + 0.3 * kotlin.math.sin(a)).toFloat())
+        }
+        val circle = LearnedGesture("ghj", slack, 1.0, ring)
+        val drawn = ring.map { GesturePoint(it.x * 10 * KEY * 1.4f + 300f, it.y * 3 * KEY * 1.4f + 900f) }
+        assertThat(matcher.match(drawn, listOf(circle) + learned)).containsExactly(slack)
     }
 
     @Test

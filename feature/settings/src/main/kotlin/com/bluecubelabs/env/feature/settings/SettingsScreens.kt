@@ -201,6 +201,9 @@ internal fun StyleScreen(state: SettingsUiState, actions: SettingsActions, back:
             format = { "${it.roundToInt()} dp" },
         ) { v -> actions.updateSettings { it.copy(strokeWidth = v.roundToInt()) } }
         StrokeColorDropdown(s.strokeColor) { color -> actions.updateSettings { it.copy(strokeColor = color) } }
+        ToggleRow(stringResource(R.string.style_stroke_dots), s.strokeDots, tag = "stroke_dots") { on ->
+            actions.updateSettings { it.copy(strokeDots = on) }
+        }
     }
 }
 
@@ -407,6 +410,19 @@ internal fun GesturesScreen(
             }
         }
         NoteText(stringResource(R.string.gesture_shade_zone))
+        SectionHeader(stringResource(R.string.gestures_anywhere))
+        NavRow(
+            stringResource(R.string.gestures_assistant),
+            summary = stringResource(R.string.gestures_assistant_summary),
+            tag = "anywhere_assistant",
+            onClick = actions::openAssistantSettings,
+        )
+        NavRow(
+            stringResource(R.string.gestures_tile),
+            summary = stringResource(R.string.gestures_tile_summary),
+            tag = "anywhere_tile",
+            onClick = actions::requestSearchTile,
+        )
         SectionHeader(stringResource(R.string.keyboard_gesture_tuning))
         SliderRow(
             stringResource(R.string.keyboard_gesture_shift),

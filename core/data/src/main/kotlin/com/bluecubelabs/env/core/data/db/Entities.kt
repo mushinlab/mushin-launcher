@@ -65,6 +65,7 @@ data class AppOverrideEntity(
     @ColumnInfo(name = "hidden", defaultValue = "0") val hidden: Boolean,
     @ColumnInfo(name = "orphaned_at") val orphanedAt: Long?,
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    @ColumnInfo(name = "system_shortcut", defaultValue = "0") val systemShortcut: Boolean = false,
 )
 
 @Entity(
@@ -144,4 +145,5 @@ data class GestureSampleEntity(
     @ColumnInfo(name = "activity_name") val activityName: String,
     @ColumnInfo(name = "user_serial") val userSerial: Long,
     @ColumnInfo(name = "weight") val weight: Double,
+    @ColumnInfo(name = "shape") val shape: String? = null,
 )

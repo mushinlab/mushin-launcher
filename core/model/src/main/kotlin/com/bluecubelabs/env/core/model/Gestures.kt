@@ -32,7 +32,10 @@ data class LearnedGesture(
     val path: String,
     val key: AppKey,
     val weight: Double,
+    val shape: List<ShapeVertex> = emptyList(),
 )
+
+data class ShapeVertex(val x: Float, val y: Float, val dwellMs: Long = 0)
 
 fun Map<SwipeDirection, GestureAction>.swipesByApp(): Map<AppKey, List<SwipeDirection>> = SwipeDirection.entries
     .mapNotNull { direction -> (get(direction) as? GestureAction.LaunchApp)?.let { it.key to direction } }

@@ -26,6 +26,7 @@ import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.model.swipesByApp
 import com.bluecubelabs.env.core.search.Alphabet
 import com.bluecubelabs.env.core.search.GestureLearning
+import com.bluecubelabs.env.core.search.GestureSample
 import com.bluecubelabs.env.core.search.SearchEngine
 import com.bluecubelabs.env.core.search.SearchIndex
 import com.bluecubelabs.env.core.search.SearchItem
@@ -249,7 +250,7 @@ class LauncherViewModel(
         key: AppKey,
         fromSearch: Boolean,
         animate: Boolean = true,
-        gestures: List<String> = emptyList(),
+        gestures: List<GestureSample> = emptyList(),
     ): LaunchResult {
         val result = container.launcher.launch(key, animate = animate)
         if (result == LaunchResult.Started) {
@@ -272,6 +273,10 @@ class LauncherViewModel(
 
     fun setHidden(key: AppKey, hidden: Boolean) {
         container.scope.launch { container.overrides.setHidden(key, hidden) }
+    }
+
+    fun setSystemShortcut(key: AppKey, bound: Boolean) {
+        container.scope.launch { container.overrides.setSystemShortcut(key, bound) }
     }
 
     fun rename(key: AppKey, label: String?) {
@@ -400,6 +405,7 @@ class LauncherViewModel(
                     0
                 },
                 swipes = swipes[key]?.toImmutableList() ?: persistentListOf(),
+                shortcut = d.overrides[key]?.systemShortcut == true,
             )
         }
         return HomeUiState(

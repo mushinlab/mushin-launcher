@@ -65,6 +65,11 @@ class GestureDecoder(
         return GestureResult(drawn, candidates.takeWhile { it.second <= limit }.map { it.first })
     }
 
+    fun distance(path: List<GesturePoint>, word: String): Float? {
+        if (path.size < 2 || word.length < 2 || !word.all { it in keys }) return null
+        return score(resample(path), path.count { it.repeat }, word)
+    }
+
     private fun score(sampled: List<GesturePoint>, repeats: Int, word: String): Float {
         val ideal = idealPaths.getOrPut(word) {
             resample(word.mapIndexed { i, c -> keys.getValue(c).copy(repeat = i > 0 && word[i - 1] == c) })

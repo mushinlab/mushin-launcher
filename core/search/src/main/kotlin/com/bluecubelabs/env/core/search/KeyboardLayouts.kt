@@ -1,6 +1,6 @@
 package com.bluecubelabs.env.core.search
 
-enum class KeyAction { SWITCH_LAYOUT, BACKSPACE, SPACE, RESIZE, ENTER }
+enum class KeyAction { SWITCH_LAYOUT, BACKSPACE, SPACE, RESIZE }
 
 data class KeySpec(
     val char: Char? = null,
@@ -20,7 +20,7 @@ data class KeyboardLayout(
 object KeyboardLayouts {
     private const val DIGITS = "1234567890"
     private const val SIDE_KEY_WEIGHT = 1.5f
-    private const val SPACE_WEIGHT = 7f
+    private const val SPACE_WEIGHT = 8.5f
     private const val SPACE_ROW_SCALE = 0.5f
     const val LETTER_ROWS = 3
 
@@ -76,7 +76,6 @@ object KeyboardLayouts {
                 listOf(
                     KeySpec(action = KeyAction.RESIZE, weight = SIDE_KEY_WEIGHT),
                     KeySpec(action = KeyAction.SPACE, weight = SPACE_WEIGHT),
-                    KeySpec(action = KeyAction.ENTER, weight = SIDE_KEY_WEIGHT),
                 ),
             ),
             rowInsets = listOf(0f, middleInset, 0f, 0f),

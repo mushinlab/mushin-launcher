@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +48,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -56,17 +58,28 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
+import com.bluecubelabs.env.core.model.ShapeVertex
 import com.bluecubelabs.env.core.search.GestureDecoder
 import com.bluecubelabs.env.core.search.GesturePoint
+import com.bluecubelabs.env.core.search.GestureSample
+import com.bluecubelabs.env.core.search.Shapes
+import com.bluecubelabs.env.core.search.TimedPoint
 import com.bluecubelabs.env.core.ui.EnvType
 import com.bluecubelabs.env.core.ui.LocalEnvColors
 import com.bluecubelabs.env.core.ui.LocalEnvStroke
 import com.bluecubelabs.env.core.ui.Motion
+import com.bluecubelabs.env.core.ui.drawVectors
 import com.bluecubelabs.env.core.ui.pressable
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun GestureSheet(label: String, stack: SettingsStack, onAdd: (String) -> Unit, onClose: () -> Unit) {
+internal fun GestureSheet(
+    label: String,
+    stack: SettingsStack,
+    draft: List<ShapeVertex>?,
+    onAdd: (GestureSample) -> Unit,
+    onClose: () -> Unit,
+) {
     val colors = LocalEnvColors.current
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
@@ -76,8 +89,7 @@ internal fun GestureSheet(label: String, stack: SettingsStack, onAdd: (String) -
         stack.sheet = { currentClose() }
         onDispose { stack.sheet = null }
     }
-    val points = remember { mutableStateListOf<Offset>() }
-    var path by remember { mutableStateOf<String?>(null) }
+    val pad = remember { PadState(draft) }
     BoxWithConstraints(
         Modifier
             .fillMaxSize()
@@ -134,8 +146,9 @@ internal fun GestureSheet(label: String, stack: SettingsStack, onAdd: (String) -
             )
             Spacer(Modifier.height(4.dp))
             val hint = when {
-                path != null -> R.string.memory_sheet_result
-                points.isNotEmpty() -> R.string.memory_sheet_short
+                pad.fromDraft -> R.string.memory_sheet_draft
+                pad.ready -> R.string.memory_sheet_result
+                pad.points.isNotEmpty() -> R.string.memory_sheet_short
                 else -> R.string.memory_sheet_hint
             }
             BasicText(
@@ -144,7 +157,7 @@ internal fun GestureSheet(label: String, stack: SettingsStack, onAdd: (String) -
                 modifier = Modifier.padding(horizontal = CARD_PADDING).testTag("gesture_sheet_hint"),
             )
             Spacer(Modifier.weight(1f))
-            DrawPad(points, path) { path = it }
+            DrawPad(pad)
             Spacer(Modifier.height(16.dp))
             Row(
                 Modifier.fillMaxWidth().padding(horizontal = CARD_PADDING),
@@ -154,16 +167,15 @@ internal fun GestureSheet(label: String, stack: SettingsStack, onAdd: (String) -
                     currentClose()
                 }
                 SheetButton(stringResource(R.string.memory_repeat), "sheet_repeat", Modifier.weight(1f)) {
-                    points.clear()
-                    path = null
+                    pad.reset()
                 }
                 SheetButton(
                     stringResource(R.string.memory_add),
                     "sheet_add",
                     Modifier.weight(1f),
                     accent = true,
-                    enabled = path != null,
-                ) { path?.let(onAdd) }
+                    enabled = pad.ready,
+                ) { pad.sample()?.let(onAdd) }
             }
             Spacer(Modifier.height(16.dp))
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
@@ -171,8 +183,38 @@ internal fun GestureSheet(label: String, stack: SettingsStack, onAdd: (String) -
     }
 }
 
+@Stable
+private class PadState(private var draft: List<ShapeVertex>?) {
+    val points = mutableStateListOf<Offset>()
+    var vectors by mutableStateOf<List<ShapeVertex>>(emptyList())
+    var fromDraft by mutableStateOf(draft != null)
+    var size = Size.Zero
+    val ready: Boolean get() = vectors.size >= 2
+
+    fun place(size: Size) {
+        this.size = size
+        val shape = draft ?: return
+        draft = null
+        val scale = minOf(size.width, size.height) * DRAFT_SCALE
+        vectors = shape.map { ShapeVertex(size.width / 2 + it.x * scale, size.height / 2 + it.y * scale) }
+    }
+
+    fun reset() {
+        points.clear()
+        vectors = emptyList()
+        fromDraft = false
+    }
+
+    fun sample(): GestureSample? {
+        if (!ready || size == Size.Zero) return null
+        val centers = qwertyCenters(size).mapValues { (_, c) -> GesturePoint(c.x, c.y) }
+        val path = GestureDecoder(centers).keysAlong(vectors.map { GesturePoint(it.x, it.y) })
+        return GestureSample(path, vectors.map { it.copy(x = it.x / size.width, y = it.y / size.height) })
+    }
+}
+
 @Composable
-private fun DrawPad(points: MutableList<Offset>, path: String?, onDrawn: (String?) -> Unit) {
+private fun DrawPad(pad: PadState) {
     val colors = LocalEnvColors.current
     val stroke = LocalEnvStroke.current
     val strokeColor = stroke.color(colors)
@@ -181,29 +223,29 @@ private fun DrawPad(points: MutableList<Offset>, path: String?, onDrawn: (String
     val letters = remember(measurer, style) {
         QWERTY.flatMap { it.first.toList() }.associateWith { measurer.measure(it.toString(), style) }
     }
-    val currentOnDrawn by rememberUpdatedState(onDrawn)
     Canvas(
         Modifier
             .fillMaxWidth()
             .height(PAD_ROW * QWERTY.size)
             .clipToBounds()
+            .onSizeChanged { pad.place(it.toSize()) }
             .pointerInput(Unit) {
                 awaitEachGesture {
                     val down = awaitFirstDown()
                     down.consume()
-                    points.clear()
-                    points += down.position
-                    currentOnDrawn(null)
+                    pad.reset()
+                    pad.points += down.position
+                    val timed = mutableListOf(TimedPoint(down.position.x, down.position.y, down.uptimeMillis))
                     var change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
                     while (change != null && change.pressed) {
                         change.consume()
-                        points += change.position
+                        pad.points += change.position
+                        timed += TimedPoint(change.position.x, change.position.y, change.uptimeMillis)
                         change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
                     }
                     change?.consume()
-                    val centers = qwertyCenters(size.toSize()).mapValues { (_, c) -> GesturePoint(c.x, c.y) }
-                    val keys = GestureDecoder(centers).keysAlong(points.map { GesturePoint(it.x, it.y) })
-                    currentOnDrawn(keys.takeIf { it.length >= 2 })
+                    val rowHeight = size.height.toFloat() / QWERTY.size
+                    pad.vectors = Shapes.vectorize(timed, rowHeight * VECTOR_TOLERANCE, viewConfiguration.touchSlop)
                 }
             }
             .testTag("gesture_pad"),
@@ -223,16 +265,10 @@ private fun DrawPad(points: MutableList<Offset>, path: String?, onDrawn: (String
             drawText(layout, topLeft = center - Offset(layout.size.width / 2f, layout.size.height / 2f))
         }
         val width = stroke.width.toPx()
-        val line = Stroke(width, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        val raw = polyline(points)
-        if (path == null) {
-            raw?.let { drawPath(it, strokeColor, style = line) }
-        } else {
-            raw?.let { drawPath(it, strokeColor.copy(alpha = RAW_ALPHA), style = line) }
-            val snapped = simplify(path.mapNotNull { centers[it] }, SIMPLIFY_TOLERANCE * rowHeight)
-            polyline(snapped)?.let { drawPath(it, strokeColor, style = line) }
-            snapped.firstOrNull()?.let { drawCircle(strokeColor, radius = width * 1.6f, center = it) }
-        }
+        val raw = polyline(pad.points)
+        val rawColor = if (pad.ready) strokeColor.copy(alpha = RAW_ALPHA) else strokeColor
+        raw?.let { drawPath(it, rawColor, style = Stroke(width, cap = StrokeCap.Round, join = StrokeJoin.Round)) }
+        drawVectors(pad.vectors, strokeColor, width, stroke.dots)
     }
 }
 
@@ -280,3 +316,5 @@ private val SHEET_RADIUS = 16.dp
 private val HANDLE_AREA = 32.dp
 private val PAD_ROW = 66.dp
 private val PAD_GAP = 4.dp
+private const val VECTOR_TOLERANCE = 0.2f
+private const val DRAFT_SCALE = 0.3f

@@ -38,12 +38,16 @@ class OverrideRepository(
         update(key) { it.copy(hidden = hidden) }
     }
 
+    suspend fun setSystemShortcut(key: AppKey, bound: Boolean) {
+        update(key) { it.copy(systemShortcut = bound) }
+    }
+
     private suspend fun update(key: AppKey, change: (AppOverrideEntity) -> AppOverrideEntity) {
         db.withTransaction {
             val current = dao.get(key.packageName, key.activityName, key.userSerial)
                 ?: AppOverrideEntity(key.packageName, key.activityName, key.userSerial, null, false, null, clock())
             val next = change(current).copy(updatedAt = clock())
-            if (next.customLabel == null && !next.hidden) {
+            if (next.customLabel == null && !next.hidden && !next.systemShortcut) {
                 dao.delete(key.packageName, key.activityName, key.userSerial)
             } else {
                 dao.upsert(next)

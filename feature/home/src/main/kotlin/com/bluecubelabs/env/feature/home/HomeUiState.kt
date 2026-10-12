@@ -18,6 +18,7 @@ data class HomeRow(
     val work: Boolean = false,
     val notifications: Int = 0,
     val swipes: ImmutableList<SwipeDirection> = persistentListOf(),
+    val shortcut: Boolean = false,
 )
 
 @Immutable

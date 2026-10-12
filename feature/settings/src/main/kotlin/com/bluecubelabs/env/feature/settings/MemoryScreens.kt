@@ -36,9 +36,12 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bluecubelabs.env.core.model.AppKey
+import com.bluecubelabs.env.core.model.ShapeVertex
 import com.bluecubelabs.env.core.ui.EnvType
 import com.bluecubelabs.env.core.ui.LocalEnvColors
+import com.bluecubelabs.env.core.ui.LocalEnvStroke
 import com.bluecubelabs.env.core.ui.SingleLineText
+import com.bluecubelabs.env.core.ui.drawVectors
 import com.bluecubelabs.env.core.ui.pressable
 
 @Composable
@@ -108,17 +111,19 @@ internal fun MemoryScreen(
 
 @Composable
 internal fun MemoryAppScreen(
-    key: AppKey,
+    route: SettingsRoute.MemoryApp,
     state: SettingsUiState,
     actions: SettingsActions,
     stack: SettingsStack,
     back: () -> Unit,
 ) {
+    val key = route.key
     val app = state.learned.firstOrNull { it.key == key }
     val label =
         app?.label ?: state.apps.firstOrNull { it.key == key }?.label ?: stringResource(R.string.settings_memory)
     var confirmAll by remember { mutableStateOf(false) }
-    var drawing by remember { mutableStateOf(false) }
+    var drawing by remember { mutableStateOf(route.sketch) }
+    val draft = remember { stack.draft.takeIf { route.sketch } }
     SettingsPage(label, back) {
         NoteText(stringResource(R.string.memory_app_note))
         NavRow(stringResource(R.string.memory_add), tag = "memory_add") { drawing = true }
@@ -133,11 +138,16 @@ internal fun MemoryAppScreen(
         GestureSheet(
             label = label,
             stack = stack,
-            onAdd = { path ->
-                actions.addDrawing(key, path)
+            draft = draft,
+            onAdd = { sample ->
+                actions.addDrawing(key, sample)
+                stack.draft = null
                 drawing = false
             },
-            onClose = { drawing = false },
+            onClose = {
+                stack.draft = null
+                drawing = false
+            },
         )
     }
     if (confirmAll && app != null) {
@@ -161,7 +171,7 @@ private fun DrawingRow(drawing: LearnedDrawing, index: Int, onForget: () -> Unit
     Column(
         Modifier.settingsCard().padding(horizontal = CARD_PADDING, vertical = 10.dp).testTag("memory_drawing_$index"),
     ) {
-        GestureThumbnail(drawing.path, Modifier.fillMaxWidth().height(THUMBNAIL_HEIGHT))
+        GestureThumbnail(drawing, Modifier.fillMaxWidth().height(THUMBNAIL_HEIGHT))
         Row(
             Modifier.fillMaxWidth().padding(top = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -185,8 +195,9 @@ private fun DrawingRow(drawing: LearnedDrawing, index: Int, onForget: () -> Unit
 }
 
 @Composable
-internal fun GestureThumbnail(path: String, modifier: Modifier) {
+internal fun GestureThumbnail(drawing: LearnedDrawing, modifier: Modifier) {
     val colors = LocalEnvColors.current
+    val stroke = LocalEnvStroke.current
     val measurer = rememberTextMeasurer()
     val style = EnvType.style(11.sp, colors.textSecondary.copy(alpha = LETTER_ALPHA))
     val letters = remember(measurer, style) {
@@ -198,21 +209,18 @@ internal fun GestureThumbnail(path: String, modifier: Modifier) {
             val center = centers.getValue(char)
             drawText(layout, topLeft = center - Offset(layout.size.width / 2f, layout.size.height / 2f))
         }
-        val keys = path.filter { it in centers }
-        val points = simplify(keys.map { centers.getValue(it) }, SIMPLIFY_TOLERANCE * size.height / QWERTY.size)
-        if (points.isEmpty()) return@Canvas
-        val stroke = STROKE.toPx()
-        if (points.size > 1) {
-            val line = Path().apply {
-                moveTo(points.first().x, points.first().y)
-                points.drop(1).forEach { lineTo(it.x, it.y) }
-            }
-            drawPath(line, colors.accent, style = Stroke(stroke, cap = StrokeCap.Round, join = StrokeJoin.Round))
-        }
-        drawCircle(colors.accent, radius = stroke * 1.6f, center = points.first())
-        val dwells = keys.zipWithNext().filter { (a, b) -> a == b }.map { centers.getValue(it.first) }
-        dwells.forEach { drawCircle(colors.accent, radius = stroke * 2f, center = it, style = Stroke(stroke / 2)) }
+        drawVectors(thumbnailVectors(drawing, size, centers), stroke.color(colors), STROKE.toPx(), stroke.dots)
     }
+}
+
+private fun thumbnailVectors(drawing: LearnedDrawing, size: Size, centers: Map<Char, Offset>): List<ShapeVertex> {
+    if (drawing.shape.size >= 2) {
+        return drawing.shape.map { it.copy(x = it.x * size.width, y = it.y * size.height) }
+    }
+    val keys = drawing.path.filter { it in centers }
+    val doubles = keys.zipWithNext().filter { (a, b) -> a == b }.map { centers.getValue(it.first) }.toSet()
+    return simplify(keys.map { centers.getValue(it) }, SIMPLIFY_TOLERANCE * size.height / QWERTY.size)
+        .map { ShapeVertex(it.x, it.y, if (it in doubles) DOUBLE_LETTER_MS else 0) }
 }
 
 @Composable
@@ -264,3 +272,4 @@ private val THUMBNAIL_HEIGHT = 104.dp
 private val STROKE = 3.dp
 private const val LETTER_ALPHA = 0.6f
 internal const val SIMPLIFY_TOLERANCE = 0.9f
+private const val DOUBLE_LETTER_MS = 1000L

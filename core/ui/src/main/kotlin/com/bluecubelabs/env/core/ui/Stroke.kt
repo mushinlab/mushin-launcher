@@ -9,7 +9,7 @@ import com.bluecubelabs.env.core.model.StrokeColor
 import com.bluecubelabs.env.core.model.StrokeWidth
 
 @Immutable
-data class EnvStroke(val width: Dp, val color: StrokeColor) {
+data class EnvStroke(val width: Dp, val color: StrokeColor, val dots: Boolean = true) {
     fun color(colors: EnvColors): Color = when (color) {
         StrokeColor.ACCENT -> colors.accent
         StrokeColor.TEXT -> colors.textPrimary

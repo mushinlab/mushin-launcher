@@ -88,9 +88,16 @@ class SearchIndex internal constructor(
             val full = GestureWord(letters(name.latin), name.label.lowercase(Locale.ROOT), key)
             val words = name.words.asSequence().zip(name.latinWords.asSequence()) { word, latin ->
                 GestureWord(letters(latin), word, key)
-            }.filter { it.latin.length >= MIN_GESTURE_WORD }
-            return (sequenceOf(full) + words).filter { it.latin.length >= 2 }
+            }
+            val tokens = name.label.split(NOT_LETTER).asSequence()
+                .map(Text::normalize)
+                .filter { it.isNotEmpty() }
+                .map { token -> GestureWord(letters(Translit.toLatin(token)), token, key) }
+            return (sequenceOf(full) + (words + tokens).filter { it.latin.length >= MIN_GESTURE_WORD })
+                .filter { it.latin.length >= 2 }
         }
+
+        private val NOT_LETTER = Regex("[^\\p{L}\\p{N}]+")
 
         private fun letters(latin: String): String = latin.filter { it in 'a'..'z' }
     }

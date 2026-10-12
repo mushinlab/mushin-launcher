@@ -129,6 +129,15 @@ class HistoryAndOverridesTest {
     }
 
     @Test
+    fun systemShortcutMarkIsStoredAndClearingItRemovesTheRow() = runTest {
+        val overrides = OverrideRepository(rule.db, backgroundScope, rule.clock)
+        overrides.setSystemShortcut(slack, true)
+        assertThat(overrides.overrides.first { it.isNotEmpty() }[slack]?.systemShortcut).isTrue()
+        overrides.setSystemShortcut(slack, false)
+        assertThat(overrides.overrides.first { it.isEmpty() }).isEmpty()
+    }
+
+    @Test
     fun Q12_removedPackageClearsDataAndKeepsOverrideFor30Days() = runTest {
         val envs = EnvironmentRepository(rule.db, backgroundScope, rule.clock)
         val history = HistoryRepository(rule.db, backgroundScope, rule.clock)

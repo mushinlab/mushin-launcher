@@ -132,4 +132,19 @@ class GestureDecoderTest {
             GestureWord("google", "google", files),
         )
     }
+
+    @Test
+    fun namesWithSeveralCapitalsAlsoGiveTheWholeWord() {
+        val geforce = AppKey("nvidia", "A", 0)
+        val github = AppKey("github", "A", 0)
+        val index = SearchIndex.build(
+            listOf(SearchItem(geforce, "GeForce NOW"), SearchItem(github, "GitHub")),
+        )
+        assertThat(index.gestureVocabulary.filter { it.key == geforce }.map { it.latin })
+            .containsExactly("geforcenow", "force", "now", "geforce")
+        assertThat(index.gestureVocabulary.filter { it.key == github }.map { it.latin })
+            .containsExactly("github", "git", "hub")
+        val geforcePath = "geforce".map { keys.getValue(it) }
+        assertThat(decodeTexts(geforcePath, index.gestureVocabulary)).containsExactly("geforce")
+    }
 }

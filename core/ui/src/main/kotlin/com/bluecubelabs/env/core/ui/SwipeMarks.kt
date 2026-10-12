@@ -10,14 +10,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.bluecubelabs.env.core.model.SwipeDirection
 
 @Composable
-fun SwipeMarks(directions: List<SwipeDirection>, fontSize: TextUnit, color: Color, modifier: Modifier = Modifier) {
-    if (directions.isEmpty()) return
+fun SwipeMarks(
+    directions: List<SwipeDirection>,
+    fontSize: TextUnit,
+    color: Color,
+    modifier: Modifier = Modifier,
+    shortcut: Boolean = false,
+) {
+    if (directions.isEmpty() && !shortcut) return
     val size = with(LocalDensity.current) { fontSize.toDp() * GLYPH_TO_FONT }
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(2.dp), verticalAlignment = Alignment.CenterVertically) {
         directions.forEach { direction ->
@@ -26,6 +33,14 @@ fun SwipeMarks(directions: List<SwipeDirection>, fontSize: TextUnit, color: Colo
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(color),
                 modifier = Modifier.size(size),
+            )
+        }
+        if (shortcut) {
+            Image(
+                painterResource(R.drawable.ic_system_shortcut),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(color),
+                modifier = Modifier.size(size).testTag("system_shortcut_mark"),
             )
         }
     }

@@ -20,4 +20,5 @@
     <string name="search_cancel">Cancel</string>
     <string name="search_colored_icons">Color icons</string>
     <string name="menu_rename">Rename</string>
+    <string name="menu_system_shortcut">Bound to a system gesture</string>
 </resources>

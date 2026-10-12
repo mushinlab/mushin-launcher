@@ -10,9 +10,12 @@ import androidx.compose.ui.geometry.Offset
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.AppUsage
 import com.bluecubelabs.env.core.model.LearnedGesture
+import com.bluecubelabs.env.core.model.ShapeVertex
 import com.bluecubelabs.env.core.model.SwipeDirection
 import com.bluecubelabs.env.core.search.GestureDecoder
+import com.bluecubelabs.env.core.search.GestureLearning
 import com.bluecubelabs.env.core.search.GesturePoint
+import com.bluecubelabs.env.core.search.GestureSample
 import com.bluecubelabs.env.core.search.SearchEngine
 import com.bluecubelabs.env.core.search.SearchIndex
 import kotlinx.collections.immutable.ImmutableList
@@ -25,6 +28,7 @@ data class SearchRow(
     val label: String,
     val hidden: Boolean,
     val swipes: ImmutableList<SwipeDirection> = persistentListOf(),
+    val shortcut: Boolean = false,
 )
 
 enum class SearchMode { TYPING, BROWSING }
@@ -37,6 +41,7 @@ data class SearchMenu(
     val inEnv: Boolean,
     val canUninstall: Boolean,
     val hidden: Boolean = false,
+    val shortcut: Boolean = false,
 )
 
 @Stable
@@ -62,13 +67,17 @@ class SearchController(
         private set
     var resizing by mutableStateOf(false)
         private set
+    var fromGesture by mutableStateOf(false)
+        private set
 
     private var index: SearchIndex = SearchIndex.EMPTY
     private var usage: Map<AppKey, AppUsage> = emptyMap()
     private var learned: List<LearnedGesture> = emptyList()
     private var swipes: Map<AppKey, List<SwipeDirection>> = emptyMap()
+    private var shortcuts: Set<AppKey> = emptySet()
     private var suggestions: List<AppKey> = emptyList()
-    private val gesturePaths = mutableListOf<String>()
+    private val drawings = mutableListOf<Drawing>()
+    private var decoder: GestureDecoder? = null
     private var gestureCorrected = false
 
     fun update(index: SearchIndex, usage: Map<AppKey, AppUsage>) {
@@ -87,28 +96,44 @@ class SearchController(
         refresh()
     }
 
-    fun applyGesture(decoder: GestureDecoder, path: List<GesturePoint>): Boolean {
+    fun setShortcuts(keys: Set<AppKey>) {
+        if (keys == shortcuts) return
+        shortcuts = keys
+        refresh()
+    }
+
+    fun applyGesture(
+        decoder: GestureDecoder,
+        path: List<GesturePoint>,
+        shape: List<ShapeVertex> = emptyList(),
+    ): Boolean {
         val result = decoder.decode(path, index.gestureVocabulary, learned) ?: return true
-        gesturePaths += result.path
-        if (gesturePaths.size > 1) gestureCorrected = true
+        this.decoder = decoder
+        drawings += Drawing(path, GestureSample(result.path, shape))
+        if (drawings.size > 1) gestureCorrected = true
         val word = result.words.singleOrNull()
         when {
             result.words.isEmpty() -> return false
 
-            word != null -> replaceQuery(word.text)
+            word != null -> {
+                replaceQuery(word.text)
+                fromGesture = true
+            }
 
             else -> {
                 gestureCorrected = true
-                suggestions = result.words.map { it.key }
-                query = ""
-                suggesting = true
-                refresh()
+                suggest(result.words.map { it.key })
             }
         }
         return true
     }
 
-    fun gesturesToLearn(): List<String> = if (gestureCorrected) gesturePaths.toList() else emptyList()
+    fun gesturesToLearn(key: AppKey): List<GestureSample> {
+        val decoder = decoder ?: return emptyList()
+        if (!gestureCorrected) return emptyList()
+        val words = index.gestureVocabulary.filter { it.key == key }.map { it.latin }
+        return drawings.filter { GestureLearning.resembles(decoder, it.points, words) }.map { it.sample }
+    }
 
     fun setEngine(engine: SearchEngine) {
         this.engine = engine
@@ -126,7 +151,7 @@ class SearchController(
     fun backspace(): Boolean {
         if (query.isEmpty() && !suggesting) return false
         markCorrected()
-        changeQuery(query.dropLast(1))
+        changeQuery(if (fromGesture) "" else query.dropLast(1))
         return true
     }
 
@@ -152,7 +177,9 @@ class SearchController(
         menu = null
         options = null
         resizing = false
-        gesturePaths.clear()
+        fromGesture = false
+        decoder = null
+        drawings.clear()
         gestureCorrected = false
         session++
         refresh()
@@ -187,17 +214,19 @@ class SearchController(
         suggestions = keys
         query = ""
         suggesting = true
+        fromGesture = true
         refresh()
     }
 
     private fun markCorrected() {
-        if (gesturePaths.isNotEmpty()) gestureCorrected = true
+        if (drawings.isNotEmpty()) gestureCorrected = true
     }
 
     fun target(): SearchRow? = rows.getOrNull(selected.coerceAtLeast(0))
 
     private fun changeQuery(text: String) {
         suggesting = false
+        fromGesture = false
         query = text
         refresh()
     }
@@ -208,20 +237,22 @@ class SearchController(
             suggesting -> {
                 val visible = index.alphabetical.associateBy { it.key }
                 suggestions.mapNotNull { key ->
-                    visible[key]?.let { SearchRow(key, it.displayLabel, hidden = false, swipesOf(key)) }
+                    visible[key]?.let {
+                        SearchRow(key, it.displayLabel, hidden = false, swipesOf(key), key in shortcuts)
+                    }
                 }
                     .toImmutableList()
             }
 
             query.isEmpty() -> {
                 (if (showHidden) index.alphabeticalWithHidden else index.alphabetical)
-                    .map { SearchRow(it.key, it.displayLabel, it.hidden, swipesOf(it.key)) }
+                    .map { SearchRow(it.key, it.displayLabel, it.hidden, swipesOf(it.key), it.key in shortcuts) }
                     .toImmutableList()
             }
 
             else -> {
                 engine.search(index, query, usage, clock(), includeHidden = showHidden)
-                    .map { SearchRow(it.key, it.label, it.hidden, swipesOf(it.key)) }
+                    .map { SearchRow(it.key, it.label, it.hidden, swipesOf(it.key), it.key in shortcuts) }
                     .toImmutableList()
             }
         }
@@ -235,3 +266,5 @@ class SearchController(
         const val NO_SELECTION = -1
     }
 }
+
+private class Drawing(val points: List<GesturePoint>, val sample: GestureSample)

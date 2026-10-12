@@ -4,6 +4,7 @@ import com.bluecubelabs.env.core.data.repo.GestureLearningRepository
 import com.bluecubelabs.env.core.data.repo.PackageDataCleaner
 import com.bluecubelabs.env.core.model.AppKey
 import com.bluecubelabs.env.core.model.LearnedGesture
+import com.bluecubelabs.env.core.model.ShapeVertex
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -30,6 +31,16 @@ class GestureLearningRepositoryTest {
         )
         repo.update { list -> list.map { it.copy(weight = it.weight + 1) } }
         assertThat(repo.samples.first { s -> s.any { it.weight == 3.0 } }.map { it.weight }).containsExactly(2.0, 3.0)
+    }
+
+    @Test
+    fun shapeWithDwellTimesSurvivesStorage() = runTest {
+        val repo = GestureLearningRepository(rule.db, backgroundScope)
+        val shape = listOf(ShapeVertex(0.1f, 0.2f, 0), ShapeVertex(0.55f, 0.9f, 1200), ShapeVertex(1f, 0f, 40))
+        repo.update { listOf(LearnedGesture("zxc", slack, 1.0, shape), LearnedGesture("qwe", maps, 1.0)) }
+        val stored = repo.samples.first { it.size == 2 }
+        assertThat(stored.single { it.key == slack }.shape).isEqualTo(shape)
+        assertThat(stored.single { it.key == maps }.shape).isEmpty()
     }
 
     @Test

@@ -21,6 +21,7 @@ data class AppOverride(
     val hidden: Boolean,
     val orphanedAt: Long?,
     val updatedAt: Long,
+    val systemShortcut: Boolean = false,
 )
 
 data class AppUsage(

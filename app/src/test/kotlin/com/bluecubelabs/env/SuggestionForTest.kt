@@ -2,6 +2,7 @@ package com.bluecubelabs.env
 
 import com.bluecubelabs.env.core.model.AppEntry
 import com.bluecubelabs.env.core.model.AppKey
+import com.bluecubelabs.env.core.model.AppOverride
 import com.bluecubelabs.env.core.model.EnvType
 import com.bluecubelabs.env.core.model.Environment
 import com.bluecubelabs.env.core.model.LauncherSettings
@@ -53,5 +54,15 @@ class SuggestionForTest {
         val usage = mapOf(normal.id to listOf(usage(swiped, 9.0), usage(elsewhere, 8.0)))
 
         assertThat(suggestionFor(data(), usage, setOf(swiped), cap = 1, now = now)).isNull()
+    }
+
+    @Test
+    fun appsBoundToASystemGestureAreNeverSuggested() {
+        val usage = mapOf(normal.id to listOf(usage(frequent, 9.0)))
+        val bound = data().let { d ->
+            d.copy(overrides = mapOf(frequent to AppOverride(frequent, null, false, null, 0, systemShortcut = true)))
+        }
+
+        assertThat(suggestionFor(bound, usage, emptySet(), cap = 5, now = now)).isNull()
     }
 }

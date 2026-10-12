@@ -433,9 +433,15 @@ private fun FavoriteRow(
                 val diameter = with(LocalDensity.current) { textStyle.fontSize.toDp() } * HomeDimens.BADGE_TO_TEXT
                 CountBadge(row.notifications, diameter, Modifier.testTag("badge_$index"))
             }
-            if (row.swipes.isNotEmpty()) {
+            if (row.swipes.isNotEmpty() || row.shortcut) {
                 Spacer(Modifier.width(8.dp))
-                SwipeMarks(row.swipes, textStyle.fontSize, colors.textSecondary, Modifier.testTag("swipe_$index"))
+                SwipeMarks(
+                    row.swipes,
+                    textStyle.fontSize,
+                    colors.textSecondary,
+                    Modifier.testTag("swipe_$index"),
+                    shortcut = row.shortcut,
+                )
             }
         }
         if (iconMode == IconMode.RIGHT) {

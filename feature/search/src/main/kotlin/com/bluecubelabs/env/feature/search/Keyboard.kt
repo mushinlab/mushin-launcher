@@ -44,15 +44,19 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bluecubelabs.env.core.model.ShapeVertex
 import com.bluecubelabs.env.core.search.GestureDecoder
 import com.bluecubelabs.env.core.search.GesturePoint
 import com.bluecubelabs.env.core.search.KeyAction
 import com.bluecubelabs.env.core.search.KeySpec
 import com.bluecubelabs.env.core.search.KeyboardLayout
 import com.bluecubelabs.env.core.search.KeyboardLayouts
+import com.bluecubelabs.env.core.search.Shapes
+import com.bluecubelabs.env.core.search.TimedPoint
 import com.bluecubelabs.env.core.ui.EnvType
 import com.bluecubelabs.env.core.ui.LocalEnvColors
 import com.bluecubelabs.env.core.ui.LocalEnvStroke
+import com.bluecubelabs.env.core.ui.drawVectors
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
@@ -67,8 +71,6 @@ interface KeyboardActions {
     fun onBackspace(): Boolean
 
     fun onClear()
-
-    fun onEnter()
 
     fun onSwitchLayout()
 
@@ -85,7 +87,6 @@ object KeyboardDimens {
     val radius = 6.dp
     val digitSwipe = 24.dp
     val clearSwipe = 48.dp
-    val closeSwipe = 72.dp
     val bubbleWidth = 48.dp
     val bubbleHeight = 56.dp
     val glideStart = 20.dp
@@ -153,21 +154,29 @@ class KeyboardState {
     var bubbleKey by mutableStateOf<Int?>(null)
     val trail = mutableStateListOf<Offset>()
     val dwells = mutableStateListOf<Offset>()
+    var vectors by mutableStateOf<List<ShapeVertex>>(emptyList())
+
+    fun clearDrawing() {
+        trail.clear()
+        dwells.clear()
+        vectors = emptyList()
+    }
 }
 
-private enum class PressMode { NORMAL, DIGIT, REPEATING, CLEAR, CLOSE, GLIDE, COMMITTED }
+private enum class PressMode { NORMAL, DIGIT, REPEATING, CLEAR, GLIDE, COMMITTED }
 
-private class ActivePress(val keyIndex: Int, val start: Offset) {
+private class ActivePress(val keyIndex: Int, val start: Offset, startMs: Long) {
     var mode = PressMode.NORMAL
     var timer: Job? = null
     val points = mutableListOf(GesturePoint(start.x, start.y))
+    val timed = mutableListOf(TimedPoint(start.x, start.y, startMs))
     var anchor = start
 }
 
 class Glide(
     val shiftPenalty: Float,
     val suggestMargin: Float,
-    val onGlide: (GestureDecoder, List<GesturePoint>) -> Boolean,
+    val onGlide: (GestureDecoder, List<GesturePoint>, List<ShapeVertex>) -> Boolean,
 )
 
 fun glideCenters(width: Float, rowHeight: Float, padding: Float, gap: Float): Map<Char, GesturePoint> =
@@ -184,6 +193,7 @@ fun Keyboard(
     actions: KeyboardActions,
     glide: Glide,
     clearTrail: Boolean,
+    drawn: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalEnvColors.current
@@ -208,10 +218,7 @@ fun Keyboard(
     }
     val currentGlide by rememberUpdatedState(glide)
     LaunchedEffect(clearTrail) {
-        if (clearTrail) {
-            state.trail.clear()
-            state.dwells.clear()
-        }
+        if (clearTrail) state.clearDrawing()
     }
     val stroke = LocalEnvStroke.current
     val strokeColor = stroke.color(colors)
@@ -222,7 +229,6 @@ fun Keyboard(
             .fillMaxWidth()
             .height(totalHeight)
             .onSizeChanged { size = it }
-            .clipToBounds()
             .systemGestureExclusion()
             .testTag("keyboard")
             .pointerInput(keys, decoder) {
@@ -232,14 +238,20 @@ fun Keyboard(
                         state = state,
                         scope = this,
                         actions = { currentActions },
-                        glide = { points -> currentGlide.onGlide(decoder, points) },
+                        glide = { points, vertices ->
+                            val letters = rowHeightPx * KeyboardLayouts.LETTER_ROWS
+                            val shape = vertices.map {
+                                it.copy(x = it.x / size.width, y = (it.y - paddingPx) / letters)
+                            }
+                            currentGlide.onGlide(decoder, points, shape)
+                        },
                         haptic = { type -> if (currentHaptics) view.performHapticFeedback(type) },
                         thresholds = Thresholds(
                             digitSwipe = KeyboardDimens.digitSwipe.toPx(),
                             clearSwipe = KeyboardDimens.clearSwipe.toPx(),
-                            closeSwipe = KeyboardDimens.closeSwipe.toPx(),
                             glideStart = KeyboardDimens.glideStart.toPx(),
                             dwellRadius = viewConfiguration.touchSlop,
+                            vectorTolerance = rowHeightPx * VECTOR_TOLERANCE,
                         ),
                     )
                     awaitPointerEventScope {
@@ -249,9 +261,10 @@ fun Keyboard(
                                     change.pressed && !change.previousPressed -> handler.onDown(
                                         change.id,
                                         change.position,
+                                        change.uptimeMillis,
                                     )
 
-                                    change.pressed -> handler.onMove(change.id, change.position)
+                                    change.pressed -> handler.onMove(change.id, change.position, change.uptimeMillis)
 
                                     else -> handler.onUp(change.id)
                                 }
@@ -263,20 +276,21 @@ fun Keyboard(
             },
     ) {
         keys.forEachIndexed { index, key ->
-            KeyView(index, key, state, nextLayoutLabel, digitHints)
+            KeyView(index, key, state, nextLayoutLabel, digitHints, drawn)
         }
-        state.bubbleKey?.let { index ->
-            keys.getOrNull(index)?.let { DigitBubble(it) }
-        }
-        Canvas(Modifier.matchParentSize().testTag("glide_trail")) {
+        Canvas(Modifier.matchParentSize().clipToBounds().testTag("glide_trail")) {
             if (state.trail.size > 1) {
                 val path = Path().apply {
                     moveTo(state.trail.first().x, state.trail.first().y)
                     state.trail.drop(1).forEach { lineTo(it.x, it.y) }
                 }
                 drawPath(path, strokeColor, style = Stroke(strokePx, cap = StrokeCap.Round, join = StrokeJoin.Round))
+                if (stroke.dots) state.dwells.forEach { drawCircle(strokeColor, radius = strokePx * 2, center = it) }
             }
-            state.dwells.forEach { drawCircle(strokeColor, radius = strokePx * 2, center = it) }
+            drawVectors(state.vectors, strokeColor, strokePx, stroke.dots)
+        }
+        state.bubbleKey?.let { index ->
+            keys.getOrNull(index)?.let { DigitBubble(it) }
         }
     }
 }
@@ -284,9 +298,9 @@ fun Keyboard(
 private class Thresholds(
     val digitSwipe: Float,
     val clearSwipe: Float,
-    val closeSwipe: Float,
     val glideStart: Float,
     val dwellRadius: Float,
+    val vectorTolerance: Float,
 )
 
 private class KeyboardGestureHandler(
@@ -294,19 +308,18 @@ private class KeyboardGestureHandler(
     private val state: KeyboardState,
     private val scope: CoroutineScope,
     private val actions: () -> KeyboardActions,
-    private val glide: (List<GesturePoint>) -> Boolean,
+    private val glide: (List<GesturePoint>, List<ShapeVertex>) -> Boolean,
     private val haptic: (Int) -> Unit,
     private val thresholds: Thresholds,
 ) {
     private val active = LinkedHashMap<PointerId, ActivePress>()
 
-    fun onDown(id: PointerId, position: Offset) {
+    fun onDown(id: PointerId, position: Offset, timeMs: Long) {
         active.values.toList().forEach(::commit)
         active.clear()
-        state.trail.clear()
-        state.dwells.clear()
+        state.clearDrawing()
         val index = KeyboardGeometry.hit(keys, position) ?: return
-        val press = ActivePress(index, position)
+        val press = ActivePress(index, position, timeMs)
         active[id] = press
         state.pressed[index] = true
         haptic(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -318,11 +331,12 @@ private class KeyboardGestureHandler(
         }
     }
 
-    fun onMove(id: PointerId, position: Offset) {
+    fun onMove(id: PointerId, position: Offset, timeMs: Long) {
         val press = active[id] ?: return
         val spec = keys[press.keyIndex].spec
         val delta = position - press.start
         press.points += GesturePoint(position.x, position.y)
+        press.timed += TimedPoint(position.x, position.y, timeMs)
         if (press.mode == PressMode.GLIDE) {
             state.trail += position
             if ((position - press.anchor).getDistance() > thresholds.dwellRadius) {
@@ -343,7 +357,6 @@ private class KeyboardGestureHandler(
         }
         val digitSwipePx = thresholds.digitSwipe
         val clearSwipePx = thresholds.clearSwipe
-        val closeSwipePx = thresholds.closeSwipe
         if (spec.digit != null && delta.y <= -digitSwipePx && press.mode == PressMode.NORMAL) {
             press.timer?.cancel()
             press.mode = PressMode.DIGIT
@@ -352,11 +365,6 @@ private class KeyboardGestureHandler(
         if (spec.action == KeyAction.BACKSPACE && delta.x <= -clearSwipePx && press.mode != PressMode.CLEAR) {
             press.timer?.cancel()
             press.mode = PressMode.CLEAR
-        }
-        if (delta.y >= closeSwipePx && abs(delta.x) < delta.y && press.mode in CLOSABLE) {
-            press.timer?.cancel()
-            press.mode = PressMode.CLOSE
-            if (state.bubbleKey == press.keyIndex) state.bubbleKey = null
         }
     }
 
@@ -367,9 +375,8 @@ private class KeyboardGestureHandler(
     private fun startsGlide(press: ActivePress, spec: KeySpec, position: Offset, delta: Offset): Boolean {
         val letter = spec.action == null && spec.char != null
         val far = delta.getDistance() >= thresholds.glideStart
-        val closing = delta.y > 0f && abs(delta.x) < delta.y * KeyboardDimens.VERTICAL_RATIO
         val toDigit = spec.digit != null && delta.y < 0f && abs(delta.x) < -delta.y * KeyboardDimens.VERTICAL_RATIO
-        return letter && far && !closing && !toDigit && KeyboardGeometry.hit(keys, position) != press.keyIndex
+        return letter && far && !toDigit && KeyboardGeometry.hit(keys, position) != press.keyIndex
     }
 
     private suspend fun dwell(press: ActivePress) {
@@ -407,11 +414,14 @@ private class KeyboardGestureHandler(
         when (press.mode) {
             PressMode.COMMITTED, PressMode.REPEATING -> Unit
 
-            PressMode.GLIDE -> if (!glide(press.points)) haptic(HapticFeedbackConstants.REJECT)
+            PressMode.GLIDE -> {
+                val vertices = Shapes.vectorize(press.timed, thresholds.vectorTolerance, thresholds.dwellRadius)
+                state.trail.clear()
+                state.vectors = vertices
+                if (!glide(press.points, vertices)) haptic(HapticFeedbackConstants.REJECT)
+            }
 
             PressMode.CLEAR -> target.onClear()
-
-            PressMode.CLOSE -> target.onClose()
 
             PressMode.DIGIT -> spec.digit?.let(::type)
 
@@ -420,7 +430,6 @@ private class KeyboardGestureHandler(
                 KeyAction.SWITCH_LAYOUT -> target.onSwitchLayout()
                 KeyAction.SPACE -> type(' ')
                 KeyAction.RESIZE -> target.onResize()
-                KeyAction.ENTER -> target.onEnter()
                 null -> spec.char?.let(::type)
             }
         }
@@ -432,27 +441,29 @@ private class KeyboardGestureHandler(
     private fun type(c: Char) {
         if (!actions().onChar(c)) haptic(HapticFeedbackConstants.REJECT)
     }
-
-    private companion object {
-        val CLOSABLE = setOf(PressMode.NORMAL, PressMode.DIGIT)
-    }
 }
 
 @Composable
-private fun KeyView(index: Int, key: KeyGeometry, state: KeyboardState, nextLayoutLabel: String, digitHints: Boolean) {
+private fun KeyView(
+    index: Int,
+    key: KeyGeometry,
+    state: KeyboardState,
+    nextLayoutLabel: String,
+    digitHints: Boolean,
+    drawn: Boolean,
+) {
     val colors = LocalEnvColors.current
     val density = LocalDensity.current
     val pressed by remember(index) { derivedStateOf { state.pressed[index] == true } }
     val label = when (key.spec.action) {
-        KeyAction.BACKSPACE -> "×"
+        KeyAction.BACKSPACE -> if (drawn) "×" else "⌫"
         KeyAction.SWITCH_LAYOUT -> nextLayoutLabel
-        KeyAction.ENTER -> "⏎"
         KeyAction.SPACE, KeyAction.RESIZE -> ""
         null -> key.spec.char?.toString().orEmpty()
     }
     val size = when (key.spec.action) {
-        null, KeyAction.ENTER -> EnvType.keySize
-        KeyAction.BACKSPACE -> KeyboardDimens.crossSize
+        null -> EnvType.keySize
+        KeyAction.BACKSPACE -> if (drawn) KeyboardDimens.crossSize else EnvType.keySize
         else -> EnvType.secondarySize
     }
     val widthDp = with(density) { key.rect.width.toDp() }
@@ -520,3 +531,4 @@ private fun ResizeMark(color: Color) {
 }
 
 private const val RESIZE_STROKE = 0.08f
+private const val VECTOR_TOLERANCE = 0.2f

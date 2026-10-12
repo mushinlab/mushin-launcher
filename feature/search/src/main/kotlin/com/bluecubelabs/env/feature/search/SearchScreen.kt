@@ -1,5 +1,6 @@
 package com.bluecubelabs.env.feature.search
 
+import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -42,10 +43,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -57,6 +60,7 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -129,6 +133,8 @@ interface SearchActions : KeyboardActions {
 
     fun onToggleHidden(key: AppKey, hidden: Boolean)
 
+    fun onToggleShortcut(key: AppKey, bound: Boolean)
+
     fun onToggleShowHidden()
 
     fun onSearchOption(option: SearchOption, enabled: Boolean)
@@ -143,12 +149,12 @@ interface SearchActions : KeyboardActions {
 object SearchDimens {
     val resultHeight: Dp = 56.dp
     val recentHeight: Dp = 52.dp
-    val queryHeight: Dp = 32.dp
+    val queryHeight: Dp = 36.dp
     val queryTextSize: TextUnit = 18.sp
     val padding: Dp = 16.dp
     val resultIcon: Dp = 24.dp
     val recentIcon: Dp = 20.dp
-    val paneTop: Dp = 12.dp
+    val paneTop: Dp = KeyboardDimens.verticalPadding + KeyboardDimens.gap / 2
     val anchorLength: Dp = 48.dp
     val anchorThickness: Dp = 6.dp
     val anchorInset: Dp = 10.dp
@@ -186,6 +192,7 @@ fun SearchScreen(
         val gap = SearchDimens.paneGap
         val recentsWidth = ((maxWidth - gap * 3).value / 3).toInt().dp
         val pane = Modifier.clip(RoundedCornerShape(SearchDimens.paneRadius)).background(colors.surface)
+        val inputPane = Modifier.background(colors.surface, RoundedCornerShape(SearchDimens.paneRadius))
         Column(
             Modifier
                 .fillMaxSize()
@@ -217,7 +224,7 @@ fun SearchScreen(
             }
             Spacer(Modifier.height(gap))
             val typing = mode == SearchMode.TYPING
-            InputPane(controller, chrome, actions, typing, pane)
+            InputPane(controller, chrome, actions, typing, inputPane)
             Spacer(Modifier.height(if (typing) KeyboardDimens.bottomLift else gap))
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
@@ -353,6 +360,7 @@ private fun ResultsPane(
                 iconSize = SearchDimens.resultIcon,
                 hidden = row.hidden,
                 swipes = row.swipes,
+                shortcut = row.shortcut,
                 highlighted = index == selected,
                 tag = "result_$index",
                 onLongClick = { onLongPress(row.key, row.label) },
@@ -385,6 +393,7 @@ private fun RecentsPane(
                     iconSize = SearchDimens.recentIcon,
                     hidden = false,
                     swipes = persistentListOf(),
+                    shortcut = false,
                     highlighted = false,
                     tag = "recent_$index",
                     onLongClick = { onLongPress(row.key, row.label) },
@@ -406,6 +415,7 @@ private fun AppRowItem(
     iconSize: Dp,
     hidden: Boolean,
     swipes: ImmutableList<SwipeDirection>,
+    shortcut: Boolean,
     highlighted: Boolean,
     tag: String,
     onLongClick: () -> Unit,
@@ -434,9 +444,15 @@ private fun AppRowItem(
         }
         Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
             SingleLineText(label, textStyle, Modifier.weight(1f, fill = false))
-            if (swipes.isNotEmpty()) {
+            if (swipes.isNotEmpty() || shortcut) {
                 Spacer(Modifier.width(8.dp))
-                SwipeMarks(swipes, textSize.sp, colors.textSecondary, Modifier.testTag("${tag}_swipe"))
+                SwipeMarks(
+                    swipes,
+                    textSize.sp,
+                    colors.textSecondary,
+                    Modifier.testTag("${tag}_swipe"),
+                    shortcut = shortcut,
+                )
             }
             if (hidden) {
                 Spacer(Modifier.width(6.dp))
@@ -471,8 +487,8 @@ private fun InputPane(
                 .fillMaxWidth(width)
                 .align(BiasAlignment(shift, 0f))
                 .then(pane)
-                .padding(top = SearchDimens.paneTop)
-                .testTag("input_pane"),
+                .testTag("input_pane")
+                .padding(top = SearchDimens.paneTop),
         ) {
             QueryRow(controller, actions)
             if (typing) {
@@ -487,6 +503,7 @@ private fun InputPane(
                     actions,
                     glide,
                     clearTrail = controller.query.isEmpty() && !controller.suggesting,
+                    drawn = controller.fromGesture,
                 )
             }
         }
@@ -520,8 +537,10 @@ private fun ResizeOverlay(
     val colors = LocalEnvColors.current
     val current by rememberUpdatedState(frame)
     val density = LocalDensity.current
+    val view = LocalView.current
     val inset = with(density) { SearchDimens.anchorInset.toPx() }
     val touch = with(density) { SearchDimens.anchorTouch.toPx() }
+    var grabbed by remember { mutableStateOf<Anchor?>(null) }
     Canvas(
         modifier
             .testTag("resize_overlay")
@@ -536,6 +555,10 @@ private fun ResizeOverlay(
                         abs(p.x - start.right + inset) < touch -> Anchor.END
                         abs(p.y - size.height + inset) < touch && p.x in start.left..start.right -> Anchor.MOVE
                         else -> null
+                    }
+                    if (anchor != null) {
+                        grabbed = anchor
+                        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                     }
                     var moved = start
                     var change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
@@ -552,30 +575,47 @@ private fun ResizeOverlay(
                         change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
                     }
                     change?.consume()
-                    if (anchor == null) onExit() else onRelease(moved)
+                    grabbed = null
+                    if (anchor == null) {
+                        onExit()
+                    } else {
+                        view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                        onRelease(moved)
+                    }
                 }
             },
     ) {
         val length = SearchDimens.anchorLength.toPx()
         val thickness = SearchDimens.anchorThickness.toPx()
+        val radius = SearchDimens.paneRadius.toPx()
+        drawRoundRect(
+            colors.textSecondary,
+            cornerRadius = CornerRadius(radius),
+            style = Stroke(
+                width = BOUNDS_STROKE.toPx(),
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(DASH.toPx(), DASH.toPx())),
+            ),
+        )
         drawRect(colors.background.copy(alpha = RESIZE_SCRIM), Offset(frame.left, 0f), Size(frame.width, size.height))
+        fun anchorColor(anchor: Anchor) = if (grabbed == anchor) colors.textPrimary else colors.accent
+        fun anchorWidth(anchor: Anchor) = if (grabbed == anchor) thickness * GRABBED_SCALE else thickness
         val mid = size.height / 2
-        listOf(frame.left + inset, frame.right - inset).forEach { x ->
+        listOf(Anchor.START to frame.left + inset, Anchor.END to frame.right - inset).forEach { (anchor, x) ->
             drawLine(
-                colors.accent,
+                anchorColor(anchor),
                 Offset(x, mid - length / 2),
                 Offset(x, mid + length / 2),
-                thickness,
+                anchorWidth(anchor),
                 StrokeCap.Round,
             )
         }
         val center = frame.left + frame.width / 2
         val bottom = size.height - inset
         drawLine(
-            colors.accent,
+            anchorColor(Anchor.MOVE),
             Offset(center - length / 2, bottom),
             Offset(center + length / 2, bottom),
-            thickness,
+            anchorWidth(Anchor.MOVE),
             StrokeCap.Round,
         )
     }
@@ -686,6 +726,10 @@ private fun SearchMenuPanel(menu: SearchMenu, actions: SearchActions) {
             stringResource(if (menu.hidden) R.string.menu_unhide else R.string.menu_hide),
             tag = "menu_hide",
         ) { actions.onToggleHidden(menu.key, !menu.hidden) }
+        PanelItem(
+            (if (menu.shortcut) "✓  " else "     ") + stringResource(R.string.menu_system_shortcut),
+            tag = "menu_shortcut",
+        ) { actions.onToggleShortcut(menu.key, !menu.shortcut) }
         PanelItem(stringResource(R.string.menu_rename), tag = "menu_rename") { actions.onRename(menu.key) }
         PanelItem(stringResource(R.string.menu_app_info), tag = "menu_info") { actions.onAppInfo(menu.key) }
         if (menu.canUninstall) {
@@ -698,3 +742,6 @@ private const val HIGHLIGHT_ALPHA = 0.12f
 private const val EYE_STROKE = 0.09f
 private const val PANE_ZEBRA_ALPHA = 0.05f
 private const val RESIZE_SCRIM = 0.55f
+private const val GRABBED_SCALE = 1.6f
+private val BOUNDS_STROKE = 1.5.dp
+private val DASH = 6.dp
