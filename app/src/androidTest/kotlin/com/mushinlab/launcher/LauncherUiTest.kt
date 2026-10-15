@@ -80,7 +80,7 @@ class LauncherUiTest {
         container.settings.update { it.copy(currentSpaceId = normal.id) }
         val apps = container.catalog.apps.first { it.size >= 3 }.sortedBy { it.label }.take(3)
         container.spaces.setItems(normal.id, apps.map { it.key })
-        rule.waitUntil(5_000) { rule.activity.overlay == Overlay.None }
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.overlay == Overlay.None }
         rule.waitUntil(5_000) {
             runCatching { rule.onNodeWithTag("row_2").assertIsDisplayed() }.isSuccess
         }
@@ -195,7 +195,7 @@ class LauncherUiTest {
         rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("c")
         rule.onNodeWithTag("keyboard").assertDoesNotExist()
         rule.runOnUiThread { rule.activity.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ESCAPE)) }
-        rule.runOnIdle { assertThat(rule.activity.overlay).isEqualTo(Overlay.None) }
+        rule.runOnIdle { assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None) }
         rule.onNodeWithTag("search").assertDoesNotExist()
     }
 
@@ -211,7 +211,7 @@ class LauncherUiTest {
                 .setClass(context, MainActivity::class.java)
                 .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK),
         )
-        rule.waitUntil(5_000) { !rule.activity.settingsStack.isOpen }
+        rule.waitUntil(5_000) { !rule.activity.launcher.navigator.settings.isOpen }
         rule.onNodeWithTag("settings").assertDoesNotExist()
     }
 
@@ -251,11 +251,11 @@ class LauncherUiTest {
             repeat(STEPS) { i -> moveTo(center + Offset(0f, 400f * (i + 1) / STEPS)) }
             up()
         }
-        rule.runOnIdle { assertThat(rule.activity.overlay).isEqualTo(Overlay.Search) }
+        rule.runOnIdle { assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.Search) }
         rule.onNodeWithTag("query_row").performTouchInput {
             swipeDown(startY = centerY, endY = centerY + 600f, durationMillis = 200)
         }
-        rule.runOnIdle { assertThat(rule.activity.overlay).isEqualTo(Overlay.None) }
+        rule.runOnIdle { assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None) }
     }
 
     @Test
@@ -264,13 +264,13 @@ class LauncherUiTest {
         rule.onNodeWithTag("recents").performTouchInput {
             swipeDown(startY = top + height * 0.2f, endY = top + height * 0.7f, durationMillis = 200)
         }
-        rule.runOnIdle { assertThat(rule.activity.overlay).isEqualTo(Overlay.None) }
+        rule.runOnIdle { assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None) }
     }
 
     @Test
     fun longPressOnResultTogglesAppInCurrentSpace() {
         openSearch()
-        val key = rule.runOnIdle { rule.activity.search.rows.first().key }
+        val key = rule.runOnIdle { rule.activity.launcher.navigator.search.rows.first().key }
         val before = key in spaceItems()
         rule.onNodeWithTag("result_0").performTouchInput { longClick() }
         rule.onNodeWithTag("menu_info").assertIsDisplayed()
@@ -339,15 +339,22 @@ class LauncherUiTest {
         }
         try {
             openSearch()
-            rule.waitUntil(5_000) { rule.activity.search.rows.count { it.label.startsWith("Zebra") } == 2 }
+            rule.waitUntil(5_000) {
+                rule.activity.launcher.navigator.search.rows.count { it.label.startsWith("Zebra") } ==
+                    2
+            }
             drawOnKeyboard("zebra")
             rule.onNodeWithTag("suggestion_0").assertIsDisplayed()
             rule.onNodeWithTag("suggestion_1").assertIsDisplayed()
             rule.onNodeWithTag("query", useUnmergedTree = true).assertDoesNotExist()
-            assertThat(rule.activity.search.rows.map { it.label }).containsExactly("Zebra One", "Zebra Two")
+            assertThat(
+                rule.activity.launcher.navigator.search.rows.map {
+                    it.label
+                },
+            ).containsExactly("Zebra One", "Zebra Two")
             clearQuery()
             rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
-            assertThat(rule.activity.search.rows.size).isGreaterThan(2)
+            assertThat(rule.activity.launcher.navigator.search.rows.size).isGreaterThan(2)
         } finally {
             runBlocking { twins.forEach { container.overrides.rename(it, null) } }
         }
@@ -393,7 +400,7 @@ class LauncherUiTest {
 
     @Test
     fun selectedOptionIsMarkedByBackgroundAndPressStyleApplies() {
-        rule.runOnIdle { rule.activity.settingsStack.open() }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         rule.onNodeWithTag("nav_system").performScrollTo().performClick()
         rule.onNodeWithTag("nav_advanced").performScrollTo().performClick()
         rule.onNodeWithTag("nav_press").performClick()
@@ -409,7 +416,7 @@ class LauncherUiTest {
 
     @Test
     fun gesturesSectionHoldsSwipesAndSwipeTypingSettings() {
-        rule.runOnIdle { rule.activity.settingsStack.open() }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         rule.onNodeWithTag("nav_gestures").performClick()
         rule.onNodeWithTag("gesture_UP_dropdown").assertIsDisplayed()
         rule.onNodeWithTag("kb_gesture_letters").assertDoesNotExist()
@@ -435,7 +442,7 @@ class LauncherUiTest {
             container.gestureLearning.update { listOf(LearnedGesture("qwerty", app.key, 2.0)) }
         }
         try {
-            rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.Advanced) }
+            rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Advanced) }
             rule.onNodeWithTag("nav_memory").performClick()
             rule.onNodeWithTag("memory_app_${app.label}").performClick()
             rule.onNodeWithTag("memory_drawing_0").assertIsDisplayed()
@@ -450,13 +457,13 @@ class LauncherUiTest {
     fun holdingASpaceInThePopupForOneSecondOpensItsSettings() {
         backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
         rule.onNodeWithTag("popup_env_$normalId").performTouchInput { longClick(durationMillis = 1_200) }
-        rule.waitUntil(5_000) { rule.activity.settingsStack.top == SettingsRoute.SpaceEditor(normalId) }
-        assertThat(rule.activity.overlay).isEqualTo(Overlay.None)
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.SpaceEditor(normalId) }
+        assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None)
     }
 
     @Test
     fun colouredIconsAreToggledInTheSpaceSettings() {
-        rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.SpaceEditor(normalId)) }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.SpaceEditor(normalId)) }
         rule.onNodeWithTag("env_colored_icons").performScrollTo().performClick()
         rule.waitUntil(5_000) { container.spaces.spaces.value.first { it.id == normalId }.coloredIcons }
         rule.onNodeWithTag("env_colored_icons").performClick()
@@ -467,17 +474,22 @@ class LauncherUiTest {
     fun searchMenuHidesAppAndOptionsShowHiddenApps() {
         openSearch()
         rule.onNodeWithTag("result_0").performTouchInput { longClick() }
-        val key = rule.activity.search.menu!!.key
-        val label = rule.activity.search.menu!!.label
+        val key = rule.activity.launcher.navigator.search.menu!!.key
+        val label = rule.activity.launcher.navigator.search.menu!!.label
         rule.onNodeWithTag("menu_hide").performClick()
         try {
             rule.waitUntil(5_000) { container.overrides.overrides.value[key]?.hidden == true }
-            rule.waitUntil(5_000) { rule.activity.search.rows.none { it.key == key } }
+            rule.waitUntil(5_000) { rule.activity.launcher.navigator.search.rows.none { it.key == key } }
             rule.onNodeWithTag("search_options").performClick()
             rule.onNodeWithTag("search_option_show_hidden").performClick()
-            rule.waitUntil(5_000) { rule.activity.search.rows.any { it.key == key && it.hidden && it.label == label } }
+            rule.waitUntil(5_000) {
+                rule.activity.launcher.navigator.search.rows.any {
+                    it.key == key && it.hidden &&
+                        it.label == label
+                }
+            }
             rule.onNodeWithTag("search_option_show_hidden").performClick()
-            rule.waitUntil(5_000) { rule.activity.search.rows.none { it.key == key } }
+            rule.waitUntil(5_000) { rule.activity.launcher.navigator.search.rows.none { it.key == key } }
         } finally {
             runBlocking { container.overrides.setHidden(key, false) }
         }
@@ -509,7 +521,7 @@ class LauncherUiTest {
         try {
             rule.onNodeWithTag("clock_block").performClick()
             rule.waitUntil(5_000) { monitor.hits > 0 }
-            assertThat(rule.activity.overlay).isEqualTo(Overlay.None)
+            assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None)
         } finally {
             InstrumentationRegistry.getInstrumentation().removeMonitor(monitor)
         }
@@ -537,7 +549,7 @@ class LauncherUiTest {
     @Test
     fun editButtonOpensTheCurrentSpace() {
         rule.onNodeWithTag("home_edit").performClick()
-        rule.waitUntil(5_000) { rule.activity.settingsStack.top == SettingsRoute.SpaceEditor(normalId) }
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.SpaceEditor(normalId) }
     }
 
     @Test
@@ -561,7 +573,7 @@ class LauncherUiTest {
 
     @Test
     fun settingsRootListsSpacesAsRadioRowWithCurrentFirst() {
-        rule.runOnIdle { rule.activity.settingsStack.open() }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }.id
         rule.onNodeWithTag("space_chip_$normalId").assertIsSelected()
         val normalLeft = rule.onNodeWithTag("space_chip_$normalId").fetchSemanticsNode().boundsInRoot.left
@@ -589,7 +601,7 @@ class LauncherUiTest {
 
     @Test
     fun styleChangesTheFontOfTheWholeApp() {
-        rule.runOnIdle { rule.activity.settingsStack.open() }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         rule.onNodeWithTag("nav_style").performClick()
         rule.onNodeWithTag("palette_dropdown").assertIsDisplayed()
         rule.onNodeWithTag("style_colored_icons").assertIsDisplayed()
@@ -639,7 +651,7 @@ class LauncherUiTest {
 
     @Test
     fun styleOffersElevenThemesIncludingTheNewOnes() {
-        rule.runOnIdle { rule.activity.settingsStack.open() }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         rule.onNodeWithTag("nav_style").performClick()
         rule.onNodeWithTag("palette_dropdown").performClick()
         listOf("LAGOON", "PLUM", "EMBER", "MIST", "ROSE").forEach {
@@ -662,47 +674,49 @@ class LauncherUiTest {
         runBlocking { container.gestureLearning.update { listOf(LearnedGesture("mapsdfghjkl", key, 1.0)) } }
         rule.waitUntil(5_000) { container.gestureLearning.samples.value.isNotEmpty() }
         drawOnHome("mapsdfghjkl".filterIndexed { i, _ -> i in listOf(0, 1, 2, 3, 10) }, scale = 1.5f)
-        rule.waitUntil(5_000) { rule.activity.overlay == Overlay.Search }
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.overlay == Overlay.Search }
         rule.runOnIdle {
-            assertThat(rule.activity.search.suggesting).isTrue()
-            assertThat(rule.activity.search.rows.map { it.key }).containsExactly(key)
+            assertThat(rule.activity.launcher.navigator.search.suggesting).isTrue()
+            assertThat(rule.activity.launcher.navigator.search.rows.map { it.key }).containsExactly(key)
         }
     }
 
     @Test
     fun fiveUnknownDrawingsAskWhatYouMeantAndOpenLearning() {
         runBlocking { container.gestureLearning.update { emptyList() } }
-        repeat(MainActivity.LEARN_HINT_MISSES - 1) {
+        repeat(HomeInteractions.LEARN_HINT_MISSES - 1) {
             drawOnHome("qazwsx", scale = 1f)
             rule.onNodeWithTag("learn_hint").assertDoesNotExist()
         }
         drawOnHome("qazwsx", scale = 1f)
         rule.onNodeWithTag("learn_hint").assertIsDisplayed().performClick()
-        rule.runOnIdle { assertThat(rule.activity.settingsStack.top).isEqualTo(SettingsRoute.MemoryPickApp) }
+        rule.runOnIdle {
+            assertThat(rule.activity.launcher.navigator.settings.top).isEqualTo(SettingsRoute.MemoryPickApp)
+        }
     }
 
     @Test
     fun learningFromMissesOpensTheSheetWithTheAveragePattern() {
         runBlocking { container.gestureLearning.update { emptyList() } }
-        repeat(MainActivity.LEARN_HINT_MISSES) { drawOnHome("qazwsx", scale = 1f + it * 0.05f) }
+        repeat(HomeInteractions.LEARN_HINT_MISSES) { drawOnHome("qazwsx", scale = 1f + it * 0.05f) }
         rule.onNodeWithTag("learn_hint").performClick()
         val app = runBlocking { container.catalog.apps.first() }.minBy { it.label }
-        rule.runOnIdle { assertThat(rule.activity.settingsStack.draft).isNotEmpty() }
+        rule.runOnIdle { assertThat(rule.activity.launcher.navigator.settings.draft).isNotEmpty() }
         rule.onNodeWithTag("pick_${app.label}").performClick()
         rule.onNodeWithTag("gesture_sheet").assertIsDisplayed()
         rule.onNodeWithTag("sheet_add").performClick()
         rule.waitUntil(5_000) {
             container.gestureLearning.samples.value.any { it.key == app.key && it.shape.size >= 2 }
         }
-        rule.runOnIdle { assertThat(rule.activity.settingsStack.draft).isNull() }
+        rule.runOnIdle { assertThat(rule.activity.launcher.navigator.settings.draft).isNull() }
     }
 
     @Test
     fun learnHintCanBeSwipedAway() {
-        rule.runOnIdle { rule.activity.learnHint = true }
+        rule.runOnIdle { rule.activity.launcher.homeInput.learnHint = true }
         rule.onNodeWithTag("learn_hint").performTouchInput { swipeRight(startX = left + 10f, endX = right) }
         rule.onNodeWithTag("learn_hint").assertDoesNotExist()
-        rule.runOnIdle { assertThat(rule.activity.settingsStack.isOpen).isFalse() }
+        rule.runOnIdle { assertThat(rule.activity.launcher.navigator.settings.isOpen).isFalse() }
     }
 
     private fun drawOnHome(word: String, scale: Float) {
@@ -730,7 +744,7 @@ class LauncherUiTest {
     fun memoryAddsAGestureDrawnInTheSheet() {
         runBlocking { container.gestureLearning.update { emptyList() } }
         val app = runBlocking { container.catalog.apps.first() }.minBy { it.label }
-        rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.Memory) }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Memory) }
         rule.onNodeWithTag("memory_add_gesture").performClick()
         rule.onNodeWithTag("pick_${app.label}").performClick()
         rule.onNodeWithTag("memory_add").performClick()
@@ -755,7 +769,7 @@ class LauncherUiTest {
     @Test
     fun gestureSheetClosesWhenPulledDown() {
         val app = runBlocking { container.catalog.apps.first() }.first()
-        rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.MemoryApp(app.key)) }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.MemoryApp(app.key)) }
         rule.onNodeWithTag("memory_add").performClick()
         rule.onNodeWithTag("gesture_sheet_handle").performTouchInput {
             swipeDown(startY = centerY, endY = centerY + 900f, durationMillis = 300)
@@ -771,10 +785,10 @@ class LauncherUiTest {
     fun searchMenuRenamesTheApp() {
         openSearch()
         rule.onNodeWithTag("result_0").performTouchInput { longClick() }
-        val key = rule.activity.search.menu!!.key
+        val key = rule.activity.launcher.navigator.search.menu!!.key
         rule.onNodeWithTag("menu_rename").performClick()
         rule.onNodeWithTag("text_input").assertIsDisplayed()
-        assertThat(rule.activity.renameTarget).isEqualTo(key)
+        assertThat(rule.activity.launcher.navigator.renameTarget).isEqualTo(key)
         Espresso.pressBack()
     }
 
@@ -792,7 +806,7 @@ class LauncherUiTest {
     @Test
     fun everySettingsPageShowsTheCurrentSpaceName() {
         val name = container.spaces.spaces.value.first { it.id == normalId }.name
-        rule.runOnIdle { rule.activity.settingsStack.open() }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         rule.onNodeWithTag("settings_space", useUnmergedTree = true).assertTextEquals(name)
         rule.onNodeWithTag("nav_keyboard").performClick()
         rule.onNodeWithTag("settings_space", useUnmergedTree = true).assertTextEquals(name)
@@ -830,7 +844,7 @@ class LauncherUiTest {
 
     @Test
     fun styleChangesStrokeColour() {
-        rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.Style) }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Style) }
         rule.onNodeWithTag("stroke_color_dropdown").performScrollTo().performClick()
         rule.onNodeWithTag("stroke_color_PINK").performScrollTo().performClick()
         rule.waitUntil(5_000) { container.settings.settings.value.strokeColor == StrokeColor.PINK }
@@ -862,7 +876,7 @@ class LauncherUiTest {
     @Test
     fun suggestionIconsHaveEqualGapsAboveAndBelow() {
         openSearch()
-        rule.runOnIdle { rule.activity.search.suggest(spaceItems().take(2)) }
+        rule.runOnIdle { rule.activity.launcher.navigator.search.suggest(spaceItems().take(2)) }
         val icon = rule.onNodeWithTag("suggestion_0").fetchSemanticsNode().boundsInRoot
         val pane = rule.onNodeWithTag("input_pane").fetchSemanticsNode().boundsInRoot
         val q = rule.onNodeWithTag("key_q").fetchSemanticsNode().boundsInRoot
@@ -873,11 +887,11 @@ class LauncherUiTest {
     fun appBoundToASystemGestureIsMarkedInSearchAndOnHome() {
         val key = spaceItems().first()
         openSearch()
-        val label = rule.runOnIdle { rule.activity.search.rows.first { it.key == key }.label }
-        rule.runOnIdle { rule.activity.openSearchMenu(key, label, Offset(100f, 100f)) }
+        val label = rule.runOnIdle { rule.activity.launcher.navigator.search.rows.first { it.key == key }.label }
+        rule.runOnIdle { rule.activity.launcher.searchInput.openMenu(key, label, Offset(100f, 100f)) }
         rule.onNodeWithTag("menu_shortcut").performClick()
         rule.waitUntil(5_000) { container.overrides.overrides.value[key]?.systemShortcut == true }
-        rule.waitUntil(5_000) { rule.activity.search.rows.first { it.key == key }.shortcut }
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.search.rows.first { it.key == key }.shortcut }
         Espresso.pressBack()
         rule.onNodeWithTag("swipe_0", useUnmergedTree = true).assertIsDisplayed()
         runBlocking { container.overrides.setSystemShortcut(key, false) }
@@ -888,13 +902,13 @@ class LauncherUiTest {
         rule.runOnUiThread {
             rule.activity.handleHomeIntent(android.content.Intent(android.content.Intent.ACTION_ASSIST))
         }
-        rule.runOnIdle { assertThat(rule.activity.overlay).isEqualTo(Overlay.Search) }
+        rule.runOnIdle { assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.Search) }
         rule.onNodeWithTag("keyboard").assertIsDisplayed()
     }
 
     @Test
     fun styleTurnsOffDotsOnTheLine() {
-        rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.Style) }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Style) }
         rule.onNodeWithTag("stroke_dots").performScrollTo().performClick()
         rule.waitUntil(5_000) { !container.settings.settings.value.strokeDots }
         runBlocking { container.settings.update { it.copy(strokeDots = true) } }
@@ -903,7 +917,7 @@ class LauncherUiTest {
     @Test
     fun backgroundImageShowsOnHomeWithAVisibilitySliderUntilRemoved() {
         rule.onNodeWithTag("home_background").assertDoesNotExist()
-        rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.Style) }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Style) }
         rule.onNodeWithTag("background_pick").performScrollTo().assertIsDisplayed()
         rule.onNodeWithTag("background_opacity").assertDoesNotExist()
         val bitmap = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888).apply {
@@ -917,9 +931,9 @@ class LauncherUiTest {
             rule.onNodeWithTag("background_opacity").performScrollTo()
                 .performSemanticsAction(SemanticsActions.SetProgress) { it(0.8f) }
             rule.waitUntil(5_000) { abs(container.settings.settings.value.backgroundOpacity - 0.8f) < 0.01f }
-            rule.runOnIdle { rule.activity.settingsStack.close() }
+            rule.runOnIdle { rule.activity.launcher.navigator.settings.close() }
             rule.onNodeWithTag("home_background").assertIsDisplayed()
-            rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.Style) }
+            rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Style) }
             rule.onNodeWithTag("background_clear").performScrollTo().performClick()
             rule.waitUntil(5_000) { container.background.image.value == null }
             rule.onNodeWithTag("background_opacity").assertDoesNotExist()

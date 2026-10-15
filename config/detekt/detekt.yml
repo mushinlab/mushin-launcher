@@ -3,47 +3,22 @@ naming:
     ignoreAnnotated: ['Composable']
   TopLevelPropertyNaming:
     constantPattern: '[A-Z][A-Za-z0-9_]*'
-  MatchingDeclarationName:
-    active: false
-
 style:
   MagicNumber:
-    active: false
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreAnnotated: ['Composable', 'Preview']
+  ReturnCount:
+    excludeGuardClauses: true
   UnusedPrivateMember:
     ignoreAnnotated: ['Preview']
-  ReturnCount:
-    max: 4
   WildcardImport:
     active: true
   MaxLineLength:
     maxLineLength: 120
-  ForbiddenComment:
-    active: false
-  DestructuringDeclarationWithTooManyEntries:
-    maxDestructuringEntries: 4
-
 complexity:
   LongParameterList:
-    functionThreshold: 10
-    constructorThreshold: 14
     ignoreDefaultParameters: true
     ignoreAnnotated: ['Composable', 'Query']
-  LongMethod:
-    threshold: 120
-  CyclomaticComplexMethod:
-    threshold: 25
-  ComplexCondition:
-    threshold: 6
   TooManyFunctions:
-    thresholdInFiles: 30
-    thresholdInClasses: 30
-    thresholdInInterfaces: 20
-    thresholdInObjects: 30
-  NestedBlockDepth:
-    threshold: 6
-
-exceptions:
-  TooGenericExceptionCaught:
-    active: false
-  SwallowedException:
-    active: false
+    ignoreAnnotatedFunctions: ['Query', 'Insert', 'Update', 'Delete', 'Upsert', 'Transaction', 'Preview']

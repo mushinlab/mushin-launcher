@@ -66,6 +66,7 @@ class AppContainer(private val app: Application) {
     val icons by lazy { IconLoader(app, LauncherIconSource(app, gateway)) }
     val launcher by lazy { AppLauncher(app, gateway) }
     val shade: NotificationShade by lazy { ReflectionNotificationShade(app) }
+    val iconProvider by lazy { LauncherIconProvider(icons, catalog) }
     val notificationCounts = MutableStateFlow<Map<NotificationSource, Int>>(emptyMap())
     val notificationListener = ComponentName(app, NotificationCountService::class.java)
 

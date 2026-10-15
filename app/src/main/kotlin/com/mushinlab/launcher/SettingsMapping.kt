@@ -2,33 +2,62 @@ package com.mushinlab.launcher
 
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.AppUsage
+import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.LearnedGesture
 import com.mushinlab.launcher.core.model.SpaceUsage
+import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.Usefulness
 import com.mushinlab.launcher.core.search.Alphabet
-import com.mushinlab.launcher.core.search.GestureLearning
-import com.mushinlab.launcher.core.search.GestureSample
+import com.mushinlab.launcher.feature.settings.EditorItem
+import com.mushinlab.launcher.feature.settings.GestureSummary
 import com.mushinlab.launcher.feature.settings.LearnedApp
 import com.mushinlab.launcher.feature.settings.LearnedDrawing
+import com.mushinlab.launcher.feature.settings.PickerApp
+import com.mushinlab.launcher.feature.settings.RenamedApp
 import com.mushinlab.launcher.feature.settings.ScoreRow
 import com.mushinlab.launcher.feature.settings.SettingsUiState
+import com.mushinlab.launcher.feature.settings.SpaceSummary
 import com.mushinlab.launcher.feature.settings.UsageRow
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.launch
+import kotlinx.collections.immutable.toImmutableMap
 
-class MemoryEditor(private val container: AppContainer) {
-    fun forget(match: (LearnedGesture) -> Boolean) {
-        container.scope.launch { container.gestureLearning.update { samples -> samples.filterNot(match) } }
-    }
-
-    fun add(key: AppKey, sample: GestureSample) {
-        container.scope.launch { container.gestureLearning.update { GestureLearning.learn(it, listOf(sample), key) } }
-    }
-
-    fun clearUsage() {
-        container.scope.launch { container.history.clearUsage() }
-    }
-}
+internal fun settingsState(
+    d: LauncherData,
+    gestures: Map<SwipeDirection, GestureAction>,
+    roleHeld: Boolean,
+    capacity: Int,
+    versionName: String,
+): SettingsUiState = SettingsUiState(
+    settings = d.settings,
+    spaces = d.spaces.map {
+        SpaceSummary(it.id, it.name, it.type, it.preset, it.id == d.current?.id, it.coloredIcons)
+    }.toImmutableList(),
+    spaceItems = d.spaces.associate { space ->
+        space.id to d.items[space.id].orEmpty().map { key ->
+            EditorItem(
+                key = key,
+                label = d.label(key) ?: key.packageName,
+                hidden = d.overrides[key]?.hidden == true,
+                missing = key !in d.apps,
+            )
+        }.toImmutableList()
+    }.toImmutableMap(),
+    apps = d.apps.values
+        .map { PickerApp(it.key, d.label(it.key) ?: it.label, d.overrides[it.key]?.hidden == true) }
+        .sortedWith(Alphabet.comparator { it.label })
+        .toImmutableList(),
+    renamed = d.overrides.values
+        .filter { it.customLabel != null && it.key in d.apps }
+        .map { RenamedApp(it.key, d.apps[it.key]?.label.orEmpty(), it.customLabel.orEmpty()) }
+        .toImmutableList(),
+    gestures = gestures.mapValues { (_, action) ->
+        val key = (action as? GestureAction.LaunchApp)?.key
+        GestureSummary(action, key?.let(d::label), key != null && key !in d.apps)
+    }.toImmutableMap(),
+    capacity = capacity,
+    isDefaultLauncher = roleHeld,
+    versionName = versionName,
+)
 
 internal fun SettingsUiState.withMemory(samples: List<LearnedGesture>, usage: Map<AppKey, AppUsage>): SettingsUiState {
     val labels = apps.associate { it.key to it.label }

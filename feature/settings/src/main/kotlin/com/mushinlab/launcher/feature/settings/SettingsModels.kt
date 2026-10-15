@@ -52,37 +52,50 @@ sealed interface SettingsRoute {
 
 @Stable
 class SettingsStack {
-    private val routes = mutableStateListOf<SettingsRoute>()
+    private val stack = mutableStateListOf<SettingsRoute>()
     var sheet: (() -> Unit)? = null
     var draft: List<ShapeVertex>? = null
 
-    val top: SettingsRoute? get() = routes.lastOrNull()
-    val isOpen: Boolean get() = routes.isNotEmpty()
+    val top: SettingsRoute? get() = stack.lastOrNull()
+    val isOpen: Boolean get() = stack.isNotEmpty()
+    val routes: List<SettingsRoute> get() = stack.toList()
 
     fun open(root: SettingsRoute = SettingsRoute.Root) {
-        routes.clear()
-        routes += root
+        stack.clear()
+        stack += root
     }
 
     fun push(route: SettingsRoute) {
-        routes += route
+        stack += route
     }
 
     fun pop(): Boolean {
-        sheet?.let { close ->
-            close()
-            return true
+        val closeSheet = sheet
+        return when {
+            closeSheet != null -> {
+                closeSheet()
+                true
+            }
+
+            stack.isEmpty() -> false
+
+            else -> {
+                stack.removeAt(stack.lastIndex)
+                true
+            }
         }
-        if (routes.isEmpty()) return false
-        routes.removeAt(routes.lastIndex)
-        return true
     }
 
     fun close() {
-        routes.clear()
+        stack.clear()
     }
 
-    fun size(): Int = routes.size
+    fun restore(saved: List<SettingsRoute>) {
+        stack.clear()
+        stack += saved
+    }
+
+    fun size(): Int = stack.size
 }
 
 @Immutable
