@@ -65,20 +65,15 @@ class GestureArbiter(private val config: GestureConfig) {
         val ay = abs(dy)
         val horizontal = ax >= config.axisRatio * ay && ax > 0f
         val vertical = ay >= config.axisRatio * ax && ay > 0f
-        val (distance, velocity) = when {
-            horizontal -> ax to abs(velocityX)
-            vertical -> ay to abs(velocityY)
-            else -> return null
+        val direction = when {
+            horizontal -> if (dx > 0) SwipeDirection.RIGHT else SwipeDirection.LEFT
+            vertical -> if (dy < 0) SwipeDirection.UP else SwipeDirection.DOWN
+            else -> null
         }
+        val (distance, velocity) = if (horizontal) ax to abs(velocityX) else ay to abs(velocityY)
         val longEnough = distance >= config.swipeDistancePx
         val flung = distance >= config.flingDistancePx && velocity >= config.flingVelocityPxPerSec
-        if (!longEnough && !flung) return null
-        return when {
-            horizontal && dx > 0 -> SwipeDirection.RIGHT
-            horizontal -> SwipeDirection.LEFT
-            dy < 0 -> SwipeDirection.UP
-            else -> SwipeDirection.DOWN
-        }
+        return direction?.takeIf { longEnough || flung }
     }
 
     fun isDrawing(pathLength: Float, chord: Float): Boolean =

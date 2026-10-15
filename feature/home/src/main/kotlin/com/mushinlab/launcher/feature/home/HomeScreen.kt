@@ -1,6 +1,5 @@
 package com.mushinlab.launcher.feature.home
 
-import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +27,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -47,7 +45,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -61,7 +58,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ClockPosition
-import com.mushinlab.launcher.core.model.HomeListOffset
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.ui.AppIcon
@@ -73,15 +69,14 @@ import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.SwipeMarks
 import com.mushinlab.launcher.core.ui.pressable
-import com.mushinlab.launcher.feature.home.gesture.GestureArbiter
-import com.mushinlab.launcher.feature.home.gesture.GestureConfig
-import com.mushinlab.launcher.feature.home.gesture.HomeGestureCallbacks
+import com.mushinlab.launcher.feature.home.gesture.HomeGestureDetector
 import com.mushinlab.launcher.feature.home.gesture.RowRegistry
 import com.mushinlab.launcher.feature.home.gesture.StartZone
-import com.mushinlab.launcher.feature.home.gesture.detectHomeGestures
 import kotlin.math.max
 
-interface HomeActions {
+interface HomeActions : HomeGestureActions, HomeControlActions
+
+interface HomeGestureActions {
     fun onRowTap(row: HomeRow, index: Int)
 
     fun onLongPress(position: Offset, row: HomeRow?)
@@ -90,6 +85,10 @@ interface HomeActions {
 
     fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean)
 
+    fun onDraw(points: List<Offset>, width: Float)
+}
+
+interface HomeControlActions {
     fun onRequestRole()
 
     fun onCapacityChanged(capacity: Int)
@@ -103,8 +102,6 @@ interface HomeActions {
     fun onSuggestion(anchor: Offset)
 
     fun onListOffset(dp: Int)
-
-    fun onDraw(points: List<Offset>, width: Float)
 }
 
 object HomeDimens {
@@ -131,119 +128,21 @@ fun HomeScreen(
 ) {
     val colors = LocalMushinColors.current
     val registry = remember { RowRegistry() }
-    val currentState by rememberUpdatedState(state)
-    val currentActions by rememberUpdatedState(actions)
-    val view = LocalView.current
-    val density = LocalDensity.current
-    val viewConfiguration = LocalViewConfiguration.current
-    val arbiter = remember(density, viewConfiguration) {
-        with(density) {
-            GestureArbiter(
-                GestureConfig(
-                    doubleTapTimeoutMs = viewConfiguration.doubleTapTimeoutMillis,
-                    doubleTapSlopPx = 100.dp.toPx(),
-                    swipeDistancePx = 96.dp.toPx(),
-                    flingDistancePx = 48.dp.toPx(),
-                    flingVelocityPxPerSec = 1000.dp.toPx(),
-                    drawMinPx = 144.dp.toPx(),
-                ),
-            )
-        }
-    }
+    val currentState = rememberUpdatedState(state)
+    val currentActions = rememberUpdatedState(actions)
+    val arbiter = rememberGestureArbiter()
     val zone = rememberStartZone()
-    var clockDrag by remember { mutableStateOf<ClockDrag?>(null) }
-    var clockShown by remember { mutableStateOf(state.clockPosition) }
-    LaunchedEffect(state.clockPosition) { if (clockDrag == null) clockShown = state.clockPosition }
-    val clockMetrics = remember { IntArray(2) }
-    val inset = with(density) { HomeDimens.rowPadding.roundToPx() }
     val trace = remember { Trace() }
-    var handleDrag by remember { mutableStateOf<Float?>(null) }
-    var listOffsetPx by remember { mutableFloatStateOf(with(density) { state.homeListOffset.dp.toPx() }) }
-    LaunchedEffect(state.homeListOffset, density) {
-        if (handleDrag == null) listOffsetPx = with(density) { state.homeListOffset.dp.toPx() }
-    }
-    val maxOffsetPx = with(density) { HomeListOffset.MAX_DP.dp.toPx() }
-    var homeWidth by remember { mutableFloatStateOf(0f) }
-    val callbacks = remember(view) {
-        object : HomeGestureCallbacks {
-            override fun onRowTap(index: Int) {
-                currentState.rows.getOrNull(index)?.let { currentActions.onRowTap(it, index) }
-            }
-
-            override fun onLongPress(position: Offset, rowIndex: Int?) {
-                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                currentActions.onLongPress(position, rowIndex?.let { currentState.rows.getOrNull(it) })
-            }
-
-            override fun onDoubleTap() {
-                currentActions.onDoubleTap()
-            }
-
-            override fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean) {
-                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
-                currentActions.onSwipe(direction, fromShadeZone)
-            }
-
-            override fun onClockTap() {
-                currentActions.onClockTap()
-            }
-
-            override fun onClockHold(x: Float) {
-                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                clockDrag = ClockDrag(x, x)
-            }
-
-            override fun onClockDrag(x: Float) {
-                clockDrag = clockDrag?.copy(x = x)
-            }
-
-            override fun onClockRelease() {
-                val drag = clockDrag ?: return
-                val (area, block) = clockMetrics.let { it[0] to it[1] }
-                val from = ClockSlots.left(clockShown, area, block, inset)
-                val left = (from + drag.x - drag.startX).toInt().coerceIn(0, maxOf(0, area - block))
-                val target = ClockSlots.nearest(left, area, block, inset)
-                clockDrag = null
-                if (target != clockShown) {
-                    view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
-                    clockShown = target
-                    currentActions.onClockMoved(target)
-                }
-            }
-
-            override fun onHandleHold(y: Float) {
-                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                handleDrag = y
-            }
-
-            override fun onHandleDrag(y: Float) {
-                val last = handleDrag ?: return
-                listOffsetPx = (listOffsetPx + y - last).coerceIn(0f, maxOffsetPx)
-                handleDrag = y
-            }
-
-            override fun onHandleRelease() {
-                handleDrag = null
-                currentActions.onListOffset(with(density) { listOffsetPx.toDp().value.toInt() })
-            }
-
-            override fun onTrace(position: Offset, timeMs: Long) {
-                trace.add(position, timeMs)
-            }
-
-            override fun onDraw(points: List<Offset>) {
-                currentActions.onDraw(points, homeWidth)
-            }
-        }
-    }
+    val gestures = rememberHomeGestures(currentState, currentActions, trace)
     Box(
         modifier
             .fillMaxSize()
             .background(colors.background)
-            .onSizeChanged { homeWidth = it.width.toFloat() }
+            .onSizeChanged { gestures.width = it.width.toFloat() }
             .testTag("home")
             .pointerInput(arbiter) {
-                detectHomeGestures(arbiter, registry, { zone.value }, gesturesEnabled, callbacks, Motion.CLOCK_HOLD_MS)
+                HomeGestureDetector(arbiter, registry, { zone.value }, gesturesEnabled, Motion.CLOCK_HOLD_MS)
+                    .detect(this, gestures)
             },
     ) {
         if (background != null) {
@@ -255,47 +154,58 @@ fun HomeScreen(
             )
             Box(Modifier.fillMaxSize().background(colors.background.copy(alpha = 1f - state.backgroundOpacity)))
         }
-        Column(Modifier.fillMaxSize()) {
-            Spacer(Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + HomeDimens.topGap))
-            if (state.roleMissing) {
-                RoleCard(registry, onClick = { currentActions.onRequestRole() })
-            }
-            ClockArea(
-                minute = minute,
-                format = state.clockFormat,
-                showDate = state.showDate,
-                position = clockShown,
-                drag = clockDrag,
-                onBounds = registry::clock,
-                onTap = { currentActions.onClockTap() },
-                onMeasured = { area, block ->
-                    clockMetrics[0] = area
-                    clockMetrics[1] = block
-                },
-            )
-            Spacer(Modifier.height(HomeDimens.listGap - HANDLE_HEIGHT))
-            Spacer(Modifier.height(with(density) { listOffsetPx.toDp() }))
-            ListHandle(active = handleDrag != null, onBounds = registry::handle)
-            val rowColor: (Int) -> Color = if (background == null) {
-                colors::zebra
-            } else {
-                { index ->
-                    if (index % 2 ==
-                        0
-                    ) {
-                        Color.Transparent
-                    } else {
-                        colors.zebraB.copy(alpha = 1f - state.backgroundOpacity)
-                    }
+        HomeColumn(state, minute, registry, gestures, currentActions, hasBackground = background != null)
+        TraceLayer(trace)
+    }
+}
+
+@Composable
+private fun HomeColumn(
+    state: HomeUiState,
+    minute: State<Long>,
+    registry: RowRegistry,
+    gestures: HomeGestureHandler,
+    actions: State<HomeActions>,
+    hasBackground: Boolean,
+) {
+    val colors = LocalMushinColors.current
+    val density = LocalDensity.current
+    Column(Modifier.fillMaxSize()) {
+        Spacer(Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + HomeDimens.topGap))
+        if (state.roleMissing) {
+            RoleCard(registry, onClick = { actions.value.onRequestRole() })
+        }
+        ClockArea(
+            minute = minute,
+            format = state.clockFormat,
+            showDate = state.showDate,
+            position = gestures.clock.shown,
+            drag = gestures.clock.drag,
+            onBounds = registry.clock::set,
+            onTap = { actions.value.onClockTap() },
+            onMeasured = gestures.clock::measured,
+        )
+        Spacer(Modifier.height(HomeDimens.listGap - HANDLE_HEIGHT))
+        Spacer(Modifier.height(with(density) { gestures.handle.offsetPx.toDp() }))
+        ListHandle(active = gestures.handle.active, onBounds = registry.handle::set)
+        val rowColor: (Int) -> Color = if (!hasBackground) {
+            colors::zebra
+        } else {
+            { index ->
+                if (index % 2 ==
+                    0
+                ) {
+                    Color.Transparent
+                } else {
+                    colors.zebraB.copy(alpha = 1f - state.backgroundOpacity)
                 }
             }
-            FavoritesList(state, registry, rowColor, Modifier.weight(1f).fillMaxWidth()) { capacity ->
-                currentActions.onCapacityChanged(capacity)
-            }
-            HomeBar(state.suggestion, registry, currentActions)
-            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
-        TraceLayer(trace)
+        FavoritesList(state, registry, rowColor, Modifier.weight(1f).fillMaxWidth()) { capacity ->
+            actions.value.onCapacityChanged(capacity)
+        }
+        HomeBar(state.suggestion, registry, actions.value)
+        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
 }
 
