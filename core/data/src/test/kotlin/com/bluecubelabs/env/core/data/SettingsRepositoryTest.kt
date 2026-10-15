@@ -60,6 +60,7 @@ class SettingsRepositoryTest {
         assertThat(settings.searchLayoutSwap).isTrue()
         assertThat(settings.searchTranslit).isTrue()
         assertThat(settings.onboardingDone).isFalse()
+        assertThat(settings.backgroundOpacity).isEqualTo(0.5f)
     }
 
     @Test
@@ -83,6 +84,7 @@ class SettingsRepositoryTest {
                 clockPosition = ClockPosition.END,
                 font = AppFont.MONTSERRAT,
                 fontWeight = AppFontWeight.LIGHT,
+                backgroundOpacity = 1.7f,
             )
         }
         val settings = repo.settings.first { it.currentEnvId == 7L }
@@ -99,6 +101,7 @@ class SettingsRepositoryTest {
         assertThat(settings.clockPosition).isEqualTo(ClockPosition.END)
         assertThat(settings.font).isEqualTo(AppFont.MONTSERRAT)
         assertThat(settings.fontWeight).isEqualTo(AppFontWeight.LIGHT)
+        assertThat(settings.backgroundOpacity).isEqualTo(1f)
         repo.update { it.copy(currentEnvId = null) }
         assertThat(repo.settings.first { it.currentEnvId == null }.iconMode).isEqualTo(IconMode.RIGHT)
     }

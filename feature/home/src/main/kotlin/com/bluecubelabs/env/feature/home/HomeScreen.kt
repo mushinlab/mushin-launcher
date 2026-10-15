@@ -1,6 +1,7 @@
 package com.bluecubelabs.env.feature.home
 
 import android.view.HapticFeedbackConstants
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,7 +37,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
@@ -123,6 +127,7 @@ fun HomeScreen(
     actions: HomeActions,
     gesturesEnabled: () -> Boolean,
     modifier: Modifier = Modifier,
+    background: ImageBitmap? = null,
 ) {
     val colors = LocalEnvColors.current
     val registry = remember { RowRegistry() }
@@ -241,6 +246,15 @@ fun HomeScreen(
                 detectHomeGestures(arbiter, registry, { zone.value }, gesturesEnabled, callbacks, Motion.CLOCK_HOLD_MS)
             },
     ) {
+        if (background != null) {
+            Image(
+                background,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize().testTag("home_background"),
+                contentScale = ContentScale.Crop,
+            )
+            Box(Modifier.fillMaxSize().background(colors.background.copy(alpha = 1f - state.backgroundOpacity)))
+        }
         Column(Modifier.fillMaxSize()) {
             Spacer(Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + HomeDimens.topGap))
             if (state.roleMissing) {
@@ -262,7 +276,20 @@ fun HomeScreen(
             Spacer(Modifier.height(HomeDimens.listGap - HANDLE_HEIGHT))
             Spacer(Modifier.height(with(density) { listOffsetPx.toDp() }))
             ListHandle(active = handleDrag != null, onBounds = registry::handle)
-            FavoritesList(state, registry, Modifier.weight(1f).fillMaxWidth()) { capacity ->
+            val rowColor: (Int) -> Color = if (background == null) {
+                colors::zebra
+            } else {
+                { index ->
+                    if (index % 2 ==
+                        0
+                    ) {
+                        Color.Transparent
+                    } else {
+                        colors.zebraB.copy(alpha = 1f - state.backgroundOpacity)
+                    }
+                }
+            }
+            FavoritesList(state, registry, rowColor, Modifier.weight(1f).fillMaxWidth()) { capacity ->
                 currentActions.onCapacityChanged(capacity)
             }
             HomeBar(state.suggestion, registry, currentActions)
@@ -358,6 +385,7 @@ private fun stringResourceRoleCard(): String = androidx.compose.ui.res.stringRes
 private fun FavoritesList(
     state: HomeUiState,
     registry: RowRegistry,
+    rowColor: (Int) -> Color,
     modifier: Modifier,
     onCapacity: (Int) -> Unit,
 ) {
@@ -383,7 +411,7 @@ private fun FavoritesList(
         } else {
             Column(verticalArrangement = Arrangement.Top) {
                 visible.forEachIndexed { index, row ->
-                    FavoriteRow(index, row, state.iconMode, textStyle, rowHeight, registry)
+                    FavoriteRow(index, row, state.iconMode, textStyle, rowHeight, registry, rowColor(index))
                 }
             }
         }
@@ -398,13 +426,14 @@ private fun FavoriteRow(
     textStyle: androidx.compose.ui.text.TextStyle,
     height: Dp,
     registry: RowRegistry,
+    background: Color,
 ) {
     val colors = LocalEnvColors.current
     Row(
         Modifier
             .fillMaxWidth()
             .height(height)
-            .background(colors.zebra(index))
+            .background(background)
             .onGloballyPositioned { registry.update(index, it.boundsInRoot()) }
             .semantics(mergeDescendants = true) {
                 role = Role.Button

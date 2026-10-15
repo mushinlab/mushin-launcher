@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bluecubelabs.env.core.model.AppFont
 import com.bluecubelabs.env.core.model.AppFontWeight
+import com.bluecubelabs.env.core.model.BackgroundOpacity
 import com.bluecubelabs.env.core.model.ClockFormat
 import com.bluecubelabs.env.core.model.GestureAction
 import com.bluecubelabs.env.core.model.GestureTuning
@@ -204,6 +205,30 @@ internal fun StyleScreen(state: SettingsUiState, actions: SettingsActions, back:
         ToggleRow(stringResource(R.string.style_stroke_dots), s.strokeDots, tag = "stroke_dots") { on ->
             actions.updateSettings { it.copy(strokeDots = on) }
         }
+        SectionHeader(stringResource(R.string.style_background))
+        NavRow(
+            stringResource(
+                if (state.hasBackground) R.string.style_background_change else R.string.style_background_pick,
+            ),
+            tag = "background_pick",
+            onClick = actions::pickBackground,
+        )
+        if (state.hasBackground) {
+            SliderRow(
+                stringResource(R.string.style_background_opacity),
+                s.backgroundOpacity,
+                0f..1f,
+                BackgroundOpacity.STEP,
+                tag = "background_opacity",
+                format = { "${(it * PERCENT).roundToInt()} %" },
+            ) { v -> actions.updateSettings { it.copy(backgroundOpacity = v) } }
+            NavRow(
+                stringResource(R.string.style_background_clear),
+                tag = "background_clear",
+                onClick = actions::clearBackground,
+            )
+        }
+        NoteText(stringResource(R.string.style_background_note))
     }
 }
 
@@ -525,6 +550,7 @@ internal fun SystemScreen(
 }
 
 private const val CHIP_ALPHA = 0.16f
+private const val PERCENT = 100
 
 @Composable
 private fun StrokeColorDropdown(selected: StrokeColor, onSelect: (StrokeColor) -> Unit) {

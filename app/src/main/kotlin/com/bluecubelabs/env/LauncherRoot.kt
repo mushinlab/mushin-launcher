@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -86,6 +87,7 @@ import com.bluecubelabs.env.feature.settings.SettingsHost
 import com.bluecubelabs.env.feature.settings.SettingsRoute
 import com.bluecubelabs.env.feature.settings.TextInputDialog
 import kotlin.math.abs
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -101,6 +103,8 @@ fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: La
     BackHandler(enabled = true) { activity.handleBack() }
 
     val colored by vm.coloredIcons.collectAsStateWithLifecycle()
+    val backgroundBitmap by (activity.application as EnvApp).container.background.image.collectAsStateWithLifecycle()
+    val background = remember(backgroundBitmap) { backgroundBitmap?.asImageBitmap() }
     val icons = remember(iconProvider, colored) { iconProvider.withColors(colored) }
     val font = remember(settings.font, settings.fontWeight) { EnvFont.of(settings.font, settings.fontWeight) }
     val stroke = remember(settings.strokeWidth, settings.strokeColor, settings.strokeDots) {
@@ -128,6 +132,7 @@ fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: La
                     }
                 }
                 HomeScreen(
+                    background = background,
                     state = home,
                     minute = activity.minute,
                     actions = homeActions,
@@ -539,6 +544,13 @@ private fun SettingsLayer(activity: MainActivity, vm: LauncherViewModel) {
 
             override fun requestSearchTile() = activity.requestSearchTile()
 
+            override fun pickBackground() = activity.pickBackground()
+
+            override fun clearBackground() {
+                val container = (activity.application as EnvApp).container
+                container.scope.launch(Dispatchers.IO) { container.background.clear() }
+            }
+
             override fun forgetDrawing(key: AppKey, path: String) = vm.memory.forget {
                 it.key == key && it.path == path
             }
@@ -552,7 +564,8 @@ private fun SettingsLayer(activity: MainActivity, vm: LauncherViewModel) {
             override fun clearUsage() = vm.memory.clearUsage()
         }
     }
-    SettingsHost(activity.settingsStack, state, actions)
+    val background by (activity.application as EnvApp).container.background.image.collectAsStateWithLifecycle()
+    SettingsHost(activity.settingsStack, state.copy(hasBackground = background != null), actions)
 }
 
 @Composable

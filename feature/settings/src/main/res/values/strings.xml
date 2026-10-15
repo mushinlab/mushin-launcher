@@ -200,6 +200,12 @@
     <string name="memory_sheet_hint">Нарисуйте любую фигуру одним движением — по буквам или нет.</string>
     <string name="memory_sheet_short">Слишком коротко: проведите линию.</string>
     <string name="memory_sheet_result">Так жест будет запомнен. Добавить, повторить или отменить?</string>
+    <string name="style_background">Фон</string>
+    <string name="style_background_pick">Выбрать изображение</string>
+    <string name="style_background_change">Сменить изображение</string>
+    <string name="style_background_opacity">Видимость фона</string>
+    <string name="style_background_clear">Убрать фон</string>
+    <string name="style_background_note">Изображение из галереи (PNG, JPEG, WebP, AVIF) под списком на главном экране. Копия хранится только в лаунчере и никуда не отправляется.</string>
     <string name="style_stroke_dots">Точки на линии</string>
     <string name="memory_sheet_draft">Это усреднённый рисунок из ваших последних попыток. Добавьте его или нарисуйте заново.</string>
     <string name="gestures_anywhere">Поиск поверх приложений</string>

@@ -416,6 +416,7 @@ class LauncherViewModel(
             showDate = d.settings.showDate,
             clockPosition = d.settings.clockPosition,
             homeListOffset = d.current?.listOffset ?: d.settings.homeListOffset,
+            backgroundOpacity = d.settings.backgroundOpacity,
             roleMissing = !role,
         )
     }

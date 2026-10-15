@@ -2,6 +2,7 @@ package com.bluecubelabs.env.feature.home
 
 import androidx.compose.runtime.Immutable
 import com.bluecubelabs.env.core.model.AppKey
+import com.bluecubelabs.env.core.model.BackgroundOpacity
 import com.bluecubelabs.env.core.model.ClockFormat
 import com.bluecubelabs.env.core.model.ClockPosition
 import com.bluecubelabs.env.core.model.HomeTextSize
@@ -39,6 +40,7 @@ data class HomeUiState(
     val showDate: Boolean = true,
     val clockPosition: ClockPosition = ClockPosition.START,
     val homeListOffset: Int = 0,
+    val backgroundOpacity: Float = BackgroundOpacity.DEFAULT,
     val roleMissing: Boolean = false,
     val suggestion: HomeSuggestion? = null,
 )

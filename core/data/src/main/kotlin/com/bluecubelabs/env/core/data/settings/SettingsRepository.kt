@@ -71,6 +71,7 @@ class SettingsRepository(
         internal val STROKE_WIDTH = intPreferencesKey("stroke_width")
         internal val STROKE_COLOR = stringPreferencesKey("stroke_color")
         internal val STROKE_DOTS = booleanPreferencesKey("stroke_dots")
+        internal val BACKGROUND_OPACITY = floatPreferencesKey("background_opacity")
         internal val NOTIFICATION_COUNTS = booleanPreferencesKey("notification_counts")
         internal val PRESS_FEEDBACK = stringPreferencesKey("press_feedback")
         internal val KB_LAYOUTS = stringPreferencesKey("kb_layouts")
@@ -103,6 +104,7 @@ class SettingsRepository(
                     .coerceIn(StrokeWidth.MIN_DP, StrokeWidth.MAX_DP),
                 strokeColor = enumOr(prefs[STROKE_COLOR], defaults.strokeColor),
                 strokeDots = prefs[STROKE_DOTS] ?: defaults.strokeDots,
+                backgroundOpacity = (prefs[BACKGROUND_OPACITY] ?: defaults.backgroundOpacity).coerceIn(0f, 1f),
                 notificationCounts = prefs[NOTIFICATION_COUNTS] ?: defaults.notificationCounts,
                 pressFeedback = enumOr(prefs[PRESS_FEEDBACK], defaults.pressFeedback),
                 keyboardLayouts = prefs[KB_LAYOUTS]
@@ -145,6 +147,7 @@ class SettingsRepository(
             prefs[STROKE_WIDTH] = settings.strokeWidth
             prefs[STROKE_COLOR] = settings.strokeColor.name
             prefs[STROKE_DOTS] = settings.strokeDots
+            prefs[BACKGROUND_OPACITY] = settings.backgroundOpacity
             prefs[NOTIFICATION_COUNTS] = settings.notificationCounts
             prefs[PRESS_FEEDBACK] = settings.pressFeedback.name
             prefs[KB_LAYOUTS] = settings.keyboardLayouts.joinToString(",")

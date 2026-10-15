@@ -16,6 +16,11 @@ object KeyboardFit {
     const val STEP = 0.05f
 }
 
+object BackgroundOpacity {
+    const val DEFAULT = 0.5f
+    const val STEP = 0.05f
+}
+
 object HomeListOffset {
     const val MAX_DP = 480
 }
@@ -60,6 +65,7 @@ data class LauncherSettings(
     val strokeWidth: Int = StrokeWidth.DEFAULT_DP,
     val strokeColor: StrokeColor = StrokeColor.ACCENT,
     val strokeDots: Boolean = true,
+    val backgroundOpacity: Float = BackgroundOpacity.DEFAULT,
     val notificationCounts: Boolean = false,
     val pressFeedback: PressFeedback = PressFeedback.FLASH,
     val keyboardLayouts: List<String> = listOf("en", "ru"),

@@ -1,9 +1,12 @@
 package com.bluecubelabs.env
 
 import android.content.IntentFilter
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.provider.AlarmClock
 import android.view.KeyEvent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
@@ -18,6 +21,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
@@ -34,6 +38,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.bluecubelabs.env.core.apps.NotificationSource
 import com.bluecubelabs.env.core.model.AppFont
 import com.bluecubelabs.env.core.model.AppFontWeight
+import com.bluecubelabs.env.core.model.BackgroundOpacity
 import com.bluecubelabs.env.core.model.ClockPosition
 import com.bluecubelabs.env.core.model.EnvType
 import com.bluecubelabs.env.core.model.GestureAction
@@ -50,6 +55,7 @@ import com.bluecubelabs.env.feature.search.KeyboardDimens
 import com.bluecubelabs.env.feature.search.glideCenters
 import com.bluecubelabs.env.feature.settings.SettingsRoute
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import kotlin.math.abs
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -892,6 +898,36 @@ class LauncherUiTest {
         rule.onNodeWithTag("stroke_dots").performScrollTo().performClick()
         rule.waitUntil(5_000) { !container.settings.settings.value.strokeDots }
         runBlocking { container.settings.update { it.copy(strokeDots = true) } }
+    }
+
+    @Test
+    fun backgroundImageShowsOnHomeWithAVisibilitySliderUntilRemoved() {
+        rule.onNodeWithTag("home_background").assertDoesNotExist()
+        rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.Style) }
+        rule.onNodeWithTag("background_pick").performScrollTo().assertIsDisplayed()
+        rule.onNodeWithTag("background_opacity").assertDoesNotExist()
+        val bitmap = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888).apply {
+            eraseColor(android.graphics.Color.RED)
+        }
+        val file = File(rule.activity.cacheDir, "picked.png").apply {
+            outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        }
+        try {
+            assertThat(container.background.save(ImageDecoder.createSource(file))).isTrue()
+            rule.onNodeWithTag("background_opacity").performScrollTo()
+                .performSemanticsAction(SemanticsActions.SetProgress) { it(0.8f) }
+            rule.waitUntil(5_000) { abs(container.settings.settings.value.backgroundOpacity - 0.8f) < 0.01f }
+            rule.runOnIdle { rule.activity.settingsStack.close() }
+            rule.onNodeWithTag("home_background").assertIsDisplayed()
+            rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.Style) }
+            rule.onNodeWithTag("background_clear").performScrollTo().performClick()
+            rule.waitUntil(5_000) { container.background.image.value == null }
+            rule.onNodeWithTag("background_opacity").assertDoesNotExist()
+        } finally {
+            container.background.clear()
+            file.delete()
+            runBlocking { container.settings.update { it.copy(backgroundOpacity = BackgroundOpacity.DEFAULT) } }
+        }
     }
 
     @Test

@@ -155,6 +155,7 @@ data class SettingsUiState(
     val learned: ImmutableList<LearnedApp> = persistentListOf(),
     val usage: ImmutableList<UsageRow> = persistentListOf(),
     val usefulness: ImmutableList<ScoreRow> = persistentListOf(),
+    val hasBackground: Boolean = false,
 ) {
     val currentEnvId: Long? get() = envs.firstOrNull { it.current }?.id
 }
@@ -193,6 +194,10 @@ interface SettingsActions : MemoryActions {
     fun openAssistantSettings()
 
     fun requestSearchTile()
+
+    fun pickBackground()
+
+    fun clearBackground()
 }
 
 interface MemoryActions {

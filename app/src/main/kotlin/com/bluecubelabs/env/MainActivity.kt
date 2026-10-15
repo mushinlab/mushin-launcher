@@ -72,6 +72,10 @@ class MainActivity : ComponentActivity() {
         refreshAccess()
     }
 
+    internal val backgroundPicker = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) setBackground(uri)
+    }
+
     private val timeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             minute.longValue = System.currentTimeMillis()

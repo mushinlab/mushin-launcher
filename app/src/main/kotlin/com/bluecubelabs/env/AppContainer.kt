@@ -14,6 +14,7 @@ import com.bluecubelabs.env.core.apps.PackageEvent
 import com.bluecubelabs.env.core.apps.ReflectionNotificationShade
 import com.bluecubelabs.env.core.apps.icons.IconLoader
 import com.bluecubelabs.env.core.apps.icons.LauncherIconSource
+import com.bluecubelabs.env.core.data.background.BackgroundStore
 import com.bluecubelabs.env.core.data.db.EnvDatabase
 import com.bluecubelabs.env.core.data.repo.EnvironmentRepository
 import com.bluecubelabs.env.core.data.repo.GestureLearningRepository
@@ -51,6 +52,14 @@ class AppContainer(private val app: Application) {
     val cleaner by lazy { PackageDataCleaner(database) }
     val settings by lazy { SettingsRepository.create(app, scope) }
     val snapshots by lazy { HomeSnapshotStore(app.filesDir) }
+    val background by lazy {
+        val metrics = app.resources.displayMetrics
+        BackgroundStore(
+            app.filesDir,
+            minOf(metrics.widthPixels, metrics.heightPixels),
+            maxOf(metrics.widthPixels, metrics.heightPixels),
+        )
+    }
 
     val gateway by lazy { AndroidLauncherAppsGateway(app) }
     val catalog by lazy { AppCatalog(gateway, scope) }
@@ -88,6 +97,7 @@ class AppContainer(private val app: Application) {
             }
         }
         scope.launch(Dispatchers.IO) { ExitLog(app).recordNewExits() }
+        scope.launch(Dispatchers.IO) { background.load() }
     }
 
     private companion object {
