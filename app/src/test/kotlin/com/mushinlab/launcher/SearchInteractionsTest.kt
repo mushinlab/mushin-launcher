@@ -47,7 +47,7 @@ class SearchInteractionsTest {
         search.toggleInSpace(slack, add = true)
 
         assertThat(navigator.notice?.text).isEqualTo(R.string.notice_space_full)
-        assertThat(navigator.notice?.args).containsExactly("s1")
+        assertThat(navigator.notice?.arg).isEqualTo("s1")
     }
 
     @Test
@@ -68,7 +68,7 @@ class SearchInteractionsTest {
         search.toggleHidden(slack, hidden = true)
 
         assertThat(model.hidden).containsExactly(slack, true)
-        assertThat(navigator.notice?.args).containsExactly("Slack")
+        assertThat(navigator.notice?.arg).isEqualTo("Slack")
         assertThat(navigator.search.panels.menu).isNull()
     }
 

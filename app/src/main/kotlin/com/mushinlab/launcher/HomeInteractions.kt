@@ -16,7 +16,6 @@ import com.mushinlab.launcher.feature.search.KeyboardDimens
 import com.mushinlab.launcher.feature.search.SearchMode
 import com.mushinlab.launcher.feature.search.glideCenters
 import com.mushinlab.launcher.feature.settings.SettingsRoute
-import kotlinx.collections.immutable.persistentListOf
 
 @Stable
 class HomeInteractions(
@@ -105,7 +104,7 @@ class HomeInteractions(
     private fun expandShade() {
         if (!model.expandShade() && !shadeWarned) {
             shadeWarned = true
-            navigator.notice = Notice(R.string.notice_shade_unavailable, persistentListOf())
+            navigator.notice = Notice(R.string.notice_shade_unavailable)
         }
     }
 

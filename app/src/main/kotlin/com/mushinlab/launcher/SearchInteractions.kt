@@ -6,7 +6,6 @@ import com.mushinlab.launcher.core.search.KeyboardLayouts
 import com.mushinlab.launcher.feature.search.HardwareKey
 import com.mushinlab.launcher.feature.search.SearchMenu
 import com.mushinlab.launcher.feature.search.SearchMode
-import kotlinx.collections.immutable.persistentListOf
 
 class SearchInteractions(
     private val model: LauncherModel,
@@ -42,13 +41,13 @@ class SearchInteractions(
         search.panels.closeMenu()
         model.setHidden(key, hidden)
         navigator.notice =
-            Notice(if (hidden) R.string.notice_hidden else R.string.notice_unhidden, persistentListOf(label))
+            Notice(if (hidden) R.string.notice_hidden else R.string.notice_unhidden, label)
     }
 
     fun toggleInSpace(key: AppKey, add: Boolean) {
         search.panels.closeMenu()
         val space = model.currentSpace ?: return
-        val names = persistentListOf(space.name)
+        val names = space.name
         navigator.notice = when {
             !add -> {
                 model.removeFromCurrentSpace(key)

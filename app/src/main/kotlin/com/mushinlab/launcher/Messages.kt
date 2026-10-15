@@ -183,7 +183,7 @@ internal fun NoticeBar(notice: Notice, top: Boolean, onDismiss: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BasicText(
-            stringResource(notice.text, *notice.args.toTypedArray()),
+            notice.arg?.let { stringResource(notice.text, it) } ?: stringResource(notice.text),
             style = MushinType.style(15.sp, colors.textPrimary),
             modifier = Modifier.weight(1f),
         )
