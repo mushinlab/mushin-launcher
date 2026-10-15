@@ -1,7 +1,5 @@
 package com.mushinlab.launcher.feature.search
 
-import android.view.HapticFeedbackConstants
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -43,13 +41,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -59,7 +52,6 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -74,15 +66,11 @@ import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.search.KeyboardLayout
-import com.mushinlab.launcher.core.ui.AnchoredPanel
 import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
-import com.mushinlab.launcher.core.ui.HorizontalDivider
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
-import com.mushinlab.launcher.core.ui.PanelHeader
-import com.mushinlab.launcher.core.ui.PanelItem
 import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.SwipeMarks
 import com.mushinlab.launcher.core.ui.VerticalDivider
@@ -111,36 +99,14 @@ data class SearchChrome(
     val coloredIcons: Boolean = false,
 )
 
-enum class SearchOption { FUZZY, LAYOUT_SWAP, TRANSLIT, COLORED_ICONS }
-
-interface SearchActions : KeyboardActions {
+interface SearchActions : KeyboardActions, SearchMenuActions, SearchOptionsActions {
     fun onLaunch(key: AppKey)
 
     fun onShowKeyboard()
 
-    fun onRename(key: AppKey)
-
     fun onLongPress(key: AppKey, label: String, anchor: Offset)
 
-    fun onToggleInSpace(key: AppKey, add: Boolean)
-
-    fun onAppInfo(key: AppKey)
-
-    fun onUninstall(key: AppKey)
-
-    fun onToggleHidden(key: AppKey, hidden: Boolean)
-
-    fun onToggleShortcut(key: AppKey, bound: Boolean)
-
-    fun onToggleShowHidden()
-
-    fun onSearchOption(option: SearchOption, enabled: Boolean)
-
-    fun onClearHistory()
-
     fun onKeyboardFit(width: Float, shift: Float)
-
-    fun onDismissMenu()
 }
 
 object SearchDimens {
@@ -223,8 +189,9 @@ fun SearchScreen(
             Spacer(Modifier.height(if (typing) KeyboardDimens.bottomLift else gap))
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
-        controller.menu?.let { SearchMenuPanel(it, actions) }
-        controller.options?.let { OptionsPanel(it, chrome, controller.showHidden, actions, controller::closeOptions) }
+        val panels = controller.panels
+        panels.menu?.let { SearchMenuPanel(it, actions) }
+        panels.options?.let { OptionsPanel(it, chrome, controller.showHidden, actions, panels::closeOptions) }
     }
 }
 
@@ -243,47 +210,7 @@ private fun SearchHeader(controller: SearchController) {
             colors.textSecondary,
             tag = "search_options",
             modifier = Modifier.onGloballyPositioned { anchor = it.boundsInRoot().bottomCenter },
-        ) { controller.openOptions(anchor) }
-    }
-}
-
-@Composable
-private fun OptionsPanel(
-    anchor: Offset,
-    chrome: SearchChrome,
-    showHidden: Boolean,
-    actions: SearchActions,
-    onDismiss: () -> Unit,
-) {
-    var confirm by remember { mutableStateOf(false) }
-    AnchoredPanel(anchor = anchor, onDismiss = onDismiss) {
-        if (confirm) {
-            PanelHeader(stringResource(R.string.search_clear_confirm))
-            PanelItem(stringResource(R.string.search_clear), tag = "search_clear_confirm") {
-                actions.onClearHistory()
-                onDismiss()
-            }
-            PanelItem(stringResource(R.string.search_cancel), tag = "search_clear_cancel") { confirm = false }
-        } else {
-            PanelHeader(stringResource(R.string.search_options))
-            listOf(
-                Triple(SearchOption.FUZZY, R.string.search_fuzzy, chrome.fuzzy),
-                Triple(SearchOption.LAYOUT_SWAP, R.string.search_layout_swap, chrome.layoutSwap),
-                Triple(SearchOption.TRANSLIT, R.string.search_translit, chrome.translit),
-                Triple(SearchOption.COLORED_ICONS, R.string.search_colored_icons, chrome.coloredIcons),
-            ).forEach { (option, label, on) ->
-                PanelItem(
-                    (if (on) "✓  " else "     ") + stringResource(label),
-                    tag = "search_option_$option",
-                ) { actions.onSearchOption(option, !on) }
-            }
-            PanelItem(
-                (if (showHidden) "✓  " else "     ") + stringResource(R.string.search_show_hidden),
-                tag = "search_option_show_hidden",
-            ) { actions.onToggleShowHidden() }
-            HorizontalDivider()
-            PanelItem(stringResource(R.string.search_clear_history), tag = "search_clear_history") { confirm = true }
-        }
+        ) { controller.panels.openOptions(anchor) }
     }
 }
 
@@ -497,7 +424,7 @@ private fun InputPane(
             QueryRow(controller, actions)
             if (typing) {
                 val glide = remember(chrome.gestureShiftPenalty, chrome.gestureSuggestMargin, controller) {
-                    Glide(chrome.gestureShiftPenalty, chrome.gestureSuggestMargin, controller::applyGesture)
+                    Glide(chrome.gestureShiftPenalty, chrome.gestureSuggestMargin, controller.gestures::decode)
                 }
                 Keyboard(
                     chrome.layout,
@@ -511,7 +438,7 @@ private fun InputPane(
                 )
             }
         }
-        if (typing && controller.resizing && total > 0f) {
+        if (typing && controller.panels.resizing && total > 0f) {
             ResizeOverlay(
                 frame = dragged ?: KeyboardFrame.of(width, shift, total),
                 total = total,
@@ -519,110 +446,12 @@ private fun InputPane(
                 onRelease = { frame ->
                     actions.onKeyboardFit(frame.fraction(total), frame.shift(total))
                 },
-                onExit = controller::toggleResize,
+                onExit = controller.panels::toggleResize,
                 modifier = Modifier.matchParentSize(),
             )
         }
     }
     LaunchedEffect(chrome.keyboardWidth, chrome.keyboardShift) { dragged = null }
-}
-
-private enum class Anchor { START, END, MOVE }
-
-@Composable
-private fun ResizeOverlay(
-    frame: KeyboardFrame,
-    total: Float,
-    onDrag: (KeyboardFrame) -> Unit,
-    onRelease: (KeyboardFrame) -> Unit,
-    onExit: () -> Unit,
-    modifier: Modifier,
-) {
-    val colors = LocalMushinColors.current
-    val current by rememberUpdatedState(frame)
-    val density = LocalDensity.current
-    val view = LocalView.current
-    val inset = with(density) { SearchDimens.anchorInset.toPx() }
-    val touch = with(density) { SearchDimens.anchorTouch.toPx() }
-    var grabbed by remember { mutableStateOf<Anchor?>(null) }
-    Canvas(
-        modifier
-            .testTag("resize_overlay")
-            .pointerInput(total) {
-                awaitEachGesture {
-                    val down = awaitFirstDown()
-                    down.consume()
-                    val start = current
-                    val p = down.position
-                    val anchor = when {
-                        abs(p.x - start.left - inset) < touch -> Anchor.START
-                        abs(p.x - start.right + inset) < touch -> Anchor.END
-                        abs(p.y - size.height + inset) < touch && p.x in start.left..start.right -> Anchor.MOVE
-                        else -> null
-                    }
-                    if (anchor != null) {
-                        grabbed = anchor
-                        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                    }
-                    var moved = start
-                    var change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
-                    while (change != null && change.pressed) {
-                        change.consume()
-                        val dx = change.position.x - p.x
-                        moved = when (anchor) {
-                            Anchor.START -> start.dragStart(dx, total)
-                            Anchor.END -> start.dragEnd(dx, total)
-                            Anchor.MOVE -> start.move(dx, total)
-                            null -> start
-                        }
-                        if (anchor != null) onDrag(moved)
-                        change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
-                    }
-                    change?.consume()
-                    grabbed = null
-                    if (anchor == null) {
-                        onExit()
-                    } else {
-                        view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
-                        onRelease(moved)
-                    }
-                }
-            },
-    ) {
-        val length = SearchDimens.anchorLength.toPx()
-        val thickness = SearchDimens.anchorThickness.toPx()
-        val radius = SearchDimens.paneRadius.toPx()
-        drawRoundRect(
-            colors.textSecondary,
-            cornerRadius = CornerRadius(radius),
-            style = Stroke(
-                width = BOUNDS_STROKE.toPx(),
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(DASH.toPx(), DASH.toPx())),
-            ),
-        )
-        drawRect(colors.background.copy(alpha = RESIZE_SCRIM), Offset(frame.left, 0f), Size(frame.width, size.height))
-        fun anchorColor(anchor: Anchor) = if (grabbed == anchor) colors.textPrimary else colors.accent
-        fun anchorWidth(anchor: Anchor) = if (grabbed == anchor) thickness * GRABBED_SCALE else thickness
-        val mid = size.height / 2
-        listOf(Anchor.START to frame.left + inset, Anchor.END to frame.right - inset).forEach { (anchor, x) ->
-            drawLine(
-                anchorColor(anchor),
-                Offset(x, mid - length / 2),
-                Offset(x, mid + length / 2),
-                anchorWidth(anchor),
-                StrokeCap.Round,
-            )
-        }
-        val center = frame.left + frame.width / 2
-        val bottom = size.height - inset
-        drawLine(
-            anchorColor(Anchor.MOVE),
-            Offset(center - length / 2, bottom),
-            Offset(center + length / 2, bottom),
-            anchorWidth(Anchor.MOVE),
-            StrokeCap.Round,
-        )
-    }
 }
 
 @Composable
@@ -677,33 +506,5 @@ private fun SuggestionIcons(rows: ImmutableList<SearchRow>, actions: SearchActio
     }
 }
 
-@Composable
-private fun SearchMenuPanel(menu: SearchMenu, actions: SearchActions) {
-    AnchoredPanel(anchor = menu.anchor, onDismiss = actions::onDismissMenu) {
-        PanelHeader(menu.label)
-        PanelItem(
-            stringResource(if (menu.inSpace) R.string.menu_remove_from_space else R.string.menu_add_to_space),
-            tag = "menu_env",
-        ) { actions.onToggleInSpace(menu.key, add = !menu.inSpace) }
-        PanelItem(
-            stringResource(if (menu.hidden) R.string.menu_unhide else R.string.menu_hide),
-            tag = "menu_hide",
-        ) { actions.onToggleHidden(menu.key, !menu.hidden) }
-        PanelItem(
-            (if (menu.shortcut) "✓  " else "     ") + stringResource(R.string.menu_system_shortcut),
-            tag = "menu_shortcut",
-        ) { actions.onToggleShortcut(menu.key, !menu.shortcut) }
-        PanelItem(stringResource(R.string.menu_rename), tag = "menu_rename") { actions.onRename(menu.key) }
-        PanelItem(stringResource(R.string.menu_app_info), tag = "menu_info") { actions.onAppInfo(menu.key) }
-        if (menu.canUninstall) {
-            PanelItem(stringResource(R.string.menu_uninstall), tag = "menu_uninstall") { actions.onUninstall(menu.key) }
-        }
-    }
-}
-
 private const val HIGHLIGHT_ALPHA = 0.12f
 private const val PANE_ZEBRA_ALPHA = 0.05f
-private const val RESIZE_SCRIM = 0.55f
-private const val GRABBED_SCALE = 1.6f
-private val BOUNDS_STROKE = 1.5.dp
-private val DASH = 6.dp

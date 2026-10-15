@@ -26,14 +26,14 @@ class SearchControllerTest {
     @Test
     fun AC_09_3_emptyQueryShowsVisibleAppsAlphabetically() {
         val controller = SearchController(clock = { 0L })
-        controller.update(index, emptyMap())
+        controller.sources.update(index, emptyMap())
         assertThat(controller.rows.map { it.label }).containsExactly("Камера", "Slack", "Telegram").inOrder()
     }
 
     @Test
     fun typingAndBackspaceRecomputeSynchronously() {
         val controller = SearchController(clock = { 0L })
-        controller.update(index, emptyMap())
+        controller.sources.update(index, emptyMap())
         controller.type('s')
         controller.type('l')
         assertThat(controller.query).isEqualTo("sl")
@@ -56,7 +56,7 @@ class SearchControllerTest {
     @Test
     fun AC_09_6_noResultsIsEmptyList() {
         val controller = SearchController(clock = { 0L })
-        controller.update(index, emptyMap())
+        controller.sources.update(index, emptyMap())
         "xyzq".forEach { controller.type(it) }
         assertThat(controller.rows).isEmpty()
         assertThat(controller.target()).isNull()
@@ -65,7 +65,7 @@ class SearchControllerTest {
     @Test
     fun AC_14_2_arrowsMoveSelectionAndEnterUsesIt() {
         val controller = SearchController(clock = { 0L })
-        controller.update(index, emptyMap())
+        controller.sources.update(index, emptyMap())
         assertThat(controller.target()?.label).isEqualTo("Камера")
         controller.moveSelection(1)
         controller.moveSelection(1)
@@ -79,17 +79,17 @@ class SearchControllerTest {
     @Test
     fun replaceQueryAndResetClosesMenu() {
         val controller = SearchController(clock = { 0L })
-        controller.update(index, emptyMap())
+        controller.sources.update(index, emptyMap())
         controller.type('x')
         controller.replaceQuery("slack")
         assertThat(controller.query).isEqualTo("slack")
         assertThat(controller.target()?.label).isEqualTo("Slack")
-        controller.openMenu(
+        controller.panels.openMenu(
             SearchMenu(controller.rows.first().key, "Slack", Offset.Zero, inSpace = false, canUninstall = true),
         )
-        assertThat(controller.menu).isNotNull()
+        assertThat(controller.panels.menu).isNotNull()
         controller.reset()
-        assertThat(controller.menu).isNull()
+        assertThat(controller.panels.menu).isNull()
     }
 
     @Test
@@ -136,7 +136,7 @@ class SearchControllerTest {
     @Test
     fun spaceIsTypedOnlyBetweenWords() {
         val controller = SearchController(clock = { 0L })
-        controller.update(index, emptyMap())
+        controller.sources.update(index, emptyMap())
         assertThat(controller.type(' ')).isFalse()
         controller.type('s')
         assertThat(controller.type(' ')).isTrue()
@@ -153,28 +153,28 @@ class SearchControllerTest {
         val decoder = GestureDecoder(keys)
         val path = { word: String -> word.map { keys.getValue(it) } }
         val controller = SearchController(clock = { 0L })
-        controller.update(index, emptyMap())
+        controller.sources.update(index, emptyMap())
         val session = controller.session
 
         val slack = AppKey("p.Slack", "A", 0)
-        assertThat(controller.applyGesture(decoder, path("kamera"))).isTrue()
+        assertThat(controller.gestures.decode(decoder, path("kamera"))).isTrue()
         assertThat(controller.query).isEqualTo("камера")
         assertThat(controller.fromGesture).isTrue()
-        assertThat(controller.gesturesToLearn(slack)).isEmpty()
+        assertThat(controller.gestures.toLearn(slack)).isEmpty()
 
-        controller.applyGesture(decoder, path("slack"))
+        controller.gestures.decode(decoder, path("slack"))
         assertThat(controller.query).isEqualTo("slack")
-        assertThat(controller.gesturesToLearn(slack).map { it.path }).containsExactly(decoder.keysAlong(path("slack")))
+        assertThat(controller.gestures.toLearn(slack).map { it.path }).containsExactly(decoder.keysAlong(path("slack")))
 
         controller.reset()
         assertThat(controller.session).isGreaterThan(session)
-        assertThat(controller.gesturesToLearn(slack)).isEmpty()
-        controller.applyGesture(decoder, path("slack"))
+        assertThat(controller.gestures.toLearn(slack)).isEmpty()
+        controller.gestures.decode(decoder, path("slack"))
         controller.backspace()
         assertThat(controller.query).isEmpty()
         assertThat(controller.fromGesture).isFalse()
         controller.type('k')
-        assertThat(controller.gesturesToLearn(slack).map { it.path }).containsExactly(decoder.keysAlong(path("slack")))
+        assertThat(controller.gestures.toLearn(slack).map { it.path }).containsExactly(decoder.keysAlong(path("slack")))
         controller.type('a')
         controller.backspace()
         assertThat(controller.query).isEqualTo("k")
@@ -187,25 +187,25 @@ class SearchControllerTest {
             .toMap()
         val decoder = GestureDecoder(keys)
         val controller = SearchController(clock = { 0L })
-        controller.update(
+        controller.sources.update(
             SearchIndex.build(listOf(item("Google Maps"), item("Files by Google"), item("Slack"))),
             emptyMap(),
         )
 
-        assertThat(controller.applyGesture(decoder, "google".map { keys.getValue(it) })).isTrue()
+        assertThat(controller.gestures.decode(decoder, "google".map { keys.getValue(it) })).isTrue()
         assertThat(controller.suggesting).isTrue()
         assertThat(controller.query).isEmpty()
         assertThat(controller.rows.map { it.label }).containsExactly("Google Maps", "Files by Google")
         assertThat(controller.target()?.label).isEqualTo(controller.rows.first().label)
         val maps = AppKey("p.Google Maps", "A", 0)
-        assertThat(controller.gesturesToLearn(maps).map { it.path })
+        assertThat(controller.gestures.toLearn(maps).map { it.path })
             .containsExactly(decoder.keysAlong("google".map { keys.getValue(it) }))
 
         assertThat(controller.backspace()).isTrue()
         assertThat(controller.suggesting).isFalse()
         assertThat(controller.rows).hasSize(3)
 
-        controller.applyGesture(decoder, "google".map { keys.getValue(it) })
+        controller.gestures.decode(decoder, "google".map { keys.getValue(it) })
         controller.type('s')
         assertThat(controller.suggesting).isFalse()
         assertThat(controller.query).isEqualTo("s")
@@ -214,7 +214,7 @@ class SearchControllerTest {
     @Test
     fun eyeToggleShowsHiddenAppsUntilSearchCloses() {
         val controller = SearchController(clock = { 0L })
-        controller.update(index, emptyMap())
+        controller.sources.update(index, emptyMap())
         assertThat(controller.rows.map { it.label }).doesNotContain("Secret")
         controller.toggleShowHidden()
         assertThat(controller.rows.single { it.label == "Secret" }.hidden).isTrue()
@@ -229,9 +229,9 @@ class SearchControllerTest {
     @Test
     fun rowsCarryTheSwipesTheirAppIsBoundTo() {
         val controller = SearchController(clock = { 0L })
-        controller.update(index, emptyMap())
+        controller.sources.update(index, emptyMap())
         val slack = controller.rows.first { it.label == "Slack" }.key
-        controller.setSwipes(mapOf(slack to listOf(SwipeDirection.LEFT, SwipeDirection.UP)))
+        controller.sources.setSwipes(mapOf(slack to listOf(SwipeDirection.LEFT, SwipeDirection.UP)))
         assertThat(controller.rows.first { it.label == "Slack" }.swipes)
             .containsExactly(SwipeDirection.LEFT, SwipeDirection.UP).inOrder()
         assertThat(controller.rows.first { it.label == "Telegram" }.swipes).isEmpty()
@@ -253,9 +253,9 @@ class SearchControllerTest {
             .toMap()
         val decoder = GestureDecoder(keys)
         val controller = SearchController(clock = { 0L })
-        controller.update(index, emptyMap())
-        controller.applyGesture(decoder, "ijn".map { keys.getValue(it) })
+        controller.sources.update(index, emptyMap())
+        controller.gestures.decode(decoder, "ijn".map { keys.getValue(it) })
         controller.type('s')
-        assertThat(controller.gesturesToLearn(AppKey("p.Telegram", "A", 0))).isEmpty()
+        assertThat(controller.gestures.toLearn(AppKey("p.Telegram", "A", 0))).isEmpty()
     }
 }
