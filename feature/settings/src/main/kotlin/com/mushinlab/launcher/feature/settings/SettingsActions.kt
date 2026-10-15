@@ -1,0 +1,77 @@
+package com.mushinlab.launcher.feature.settings
+
+import androidx.compose.runtime.Immutable
+import com.mushinlab.launcher.core.model.AppKey
+import com.mushinlab.launcher.core.model.GestureAction
+import com.mushinlab.launcher.core.model.LauncherSettings
+import com.mushinlab.launcher.core.model.PalettePreset
+import com.mushinlab.launcher.core.model.SpaceType
+import com.mushinlab.launcher.core.model.SwipeDirection
+import com.mushinlab.launcher.core.search.GestureSample
+
+@Immutable
+class SettingsActions(
+    val preferences: PreferenceActions,
+    val spaces: SpaceActions,
+    val apps: AppActions,
+    val system: SystemActions,
+    val memory: MemoryActions,
+)
+
+interface PreferenceActions {
+    fun updateSettings(transform: (LauncherSettings) -> LauncherSettings)
+
+    fun setGesture(direction: SwipeDirection, action: GestureAction)
+}
+
+interface SpaceActions {
+    suspend fun createSpace(name: String, type: SpaceType): String?
+
+    suspend fun renameSpace(id: Long, name: String): String?
+
+    fun deleteSpace(id: Long)
+
+    fun switchSpace(id: Long)
+
+    fun setPalette(id: Long, preset: PalettePreset)
+
+    fun setColoredIcons(id: Long, enabled: Boolean)
+
+    fun setSpaceItems(id: Long, keys: List<AppKey>)
+
+    fun addSpaceItem(id: Long, key: AppKey)
+
+    fun removeSpaceItem(id: Long, key: AppKey)
+}
+
+interface AppActions {
+    fun setHidden(key: AppKey, hidden: Boolean)
+
+    fun rename(key: AppKey, label: String?)
+}
+
+interface SystemActions {
+    fun requestDefaultLauncher()
+
+    fun openNotificationAccess()
+
+    fun openAssistantSettings()
+
+    fun requestSearchTile()
+
+    fun pickBackground()
+
+    fun clearBackground()
+}
+
+interface MemoryActions {
+    fun forgetDrawing(key: AppKey, path: String)
+
+    fun addDrawing(key: AppKey, sample: GestureSample)
+
+    fun forgetApp(key: AppKey)
+
+    fun forgetAllGestures()
+
+    fun clearUsage()
+}

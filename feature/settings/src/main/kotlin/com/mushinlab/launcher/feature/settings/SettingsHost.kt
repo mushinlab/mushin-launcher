@@ -64,20 +64,95 @@ private fun SettingsRouteScreen(
     val push: (SettingsRoute) -> Unit = { if (stack.top == route) stack.push(it) }
     when (route) {
         SettingsRoute.Root -> RootScreen(state, actions, push, back)
-        SettingsRoute.Spaces -> SpacesScreen(state, actions, back)
+
+        SettingsRoute.Spaces, is SettingsRoute.SpaceEditor, is SettingsRoute.PickApps ->
+            SpaceRouteScreen(route, state, actions, push, back)
+
+        SettingsRoute.Style, SettingsRoute.Home, SettingsRoute.Press ->
+            AppearanceRouteScreen(route, state, actions, back)
+
+        SettingsRoute.Keyboard, SettingsRoute.Gestures, is SettingsRoute.PickGestureApp ->
+            InputRouteScreen(route, state, actions, push, back)
+
+        SettingsRoute.Apps, SettingsRoute.System, SettingsRoute.Advanced ->
+            SystemRouteScreen(route, state, actions, push, back)
+
+        SettingsRoute.Memory, is SettingsRoute.MemoryApp, SettingsRoute.MemoryPickApp ->
+            MemoryRouteScreen(route, stack, state, actions, push, back)
+    }
+}
+
+@Composable
+private fun SpaceRouteScreen(
+    route: SettingsRoute,
+    state: SettingsUiState,
+    actions: SettingsActions,
+    push: (SettingsRoute) -> Unit,
+    back: () -> Unit,
+) {
+    when (route) {
         is SettingsRoute.SpaceEditor -> SpaceEditorScreen(route.spaceId, state, actions, push, back)
         is SettingsRoute.PickApps -> SpaceAppPicker(route.spaceId, state, actions, back)
-        is SettingsRoute.PickGestureApp -> GestureAppPicker(route.direction, state, actions, back)
+        else -> SpacesScreen(state, actions, back)
+    }
+}
+
+@Composable
+private fun AppearanceRouteScreen(
+    route: SettingsRoute,
+    state: SettingsUiState,
+    actions: SettingsActions,
+    back: () -> Unit,
+) {
+    when (route) {
         SettingsRoute.Home -> HomeSettingsScreen(state, actions, back)
-        SettingsRoute.Style -> StyleScreen(state, actions, back)
-        SettingsRoute.Advanced -> AdvancedScreen(state, push, back)
-        SettingsRoute.Keyboard -> KeyboardSettingsScreen(state, actions, back)
-        SettingsRoute.Gestures -> GesturesScreen(state, actions, push, back)
         SettingsRoute.Press -> PressSettingsScreen(state, actions, back)
+        else -> StyleScreen(state, actions, back)
+    }
+}
+
+@Composable
+private fun InputRouteScreen(
+    route: SettingsRoute,
+    state: SettingsUiState,
+    actions: SettingsActions,
+    push: (SettingsRoute) -> Unit,
+    back: () -> Unit,
+) {
+    when (route) {
+        is SettingsRoute.PickGestureApp -> GestureAppPicker(route.direction, state, actions, back)
+        SettingsRoute.Gestures -> GesturesScreen(state, actions, push, back)
+        else -> KeyboardSettingsScreen(state, actions, back)
+    }
+}
+
+@Composable
+private fun SystemRouteScreen(
+    route: SettingsRoute,
+    state: SettingsUiState,
+    actions: SettingsActions,
+    push: (SettingsRoute) -> Unit,
+    back: () -> Unit,
+) {
+    when (route) {
         SettingsRoute.Apps -> AppsSettingsScreen(state, actions, back)
-        SettingsRoute.System -> SystemScreen(state, actions, push, back)
-        SettingsRoute.Memory -> MemoryScreen(state, actions, push, back)
+        SettingsRoute.Advanced -> AdvancedScreen(state, push, back)
+        else -> SystemScreen(state, actions, push, back)
+    }
+}
+
+@Composable
+private fun MemoryRouteScreen(
+    route: SettingsRoute,
+    stack: SettingsStack,
+    state: SettingsUiState,
+    actions: SettingsActions,
+    push: (SettingsRoute) -> Unit,
+    back: () -> Unit,
+) {
+    when (route) {
         is SettingsRoute.MemoryApp -> MemoryAppScreen(route, state, actions, stack, back)
         SettingsRoute.MemoryPickApp -> MemoryAppPicker(state, stack, push, back)
+        else -> MemoryScreen(state, actions, push, back)
     }
 }

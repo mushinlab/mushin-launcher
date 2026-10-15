@@ -1,6 +1,7 @@
 package com.mushinlab.launcher.feature.settings
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -70,6 +71,7 @@ import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.drawVectors
 import com.mushinlab.launcher.core.ui.pressable
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -110,76 +112,95 @@ internal fun GestureSheet(
                 .pointerInput(Unit) { detectTapGestures { } }
                 .testTag("gesture_sheet"),
         ) {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(HANDLE_AREA)
-                    .pointerInput(sheetPx) {
-                        detectVerticalDragGestures(
-                            onDragEnd = {
-                                scope.launch {
-                                    if (drag.value > sheetPx * CLOSE_FRACTION) {
-                                        currentClose()
-                                    } else {
-                                        drag.animateTo(0f, tween(Motion.TRANSITION_MS))
-                                    }
-                                }
-                            },
-                        ) { change, amount ->
-                            change.consume()
-                            scope.launch { drag.snapTo((drag.value + amount).coerceAtLeast(0f)) }
-                        }
-                    }
-                    .testTag("gesture_sheet_handle"),
-                contentAlignment = Alignment.Center,
-            ) {
-                Box(
-                    Modifier
-                        .size(36.dp, 4.dp)
-                        .background(colors.textSecondary.copy(alpha = HANDLE_ALPHA), RoundedCornerShape(2.dp)),
-                )
-            }
+            SheetHandle(drag, sheetPx, scope) { currentClose() }
             BasicText(
                 label,
                 style = MushinType.style(20.sp, colors.textPrimary, FontWeight.Medium),
                 modifier = Modifier.padding(horizontal = CARD_PADDING),
             )
             Spacer(Modifier.height(4.dp))
-            val hint = when {
-                pad.fromDraft -> R.string.memory_sheet_draft
-                pad.ready -> R.string.memory_sheet_result
-                pad.points.isNotEmpty() -> R.string.memory_sheet_short
-                else -> R.string.memory_sheet_hint
-            }
-            BasicText(
-                stringResource(hint),
-                style = MushinType.style(15.sp, colors.textSecondary),
-                modifier = Modifier.padding(horizontal = CARD_PADDING).testTag("gesture_sheet_hint"),
-            )
+            SheetHint(pad)
             Spacer(Modifier.weight(1f))
             DrawPad(pad)
             Spacer(Modifier.height(16.dp))
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = CARD_PADDING),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                SheetButton(stringResource(R.string.settings_cancel), "sheet_cancel", Modifier.weight(1f)) {
-                    currentClose()
-                }
-                SheetButton(stringResource(R.string.memory_repeat), "sheet_repeat", Modifier.weight(1f)) {
-                    pad.reset()
-                }
-                SheetButton(
-                    stringResource(R.string.memory_add),
-                    "sheet_add",
-                    Modifier.weight(1f),
-                    accent = true,
-                    enabled = pad.ready,
-                ) { pad.sample()?.let(onAdd) }
-            }
+            SheetButtons(pad, onAdd) { currentClose() }
             Spacer(Modifier.height(16.dp))
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
+    }
+}
+
+@Composable
+private fun SheetHandle(
+    drag: Animatable<Float, AnimationVector1D>,
+    sheetPx: Float,
+    scope: CoroutineScope,
+    onClose: () -> Unit,
+) {
+    val colors = LocalMushinColors.current
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(HANDLE_AREA)
+            .pointerInput(sheetPx) {
+                detectVerticalDragGestures(
+                    onDragEnd = {
+                        scope.launch {
+                            if (drag.value > sheetPx * CLOSE_FRACTION) {
+                                onClose()
+                            } else {
+                                drag.animateTo(0f, tween(Motion.TRANSITION_MS))
+                            }
+                        }
+                    },
+                ) { change, amount ->
+                    change.consume()
+                    scope.launch { drag.snapTo((drag.value + amount).coerceAtLeast(0f)) }
+                }
+            }
+            .testTag("gesture_sheet_handle"),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            Modifier
+                .size(36.dp, 4.dp)
+                .background(colors.textSecondary.copy(alpha = HANDLE_ALPHA), RoundedCornerShape(2.dp)),
+        )
+    }
+}
+
+@Composable
+private fun SheetHint(pad: PadState) {
+    val hint = when {
+        pad.fromDraft -> R.string.memory_sheet_draft
+        pad.ready -> R.string.memory_sheet_result
+        pad.points.isNotEmpty() -> R.string.memory_sheet_short
+        else -> R.string.memory_sheet_hint
+    }
+    BasicText(
+        stringResource(hint),
+        style = MushinType.style(15.sp, LocalMushinColors.current.textSecondary),
+        modifier = Modifier.padding(horizontal = CARD_PADDING).testTag("gesture_sheet_hint"),
+    )
+}
+
+@Composable
+private fun SheetButtons(pad: PadState, onAdd: (GestureSample) -> Unit, onCancel: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = CARD_PADDING),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        SheetButton(stringResource(R.string.settings_cancel), "sheet_cancel", Modifier.weight(1f), onClick = onCancel)
+        SheetButton(stringResource(R.string.memory_repeat), "sheet_repeat", Modifier.weight(1f)) {
+            pad.reset()
+        }
+        SheetButton(
+            stringResource(R.string.memory_add),
+            "sheet_add",
+            Modifier.weight(1f),
+            accent = true,
+            enabled = pad.ready,
+        ) { pad.sample()?.let(onAdd) }
     }
 }
 

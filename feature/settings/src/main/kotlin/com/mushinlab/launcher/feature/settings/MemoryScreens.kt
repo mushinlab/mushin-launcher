@@ -72,7 +72,7 @@ internal fun MemoryScreen(
         if (state.learned.isNotEmpty()) {
             NavRow(stringResource(R.string.memory_forget_gestures), tag = "memory_forget_gestures") {
                 message = forgetGestures
-                confirm = actions::forgetAllGestures
+                confirm = actions.memory::forgetAllGestures
             }
         }
         CardGap()
@@ -83,7 +83,7 @@ internal fun MemoryScreen(
         if (state.usage.isNotEmpty()) {
             NavRow(stringResource(R.string.memory_clear_usage), tag = "memory_clear_usage") {
                 message = clearUsage
-                confirm = actions::clearUsage
+                confirm = actions.memory::clearUsage
             }
         }
         state.spaces.firstOrNull { it.current }?.let { space ->
@@ -128,7 +128,7 @@ internal fun MemoryAppScreen(
         NoteText(stringResource(R.string.memory_app_note))
         NavRow(stringResource(R.string.memory_add), tag = "memory_add") { drawing = true }
         app?.drawings?.forEachIndexed { index, drawing ->
-            DrawingRow(drawing, index) { actions.forgetDrawing(key, drawing.path) }
+            DrawingRow(drawing, index) { actions.memory.forgetDrawing(key, drawing.path) }
         }
         if (app != null) {
             NavRow(stringResource(R.string.memory_forget_app), tag = "memory_forget_app") { confirmAll = true }
@@ -140,7 +140,7 @@ internal fun MemoryAppScreen(
             stack = stack,
             draft = draft,
             onAdd = { sample ->
-                actions.addDrawing(key, sample)
+                actions.memory.addDrawing(key, sample)
                 stack.draft = null
                 drawing = false
             },
@@ -155,7 +155,7 @@ internal fun MemoryAppScreen(
             message = stringResource(R.string.memory_forget_app_confirm, app.label),
             confirm = stringResource(R.string.memory_erase),
             onConfirm = {
-                actions.forgetApp(key)
+                actions.memory.forgetApp(key)
                 confirmAll = false
                 back()
             },
@@ -237,7 +237,7 @@ private fun ValueRow(title: String, value: String, tag: String) {
 
 internal fun simplify(points: List<Offset>, tolerance: Float): List<Offset> {
     val distinct = points.filterIndexed { i, p -> i == 0 || p != points[i - 1] }
-    if (distinct.size < 3) return distinct
+    if (distinct.size < MIN_SIMPLIFIABLE_POINTS) return distinct
     val first = distinct.first()
     val last = distinct.last()
     val farthest = (1 until distinct.lastIndex).maxBy { distanceToSegment(distinct[it], first, last) }
@@ -262,7 +262,9 @@ internal fun qwertyCenters(size: Size): Map<Char, Offset> {
     val rowHeight = size.height / QWERTY.size
     return buildMap {
         QWERTY.forEachIndexed { row, (letters, shift) ->
-            letters.forEachIndexed { i, c -> put(c, Offset((i + shift + 0.5f) * keyWidth, (row + 0.5f) * rowHeight)) }
+            letters.forEachIndexed { i, c ->
+                put(c, Offset((i + shift + KEY_CENTER) * keyWidth, (row + KEY_CENTER) * rowHeight))
+            }
         }
     }
 }
@@ -273,3 +275,5 @@ private val STROKE = 3.dp
 private const val LETTER_ALPHA = 0.6f
 internal const val SIMPLIFY_TOLERANCE = 0.9f
 private const val DOUBLE_LETTER_MS = 1000L
+private const val MIN_SIMPLIFIABLE_POINTS = 3
+private const val KEY_CENTER = 0.5f

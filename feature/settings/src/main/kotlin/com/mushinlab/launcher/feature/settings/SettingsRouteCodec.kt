@@ -48,12 +48,17 @@ object SettingsRouteCodec {
         "PickGestureApp" -> SettingsRoute.PickGestureApp(SwipeDirection.valueOf(parts[1]))
 
         "MemoryApp" -> SettingsRoute.MemoryApp(
-            AppKey(parts[1], parts[2], parts[3].toLong()),
-            parts[4].toBooleanStrict(),
+            AppKey(parts[PACKAGE_PART], parts[ACTIVITY_PART], parts[USER_PART].toLong()),
+            parts[SKETCH_PART].toBooleanStrict(),
         )
 
         else -> null
     }
 
     private fun join(vararg parts: Any): String = parts.joinToString(SEPARATOR)
+
+    private const val PACKAGE_PART = 1
+    private const val ACTIVITY_PART = 2
+    private const val USER_PART = 3
+    private const val SKETCH_PART = 4
 }

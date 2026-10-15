@@ -92,7 +92,11 @@ internal fun SpaceAppPicker(spaceId: Long, state: SettingsUiState, actions: Sett
                 val checked = app.key in selected
                 PickerRow(app.label, checked, enabled = checked || !full, tag = "pick_${app.label}") {
                     pending = pending + (app.key to !checked)
-                    if (checked) actions.removeSpaceItem(spaceId, app.key) else actions.addSpaceItem(spaceId, app.key)
+                    if (checked) {
+                        actions.spaces.removeSpaceItem(spaceId, app.key)
+                    } else {
+                        actions.spaces.addSpaceItem(spaceId, app.key)
+                    }
                 }
             }
         }
@@ -131,7 +135,7 @@ internal fun GestureAppPicker(
         LazyColumn(Modifier.weight(1f)) {
             items(filterApps(state.apps.filterNot { it.hidden }, query), key = { it.key.id }) { app ->
                 NavRow(app.label, selected = app.key == current, tag = "pick_${app.label}") {
-                    actions.setGesture(direction, GestureAction.LaunchApp(app.key))
+                    actions.preferences.setGesture(direction, GestureAction.LaunchApp(app.key))
                     done()
                 }
             }
