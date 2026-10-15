@@ -80,10 +80,10 @@ import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.HorizontalDivider
 import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.PanelHeader
 import com.mushinlab.launcher.core.ui.PanelItem
 import com.mushinlab.launcher.core.ui.SingleLineText
-import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.SwipeMarks
 import com.mushinlab.launcher.core.ui.VerticalDivider
 import com.mushinlab.launcher.core.ui.pressable
@@ -346,7 +346,7 @@ private fun ResultsPane(
         Box(modifier.padding(SearchDimens.padding).testTag("no_results"), contentAlignment = Alignment.BottomStart) {
             BasicText(
                 stringResource(R.string.search_nothing_found),
-                style = SpaceType.style(SpaceType.secondarySize, colors.textSecondary),
+                style = MushinType.style(MushinType.secondarySize, colors.textSecondary),
             )
         }
         return
@@ -359,7 +359,7 @@ private fun ResultsPane(
                 key = row.key,
                 index = index,
                 height = SearchDimens.resultHeight,
-                textSize = SpaceType.resultSize.value,
+                textSize = MushinType.resultSize.value,
                 iconMode = iconMode,
                 iconSize = SearchDimens.resultIcon,
                 hidden = row.hidden,
@@ -392,7 +392,7 @@ private fun RecentsPane(
                     key = row.key,
                     index = index,
                     height = SearchDimens.recentHeight,
-                    textSize = SpaceType.recentSize.value,
+                    textSize = MushinType.recentSize.value,
                     iconMode = iconMode,
                     iconSize = SearchDimens.recentIcon,
                     hidden = false,
@@ -431,7 +431,7 @@ private fun AppRowItem(
         index % 2 == 1 -> colors.textPrimary.copy(alpha = PANE_ZEBRA_ALPHA)
         else -> Color.Transparent
     }
-    val textStyle = SpaceType.style(textSize.sp, colors.textPrimary)
+    val textStyle = MushinType.style(textSize.sp, colors.textPrimary)
     Row(
         Modifier
             .fillMaxWidth()
@@ -462,7 +462,7 @@ private fun AppRowItem(
                 Spacer(Modifier.width(6.dp))
                 SingleLineText(
                     stringResource(R.string.search_hidden_suffix),
-                    SpaceType.style(SpaceType.recentSize, colors.textSecondary),
+                    MushinType.style(MushinType.recentSize, colors.textSecondary),
                 )
             }
         }
@@ -642,11 +642,11 @@ private fun QueryRow(controller: SearchController, actions: SearchActions) {
         } else {
             BasicText(
                 text = controller.query,
-                style = SpaceType.style(SearchDimens.queryTextSize, colors.textPrimary),
+                style = MushinType.style(SearchDimens.queryTextSize, colors.textPrimary),
                 maxLines = 1,
                 modifier = Modifier.testTag("query"),
             )
-            BasicText("▏", style = SpaceType.style(SearchDimens.queryTextSize, colors.accent, FontWeight.Light))
+            BasicText("▏", style = MushinType.style(SearchDimens.queryTextSize, colors.accent, FontWeight.Light))
             Spacer(Modifier.weight(1f))
         }
     }

@@ -79,7 +79,7 @@ fun MushinTheme(
     )
 }
 
-object SpaceType {
+object MushinType {
     @Composable
     @ReadOnlyComposable
     fun style(size: TextUnit, color: Color, weight: FontWeight = FontWeight.Normal): TextStyle {

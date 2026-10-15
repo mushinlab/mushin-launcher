@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import com.mushinlab.launcher.core.ui.LocalMushinColors
-import com.mushinlab.launcher.core.ui.SpaceType
+import com.mushinlab.launcher.core.ui.MushinType
 
 @Composable
 fun CountBadge(count: Int, diameter: Dp, modifier: Modifier = Modifier) {
@@ -30,7 +30,7 @@ fun CountBadge(count: Int, diameter: Dp, modifier: Modifier = Modifier) {
     ) {
         BasicText(
             if (count > MAX_BADGE) "$MAX_BADGE+" else count.toString(),
-            style = SpaceType.style(textSize, colors.background, FontWeight.Medium),
+            style = MushinType.style(textSize, colors.background, FontWeight.Medium),
         )
     }
 }

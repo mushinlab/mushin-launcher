@@ -36,3 +36,8 @@ data class SearchRecent(
     val lastLaunchedAt: Long,
     val launchCount: Int,
 )
+
+object OverrideLimits {
+    const val LABEL_MAX_LENGTH = 40
+    const val ORPHAN_TTL_MS = 30L * 24 * 60 * 60 * 1000
+}

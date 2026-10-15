@@ -30,8 +30,8 @@ import com.mushinlab.launcher.core.search.SearchEngine
 import com.mushinlab.launcher.core.search.SearchIndex
 import com.mushinlab.launcher.core.search.SearchItem
 import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
-import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.pressable
 
 @Composable
@@ -41,13 +41,13 @@ private fun FilterField(value: String, onChange: (String) -> Unit) {
         value = value,
         onValueChange = onChange,
         singleLine = true,
-        textStyle = SpaceType.style(18.sp, colors.textPrimary),
+        textStyle = MushinType.style(18.sp, colors.textPrimary),
         cursorBrush = SolidColor(colors.accent),
         decorationBox = { inner ->
             if (value.isEmpty()) {
                 androidx.compose.foundation.text.BasicText(
                     stringResource(R.string.picker_filter),
-                    style = SpaceType.style(18.sp, colors.textSecondary),
+                    style = MushinType.style(18.sp, colors.textSecondary),
                 )
             }
             inner()
@@ -113,7 +113,7 @@ private fun PickerRow(label: String, selected: Boolean, enabled: Boolean, tag: S
             .padding(horizontal = CARD_PADDING, vertical = 8.dp),
         contentAlignment = Alignment.CenterStart,
     ) {
-        SingleLineText(label, SpaceType.style(17.sp, colors.textPrimary))
+        SingleLineText(label, MushinType.style(17.sp, colors.textPrimary))
     }
 }
 

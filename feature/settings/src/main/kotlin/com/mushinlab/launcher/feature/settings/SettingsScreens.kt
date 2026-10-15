@@ -48,9 +48,9 @@ import com.mushinlab.launcher.core.search.KeyboardLayouts
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinFonts
 import com.mushinlab.launcher.core.ui.MushinStroke
+import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.RadioMark
 import com.mushinlab.launcher.core.ui.SingleLineText
-import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.pressable
 import kotlin.math.roundToInt
 
@@ -132,7 +132,7 @@ private fun SpaceChips(spaces: List<SpaceSummary>, onSelect: (Long) -> Unit) {
             ) {
                 RadioMark(space.current)
                 Spacer(Modifier.width(8.dp))
-                SingleLineText(space.name, SpaceType.style(16.sp, colors.textPrimary))
+                SingleLineText(space.name, MushinType.style(16.sp, colors.textPrimary))
             }
         }
     }

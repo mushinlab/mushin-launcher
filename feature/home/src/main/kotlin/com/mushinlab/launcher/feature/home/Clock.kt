@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.ui.LocalMushinColors
-import com.mushinlab.launcher.core.ui.SpaceType
+import com.mushinlab.launcher.core.ui.MushinType
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -185,7 +185,7 @@ private fun ClockPosition.textAlign(): TextAlign = when (this) {
 private fun ClockTime(minute: State<Long>, format: ClockFormat, position: ClockPosition) {
     val context = LocalContext.current
     val colors = LocalMushinColors.current
-    val style = SpaceType.style(SpaceType.clockSize, colors.textPrimary, FontWeight.Light).copy(
+    val style = MushinType.style(MushinType.clockSize, colors.textPrimary, FontWeight.Light).copy(
         textAlign = position.textAlign(),
     )
     val use24h = ClockText.is24h(format, DateFormat.is24HourFormat(context))
@@ -200,7 +200,7 @@ private fun ClockTime(minute: State<Long>, format: ClockFormat, position: ClockP
 private fun ClockDate(minute: State<Long>, position: ClockPosition) {
     val colors = LocalMushinColors.current
     val locale = LocalConfiguration.current.locales[0]
-    val style = SpaceType.style(SpaceType.dateSize, colors.textSecondary).copy(textAlign = position.textAlign())
+    val style = MushinType.style(MushinType.dateSize, colors.textSecondary).copy(textAlign = position.textAlign())
     BasicText(
         text = ClockText.date(minute.value, ZoneId.systemDefault(), locale),
         style = style,

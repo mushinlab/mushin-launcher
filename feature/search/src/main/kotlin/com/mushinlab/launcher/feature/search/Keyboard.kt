@@ -55,7 +55,7 @@ import com.mushinlab.launcher.core.search.Shapes
 import com.mushinlab.launcher.core.search.TimedPoint
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.LocalMushinStroke
-import com.mushinlab.launcher.core.ui.SpaceType
+import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.drawVectors
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -462,9 +462,9 @@ private fun KeyView(
         null -> key.spec.char?.toString().orEmpty()
     }
     val size = when (key.spec.action) {
-        null -> SpaceType.keySize
-        KeyAction.BACKSPACE -> if (drawn) KeyboardDimens.crossSize else SpaceType.keySize
-        else -> SpaceType.secondarySize
+        null -> MushinType.keySize
+        KeyAction.BACKSPACE -> if (drawn) KeyboardDimens.crossSize else MushinType.keySize
+        else -> MushinType.secondarySize
     }
     val widthDp = with(density) { key.rect.width.toDp() }
     val heightDp = with(density) { key.rect.height.toDp() }
@@ -477,13 +477,13 @@ private fun KeyView(
             .testTag("key_${key.spec.char ?: key.spec.action?.name}"),
         contentAlignment = Alignment.Center,
     ) {
-        BasicText(label, style = SpaceType.style(size, colors.textPrimary))
+        BasicText(label, style = MushinType.style(size, colors.textPrimary))
         if (key.spec.action == KeyAction.RESIZE) ResizeMark(colors.textPrimary)
         val digit = key.spec.digit
         if (digitHints && digit != null) {
             BasicText(
                 digit.toString(),
-                style = SpaceType.style(SpaceType.digitHintSize, colors.textSecondary),
+                style = MushinType.style(MushinType.digitHintSize, colors.textSecondary),
                 modifier = Modifier.align(Alignment.TopEnd).padding(top = 2.dp, end = 4.dp),
             )
         }
@@ -508,7 +508,7 @@ private fun DigitBubble(key: KeyGeometry) {
             .testTag("digit_bubble"),
         contentAlignment = Alignment.Center,
     ) {
-        BasicText(digit.toString(), style = SpaceType.style(SpaceType.querySize, colors.textPrimary))
+        BasicText(digit.toString(), style = MushinType.style(MushinType.querySize, colors.textPrimary))
     }
 }
 

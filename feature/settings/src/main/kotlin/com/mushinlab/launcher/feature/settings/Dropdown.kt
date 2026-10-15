@@ -39,8 +39,8 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
-import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.pressable
 
 @Composable
@@ -68,17 +68,17 @@ fun <T> DropdownRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                BasicText(title, style = SpaceType.style(17.sp, colors.textPrimary))
+                BasicText(title, style = MushinType.style(17.sp, colors.textPrimary))
                 if (current != null) {
                     Spacer(Modifier.height(2.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         leading?.invoke(current.first)
                         if (leading != null) Spacer(Modifier.width(8.dp))
-                        SingleLineText(current.second, SpaceType.style(14.sp, colors.textSecondary))
+                        SingleLineText(current.second, MushinType.style(14.sp, colors.textSecondary))
                     }
                 }
             }
-            BasicText("▾", style = SpaceType.style(17.sp, colors.textSecondary))
+            BasicText("▾", style = MushinType.style(17.sp, colors.textSecondary))
         }
         if (expanded) {
             Popup(
@@ -130,7 +130,7 @@ private fun <T> DropdownMenu(
             ) {
                 leading?.invoke(value)
                 if (leading != null) Spacer(Modifier.width(12.dp))
-                SingleLineText(label, style?.invoke(value) ?: SpaceType.style(16.sp, colors.textPrimary))
+                SingleLineText(label, style?.invoke(value) ?: MushinType.style(16.sp, colors.textPrimary))
             }
         }
     }

@@ -6,7 +6,7 @@ import com.mushinlab.launcher.core.data.db.MushinDatabase
 import com.mushinlab.launcher.core.data.db.toModel
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.AppOverride
-import com.mushinlab.launcher.core.model.SpaceLimits
+import com.mushinlab.launcher.core.model.OverrideLimits
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableMap
@@ -29,7 +29,7 @@ class OverrideRepository(
 
     suspend fun rename(key: AppKey, label: String?): Boolean {
         val trimmed = label?.trim()?.takeIf { it.isNotEmpty() }
-        if (trimmed != null && trimmed.length > SpaceLimits.LABEL_MAX_LENGTH) return false
+        if (trimmed != null && trimmed.length > OverrideLimits.LABEL_MAX_LENGTH) return false
         update(key) { it.copy(customLabel = trimmed) }
         return true
     }

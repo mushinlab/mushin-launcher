@@ -67,7 +67,7 @@ import com.mushinlab.launcher.core.search.TimedPoint
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.LocalMushinStroke
 import com.mushinlab.launcher.core.ui.Motion
-import com.mushinlab.launcher.core.ui.SpaceType
+import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.drawVectors
 import com.mushinlab.launcher.core.ui.pressable
 import kotlinx.coroutines.launch
@@ -141,7 +141,7 @@ internal fun GestureSheet(
             }
             BasicText(
                 label,
-                style = SpaceType.style(20.sp, colors.textPrimary, FontWeight.Medium),
+                style = MushinType.style(20.sp, colors.textPrimary, FontWeight.Medium),
                 modifier = Modifier.padding(horizontal = CARD_PADDING),
             )
             Spacer(Modifier.height(4.dp))
@@ -153,7 +153,7 @@ internal fun GestureSheet(
             }
             BasicText(
                 stringResource(hint),
-                style = SpaceType.style(15.sp, colors.textSecondary),
+                style = MushinType.style(15.sp, colors.textSecondary),
                 modifier = Modifier.padding(horizontal = CARD_PADDING).testTag("gesture_sheet_hint"),
             )
             Spacer(Modifier.weight(1f))
@@ -219,7 +219,7 @@ private fun DrawPad(pad: PadState) {
     val stroke = LocalMushinStroke.current
     val strokeColor = stroke.color(colors)
     val measurer = rememberTextMeasurer()
-    val style = SpaceType.style(18.sp, colors.textPrimary)
+    val style = MushinType.style(18.sp, colors.textPrimary)
     val letters = remember(measurer, style) {
         QWERTY.flatMap { it.first.toList() }.associateWith { measurer.measure(it.toString(), style) }
     }
@@ -302,7 +302,7 @@ private fun SheetButton(
         val text = if (accent) colors.background else colors.textPrimary
         BasicText(
             label,
-            style = SpaceType.style(16.sp, text.copy(alpha = if (enabled) 1f else DISABLED_ALPHA), FontWeight.Medium),
+            style = MushinType.style(16.sp, text.copy(alpha = if (enabled) 1f else DISABLED_ALPHA), FontWeight.Medium),
         )
     }
 }

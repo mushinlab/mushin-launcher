@@ -70,8 +70,8 @@ import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.Motion
+import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
-import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.pressable
 import kotlin.math.roundToInt
 
@@ -105,11 +105,11 @@ fun SettingsPage(
                 onClick = onBack,
             )
             Column {
-                SingleLineText(title, SpaceType.style(22.sp, colors.textPrimary))
+                SingleLineText(title, MushinType.style(22.sp, colors.textPrimary))
                 LocalSpaceName.current?.let { space ->
                     SingleLineText(
                         space,
-                        SpaceType.style(12.sp, colors.textSecondary),
+                        MushinType.style(12.sp, colors.textSecondary),
                         Modifier.testTag("settings_space"),
                     )
                 }
@@ -128,7 +128,7 @@ fun SectionHeader(text: String) {
     val colors = LocalMushinColors.current
     BasicText(
         text,
-        style = SpaceType.style(14.sp, colors.accent, FontWeight.Medium),
+        style = MushinType.style(14.sp, colors.accent, FontWeight.Medium),
         modifier = Modifier.padding(start = 28.dp, end = 28.dp, top = 20.dp, bottom = 8.dp),
     )
 }
@@ -180,15 +180,15 @@ fun NavRow(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Column(Modifier.weight(1f, fill = false)) {
-            BasicText(title, style = SpaceType.style(17.sp, colors.textPrimary))
+            BasicText(title, style = MushinType.style(17.sp, colors.textPrimary))
             if (summary != null) {
                 Spacer(Modifier.height(2.dp))
-                BasicText(summary, style = SpaceType.style(14.sp, colors.textSecondary))
+                BasicText(summary, style = MushinType.style(14.sp, colors.textSecondary))
             }
         }
         if (value != null) {
             Spacer(Modifier.width(16.dp))
-            SingleLineText(value, SpaceType.style(15.sp, colors.textSecondary))
+            SingleLineText(value, MushinType.style(15.sp, colors.textSecondary))
         }
     }
 }
@@ -204,9 +204,9 @@ fun InfoRow(title: String, value: String, tag: String) {
             .padding(horizontal = CARD_PADDING, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        BasicText(title, style = SpaceType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
+        BasicText(title, style = MushinType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
         Spacer(Modifier.width(16.dp))
-        SingleLineText(value, SpaceType.style(15.sp, colors.textSecondary))
+        SingleLineText(value, MushinType.style(15.sp, colors.textSecondary))
     }
 }
 
@@ -222,7 +222,7 @@ fun ToggleRow(title: String, checked: Boolean, tag: String? = null, onToggle: (B
             .padding(horizontal = CARD_PADDING, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        BasicText(title, style = SpaceType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
+        BasicText(title, style = MushinType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
         Switch(checked)
     }
 }
@@ -272,11 +272,11 @@ fun SliderRow(
     }
     Column(Modifier.settingsCard().padding(horizontal = CARD_PADDING, vertical = 10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            BasicText(title, style = SpaceType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
+            BasicText(title, style = MushinType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
             Spacer(Modifier.width(16.dp))
             SingleLineText(
                 format?.invoke(shown) ?: String.format(locale, "%.2f", shown),
-                SpaceType.style(15.sp, colors.textSecondary),
+                MushinType.style(15.sp, colors.textSecondary),
             )
         }
         Box(
@@ -339,7 +339,7 @@ fun <T> ChoiceRows(options: List<Pair<T, String>>, selected: T, tagPrefix: Strin
 fun NoteText(text: String, color: Color = LocalMushinColors.current.textSecondary) {
     BasicText(
         text,
-        style = SpaceType.style(14.sp, color),
+        style = MushinType.style(14.sp, color),
         modifier = Modifier.padding(horizontal = 28.dp, vertical = 8.dp),
     )
 }
@@ -352,7 +352,7 @@ fun ConfirmDialog(
     onDismiss: () -> Unit,
 ) {
     DialogFrame(onDismiss) {
-        BasicText(message, style = SpaceType.style(17.sp, LocalMushinColors.current.textPrimary))
+        BasicText(message, style = MushinType.style(17.sp, LocalMushinColors.current.textPrimary))
         Spacer(Modifier.height(16.dp))
         DialogButtons(
             listOf(
@@ -379,13 +379,13 @@ fun TextInputDialog(
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { focus.requestFocus() }
     DialogFrame(onDismiss) {
-        BasicText(title, style = SpaceType.style(17.sp, colors.textPrimary, FontWeight.Medium))
+        BasicText(title, style = MushinType.style(17.sp, colors.textPrimary, FontWeight.Medium))
         Spacer(Modifier.height(12.dp))
         BasicTextField(
             value = text,
             onValueChange = { if (it.length <= maxLength) text = it },
             singleLine = true,
-            textStyle = SpaceType.style(18.sp, colors.textPrimary),
+            textStyle = MushinType.style(18.sp, colors.textPrimary),
             cursorBrush = SolidColor(colors.accent),
             modifier = Modifier
                 .fillMaxWidth()
@@ -396,7 +396,7 @@ fun TextInputDialog(
         )
         if (error != null) {
             Spacer(Modifier.height(6.dp))
-            BasicText(error, style = SpaceType.style(14.sp, colors.accent))
+            BasicText(error, style = MushinType.style(14.sp, colors.accent))
         }
         Spacer(Modifier.height(16.dp))
         DialogButtons(
@@ -448,7 +448,7 @@ private fun DialogButtons(buttons: List<Pair<String, () -> Unit>>) {
                     .padding(horizontal = 12.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                BasicText(label, style = SpaceType.style(16.sp, colors.accent, FontWeight.Medium))
+                BasicText(label, style = MushinType.style(16.sp, colors.accent, FontWeight.Medium))
             }
         }
     }

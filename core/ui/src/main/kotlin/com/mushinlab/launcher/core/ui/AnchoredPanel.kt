@@ -117,7 +117,7 @@ fun AnchoredPanel(
 fun PanelHeader(text: String) {
     val colors = LocalMushinColors.current
     Box(Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 16.dp), contentAlignment = Alignment.CenterStart) {
-        SingleLineText(text, SpaceType.style(SpaceType.popupHeaderSize, colors.textSecondary))
+        SingleLineText(text, MushinType.style(MushinType.popupHeaderSize, colors.textSecondary))
     }
 }
 
@@ -173,8 +173,8 @@ fun PanelItem(
             }
             SingleLineText(
                 text,
-                SpaceType.style(
-                    SpaceType.popupSize,
+                MushinType.style(
+                    MushinType.popupSize,
                     colors.textPrimary,
                     if (bold) FontWeight.Bold else FontWeight.Normal,
                 ),

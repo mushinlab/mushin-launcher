@@ -54,6 +54,7 @@ import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.LauncherSettings
+import com.mushinlab.launcher.core.model.OverrideLimits
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
@@ -67,7 +68,7 @@ import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinFont
 import com.mushinlab.launcher.core.ui.MushinStroke
 import com.mushinlab.launcher.core.ui.MushinTheme
-import com.mushinlab.launcher.core.ui.SpaceType as Type
+import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.pressable
 import com.mushinlab.launcher.feature.home.HomeActions
 import com.mushinlab.launcher.feature.home.HomePopup
@@ -575,7 +576,7 @@ private fun RenameDialog(activity: MainActivity, vm: LauncherViewModel, key: App
     TextInputDialog(
         title = stringResource(R.string.rename_title, entry?.label.orEmpty()),
         initial = current,
-        maxLength = com.mushinlab.launcher.core.model.SpaceLimits.LABEL_MAX_LENGTH,
+        maxLength = OverrideLimits.LABEL_MAX_LENGTH,
         error = null,
         confirm = stringResource(R.string.rename_save),
         extra = stringResource(R.string.rename_reset) to {
@@ -634,9 +635,9 @@ private fun LearnHint(onOpen: () -> Unit, onDismiss: () -> Unit) {
     ) {
         BasicText(
             stringResource(R.string.learn_hint_title),
-            style = Type.style(17.sp, colors.textPrimary, FontWeight.Medium),
+            style = MushinType.style(17.sp, colors.textPrimary, FontWeight.Medium),
         )
-        BasicText(stringResource(R.string.learn_hint_subtitle), style = Type.style(15.sp, colors.accent))
+        BasicText(stringResource(R.string.learn_hint_subtitle), style = MushinType.style(15.sp, colors.accent))
     }
 }
 
@@ -658,7 +659,7 @@ private fun NoticeBar(notice: Notice, top: Boolean, onDismiss: () -> Unit) {
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        BasicText(notice.text, style = Type.style(15.sp, colors.textPrimary), modifier = Modifier.weight(1f))
+        BasicText(notice.text, style = MushinType.style(15.sp, colors.textPrimary), modifier = Modifier.weight(1f))
         val label = notice.actionLabel
         val action = notice.action
         if (label != null && action != null) {
@@ -668,7 +669,7 @@ private fun NoticeBar(notice: Notice, top: Boolean, onDismiss: () -> Unit) {
                     onDismiss()
                 }.padding(horizontal = 8.dp),
                 contentAlignment = Alignment.Center,
-            ) { BasicText(label, style = Type.style(15.sp, colors.accent)) }
+            ) { BasicText(label, style = MushinType.style(15.sp, colors.accent)) }
         }
     }
 }

@@ -69,8 +69,8 @@ import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.Motion
+import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
-import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.SwipeMarks
 import com.mushinlab.launcher.core.ui.pressable
 import com.mushinlab.launcher.feature.home.gesture.GestureArbiter
@@ -371,7 +371,7 @@ private fun RoleCard(registry: RowRegistry, onClick: () -> Unit) {
     ) {
         SingleLineText(
             text = stringResourceRoleCard(),
-            style = SpaceType.style(SpaceType.secondarySize, colors.background),
+            style = MushinType.style(MushinType.secondarySize, colors.background),
             modifier = Modifier.padding(horizontal = HomeDimens.rowPadding),
         )
     }
@@ -390,7 +390,7 @@ private fun FavoritesList(
     onCapacity: (Int) -> Unit,
 ) {
     val colors = LocalMushinColors.current
-    val textStyle = SpaceType.style(state.textSize.sp.sp, colors.textPrimary)
+    val textStyle = MushinType.style(state.textSize.sp.sp, colors.textPrimary)
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
     val rowHeight = remember(textStyle, density) {
@@ -405,7 +405,7 @@ private fun FavoritesList(
         if (state.rows.isEmpty()) {
             BasicText(
                 text = androidx.compose.ui.res.stringResource(R.string.home_empty_space),
-                style = SpaceType.style(SpaceType.secondarySize, colors.textSecondary),
+                style = MushinType.style(MushinType.secondarySize, colors.textSecondary),
                 modifier = Modifier.padding(horizontal = HomeDimens.rowPadding).testTag("empty_env"),
             )
         } else {

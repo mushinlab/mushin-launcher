@@ -76,7 +76,7 @@ fun AppIcon(key: AppKey, label: String, size: Dp, modifier: Modifier = Modifier)
             ) {
                 BasicText(
                     text = label.firstOrNull { it.isLetterOrDigit() }?.uppercase() ?: "•",
-                    style = SpaceType.style((size.value * LETTER_RATIO).sp, colors.iconTint),
+                    style = MushinType.style((size.value * LETTER_RATIO).sp, colors.iconTint),
                 )
             }
 

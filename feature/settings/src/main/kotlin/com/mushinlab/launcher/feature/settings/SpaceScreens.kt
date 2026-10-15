@@ -45,8 +45,8 @@ import com.mushinlab.launcher.core.model.SpaceLimits
 import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinColors
+import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
-import com.mushinlab.launcher.core.ui.SpaceType as Type
 import com.mushinlab.launcher.core.ui.pressable
 import kotlinx.coroutines.launch
 
@@ -310,13 +310,13 @@ private fun ReorderableItems(
                         onChange(next.map { it.key })
                     }.testTag("editor_remove_$index"),
                     contentAlignment = Alignment.Center,
-                ) { BasicText("−", style = Type.style(22.sp, colors.textPrimary)) }
+                ) { BasicText("−", style = MushinType.style(22.sp, colors.textPrimary)) }
                 val note = when {
                     item.missing -> " · ${stringResource(R.string.space_item_missing)}"
                     item.hidden -> " · ${stringResource(R.string.space_item_hidden)}"
                     else -> ""
                 }
-                SingleLineText(item.label + note, Type.style(17.sp, colors.textPrimary), Modifier.weight(1f))
+                SingleLineText(item.label + note, MushinType.style(17.sp, colors.textPrimary), Modifier.weight(1f))
                 Box(
                     Modifier
                         .size(48.dp)
@@ -344,7 +344,7 @@ private fun ReorderableItems(
                             }
                         },
                     contentAlignment = Alignment.Center,
-                ) { BasicText("≡", style = Type.style(22.sp, colors.textSecondary)) }
+                ) { BasicText("≡", style = MushinType.style(22.sp, colors.textSecondary)) }
             }
         }
     }

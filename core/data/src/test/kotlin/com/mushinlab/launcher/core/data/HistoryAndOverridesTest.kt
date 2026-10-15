@@ -8,6 +8,7 @@ import com.mushinlab.launcher.core.data.repo.PackageDataCleaner
 import com.mushinlab.launcher.core.data.repo.SpaceRepository
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.GestureAction
+import com.mushinlab.launcher.core.model.OverrideLimits
 import com.mushinlab.launcher.core.model.SpaceLimits
 import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
@@ -156,7 +157,7 @@ class HistoryAndOverridesTest {
         val orphan = rule.db.appOverrideDao().get(slack.packageName, slack.activityName, 0)
         assertThat(orphan?.orphanedAt).isEqualTo(rule.now)
 
-        rule.now += SpaceLimits.ORPHAN_TTL_MS - 1
+        rule.now += OverrideLimits.ORPHAN_TTL_MS - 1
         assertThat(cleaner.purgeExpiredOverrides()).isEqualTo(0)
         rule.now += 2
         assertThat(cleaner.purgeExpiredOverrides()).isEqualTo(1)
@@ -169,7 +170,7 @@ class HistoryAndOverridesTest {
         overrides.rename(slack, "Чат")
         cleaner.onPackageRemoved(slack.packageName, 0)
         cleaner.onPackageAdded(slack.packageName, 0)
-        rule.now += SpaceLimits.ORPHAN_TTL_MS * 2
+        rule.now += OverrideLimits.ORPHAN_TTL_MS * 2
         assertThat(cleaner.purgeExpiredOverrides()).isEqualTo(0)
         assertThat(rule.db.appOverrideDao().get(slack.packageName, slack.activityName, 0)?.customLabel).isEqualTo("Чат")
     }

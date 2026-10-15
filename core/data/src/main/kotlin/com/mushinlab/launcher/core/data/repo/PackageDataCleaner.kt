@@ -4,7 +4,7 @@ import androidx.room.withTransaction
 import com.mushinlab.launcher.core.data.db.MushinDatabase
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.KeyRemap
-import com.mushinlab.launcher.core.model.SpaceLimits
+import com.mushinlab.launcher.core.model.OverrideLimits
 
 class PackageDataCleaner(
     private val db: MushinDatabase,
@@ -54,6 +54,6 @@ class PackageDataCleaner(
     }
 
     suspend fun purgeExpiredOverrides(): Int = db.appOverrideDao().purgeOrphanedBefore(
-        clock() - SpaceLimits.ORPHAN_TTL_MS,
+        clock() - OverrideLimits.ORPHAN_TTL_MS,
     )
 }

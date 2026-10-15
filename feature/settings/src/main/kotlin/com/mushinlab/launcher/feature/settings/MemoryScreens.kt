@@ -39,8 +39,8 @@ import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ShapeVertex
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.LocalMushinStroke
+import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
-import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.drawVectors
 import com.mushinlab.launcher.core.ui.pressable
 
@@ -179,7 +179,7 @@ private fun DrawingRow(drawing: LearnedDrawing, index: Int, onForget: () -> Unit
         ) {
             SingleLineText(
                 stringResource(R.string.memory_weight, String.format(locale, "%.1f", drawing.weight)),
-                SpaceType.style(14.sp, colors.textSecondary),
+                MushinType.style(14.sp, colors.textSecondary),
             )
             Box(
                 Modifier
@@ -188,7 +188,7 @@ private fun DrawingRow(drawing: LearnedDrawing, index: Int, onForget: () -> Unit
                     .testTag("memory_forget_$index")
                     .padding(horizontal = 12.dp, vertical = 8.dp),
             ) {
-                BasicText(stringResource(R.string.memory_forget), style = SpaceType.style(15.sp, colors.accent))
+                BasicText(stringResource(R.string.memory_forget), style = MushinType.style(15.sp, colors.accent))
             }
         }
     }
@@ -199,7 +199,7 @@ internal fun GestureThumbnail(drawing: LearnedDrawing, modifier: Modifier) {
     val colors = LocalMushinColors.current
     val stroke = LocalMushinStroke.current
     val measurer = rememberTextMeasurer()
-    val style = SpaceType.style(11.sp, colors.textSecondary.copy(alpha = LETTER_ALPHA))
+    val style = MushinType.style(11.sp, colors.textSecondary.copy(alpha = LETTER_ALPHA))
     val letters = remember(measurer, style) {
         QWERTY.flatMap { it.first.toList() }.associateWith { measurer.measure(it.toString(), style) }
     }
@@ -230,8 +230,8 @@ private fun ValueRow(title: String, value: String, tag: String) {
         Modifier.settingsCard().heightIn(min = 48.dp).padding(horizontal = CARD_PADDING, vertical = 10.dp).testTag(tag),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        BasicText(title, style = SpaceType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
-        SingleLineText(value, SpaceType.style(15.sp, colors.textSecondary))
+        BasicText(title, style = MushinType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
+        SingleLineText(value, MushinType.style(15.sp, colors.textSecondary))
     }
 }
 
