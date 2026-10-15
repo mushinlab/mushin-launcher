@@ -41,8 +41,10 @@ object VectorDots {
     private const val RING_BASE = 1.8f
     private const val RING_PER_SECOND = 1f
     private const val RING_CAP_MS = 2000L
+    private const val MS_PER_SECOND = 1000f
 
-    fun ringScale(dwellMs: Long): Float = RING_BASE + RING_PER_SECOND * dwellMs.coerceAtMost(RING_CAP_MS) / 1000f
+    fun ringScale(dwellMs: Long): Float =
+        RING_BASE + RING_PER_SECOND * dwellMs.coerceAtMost(RING_CAP_MS) / MS_PER_SECOND
 }
 
 private const val START_DOT = 1.6f

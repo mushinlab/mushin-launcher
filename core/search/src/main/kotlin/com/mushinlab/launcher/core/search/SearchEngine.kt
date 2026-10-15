@@ -7,14 +7,14 @@ import kotlin.math.ln
 import kotlin.math.min
 
 enum class MatchLevel(val base: Int) {
-    EXACT(1000),
-    PREFIX(900),
-    WORD_PREFIX(800),
-    INITIALS(700),
-    SUBSTRING(500),
-    PHONETIC_PREFIX(450),
-    SUBSEQUENCE(350),
-    FUZZY(300),
+    EXACT(base = 1000),
+    PREFIX(base = 900),
+    WORD_PREFIX(base = 800),
+    INITIALS(base = 700),
+    SUBSTRING(base = 500),
+    PHONETIC_PREFIX(base = 450),
+    SUBSEQUENCE(base = 350),
+    FUZZY(base = 300),
 }
 
 data class SearchOptions(
@@ -32,6 +32,8 @@ data class SearchResult(
 )
 
 class SearchEngine(private val options: SearchOptions = SearchOptions()) {
+    private val matcher = NameMatcher(options)
+
     fun search(
         index: SearchIndex,
         query: String,
@@ -89,84 +91,25 @@ class SearchEngine(private val options: SearchOptions = SearchOptions()) {
         var bestScore = Int.MIN_VALUE
         val hasCustom = indexed.item.customLabel != null
         indexed.names.forEach { name ->
+            val originalOfCustom = hasCustom && !name.isCustom
             variants.forEach { v ->
-                val match = match(name, v)
-                if (match != null) {
-                    var score = match.level.base - match.penalty
-                    if (v.viaSwap) score -= SWAP_PENALTY
-                    if (match.usedTranslit) score -= TRANSLIT_PENALTY
-                    if (hasCustom && !name.isCustom) score -= ORIGINAL_LABEL_PENALTY
-                    if (score > bestScore) {
-                        bestScore = score
-                        bestLevel = match.level
-                    }
+                val match = matcher.match(name, v) ?: return@forEach
+                val score = score(match, v, originalOfCustom)
+                if (score > bestScore) {
+                    bestScore = score
+                    bestLevel = match.level
                 }
             }
         }
         return bestLevel?.let { it to bestScore }
     }
 
-    private fun match(name: IndexedName, v: QueryVariant): Match? {
-        val latin = options.translit || (name.latinIsNative && !v.viaTranslit)
-        return strictMatch(name, v, latin)
-            ?: partialMatch(name, v, latin)
-            ?: if (latin) looseMatch(name, v) else null
-    }
-
-    private fun strictMatch(name: IndexedName, v: QueryVariant, latin: Boolean): Match? {
-        val q = v.text
-        val t = v.viaTranslit
-        return when {
-            name.normalized == q -> Match(MatchLevel.EXACT, false)
-            latin && v.key.isNotEmpty() && name.key == v.key -> Match(MatchLevel.EXACT, t)
-            name.normalized.startsWith(q) -> Match(MatchLevel.PREFIX, false)
-            latin && name.latin.startsWith(v.latin) -> Match(MatchLevel.PREFIX, t)
-            name.words.any { it.startsWith(q) } -> Match(MatchLevel.WORD_PREFIX, false)
-            latin && name.latinWords.any { it.startsWith(v.latin) } -> Match(MatchLevel.WORD_PREFIX, t)
-            else -> null
-        }
-    }
-
-    private fun partialMatch(name: IndexedName, v: QueryVariant, latin: Boolean): Match? {
-        val q = v.text
-        val t = v.viaTranslit
-        return when {
-            q.length < 2 -> null
-            name.initials.startsWith(q) -> Match(MatchLevel.INITIALS, false)
-            latin && name.latinInitials.startsWith(v.latin) -> Match(MatchLevel.INITIALS, t)
-            name.normalized.contains(q) -> Match(MatchLevel.SUBSTRING, false)
-            latin && name.latin.contains(v.latin) -> Match(MatchLevel.SUBSTRING, t)
-            else -> null
-        }
-    }
-
-    private fun looseMatch(name: IndexedName, v: QueryVariant): Match? {
-        val t = v.viaTranslit
-        return when {
-            v.key.isNotEmpty() && name.key.startsWith(v.key) -> Match(MatchLevel.PHONETIC_PREFIX, t)
-            v.text.length >= 3 && isSubsequence(v.latin, name.latin) -> Match(MatchLevel.SUBSEQUENCE, t)
-            else -> fuzzyMatch(name, v)
-        }
-    }
-
-    private fun fuzzyMatch(name: IndexedName, v: QueryVariant): Match? {
-        val length = v.text.length
-        if (!options.fuzzy || length < 3 || name.key.length + 1 < v.key.length) return null
-        val maxDistance = if (length <= SHORT_QUERY) 1 else 2
-        val d = Osa.prefixDistance(v.key, name.key)
-        return if (d <= maxDistance) Match(MatchLevel.FUZZY, v.viaTranslit, penalty = FUZZY_STEP * d) else null
-    }
-
-    private fun isSubsequence(query: String, target: String): Boolean {
-        if (query.isEmpty() || target.isEmpty() || query[0] != target[0]) return false
-        var i = 0
-        for (c in target) {
-            if (c == query[i]) {
-                i++
-                if (i == query.length) return true
-            }
-        }
-        return false
+    private fun score(match: NameMatch, v: QueryVariant, originalOfCustom: Boolean): Int {
+        var score = match.level.base - match.penalty
+        if (v.viaSwap) score -= SWAP_PENALTY
+        if (match.usedTranslit) score -= TRANSLIT_PENALTY
+        if (originalOfCustom) score -= ORIGINAL_LABEL_PENALTY
+        return score
     }
 
     private fun usageBonus(usage: AppUsage?, now: Long): Int {
@@ -185,15 +128,11 @@ class SearchEngine(private val options: SearchOptions = SearchOptions()) {
         val viaTranslit: Boolean,
     )
 
-    private data class Match(val level: MatchLevel, val usedTranslit: Boolean, val penalty: Int = 0)
-
     companion object {
         const val MAX_RESULTS = 50
         private const val SWAP_PENALTY = 40
         private const val TRANSLIT_PENALTY = 20
         private const val ORIGINAL_LABEL_PENALTY = 10
-        private const val FUZZY_STEP = 60
-        private const val SHORT_QUERY = 5
         private const val MAX_USAGE_BONUS = 120.0
         private const val USAGE_FACTOR = 40.0
         private const val RECENT_BONUS = 60

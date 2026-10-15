@@ -87,7 +87,7 @@ class SpaceRepository(
             }
         }
         if (limitError != null) return@withTransaction SpaceOutcome.Failed(limitError)
-        when (val validated = validateName(name, all, excludeId = null)) {
+        when (val validated = validateSpaceName(name, all, excludeId = null)) {
             is SpaceOutcome.Failed -> validated
 
             is SpaceOutcome.Ok -> {
@@ -121,7 +121,7 @@ class SpaceRepository(
     suspend fun rename(id: Long, name: String): SpaceOutcome<Unit> = db.withTransaction {
         val all = spaceDao.getAll()
         if (all.none { it.id == id }) return@withTransaction SpaceOutcome.Failed(SpaceError.NotFound)
-        when (val validated = validateName(name, all, excludeId = id)) {
+        when (val validated = validateSpaceName(name, all, excludeId = id)) {
             is SpaceOutcome.Failed -> validated
 
             is SpaceOutcome.Ok -> {
@@ -194,24 +194,24 @@ class SpaceRepository(
             setItems(spaceId, itemDao.get(spaceId).map { it.key() } - key)
         }
     }
-
-    private fun validateName(raw: String, all: List<SpaceEntity>, excludeId: Long?): SpaceOutcome<String> {
-        val name = raw.trim()
-        return when {
-            name.isEmpty() -> SpaceOutcome.Failed(SpaceError.NameEmpty)
-
-            name.length > SpaceLimits.NAME_MAX_LENGTH -> SpaceOutcome.Failed(SpaceError.NameTooLong)
-
-            all.any {
-                it.id != excludeId && it.name.foldCase() == name.foldCase()
-            } -> SpaceOutcome.Failed(SpaceError.NameTaken)
-
-            else -> SpaceOutcome.Ok(name)
-        }
-    }
-
-    private fun String.foldCase(): String = lowercase(Locale.ROOT)
 }
 
 fun resolveCurrentSpace(spaces: List<Space>, currentSpaceId: Long?): Space? =
     spaces.firstOrNull { it.id == currentSpaceId } ?: spaces.firstOrNull { it.type == SpaceType.NORMAL }
+
+private fun validateSpaceName(raw: String, all: List<SpaceEntity>, excludeId: Long?): SpaceOutcome<String> {
+    val name = raw.trim()
+    return when {
+        name.isEmpty() -> SpaceOutcome.Failed(SpaceError.NameEmpty)
+
+        name.length > SpaceLimits.NAME_MAX_LENGTH -> SpaceOutcome.Failed(SpaceError.NameTooLong)
+
+        all.any {
+            it.id != excludeId && it.name.foldCase() == name.foldCase()
+        } -> SpaceOutcome.Failed(SpaceError.NameTaken)
+
+        else -> SpaceOutcome.Ok(name)
+    }
+}
+
+private fun String.foldCase(): String = lowercase(Locale.ROOT)

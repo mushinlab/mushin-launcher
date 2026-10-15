@@ -4,7 +4,7 @@ enum class IconMode { NONE, LEFT, RIGHT }
 
 enum class ClockFormat { SYSTEM, H24, H12 }
 
-enum class HomeTextSize(val sp: Int) { S(22), M(26), L(30) }
+enum class HomeTextSize(val sp: Int) { S(sp = 22), M(sp = 26), L(sp = 30) }
 
 enum class PressFeedback { FLASH, HOLD, ACCENT, DIM, SCALE }
 
@@ -29,21 +29,21 @@ enum class ClockPosition { START, CENTER, END }
 
 enum class AppFont { SYSTEM, INTER, OPEN_SANS, MONTSERRAT, CONDENSED }
 
-enum class AppFontWeight(val value: Int) { LIGHT(300), REGULAR(400), MEDIUM(500) }
+enum class AppFontWeight(val value: Int) { LIGHT(value = 300), REGULAR(value = 400), MEDIUM(value = 500) }
 
 enum class StrokeColor(val argb: Long?) {
     ACCENT(null),
     TEXT(null),
-    CORAL(0xFFFF6B6B),
-    ORANGE(0xFFFF9F43),
-    AMBER(0xFFFFC93C),
-    LIME(0xFFA3E635),
-    GREEN(0xFF34D399),
-    TEAL(0xFF2DD4BF),
-    SKY(0xFF38BDF8),
-    BLUE(0xFF6C8CFF),
-    VIOLET(0xFFA78BFA),
-    PINK(0xFFF472B6),
+    CORAL(argb = 0xFFFF6B6B),
+    ORANGE(argb = 0xFFFF9F43),
+    AMBER(argb = 0xFFFFC93C),
+    LIME(argb = 0xFFA3E635),
+    GREEN(argb = 0xFF34D399),
+    TEAL(argb = 0xFF2DD4BF),
+    SKY(argb = 0xFF38BDF8),
+    BLUE(argb = 0xFF6C8CFF),
+    VIOLET(argb = 0xFFA78BFA),
+    PINK(argb = 0xFFF472B6),
 }
 
 object StrokeWidth {

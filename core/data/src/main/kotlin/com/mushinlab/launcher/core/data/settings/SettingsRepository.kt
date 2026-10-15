@@ -95,42 +95,37 @@ class SettingsRepository(
                 currentSpaceId = prefs[CURRENT_SPACE_ID],
                 iconMode = enumOr(prefs[ICON_MODE], defaults.iconMode),
                 clockFormat = enumOr(prefs[CLOCK_FORMAT], defaults.clockFormat),
-                showDate = prefs[SHOW_DATE] ?: defaults.showDate,
+                showDate = prefs.valueOr(SHOW_DATE, defaults.showDate),
                 clockPosition = enumOr(prefs[CLOCK_POSITION], defaults.clockPosition),
                 font = enumOr(prefs[FONT], defaults.font),
                 fontWeight = enumOr(prefs[FONT_WEIGHT], defaults.fontWeight),
                 homeTextSize = enumOr(prefs[HOME_TEXT_SIZE], defaults.homeTextSize),
-                strokeWidth = (prefs[STROKE_WIDTH] ?: defaults.strokeWidth)
+                strokeWidth = prefs.valueOr(STROKE_WIDTH, defaults.strokeWidth)
                     .coerceIn(StrokeWidth.MIN_DP, StrokeWidth.MAX_DP),
                 strokeColor = enumOr(prefs[STROKE_COLOR], defaults.strokeColor),
-                strokeDots = prefs[STROKE_DOTS] ?: defaults.strokeDots,
-                backgroundOpacity = (prefs[BACKGROUND_OPACITY] ?: defaults.backgroundOpacity).coerceIn(0f, 1f),
-                notificationCounts = prefs[NOTIFICATION_COUNTS] ?: defaults.notificationCounts,
+                strokeDots = prefs.valueOr(STROKE_DOTS, defaults.strokeDots),
+                backgroundOpacity = prefs.valueOr(BACKGROUND_OPACITY, defaults.backgroundOpacity).coerceIn(0f, 1f),
+                notificationCounts = prefs.valueOr(NOTIFICATION_COUNTS, defaults.notificationCounts),
                 pressFeedback = enumOr(prefs[PRESS_FEEDBACK], defaults.pressFeedback),
-                keyboardLayouts = prefs[KB_LAYOUTS]
-                    ?.split(',')
-                    ?.map { it.trim() }
-                    ?.filter { it.isNotEmpty() }
-                    ?.takeIf { it.isNotEmpty() }
-                    ?: defaults.keyboardLayouts,
-                activeKeyboardLayout = prefs[KB_ACTIVE_LAYOUT] ?: defaults.activeKeyboardLayout,
-                keyboardHaptics = prefs[KB_HAPTICS] ?: defaults.keyboardHaptics,
-                keyboardDigitHints = prefs[KB_DIGIT_HINTS] ?: defaults.keyboardDigitHints,
-                keyboardWidth = (prefs[KB_WIDTH] ?: defaults.keyboardWidth)
+                keyboardLayouts = decodeLayouts(prefs[KB_LAYOUTS]) ?: defaults.keyboardLayouts,
+                activeKeyboardLayout = prefs.valueOr(KB_ACTIVE_LAYOUT, defaults.activeKeyboardLayout),
+                keyboardHaptics = prefs.valueOr(KB_HAPTICS, defaults.keyboardHaptics),
+                keyboardDigitHints = prefs.valueOr(KB_DIGIT_HINTS, defaults.keyboardDigitHints),
+                keyboardWidth = prefs.valueOr(KB_WIDTH, defaults.keyboardWidth)
                     .coerceIn(KeyboardFit.WIDTH_MIN, KeyboardFit.WIDTH_MAX),
-                keyboardShift = (prefs[KB_SHIFT] ?: defaults.keyboardShift)
+                keyboardShift = prefs.valueOr(KB_SHIFT, defaults.keyboardShift)
                     .coerceIn(KeyboardFit.SHIFT_MIN, KeyboardFit.SHIFT_MAX),
-                homeListOffset = (prefs[HOME_LIST_OFFSET] ?: defaults.homeListOffset)
+                homeListOffset = prefs.valueOr(HOME_LIST_OFFSET, defaults.homeListOffset)
                     .coerceIn(0, HomeListOffset.MAX_DP),
-                searchColoredIcons = prefs[SEARCH_COLORED_ICONS] ?: defaults.searchColoredIcons,
-                gestureShiftPenalty = (prefs[GESTURE_SHIFT_PENALTY] ?: defaults.gestureShiftPenalty)
+                searchColoredIcons = prefs.valueOr(SEARCH_COLORED_ICONS, defaults.searchColoredIcons),
+                gestureShiftPenalty = prefs.valueOr(GESTURE_SHIFT_PENALTY, defaults.gestureShiftPenalty)
                     .coerceIn(GestureTuning.SHIFT_PENALTY_MIN, GestureTuning.SHIFT_PENALTY_MAX),
-                gestureSuggestMargin = (prefs[GESTURE_SUGGEST_MARGIN] ?: defaults.gestureSuggestMargin)
+                gestureSuggestMargin = prefs.valueOr(GESTURE_SUGGEST_MARGIN, defaults.gestureSuggestMargin)
                     .coerceIn(GestureTuning.SUGGEST_MARGIN_MIN, GestureTuning.SUGGEST_MARGIN_MAX),
-                searchFuzzy = prefs[SEARCH_FUZZY] ?: defaults.searchFuzzy,
-                searchLayoutSwap = prefs[SEARCH_LAYOUT_SWAP] ?: defaults.searchLayoutSwap,
-                searchTranslit = prefs[SEARCH_TRANSLIT] ?: defaults.searchTranslit,
-                onboardingDone = prefs[ONBOARDING_DONE] ?: defaults.onboardingDone,
+                searchFuzzy = prefs.valueOr(SEARCH_FUZZY, defaults.searchFuzzy),
+                searchLayoutSwap = prefs.valueOr(SEARCH_LAYOUT_SWAP, defaults.searchLayoutSwap),
+                searchTranslit = prefs.valueOr(SEARCH_TRANSLIT, defaults.searchTranslit),
+                onboardingDone = prefs.valueOr(ONBOARDING_DONE, defaults.onboardingDone),
             )
         }
 
@@ -165,6 +160,14 @@ class SettingsRepository(
             prefs[SEARCH_TRANSLIT] = settings.searchTranslit
             prefs[ONBOARDING_DONE] = settings.onboardingDone
         }
+
+        private fun <T> Preferences.valueOr(key: Preferences.Key<T>, default: T): T = this[key] ?: default
+
+        private fun decodeLayouts(raw: String?): List<String>? = raw
+            ?.split(',')
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?.takeIf { it.isNotEmpty() }
 
         private inline fun <reified E : Enum<E>> enumOr(raw: String?, default: E): E =
             raw?.let { value -> enumValues<E>().firstOrNull { it.name == value } } ?: default

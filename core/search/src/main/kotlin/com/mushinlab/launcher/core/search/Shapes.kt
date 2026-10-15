@@ -24,15 +24,20 @@ object Shapes {
 
     fun normalize(path: List<GesturePoint>): NormalizedShape? {
         val distinct = path.filterIndexed { i, p -> i == 0 || p.x != path[i - 1].x || p.y != path[i - 1].y }
-        if (distinct.size < 2) return null
-        val sampled = resample(distinct)
+        return if (distinct.size < 2) null else centered(resample(distinct))
+    }
+
+    private fun centered(sampled: List<GesturePoint>): NormalizedShape? {
         val cx = sampled.sumOf { it.x.toDouble() }.toFloat() / sampled.size
         val cy = sampled.sumOf { it.y.toDouble() }.toFloat() / sampled.size
         val radius = sqrt(
             sampled.sumOf { p -> ((p.x - cx) * (p.x - cx) + (p.y - cy) * (p.y - cy)).toDouble() } / sampled.size,
         ).toFloat()
-        if (radius == 0f) return null
-        return NormalizedShape(sampled.map { GesturePoint((it.x - cx) / radius, (it.y - cy) / radius) }, radius)
+        return if (radius == 0f) {
+            null
+        } else {
+            NormalizedShape(sampled.map { GesturePoint((it.x - cx) / radius, (it.y - cy) / radius) }, radius)
+        }
     }
 
     fun average(drawings: List<List<GesturePoint>>, threshold: Float = ShapeMatcher.THRESHOLD): List<GesturePoint>? {

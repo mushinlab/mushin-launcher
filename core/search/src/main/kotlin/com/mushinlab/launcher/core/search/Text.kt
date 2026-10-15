@@ -37,8 +37,7 @@ object Text {
             if (!c.isLetterOrDigit()) {
                 flush()
             } else {
-                val prev = previous
-                if (prev != null && prev.isLetterOrDigit() && prev.isLowerCase() && c.isUpperCase()) flush()
+                if (isCamelBoundary(previous, c)) flush()
                 current.append(c)
             }
             previous = c
@@ -46,6 +45,9 @@ object Text {
         flush()
         return words
     }
+
+    private fun isCamelBoundary(previous: Char?, c: Char): Boolean =
+        previous != null && previous.isLetterOrDigit() && previous.isLowerCase() && c.isUpperCase()
 
     private fun stripMarks(c: Char, out: StringBuilder) {
         Normalizer.normalize(c.toString(), Normalizer.Form.NFKD).forEach { d ->

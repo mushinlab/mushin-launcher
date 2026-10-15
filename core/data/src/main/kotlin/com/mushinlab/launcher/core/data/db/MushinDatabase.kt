@@ -79,8 +79,8 @@ abstract class MushinDatabase : RoomDatabase() {
         }
 
         fun seed(db: SupportSQLiteDatabase, createdAt: Long) {
-            insertSpace(db, names.normal, SpaceType.NORMAL, 0, PalettePreset.GRAPHITE, createdAt)
-            insertSpace(db, names.work, SpaceType.WORK, 1, PalettePreset.NAVY, createdAt)
+            insertSpace(db, SeedSpace(names.normal, SpaceType.NORMAL, 0, PalettePreset.GRAPHITE), createdAt)
+            insertSpace(db, SeedSpace(names.work, SpaceType.WORK, 1, PalettePreset.NAVY), createdAt)
             DefaultGestures.bindings.forEach { binding ->
                 val values = ContentValues().apply {
                     put("direction", binding.direction.name)
@@ -90,20 +90,13 @@ abstract class MushinDatabase : RoomDatabase() {
             }
         }
 
-        private fun insertSpace(
-            db: SupportSQLiteDatabase,
-            name: String,
-            type: SpaceType,
-            sortOrder: Int,
-            preset: PalettePreset,
-            createdAt: Long,
-        ) {
-            val p = Palettes.of(preset)
+        private fun insertSpace(db: SupportSQLiteDatabase, space: SeedSpace, createdAt: Long) {
+            val p = Palettes.of(space.preset)
             val values = ContentValues().apply {
-                put("name", name)
-                put("type", type.name)
-                put("sort_order", sortOrder)
-                put("palette_preset", preset.name)
+                put("name", space.name)
+                put("type", space.type.name)
+                put("sort_order", space.sortOrder)
+                put("palette_preset", space.preset.name)
                 put("c_background", p.background)
                 put("c_zebra_a", p.zebraA)
                 put("c_zebra_b", p.zebraB)
@@ -120,5 +113,7 @@ abstract class MushinDatabase : RoomDatabase() {
             }
             db.insert("environment", SQLiteDatabase.CONFLICT_ABORT, values)
         }
+
+        private class SeedSpace(val name: String, val type: SpaceType, val sortOrder: Int, val preset: PalettePreset)
     }
 }

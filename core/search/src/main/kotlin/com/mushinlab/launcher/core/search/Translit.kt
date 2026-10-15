@@ -39,7 +39,7 @@ object Translit {
 
     fun toLatin(text: String): String {
         if (text.none(Text::isCyrillic)) return text
-        val out = StringBuilder(text.length + 4)
+        val out = StringBuilder(text.length + LATIN_EXTRA_CAPACITY)
         text.forEach { c -> out.append(table[c]?.first() ?: c) }
         return out.toString()
     }
@@ -56,4 +56,5 @@ object Translit {
     }
 
     const val MAX_VARIANTS = 4
+    private const val LATIN_EXTRA_CAPACITY = 4
 }
