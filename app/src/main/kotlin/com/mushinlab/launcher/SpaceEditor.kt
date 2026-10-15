@@ -20,35 +20,35 @@ class SpaceEditor(
 
     suspend fun rename(id: Long, name: String): String? = repository.rename(id, name).errorCode()
 
-    fun delete(id: Long) = inBackground { repository.delete(id) }
+    fun delete(id: Long) = container.inBackground { repository.delete(id) }
 
     fun switchTo(id: Long) {
         container.scope.launch { container.settings.update { it.copy(currentSpaceId = id) } }
     }
 
-    fun setItems(id: Long, keys: List<AppKey>) = inBackground { repository.setItems(id, keys) }
+    fun setItems(id: Long, keys: List<AppKey>) = container.inBackground { repository.setItems(id, keys) }
 
     fun addItem(id: Long, key: AppKey): Boolean {
         val limit = capacity().takeIf { it > 0 } ?: Int.MAX_VALUE
         if (items(id).size >= limit) return false
-        inBackground { repository.addItems(id, listOf(key), limit) }
+        container.inBackground { repository.addItems(id, listOf(key), limit) }
         return true
     }
 
-    fun removeItem(id: Long, key: AppKey) = inBackground { repository.removeItem(id, key) }
+    fun removeItem(id: Long, key: AppKey) = container.inBackground { repository.removeItem(id, key) }
 
-    fun setPalette(id: Long, preset: PalettePreset) = inBackground { repository.setPalette(id, preset) }
+    fun setPalette(id: Long, preset: PalettePreset) = container.inBackground { repository.setPalette(id, preset) }
 
-    fun setColoredIcons(id: Long, enabled: Boolean) = inBackground { repository.setColoredIcons(id, enabled) }
+    fun setColoredIcons(id: Long, enabled: Boolean) = container.inBackground { repository.setColoredIcons(id, enabled) }
 
-    fun setListOffset(id: Long, dp: Int) = inBackground { repository.setListOffset(id, dp) }
+    fun setListOffset(id: Long, dp: Int) = container.inBackground { repository.setListOffset(id, dp) }
+}
 
-    private fun inBackground(block: suspend () -> Unit) {
-        container.scope.launch { block() }
-    }
+private fun <T> SpaceOutcome<T>.errorCode(): String? = when (this) {
+    is SpaceOutcome.Ok -> null
+    is SpaceOutcome.Failed -> error.code()
+}
 
-    private fun <T> SpaceOutcome<T>.errorCode(): String? = when (this) {
-        is SpaceOutcome.Ok -> null
-        is SpaceOutcome.Failed -> error.code()
-    }
+private fun AppContainer.inBackground(block: suspend () -> Unit) {
+    scope.launch { block() }
 }

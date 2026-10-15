@@ -10,9 +10,7 @@ import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
@@ -24,14 +22,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.mushinlab.launcher.core.model.Palette
 import com.mushinlab.launcher.feature.search.KeyboardRouter
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private val container get() = (application as MushinApp).container
     private val systemScreens = SystemScreens(this) { launcher.navigator.notice = it }
-    private var lastBarsDark: Boolean? = null
+    private val systemBars = SystemBars(this)
 
     internal val launcher: LauncherViewModel by viewModels {
         viewModelFactory {
@@ -67,13 +64,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        applySystemBars(launcher.palette.value)
+        systemBars.apply(launcher.palette.value)
         window.isNavigationBarContrastEnforced = false
         setContent { LauncherRoot(launcher, container.iconProvider) }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { launcher.effects.collect(::perform) }
-                launch { launcher.palette.collect(::applySystemBars) }
+                launch { launcher.palette.collect(systemBars::apply) }
             }
         }
         if (intent?.action == Intent.ACTION_ASSIST) launcher.navigator.onHomeIntent(assist = true)
@@ -138,18 +135,6 @@ class MainActivity : ComponentActivity() {
 
             LauncherEffect.RequestSearchTile -> systemScreens.requestSearchTile()
         }
-    }
-
-    private fun applySystemBars(palette: Palette) {
-        if (lastBarsDark == palette.isDark) return
-        lastBarsDark = palette.isDark
-        val transparent = android.graphics.Color.TRANSPARENT
-        val style = if (palette.isDark) {
-            SystemBarStyle.dark(transparent)
-        } else {
-            SystemBarStyle.light(transparent, transparent)
-        }
-        enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
     }
 
     private fun requestHomeRole() {
