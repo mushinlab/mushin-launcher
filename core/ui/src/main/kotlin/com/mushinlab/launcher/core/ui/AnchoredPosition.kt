@@ -4,7 +4,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 
+/** Pure placement math for [AnchoredPanel], in pixels. */
 object AnchoredPosition {
+    /** The window minus system [insets] and a [marginPx] margin on every side. */
     fun safeArea(window: IntSize, insets: IntRect, marginPx: Int): IntRect = IntRect(
         left = insets.left + marginPx,
         top = insets.top + marginPx,
@@ -12,6 +14,10 @@ object AnchoredPosition {
         bottom = window.height - insets.bottom - marginPx,
     )
 
+    /**
+     * Top-left corner of a [popup] centered horizontally on the anchor: below it with [gapPx] when it fits,
+     * otherwise above it, otherwise pinned to the bottom of [safe]. Always clamped into [safe] where possible.
+     */
     fun belowPoint(anchorX: Int, anchorY: Int, popup: IntSize, safe: IntRect, gapPx: Int): IntOffset {
         val maxX = (safe.right - popup.width).coerceAtLeast(safe.left)
         val x = (anchorX - popup.width / 2).coerceIn(safe.left, maxX)

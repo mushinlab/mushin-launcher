@@ -3,6 +3,13 @@ package com.mushinlab.launcher.core.search
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.LearnedGesture
 
+/**
+ * Recognizes drawings by outline rather than by keys, against the learned shapes of [LearnedGesture] samples.
+ *
+ * Outlines are normalized for position and size. A sample matches when the size ratio is within [maxScale]
+ * and the mean point distance, in units of outline radius, is at most [threshold]. Samples without an outline
+ * use their key path over [keys]; [areaWidth] and [areaHeight] turn stored fractions back into pixels.
+ */
 class ShapeMatcher(
     private val keys: Map<Char, GesturePoint>,
     private val areaWidth: Float,
@@ -10,6 +17,7 @@ class ShapeMatcher(
     private val maxScale: Float = MAX_SCALE,
     private val threshold: Float = THRESHOLD,
 ) {
+    /** Apps whose learned shapes match [drawn], best first, limited to those close to the best match. */
     fun match(drawn: List<GesturePoint>, learned: List<LearnedGesture>): List<AppKey> {
         val shape = Shapes.normalize(drawn) ?: return emptyList()
         val best = HashMap<AppKey, Float>()

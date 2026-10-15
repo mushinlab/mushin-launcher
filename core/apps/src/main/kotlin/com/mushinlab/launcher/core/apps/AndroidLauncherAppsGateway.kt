@@ -18,6 +18,10 @@ import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ProfileType
 import java.io.File
 
+/**
+ * [LauncherAppsGateway] backed by LauncherApps and UserManager; covers the main, work and private profiles.
+ * Package callbacks arrive on the main thread.
+ */
 class AndroidLauncherAppsGateway(private val context: Context) : LauncherAppsGateway {
     private val launcherApps = context.getSystemService(LauncherApps::class.java)
     private val userManager = context.getSystemService(UserManager::class.java)
@@ -25,6 +29,7 @@ class AndroidLauncherAppsGateway(private val context: Context) : LauncherAppsGat
     private var callback: LauncherApps.Callback? = null
     private var receiver: BroadcastReceiver? = null
 
+    /** User handle for a profile serial number, or null when the profile no longer exists. */
     fun userFor(serial: Long): UserHandle? = userManager.getUserForSerialNumber(serial)
 
     fun serialOf(user: UserHandle): Long = userManager.getSerialNumberForUser(user)

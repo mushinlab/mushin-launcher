@@ -6,6 +6,7 @@ import com.mushinlab.launcher.core.model.UsageDecay
 import kotlin.math.ln
 import kotlin.math.min
 
+/** How a query matched a name, strongest first; [base] is the starting score before penalties and bonuses. */
 enum class MatchLevel(val base: Int) {
     EXACT(base = 1000),
     PREFIX(base = 900),
@@ -17,12 +18,14 @@ enum class MatchLevel(val base: Int) {
     FUZZY(base = 300),
 }
 
+/** User switches: typo tolerance, retyping in the other keyboard layout and Cyrillic-Latin transliteration. */
 data class SearchOptions(
     val fuzzy: Boolean = true,
     val layoutSwap: Boolean = true,
     val translit: Boolean = true,
 )
 
+/** A matched app with its final [score] and the [level] of its best match. */
 data class SearchResult(
     val key: AppKey,
     val label: String,
@@ -31,9 +34,20 @@ data class SearchResult(
     val hidden: Boolean,
 )
 
+/**
+ * Ranks indexed apps against a typed query. Stateless apart from [options]; safe to call from any thread.
+ *
+ * The query is normalized and expanded into variants (other layout, transliterations). Each app gets its best
+ * [MatchLevel] over all variants and names, minus penalties for layout swap, transliteration and matching the
+ * original label of a renamed app, plus a bonus for frequent and recent launches. Ties prefer shorter labels.
+ */
 class SearchEngine(private val options: SearchOptions = SearchOptions()) {
     private val matcher = NameMatcher(options)
 
+    /**
+     * Up to [limit] results, best first. [usage] and [now] (epoch ms) feed the launch bonus. Hidden apps appear only
+     * for prefix or exact matches unless [includeHidden] is set. A blank query gives no results.
+     */
     fun search(
         index: SearchIndex,
         query: String,

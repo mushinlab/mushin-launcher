@@ -10,6 +10,7 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.File
 
+/** A home row as shown at the last snapshot; [work] marks apps of the work profile. */
 data class SnapshotRow(
     val key: AppKey,
     val label: String,
@@ -17,6 +18,7 @@ data class SnapshotRow(
     val work: Boolean,
 )
 
+/** What the home screen showed last time, enough to draw it before the database and app list load. */
 data class HomeSnapshot(
     val spaceId: Long,
     val palette: Palette,
@@ -29,6 +31,12 @@ data class HomeSnapshot(
     val listOffset: Int = 0,
 )
 
+/**
+ * Stores one [HomeSnapshot] as a small versioned binary file for an instant first frame after process start.
+ *
+ * Writes go to a temporary file and are renamed into place. [read] returns null for a missing, corrupt or
+ * older-version file. Both methods block on file I/O.
+ */
 class HomeSnapshotStore(directory: File) {
     private val file = File(directory, FILE_NAME)
     private val temp = File(directory, "$FILE_NAME.tmp")

@@ -9,6 +9,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import com.mushinlab.launcher.core.model.ShapeVertex
 
+/**
+ * Draws a simplified gesture as a polyline of [widthPx] with round joins. With [dots], the start gets a large
+ * dot, vertices a small one, and vertices with a long dwell a ring that grows with the dwell time.
+ */
 fun DrawScope.drawVectors(vertices: List<ShapeVertex>, color: Color, widthPx: Float, dots: Boolean) {
     if (vertices.isEmpty()) return
     if (vertices.size > 1) {
@@ -36,6 +40,7 @@ fun DrawScope.drawVectors(vertices: List<ShapeVertex>, color: Color, widthPx: Fl
     }
 }
 
+/** Sizing of dwell rings; dwells of at least [DWELL_MARK_MS] are drawn as rings. */
 object VectorDots {
     const val DWELL_MARK_MS = 300L
     private const val RING_BASE = 1.8f
@@ -43,6 +48,7 @@ object VectorDots {
     private const val RING_CAP_MS = 2000L
     private const val MS_PER_SECOND = 1000f
 
+    /** Ring radius as a multiple of the stroke width, growing with [dwellMs] up to a cap. */
     fun ringScale(dwellMs: Long): Float =
         RING_BASE + RING_PER_SECOND * dwellMs.coerceAtMost(RING_CAP_MS) / MS_PER_SECOND
 }

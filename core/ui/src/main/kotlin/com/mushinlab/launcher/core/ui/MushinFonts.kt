@@ -7,6 +7,7 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import com.mushinlab.launcher.core.model.AppFont
 
+/** Font families for [AppFont]; bundled variable fonts are created lazily with weights 300..700. */
 object MushinFonts {
     private val weights = listOf(300, 400, 500, 600, 700)
 

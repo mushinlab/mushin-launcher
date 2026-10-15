@@ -14,6 +14,14 @@ import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.Palettes
 import com.mushinlab.launcher.core.model.SpaceType
 
+/**
+ * Room database of spaces, home lists, app overrides, launch history, gesture bindings and learned drawings.
+ *
+ * The file and several tables keep the working name "env" (ADR-0015). Schemas are exported and every version
+ * step is an auto-migration that only adds tables or columns: v2 gesture_sample, v3 environment.colored_icons,
+ * v4 space_usage, v5 app_override.system_shortcut and gesture_sample.shape, v6 environment.list_offset.
+ * A new database is seeded with the normal and work spaces and the default gestures.
+ */
 @Database(
     entities = [
         SpaceEntity::class,
@@ -57,6 +65,7 @@ abstract class MushinDatabase : RoomDatabase() {
     companion object {
         const val NAME = "env.db"
 
+        /** Opens [NAME] or, with [inMemory], a throwaway database for tests; seed names come from resources. */
         fun build(context: Context, inMemory: Boolean = false): MushinDatabase {
             val builder = if (inMemory) {
                 Room.inMemoryDatabaseBuilder(context, MushinDatabase::class.java)
@@ -71,8 +80,10 @@ abstract class MushinDatabase : RoomDatabase() {
         }
     }
 
+    /** Localized names of the spaces created with a new database. */
     data class SeedNames(val normal: String, val work: String)
 
+    /** Fills a newly created database with the normal and work spaces and the default gesture bindings. */
     class SeedCallback(private val names: SeedNames) : Callback() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             seed(db, createdAt = System.currentTimeMillis())

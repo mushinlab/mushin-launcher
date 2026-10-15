@@ -6,10 +6,15 @@ import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.KeyRemap
 import com.mushinlab.launcher.core.model.OverrideLimits
 
+/** Keeps stored data consistent with installed packages. Each method runs as one transaction. */
 class PackageDataCleaner(
     private val db: MushinDatabase,
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
+    /**
+     * Deletes home items, recents, usage and learned drawings of a removed package; its overrides are only marked
+     * orphaned so that a reinstall within the retention period restores them.
+     */
     suspend fun onPackageRemoved(packageName: String, userSerial: Long) {
         db.withTransaction {
             db.spaceItemDao().deletePackage(packageName, userSerial)
@@ -21,10 +26,15 @@ class PackageDataCleaner(
         }
     }
 
+    /** Restores orphaned overrides of a reinstalled package. */
     suspend fun onPackageAdded(packageName: String, userSerial: Long) {
         db.appOverrideDao().clearOrphaned(packageName, userSerial)
     }
 
+    /**
+     * Moves data from stored keys that no longer exist to the single remaining activity of the same package
+     * (see [com.mushinlab.launcher.core.model.KeyRemap]). [available] is the full current app list.
+     */
     suspend fun reconcile(available: Collection<AppKey>) {
         val dao = db.appKeyDao()
         val stored = dao.stored().map { AppKey(it.packageName, it.activityName, it.userSerial) }
@@ -53,6 +63,7 @@ class PackageDataCleaner(
         }
     }
 
+    /** Deletes overrides orphaned longer than the retention period; returns how many were deleted. */
     suspend fun purgeExpiredOverrides(): Int = db.appOverrideDao().purgeOrphanedBefore(
         clock() - OverrideLimits.ORPHAN_TTL_MS,
     )

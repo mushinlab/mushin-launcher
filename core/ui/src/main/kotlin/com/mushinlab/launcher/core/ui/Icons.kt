@@ -27,6 +27,10 @@ import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.AppKey
 import kotlin.math.roundToInt
 
+/**
+ * An app icon ready to draw: a [Mask] tinted with the palette icon color, a [Full] color bitmap, or [Letter]
+ * for the first letter of the label in a circle.
+ */
 sealed interface AppIconImage {
     @Immutable
     data class Mask(val bitmap: ImageBitmap) : AppIconImage
@@ -37,6 +41,10 @@ sealed interface AppIconImage {
     data object Letter : AppIconImage
 }
 
+/**
+ * Source of app icons for [AppIcon]. [peek] must return only what is already in memory and never block;
+ * [load] may render and is called from a coroutine.
+ */
 @Stable
 interface IconProvider {
     fun peek(key: AppKey, sizePx: Int): AppIconImage?
@@ -44,8 +52,13 @@ interface IconProvider {
     suspend fun load(key: AppKey, sizePx: Int): AppIconImage
 }
 
+/** Icon provider for [AppIcon]; null (in tests and previews) shows nothing until an icon is provided. */
 val LocalIconProvider = staticCompositionLocalOf<IconProvider?> { null }
 
+/**
+ * The icon of [key] at [size]. Shows a cached icon immediately when available, otherwise loads it
+ * asynchronously; [label] supplies the letter for [AppIconImage.Letter].
+ */
 @Composable
 fun AppIcon(key: AppKey, label: String, size: Dp, modifier: Modifier = Modifier) {
     val provider = LocalIconProvider.current

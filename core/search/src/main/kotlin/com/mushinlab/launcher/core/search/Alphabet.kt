@@ -3,6 +3,10 @@ package com.mushinlab.launcher.core.search
 import java.text.Collator
 import java.util.Locale
 
+/**
+ * Sort order of app labels: Cyrillic first, then Latin, then the rest (by first letter or digit);
+ * within a group, Russian collation that ignores case.
+ */
 object Alphabet {
     private val collator: Collator = Collator.getInstance(Locale.forLanguageTag("ru")).apply {
         strength = Collator.SECONDARY

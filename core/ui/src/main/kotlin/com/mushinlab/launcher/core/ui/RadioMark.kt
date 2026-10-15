@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+/** A radio-button ring, filled with a dot and accent-colored when [selected]. */
 @Composable
 fun RadioMark(selected: Boolean, modifier: Modifier = Modifier, size: Dp = 18.dp) {
     val colors = LocalMushinColors.current

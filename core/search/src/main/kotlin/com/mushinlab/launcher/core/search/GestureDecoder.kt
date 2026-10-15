@@ -8,12 +8,26 @@ import kotlin.math.ceil
 import kotlin.math.hypot
 import kotlin.math.ln
 
+/**
+ * A point of a drawing or a key center, in keyboard pixels. [repeat] marks a pause on a key, which stands for
+ * a double letter.
+ */
 data class GesturePoint(val x: Float, val y: Float, val repeat: Boolean = false)
 
+/** A drawable name: [latin] is its a-z key sequence, [text] the name as shown, [key] the app it opens. */
 data class GestureWord(val latin: String, val text: String, val key: AppKey)
 
+/** Decoding result: [path] is the keys the drawing passed over, [words] the candidates, best first. */
 data class GestureResult(val path: String, val words: List<GestureWord>)
 
+/**
+ * Decodes a drawing on the keyboard into app names (gesture typing). [keys] maps each letter to its key center.
+ *
+ * Every word becomes an ideal polyline through its keys; the drawing and the polyline are resampled to the same
+ * number of points and compared by position, by a fit tolerant to offset and scale (offset costs [shiftPenalty]
+ * per key pitch) and by direction of travel. Scores are roughly in key pitches; lower is better.
+ * Not thread-safe: ideal polylines are cached in a plain map.
+ */
 class GestureDecoder(
     private val keys: Map<Char, GesturePoint>,
     private val shiftPenalty: Float = GestureTuning.SHIFT_PENALTY,
@@ -25,6 +39,10 @@ class GestureDecoder(
     private val step = pitch / SAMPLES_PER_KEY
     private val idealPaths = HashMap<String, List<GesturePoint>>()
 
+    /**
+     * Letters of the keys the drawing passes over, sampled several times per key pitch. Consecutive duplicates
+     * collapse unless a point is marked [GesturePoint.repeat].
+     */
     fun keysAlong(path: List<GesturePoint>): String {
         val out = StringBuilder()
         fun visit(point: GesturePoint, repeat: Boolean) {
@@ -42,6 +60,12 @@ class GestureDecoder(
         return out.toString()
     }
 
+    /**
+     * Candidate words for a drawing, at most one per app, best first.
+     *
+     * Words within [suggestMargin] of the best score (and under an absolute cap) are kept. [learned] drawings
+     * similar to this one improve the score of their app. Returns null when fewer than two distinct keys are touched.
+     */
     fun decode(
         path: List<GesturePoint>,
         vocabulary: List<GestureWord>,
@@ -62,6 +86,7 @@ class GestureDecoder(
         return GestureResult(drawn, candidates.takeWhile { it.second <= limit }.map { it.first })
     }
 
+    /** Score of [path] against one [word], or null when either is too short or a letter has no key. */
     fun distance(path: List<GesturePoint>, word: String): Float? {
         if (path.size < 2 || word.length < 2 || !word.all { it in keys }) return null
         return score(resample(path), path.count { it.repeat }, word)

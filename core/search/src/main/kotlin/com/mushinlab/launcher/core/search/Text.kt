@@ -3,11 +3,17 @@ package com.mushinlab.launcher.core.search
 import java.text.Normalizer
 import java.util.Locale
 
+/** Text normalization shared by indexing and queries. */
 object Text {
+    /** True for the basic Cyrillic Unicode block (U+0400..U+04FF). */
     fun isCyrillic(c: Char): Boolean = c in 'Ѐ'..'ӿ'
 
     fun isLatin(c: Char): Boolean = c in 'a'..'z' || c in 'A'..'Z'
 
+    /**
+     * Lowercases, maps "ё" to "е", strips diacritics from other scripts and drops everything that is not a letter
+     * or digit.
+     */
     fun normalize(raw: String): String {
         val lower = raw.lowercase(Locale.ROOT)
         val out = StringBuilder(lower.length)
@@ -22,6 +28,10 @@ object Text {
         return out.toString()
     }
 
+    /**
+     * Splits a label into normalized words at non-alphanumeric characters and camelCase boundaries,
+     * for example "YouTube Music" to you, tube, music.
+     */
     fun splitWords(raw: String): List<String> {
         val words = mutableListOf<String>()
         val current = StringBuilder()

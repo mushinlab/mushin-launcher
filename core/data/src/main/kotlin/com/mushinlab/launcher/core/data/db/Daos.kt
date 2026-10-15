@@ -9,6 +9,7 @@ import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
+/** Spaces, stored in the `environment` table. */
 @Dao
 interface SpaceDao {
     @Query("SELECT * FROM environment ORDER BY sort_order, id")
@@ -66,6 +67,7 @@ interface SpaceDao {
     suspend fun maxSortOrder(): Int
 }
 
+/** Home lists of spaces, stored in `environment_item` with a position per row. */
 @Dao
 interface SpaceItemDao {
     @Query("SELECT * FROM environment_item ORDER BY env_id, position")
@@ -84,6 +86,7 @@ interface SpaceItemDao {
     suspend fun deletePackage(packageName: String, userSerial: Long)
 }
 
+/** Per-app user overrides; rows of removed packages are marked orphaned and purged later. */
 @Dao
 interface AppOverrideDao {
     @Query("SELECT * FROM app_override")
@@ -104,6 +107,7 @@ interface AppOverrideDao {
     )
     suspend fun delete(packageName: String, activityName: String, userSerial: Long)
 
+    /** Marks overrides of a removed package with the removal time [at], keeping an earlier mark. */
     @Query(
         "UPDATE app_override SET orphaned_at = :at WHERE package_name = :packageName " +
             "AND user_serial = :userSerial AND orphaned_at IS NULL",
@@ -113,10 +117,12 @@ interface AppOverrideDao {
     @Query("UPDATE app_override SET orphaned_at = NULL WHERE package_name = :packageName AND user_serial = :userSerial")
     suspend fun clearOrphaned(packageName: String, userSerial: Long)
 
+    /** Deletes overrides orphaned before [before] (epoch ms); returns the number of rows deleted. */
     @Query("DELETE FROM app_override WHERE orphaned_at IS NOT NULL AND orphaned_at < :before")
     suspend fun purgeOrphanedBefore(before: Long): Int
 }
 
+/** Apps launched from search, per space. */
 @Dao
 interface SearchRecentDao {
     @Query("SELECT * FROM search_recent WHERE env_id = :spaceId ORDER BY last_launched_at DESC")
@@ -134,6 +140,7 @@ interface SearchRecentDao {
     @Upsert
     suspend fun upsert(entity: SearchRecentEntity)
 
+    /** Keeps only the [keep] most recent rows of a space. */
     @Query(
         """
         DELETE FROM search_recent WHERE env_id = :spaceId AND rowid NOT IN (
@@ -153,6 +160,7 @@ interface SearchRecentDao {
     suspend fun deletePackage(packageName: String, userSerial: Long)
 }
 
+/** Global launch statistics per app. */
 @Dao
 interface AppUsageDao {
     @Query("SELECT * FROM app_usage")
@@ -174,6 +182,7 @@ interface AppUsageDao {
     suspend fun deleteAll()
 }
 
+/** Launch statistics per app and space, with the time a suggestion was dismissed. */
 @Dao
 interface SpaceUsageDao {
     @Query("SELECT * FROM space_usage")
@@ -188,6 +197,7 @@ interface SpaceUsageDao {
     @Upsert
     suspend fun upsert(entity: SpaceUsageEntity)
 
+    /** Records that a suggestion to add the app to the space was rejected at [at]. */
     @Query(
         "UPDATE space_usage SET dismissed_at = :at WHERE env_id = :spaceId AND package_name = :packageName " +
             "AND activity_name = :activityName AND user_serial = :userSerial",
@@ -201,6 +211,7 @@ interface SpaceUsageDao {
     suspend fun deleteAll()
 }
 
+/** Home-screen swipe bindings, one row per direction. */
 @Dao
 interface GestureBindingDao {
     @Query("SELECT * FROM gesture_binding")
@@ -210,6 +221,7 @@ interface GestureBindingDao {
     suspend fun upsert(entity: GestureBindingEntity)
 }
 
+/** Learned keyboard drawings ([com.mushinlab.launcher.core.model.LearnedGesture]). */
 @Dao
 interface GestureSampleDao {
     @Query("SELECT * FROM gesture_sample")
@@ -224,6 +236,7 @@ interface GestureSampleDao {
     @Query("DELETE FROM gesture_sample")
     suspend fun deleteAll()
 
+    /** Replaces all samples atomically. */
     @Transaction
     suspend fun replaceAll(samples: List<GestureSampleEntity>) {
         deleteAll()
@@ -238,14 +251,22 @@ private const val FROM_KEY = "WHERE package_name = :packageName AND activity_nam
 private const val TO_KEY = "WHERE package_name = :packageName AND activity_name = :to AND user_serial = :userSerial"
 private const val OLD_ROW = "o.package_name = :packageName AND o.activity_name = :from AND o.user_serial = :userSerial"
 
+/** An app key referenced by any table, as returned by [AppKeyDao.stored]. */
 data class StoredAppKey(
     @ColumnInfo(name = "package_name") val packageName: String,
     @ColumnInfo(name = "activity_name") val activityName: String,
     @ColumnInfo(name = "user_serial") val userSerial: Long,
 )
 
+/**
+ * Moves stored data from one activity of a package to another when an app renames its launcher activity.
+ *
+ * `merge*` adds the old row into an existing new row, `move*` re-keys old rows where no new row exists and
+ * `delete*` removes what is left of the old key. Run them in this order inside one transaction.
+ */
 @Dao
 interface AppKeyDao {
+    /** Every distinct app key referenced by any table. */
     @Query(
         "SELECT package_name, activity_name, user_serial FROM environment_item " +
             "UNION SELECT package_name, activity_name, user_serial FROM app_override " +

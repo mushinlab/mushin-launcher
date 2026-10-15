@@ -1,5 +1,6 @@
 package com.mushinlab.launcher.core.apps.icons
 
+/** Pixel math for turning app icons into monochrome masks. Colors are ARGB ints; luminance is 0..1. */
 object IconMath {
     const val MIN_LUMINANCE = 0.15f
     const val COVERAGE_LIMIT = 0.92f
@@ -18,8 +19,10 @@ object IconMath {
     private const val FLAT_RANGE = 1e-3f
     private const val ROUNDING = 0.5f
 
+    /** Rounds a size in px up to the next multiple of 8 to share cache entries between nearby sizes. */
     fun bucketSize(sizePx: Int): Int = (sizePx + SIZE_BUCKET - 1) / SIZE_BUCKET * SIZE_BUCKET
 
+    /** Relative luminance (Rec. 709 weights) of an ARGB color, ignoring alpha. */
     fun luminance(argb: Int): Float {
         val r = (argb shr RED_SHIFT) and CHANNEL_MASK
         val g = (argb shr GREEN_SHIFT) and CHANNEL_MASK
@@ -27,6 +30,10 @@ object IconMath {
         return (RED_WEIGHT * r + GREEN_WEIGHT * g + BLUE_WEIGHT * b) / CHANNEL_SCALE
     }
 
+    /**
+     * Alpha mask of a colored icon: brightness is stretched over the icon's own range and mapped to
+     * [MIN_LUMINANCE]..1, then multiplied by the pixel alpha. Transparent pixels stay transparent.
+     */
     fun brightnessToAlpha(pixels: IntArray): ByteArray {
         var min = 1f
         var max = 0f
@@ -51,9 +58,14 @@ object IconMath {
         }
     }
 
+    /** The alpha channel of each pixel; used for monochrome adaptive icon layers. */
     fun alphaFromPixels(pixels: IntArray): ByteArray =
         ByteArray(pixels.size) { i -> (pixels[i] ushr ALPHA_SHIFT).toByte() }
 
+    /**
+     * Share of pixels at least half opaque. Masks above [COVERAGE_LIMIT] are solid squares that would not read
+     * as a silhouette.
+     */
     fun coverage(alpha: ByteArray): Float {
         if (alpha.isEmpty()) return 0f
         val opaque = alpha.count { (it.toInt() and CHANNEL_MASK) >= OPAQUE_THRESHOLD }

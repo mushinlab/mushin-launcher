@@ -1,5 +1,6 @@
 package com.mushinlab.launcher.core.search
 
+/** Russian Cyrillic to Latin transliteration, so Latin queries find Cyrillic names and back. */
 object Translit {
     private val table: Map<Char, List<String>> = mapOf(
         'а' to listOf("a"),
@@ -37,6 +38,7 @@ object Translit {
         'я' to listOf("ya", "ja"),
     )
 
+    /** Primary transliteration (first option for every letter); text without Cyrillic is returned as is. */
     fun toLatin(text: String): String {
         if (text.none(Text::isCyrillic)) return text
         val out = StringBuilder(text.length + LATIN_EXTRA_CAPACITY)
@@ -44,6 +46,7 @@ object Translit {
         return out.toString()
     }
 
+    /** Up to [max] alternative transliterations (й to y/i/j, х to h/kh, ...), the primary one first. */
     fun variants(text: String, max: Int = MAX_VARIANTS): List<String> {
         if (text.none(Text::isCyrillic)) return listOf(text)
         var acc = listOf("")

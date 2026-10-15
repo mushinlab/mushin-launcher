@@ -1,5 +1,6 @@
 package com.mushinlab.launcher.core.search
 
+/** Optimal string alignment distance: insertions, deletions, substitutions and adjacent transpositions, cost 1 each. */
 object Osa {
     fun distance(a: CharSequence, b: CharSequence): Int = when {
         a.isEmpty() -> b.length
@@ -29,6 +30,10 @@ object Osa {
     private fun isTransposition(a: CharSequence, b: CharSequence, i: Int, j: Int): Boolean =
         i > 1 && j > 1 && a[i - 1] == b[j - 2] && a[i - 2] == b[j - 1]
 
+    /**
+     * Smallest distance from [query] to a prefix of [target] whose length differs from the query length by at
+     * most one; [Int.MAX_VALUE] when [target] has no such prefix. Lets a partly typed name match with typos.
+     */
     fun prefixDistance(query: String, target: String): Int {
         val len = query.length
         var best = Int.MAX_VALUE

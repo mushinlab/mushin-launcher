@@ -8,6 +8,10 @@ import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.StrokeColor
 import com.mushinlab.launcher.core.model.StrokeWidth
 
+/**
+ * Appearance of the gesture trail: [width], [color] choice and whether vertices are drawn as [dots].
+ * [color] resolves the choice against the current palette.
+ */
 @Immutable
 data class MushinStroke(val width: Dp, val color: StrokeColor, val dots: Boolean = true) {
     fun color(colors: MushinColors): Color = when (color) {
@@ -21,4 +25,5 @@ data class MushinStroke(val width: Dp, val color: StrokeColor, val dots: Boolean
     }
 }
 
+/** Gesture trail appearance in the current subtree. */
 val LocalMushinStroke = staticCompositionLocalOf { MushinStroke.Default }

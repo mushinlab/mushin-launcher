@@ -14,6 +14,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
+/**
+ * Persists home-screen swipe bindings. [bindings] always has an entry for every direction: stored values over
+ * [com.mushinlab.launcher.core.model.DefaultGestures].
+ */
 class GestureRepository(db: MushinDatabase, scope: CoroutineScope) {
     private val dao = db.gestureBindingDao()
 

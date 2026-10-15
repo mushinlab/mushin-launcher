@@ -13,6 +13,10 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/**
+ * A rendered icon: an alpha [Mask] tinted with the palette, a [Full] color bitmap, or [Letter] when the icon
+ * is missing or too solid to read as a silhouette.
+ */
 sealed interface LoadedIcon {
     data class Mask(val bitmap: Bitmap) : LoadedIcon
 
@@ -21,6 +25,10 @@ sealed interface LoadedIcon {
     data object Letter : LoadedIcon
 }
 
+/**
+ * Cache key of a rendered icon. [lastUpdateTime] invalidates icons after app updates; [colored] requests a
+ * [LoadedIcon.Full] bitmap instead of a mask.
+ */
 data class IconKey(
     val app: AppKey,
     val lastUpdateTime: Long,
@@ -28,10 +36,12 @@ data class IconKey(
     val colored: Boolean = false,
 )
 
+/** Supplies the system icon drawable of an activity for a screen density; null when unavailable. */
 fun interface IconSource {
     fun drawable(app: AppKey, densityDpi: Int): Drawable?
 }
 
+/** [IconSource] that reads activity icons through LauncherApps. */
 class LauncherIconSource(context: Context, private val gateway: AndroidLauncherAppsGateway) : IconSource {
     private val launcherApps = context.getSystemService(LauncherApps::class.java)
 
@@ -44,6 +54,12 @@ class LauncherIconSource(context: Context, private val gateway: AndroidLauncherA
     }
 }
 
+/**
+ * Loads app icons through a memory LRU cache, the [IconDiskCache] and [IconRenderer].
+ *
+ * Sizes are rounded up to a multiple of 8 px so nearby sizes share cache entries. Rendering runs on
+ * [dispatcher] (two IO threads by default); the memory cache holds up to [maxMemoryBytes].
+ */
 class IconLoader(
     context: Context,
     source: IconSource,
@@ -60,8 +76,10 @@ class IconLoader(
         }
     }
 
+    /** The icon if it is already in memory; never blocks. Safe to call during composition. */
     fun peek(key: IconKey): LoadedIcon? = memory.get(key.normalized())
 
+    /** Returns the icon from memory, disk or a fresh render; never fails, falls back to [LoadedIcon.Letter]. */
     suspend fun load(key: IconKey): LoadedIcon {
         val normalized = key.normalized()
         memory.get(normalized)?.let { return it }
@@ -70,6 +88,7 @@ class IconLoader(
         }
     }
 
+    /** Drops memory and disk entries of a package after it changed or was removed. */
     fun invalidate(packageName: String, userSerial: Long) {
         memory.snapshot().keys
             .filter { it.app.packageName == packageName && it.app.userSerial == userSerial }
@@ -77,10 +96,12 @@ class IconLoader(
         disk.invalidate(packageName, userSerial)
     }
 
+    /** Clears the memory cache at trim levels from TRIM_MEMORY_BACKGROUND up. */
     fun onTrimMemory(level: Int) {
         if (level >= ComponentCallbacks2.TRIM_MEMORY_BACKGROUND) memory.evictAll()
     }
 
+    /** Current memory cache size in bytes. */
     fun memoryBytes(): Int = memory.size()
 
     private fun render(key: IconKey): LoadedIcon = if (key.colored) {

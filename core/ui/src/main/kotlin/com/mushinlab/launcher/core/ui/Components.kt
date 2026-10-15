@@ -30,16 +30,19 @@ import com.mushinlab.launcher.core.model.PressFeedback
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/** A 1 dp full-width line in the palette divider color. */
 @Composable
 fun HorizontalDivider(modifier: Modifier = Modifier, color: Color = LocalMushinColors.current.divider) {
     Box(modifier.fillMaxWidth().height(1.dp).background(color))
 }
 
+/** A 1 dp vertical line in the palette divider color; height comes from [modifier]. */
 @Composable
 fun VerticalDivider(modifier: Modifier = Modifier, color: Color = LocalMushinColors.current.divider) {
     Box(modifier.width(1.dp).background(color))
 }
 
+/** One line of text, ellipsized at the end. */
 @Composable
 fun SingleLineText(text: String, style: TextStyle, modifier: Modifier = Modifier) {
     BasicText(
@@ -52,8 +55,14 @@ fun SingleLineText(text: String, style: TextStyle, modifier: Modifier = Modifier
     )
 }
 
+/** Press style used by [pressable] in the current subtree. */
 val LocalPressFeedback = staticCompositionLocalOf { PressFeedback.FLASH }
 
+/**
+ * Click and long-click handling with the [PressFeedback] style from [LocalPressFeedback] instead of ripple.
+ *
+ * A short tap still flashes the feedback once. A transparent [pressedColor] disables visual feedback.
+ */
 @Composable
 fun Modifier.pressable(
     enabled: Boolean = true,
@@ -124,6 +133,10 @@ private const val DIM_AMOUNT = 0.5f
 private const val SCALE_AMOUNT = 0.04f
 private const val ACCENT_ALPHA = 0.35f
 
+/**
+ * Animation and hold durations in ms. [TRANSITION_MS] is the upper bound for any transition (ADR-0003);
+ * [HOLD_MS] and [CLOCK_HOLD_MS] are hold durations for deliberate actions.
+ */
 object Motion {
     const val TRANSITION_MS = 200
     const val PRESS_FADE_MS = 200
@@ -132,4 +145,5 @@ object Motion {
     const val CLOCK_HOLD_MS = 700L
 }
 
+/** Full width with a fixed [height]. */
 fun Modifier.rowHeight(height: Dp): Modifier = this.fillMaxWidth().height(height)
