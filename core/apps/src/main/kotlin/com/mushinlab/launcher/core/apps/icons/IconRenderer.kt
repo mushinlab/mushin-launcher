@@ -5,9 +5,15 @@ import android.graphics.Canvas
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.Drawable
 
+/** Rasterizes icons from an [IconSource] at the display density; failures fall back to [LoadedIcon.Letter]. */
 class IconRenderer(private val source: IconSource, private val densityDpi: Int) {
+    /**
+     * Monochrome mask: the monochrome layer of an adaptive icon when present, otherwise the brightness of the
+     * full icon. Returns [LoadedIcon.Letter] when the result is too solid.
+     */
     fun mask(key: IconKey): LoadedIcon = runCatching { renderMask(key) }.getOrDefault(LoadedIcon.Letter)
 
+    /** The icon in full color at [IconKey.sizePx]. */
     fun full(key: IconKey): LoadedIcon = runCatching {
         val drawable = source.drawable(key.app, densityDpi) ?: return@runCatching LoadedIcon.Letter
         val bitmap = Bitmap.createBitmap(key.sizePx, key.sizePx, Bitmap.Config.ARGB_8888)

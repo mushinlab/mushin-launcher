@@ -1,5 +1,9 @@
 package com.mushinlab.launcher.core.search
 
+/**
+ * Coarse phonetic key of a lowercase Latin string: merges similar spellings (ph/f, c/q/k, w/v, y/j/i, ts/s, ...)
+ * and collapses doubled letters, so spelling variants of the same name share a key.
+ */
 object Phonetic {
     private val rules = listOf(
         "ck" to "k",

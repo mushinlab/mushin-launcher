@@ -6,6 +6,12 @@ import java.io.File
 import java.nio.ByteBuffer
 import java.security.MessageDigest
 
+/**
+ * Disk cache of monochrome icon masks and "use a letter" markers in [dir]; colored icons are never stored.
+ *
+ * File names hash the app, its [IconKey.sizePx] and [IconKey.lastUpdateTime], so app updates miss the cache
+ * naturally; [invalidate] removes all files of a package. I/O errors are ignored and read as a miss.
+ */
 class IconDiskCache(private val dir: File) {
     fun read(key: IconKey): LoadedIcon? {
         val file = file(key)

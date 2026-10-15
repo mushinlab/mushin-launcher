@@ -1,7 +1,14 @@
 package com.mushinlab.launcher.core.model
 
+/** Built-in palettes; [CUSTOM] marks stored colors that do not belong to a known preset. */
 enum class PalettePreset { GRAPHITE, NAVY, PAPER, MOSS, NIGHT, SAND, LAGOON, PLUM, EMBER, MIST, ROSE, CUSTOM }
 
+/**
+ * Colors of a space as opaque ARGB ints.
+ *
+ * [zebraA] and [zebraB] alternate between list rows, [surface] is the popup background, [keyBackground] and
+ * [keyPressed] color keyboard keys and pressed rows. [isDark] selects light system bar icons.
+ */
 data class Palette(
     val background: Int,
     val zebraA: Int,
@@ -17,6 +24,7 @@ data class Palette(
     val isDark: Boolean,
 )
 
+/** Built-in palette presets; [of] falls back to [Graphite] for presets without built-in colors. */
 object Palettes {
     val Graphite = Palette(
         background = argb(0x121212),

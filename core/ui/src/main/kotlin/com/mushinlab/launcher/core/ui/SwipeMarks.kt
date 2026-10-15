@@ -16,6 +16,10 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.SwipeDirection
 
+/**
+ * Small arrows for the swipe [directions] bound to an app, plus a system-gesture mark when [shortcut] is set.
+ * Glyphs are sized relative to [fontSize] so they line up with the label. Draws nothing when there is no mark.
+ */
 @Composable
 fun SwipeMarks(
     directions: List<SwipeDirection>,

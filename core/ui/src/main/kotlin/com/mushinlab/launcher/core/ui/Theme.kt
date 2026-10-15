@@ -16,6 +16,7 @@ import com.mushinlab.launcher.core.model.AppFontWeight
 import com.mushinlab.launcher.core.model.Palette
 import com.mushinlab.launcher.core.model.Palettes
 
+/** Compose colors of a [Palette]; [zebra] returns the alternating background of the list row at an index. */
 @Immutable
 data class MushinColors(
     val background: Color,
@@ -51,8 +52,10 @@ data class MushinColors(
     }
 }
 
+/** Current palette colors; Graphite outside [MushinTheme]. */
 val LocalMushinColors = staticCompositionLocalOf { MushinColors.from(Palettes.Graphite) }
 
+/** Interface font family and default weight. */
 @Immutable
 data class MushinFont(val family: FontFamily, val weight: FontWeight) {
     companion object {
@@ -62,8 +65,10 @@ data class MushinFont(val family: FontFamily, val weight: FontWeight) {
     }
 }
 
+/** Current interface font. */
 val LocalMushinFont = staticCompositionLocalOf { MushinFont.Default }
 
+/** Provides palette colors, font and gesture trail style to [content]. There is no Material theme. */
 @Composable
 fun MushinTheme(
     palette: Palette,
@@ -79,7 +84,9 @@ fun MushinTheme(
     )
 }
 
+/** Text sizes of the interface and [style], which applies the current font. */
 object MushinType {
+    /** Text style in the current font; [FontWeight.Normal] means the user's chosen weight. */
     @Composable
     @ReadOnlyComposable
     fun style(size: TextUnit, color: Color, weight: FontWeight = FontWeight.Normal): TextStyle {

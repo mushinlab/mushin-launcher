@@ -3,6 +3,7 @@ package com.mushinlab.launcher.core.search
 import com.mushinlab.launcher.core.model.AppKey
 import java.util.Locale
 
+/** An app as search sees it: the system label, an optional user label that is shown instead, and the hidden flag. */
 data class SearchItem(
     val key: AppKey,
     val originalLabel: String,
@@ -34,16 +35,27 @@ internal class IndexedItem(
     val names: List<IndexedName>,
 )
 
+/**
+ * Precomputed normalized, transliterated and phonetic forms of every app label. Immutable and thread-safe;
+ * rebuild it with [build] when the app list or overrides change.
+ *
+ * @property alphabetical visible apps in [Alphabet] order.
+ */
 class SearchIndex internal constructor(
     internal val items: List<IndexedItem>,
     val alphabetical: List<SearchItem>,
 ) {
     val size: Int get() = items.size
 
+    /** All apps, hidden ones included, in [Alphabet] order. */
     val alphabeticalWithHidden: List<SearchItem> by lazy {
         items.map { it.item }.sortedWith(Alphabet.comparator { it.displayLabel })
     }
 
+    /**
+     * Drawable words of visible apps: each whole label plus its words of three or more letters, as a-z key
+     * sequences.
+     */
     val gestureVocabulary: List<GestureWord> by lazy {
         items.asSequence()
             .filterNot { it.item.hidden }
@@ -55,6 +67,7 @@ class SearchIndex internal constructor(
     companion object {
         val EMPTY = SearchIndex(emptyList(), emptyList())
 
+        /** Indexes [items]; a custom label is indexed in addition to the original one. */
         fun build(items: List<SearchItem>): SearchIndex {
             val indexed = items.map { item ->
                 val names = buildList {

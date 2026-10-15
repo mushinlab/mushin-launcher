@@ -14,6 +14,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
+/**
+ * Persists learned keyboard drawings. [samples] is collected eagerly in the given scope and starts empty
+ * until the first database read.
+ */
 class GestureLearningRepository(private val db: MushinDatabase, scope: CoroutineScope) {
     private val dao = db.gestureSampleDao()
 
@@ -21,6 +25,7 @@ class GestureLearningRepository(private val db: MushinDatabase, scope: Coroutine
         .map { list -> list.map { it.toModel() }.toImmutableList() }
         .stateIn(scope, SharingStarted.Eagerly, persistentListOf())
 
+    /** Applies [transform] to all samples and stores the result in one transaction. */
     suspend fun update(transform: (List<LearnedGesture>) -> List<LearnedGesture>) {
         db.withTransaction {
             dao.replaceAll(transform(dao.getAll().map { it.toModel() }).map { it.toEntity() })

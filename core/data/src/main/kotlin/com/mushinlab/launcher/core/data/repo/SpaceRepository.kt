@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
+/** Reasons a space operation was rejected; mapped to messages by the interface. */
 sealed interface SpaceError {
     data object NameEmpty : SpaceError
 
@@ -46,12 +47,20 @@ sealed interface SpaceError {
     data class ItemLimitReached(val limit: Int) : SpaceError
 }
 
+/** Result of a validated space operation. */
 sealed interface SpaceOutcome<out T> {
     data class Ok<T>(val value: T) : SpaceOutcome<T>
 
     data class Failed(val error: SpaceError) : SpaceOutcome<Nothing>
 }
 
+/**
+ * Spaces and their home lists.
+ *
+ * Changes are validated inside a transaction: names are trimmed, 1..[SpaceLimits.NAME_MAX_LENGTH] characters
+ * and unique ignoring case; type limits come from [SpaceLimits]; the normal space cannot be created or deleted.
+ * Flows are collected eagerly in the given scope and start empty.
+ */
 class SpaceRepository(
     private val db: MushinDatabase,
     scope: CoroutineScope,
@@ -72,6 +81,7 @@ class SpaceRepository(
         }
         .stateIn(scope, SharingStarted.Eagerly, persistentMapOf())
 
+    /** Creates a space at the end of the order with the colors of [preset]; returns its id. */
     suspend fun create(name: String, type: SpaceType, preset: PalettePreset): SpaceOutcome<Long> = db.withTransaction {
         val all = spaceDao.getAll()
         val limitError = when (type) {
@@ -131,6 +141,7 @@ class SpaceRepository(
         }
     }
 
+    /** Deletes a space with its home list, recents and usage; the normal space cannot be deleted. */
     suspend fun delete(id: Long): SpaceOutcome<Unit> = db.withTransaction {
         val space = spaceDao.get(id) ?: return@withTransaction SpaceOutcome.Failed(SpaceError.NotFound)
         if (space.type == SpaceType.NORMAL.name) {
@@ -144,6 +155,7 @@ class SpaceRepository(
         spaceDao.setColoredIcons(id, enabled)
     }
 
+    /** Sets the home list offset of a space in dp, clamped to 0..[HomeListOffset.MAX_DP]. */
     suspend fun setListOffset(id: Long, dp: Int) {
         spaceDao.setListOffset(id, dp.coerceIn(0, HomeListOffset.MAX_DP))
     }
@@ -170,6 +182,7 @@ class SpaceRepository(
 
     suspend fun itemsOf(spaceId: Long): List<AppKey> = itemDao.get(spaceId).map { it.key() }
 
+    /** Replaces the home list of a space; duplicates are dropped and order is kept. */
     suspend fun setItems(spaceId: Long, keys: List<AppKey>) {
         db.withTransaction {
             itemDao.deleteForSpace(spaceId)
@@ -181,6 +194,7 @@ class SpaceRepository(
         }
     }
 
+    /** Appends [keys] not already present; fails without changes when the list would exceed [limit]. */
     suspend fun addItems(spaceId: Long, keys: List<AppKey>, limit: Int): SpaceOutcome<Unit> = db.withTransaction {
         val current = itemDao.get(spaceId).map { it.key() }
         val merged = (current + keys).distinct()
@@ -196,6 +210,7 @@ class SpaceRepository(
     }
 }
 
+/** The space with [currentSpaceId], or the normal space when it is unset or no longer exists. */
 fun resolveCurrentSpace(spaces: List<Space>, currentSpaceId: Long?): Space? =
     spaces.firstOrNull { it.id == currentSpaceId } ?: spaces.firstOrNull { it.type == SpaceType.NORMAL }
 

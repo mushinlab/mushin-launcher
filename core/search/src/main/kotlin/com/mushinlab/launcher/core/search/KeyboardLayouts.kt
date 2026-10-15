@@ -1,7 +1,12 @@
 package com.mushinlab.launcher.core.search
 
+/** Special keys; [RESIZE] starts adjusting the keyboard width and position. */
 enum class KeyAction { SWITCH_LAYOUT, BACKSPACE, SPACE, RESIZE }
 
+/**
+ * A key: a letter [char] with an optional [digit] typed by holding or swiping up, or a special [action].
+ * [weight] is the key width relative to other keys in its row.
+ */
 data class KeySpec(
     val char: Char? = null,
     val digit: Char? = null,
@@ -9,6 +14,10 @@ data class KeySpec(
     val weight: Float = 1f,
 )
 
+/**
+ * A keyboard layout. [rowInsets] is the indent on both sides of each row as a fraction of the keyboard width;
+ * [rowScales] multiplies the height of each row.
+ */
 data class KeyboardLayout(
     val id: String,
     val label: String,
@@ -17,6 +26,10 @@ data class KeyboardLayout(
     val rowScales: List<Float> = rows.map { 1f },
 )
 
+/**
+ * The EN (QWERTY) and RU (ЙЦУКЕН) layouts: three letter rows (the bottom one with layout switch and backspace),
+ * then a row with the resize and space keys. The top row carries digit hints.
+ */
 object KeyboardLayouts {
     private const val DIGITS = "1234567890"
     private const val SIDE_KEY_WEIGHT = 1.5f
@@ -48,6 +61,10 @@ object KeyboardLayouts {
     private val enToRu: Map<Char, Char> = EN_PHYSICAL.zip(RU_PHYSICAL).toMap()
     private val ruToEn: Map<Char, Char> = RU_PHYSICAL.zip(EN_PHYSICAL).toMap()
 
+    /**
+     * Retypes [text] as if the other layout had been active, for example "ghbdtn" to "привет".
+     * Returns null when the letters belong to neither layout or mix both.
+     */
     fun swap(text: String): String? {
         val letters = text.filter { it.isLetter() }
         val map = when {

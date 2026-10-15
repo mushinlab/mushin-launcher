@@ -1,13 +1,24 @@
 package com.mushinlab.launcher.core.model
 
+/** Whether app icons are shown next to labels, and on which side. */
 enum class IconMode { NONE, LEFT, RIGHT }
 
+/** Clock format; [SYSTEM] follows the device 12/24-hour setting. */
 enum class ClockFormat { SYSTEM, H24, H12 }
 
+/** Size of home-screen app labels; [sp] is the font size in sp. */
 enum class HomeTextSize(val sp: Int) { S(sp = 22), M(sp = 26), L(sp = 30) }
 
+/**
+ * The five allowed press styles (ADR-0004): fading highlight, briefly held highlight, accent tint, dimming
+ * and scale-down. Ripple is never used.
+ */
 enum class PressFeedback { FLASH, HOLD, ACCENT, DIM, SCALE }
 
+/**
+ * Allowed on-screen keyboard width (fraction of the screen width) and horizontal position
+ * (-1 at the start edge, 1 at the end edge).
+ */
 object KeyboardFit {
     const val WIDTH_MIN = 0.6f
     const val WIDTH_MAX = 1f
@@ -16,21 +27,29 @@ object KeyboardFit {
     const val STEP = 0.05f
 }
 
+/**
+ * Visibility of the custom background image: the palette background is drawn over it with alpha
+ * `1 - opacity`.
+ */
 object BackgroundOpacity {
     const val DEFAULT = 0.5f
     const val STEP = 0.05f
 }
 
+/** Upper bound of the vertical offset of the home app list, in dp. */
 object HomeListOffset {
     const val MAX_DP = 480
 }
 
 enum class ClockPosition { START, CENTER, END }
 
+/** Interface font: system default, a bundled variable font, or the device sans-serif-condensed. */
 enum class AppFont { SYSTEM, INTER, OPEN_SANS, MONTSERRAT, CONDENSED }
 
+/** Font weight; [value] is the numeric weight (100..900 scale). */
 enum class AppFontWeight(val value: Int) { LIGHT(value = 300), REGULAR(value = 400), MEDIUM(value = 500) }
 
+/** Color of the gesture trail; [argb] is null for [ACCENT] and [TEXT], which take the palette color. */
 enum class StrokeColor(val argb: Long?) {
     ACCENT(null),
     TEXT(null),
@@ -46,12 +65,19 @@ enum class StrokeColor(val argb: Long?) {
     PINK(argb = 0xFFF472B6),
 }
 
+/** Allowed gesture trail width, in dp. */
 object StrokeWidth {
     const val MIN_DP = 2
     const val MAX_DP = 12
     const val DEFAULT_DP = 5
 }
 
+/**
+ * Global preferences, persisted by `SettingsRepository`.
+ *
+ * [currentSpaceId] null means the normal space. Per-space options (palette, colored icons, list offset) live
+ * in [Space].
+ */
 data class LauncherSettings(
     val currentSpaceId: Long? = null,
     val iconMode: IconMode = IconMode.NONE,

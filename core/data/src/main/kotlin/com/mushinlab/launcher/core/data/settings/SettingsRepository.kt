@@ -26,6 +26,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
+/**
+ * Global [LauncherSettings] in a Preferences DataStore. Keys keep their historical names (`current_env_id`).
+ *
+ * Unknown enum values and out-of-range numbers fall back to defaults or are clamped on read; a corrupt file
+ * is replaced with defaults. [loaded] is null until the first read; [settings] substitutes defaults meanwhile.
+ */
 class SettingsRepository(
     private val dataStore: DataStore<Preferences>,
     scope: CoroutineScope,
@@ -38,6 +44,7 @@ class SettingsRepository(
         .map { it ?: LauncherSettings() }
         .stateIn(scope, SharingStarted.Eagerly, LauncherSettings())
 
+    /** Atomically applies [transform] to the current settings and stores the result. */
     suspend fun update(transform: (LauncherSettings) -> LauncherSettings) {
         dataStore.edit { prefs ->
             val next = transform(decode(prefs))
@@ -48,6 +55,7 @@ class SettingsRepository(
     companion object {
         const val FILE_NAME = "settings"
 
+        /** Creates the repository backed by the app's `settings` DataStore file. */
         fun create(context: Context, scope: CoroutineScope): SettingsRepository = SettingsRepository(
             dataStore(scope) { context.preferencesDataStoreFile(FILE_NAME) },
             scope,

@@ -11,16 +11,25 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+/**
+ * Stores the user's home background image as a single WebP file in [directory].
+ *
+ * Images are downscaled to just cover the screen and written atomically through a temporary file, so a failed
+ * save keeps the previous image. Decoding and file I/O block: call [load], [save] and [clear] off the main
+ * thread. [image] holds the current bitmap or null.
+ */
 class BackgroundStore(directory: File, private val screenWidth: Int, private val screenHeight: Int) {
     private val file = File(directory, FILE_NAME)
     private val temp = File(directory, "$FILE_NAME.tmp")
     private val current = MutableStateFlow<Bitmap?>(null)
     val image: StateFlow<Bitmap?> = current.asStateFlow()
 
+    /** Reads the stored image into [image]; null when none is stored. */
     fun load() {
         current.value = if (file.exists()) BitmapFactory.decodeFile(file.path) else null
     }
 
+    /** Decodes, downscales and stores [source]; false when decoding or writing failed. */
     fun save(source: ImageDecoder.Source): Boolean {
         val bitmap = runCatching {
             ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
@@ -42,6 +51,7 @@ class BackgroundStore(directory: File, private val screenWidth: Int, private val
         return true
     }
 
+    /** Deletes the stored image. */
     fun clear() {
         file.delete()
         current.value = null

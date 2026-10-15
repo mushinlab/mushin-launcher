@@ -4,16 +4,24 @@ import com.mushinlab.launcher.core.model.ShapeVertex
 import kotlin.math.hypot
 import kotlin.math.sqrt
 
+/** A raw touch sample: position in pixels and event time in milliseconds. */
 data class TimedPoint(val x: Float, val y: Float, val timeMs: Long)
 
+/** An outline resampled to [Shapes.SAMPLES] points, centered on its centroid and divided by its RMS [radius]. */
 class NormalizedShape(val points: List<GesturePoint>, val radius: Float) {
+    /** Mean distance between corresponding points, in units of radius. */
     fun distanceTo(other: NormalizedShape): Float =
         points.indices.sumOf { i -> Shapes.distance(points[i], other.points[i]).toDouble() }.toFloat() / points.size
 }
 
+/** Geometry of drawings: simplification into vertices, normalization and averaging. */
 object Shapes {
     const val SAMPLES = 32
 
+    /**
+     * Simplifies a touch trace into vertices (Ramer-Douglas-Peucker with [tolerance] px) and records at each vertex
+     * how long the finger stayed within [dwellRadius] px of it.
+     */
     fun vectorize(points: List<TimedPoint>, tolerance: Float, dwellRadius: Float): List<ShapeVertex> {
         val distinct = points.filterIndexed { i, p -> i == 0 || p.x != points[i - 1].x || p.y != points[i - 1].y }
         if (distinct.isEmpty()) return emptyList()
@@ -22,6 +30,7 @@ object Shapes {
         return kept.map { i -> ShapeVertex(distinct[i].x, distinct[i].y, dwell(points, distinct[i], dwellRadius)) }
     }
 
+    /** Normalized outline of [path], or null when it has fewer than two distinct points or zero size. */
     fun normalize(path: List<GesturePoint>): NormalizedShape? {
         val distinct = path.filterIndexed { i, p -> i == 0 || p.x != path[i - 1].x || p.y != path[i - 1].y }
         return if (distinct.size < 2) null else centered(resample(distinct))
@@ -40,6 +49,10 @@ object Shapes {
         }
     }
 
+    /**
+     * Mean normalized outline of the [drawings] within [threshold] of their medoid, so outliers are ignored;
+     * null when no drawing can be normalized.
+     */
     fun average(drawings: List<List<GesturePoint>>, threshold: Float = ShapeMatcher.THRESHOLD): List<GesturePoint>? {
         val shapes = drawings.mapNotNull(::normalize)
         if (shapes.isEmpty()) return null

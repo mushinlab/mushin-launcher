@@ -16,6 +16,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
+/**
+ * Per-app user overrides: custom label, hidden flag and system gesture mark.
+ *
+ * A row exists only while at least one override is set; clearing the last one deletes it.
+ */
 class OverrideRepository(
     private val db: MushinDatabase,
     scope: CoroutineScope,
@@ -27,6 +32,10 @@ class OverrideRepository(
         .map { list -> list.map { it.toModel() }.associateBy { it.key }.toImmutableMap() }
         .stateIn(scope, SharingStarted.Eagerly, persistentMapOf())
 
+    /**
+     * Sets a custom label (trimmed); null or blank restores the system label. Returns false and changes nothing
+     * when the label is longer than [com.mushinlab.launcher.core.model.OverrideLimits.LABEL_MAX_LENGTH].
+     */
     suspend fun rename(key: AppKey, label: String?): Boolean {
         val trimmed = label?.trim()?.takeIf { it.isNotEmpty() }
         if (trimmed != null && trimmed.length > OverrideLimits.LABEL_MAX_LENGTH) return false
@@ -38,6 +47,7 @@ class OverrideRepository(
         update(key) { it.copy(hidden = hidden) }
     }
 
+    /** Marks the app as launched by a system gesture; it gets a mark and is not suggested for home. */
     suspend fun setSystemShortcut(key: AppKey, bound: Boolean) {
         update(key) { it.copy(systemShortcut = bound) }
     }

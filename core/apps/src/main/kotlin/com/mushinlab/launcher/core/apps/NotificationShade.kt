@@ -4,10 +4,15 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 
+/** Opens the notification shade; [expand] returns false when the system refused. */
 fun interface NotificationShade {
     fun expand(): Boolean
 }
 
+/**
+ * Calls the hidden StatusBarManager.expandNotificationsPanel by reflection, the single exception to the
+ * no-reflection rule (tech spec D.13). Call it only while the activity is resumed.
+ */
 class ReflectionNotificationShade(private val context: Context) : NotificationShade {
     @SuppressLint("WrongConstant")
     override fun expand(): Boolean = runCatching {

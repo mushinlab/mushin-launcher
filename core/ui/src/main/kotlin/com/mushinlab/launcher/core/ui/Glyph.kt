@@ -16,6 +16,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+/** Vector icons used for toolbar buttons; [res] is the drawable resource. */
 enum class Glyph(@param:DrawableRes val res: Int) {
     BACK(R.drawable.ic_arrow_back),
     EDIT(R.drawable.ic_edit),
@@ -23,6 +24,7 @@ enum class Glyph(@param:DrawableRes val res: Int) {
     SETTINGS(R.drawable.ic_settings),
 }
 
+/** A square icon button tinted with [tint]; [description] is read by accessibility services. */
 @Composable
 fun GlyphButton(
     glyph: Glyph,

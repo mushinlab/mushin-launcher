@@ -11,6 +11,10 @@ import android.os.Process
 import android.os.UserManager
 import com.mushinlab.launcher.core.model.AppKey
 
+/**
+ * Outcome of [AppLauncher.launch]. [UnlockRequested] means the profile was paused and the user was asked to
+ * turn it on; [Suspended] means the package is suspended and cannot start.
+ */
 sealed interface LaunchResult {
     data object Started : LaunchResult
 
@@ -21,6 +25,7 @@ sealed interface LaunchResult {
     data object Failed : LaunchResult
 }
 
+/** Starts apps and their system screens (app info, uninstall) in any user profile. */
 class AppLauncher(
     private val context: Context,
     private val gateway: AndroidLauncherAppsGateway,
@@ -28,6 +33,12 @@ class AppLauncher(
     private val launcherApps = context.getSystemService(LauncherApps::class.java)
     private val userManager = context.getSystemService(UserManager::class.java)
 
+    /**
+     * Starts the activity of [key]; never throws.
+     *
+     * [sourceBounds] is the on-screen origin of the opening animation. With [animate] false an app of the main
+     * profile opens without a window animation. A paused profile gets an unpause request instead of a launch.
+     */
     fun launch(key: AppKey, sourceBounds: Rect? = null, animate: Boolean = true): LaunchResult {
         val user = gateway.userFor(key.userSerial) ?: return LaunchResult.Failed
         if (runCatching { userManager.isQuietModeEnabled(user) }.getOrDefault(false)) {
@@ -59,6 +70,7 @@ class AppLauncher(
         }
     }
 
+    /** Opens the system app info screen; false when it could not be started. */
     fun openDetails(key: AppKey): Boolean {
         val user = gateway.userFor(key.userSerial) ?: return false
         return runCatching {
@@ -66,6 +78,7 @@ class AppLauncher(
         }.isSuccess
     }
 
+    /** Opens the system uninstall dialog for the package of [key]; false when it could not be started. */
     fun uninstall(key: AppKey): Boolean {
         val user = gateway.userFor(key.userSerial) ?: return false
         val intent = Intent(Intent.ACTION_DELETE, Uri.parse("package:${key.packageName}"))
@@ -74,6 +87,7 @@ class AppLauncher(
         return runCatching { context.startActivity(intent) }.isSuccess
     }
 
+    /** Asks the system to turn a paused profile back on; the user may still have to confirm. */
     fun requestUnquiet(userSerial: Long): Boolean {
         val user = gateway.userFor(userSerial) ?: return false
         return runCatching { userManager.requestQuietModeEnabled(false, user) }.isSuccess

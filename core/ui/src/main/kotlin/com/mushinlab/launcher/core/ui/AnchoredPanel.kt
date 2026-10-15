@@ -46,6 +46,12 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.withTimeoutOrNull
 
+/**
+ * Full-screen layer with a popup panel placed below [anchor] (window pixels), or above it when there is no room.
+ *
+ * The panel stays inside system bars and the display cutout and scrolls when taller than
+ * [PanelDimens.MAX_HEIGHT_FRACTION] of the safe area. Any touch outside the panel calls [onDismiss].
+ */
 @Composable
 fun AnchoredPanel(
     anchor: Offset,
@@ -105,6 +111,7 @@ fun AnchoredPanel(
     }
 }
 
+/** Non-interactive section title inside an [AnchoredPanel]. */
 @Composable
 fun PanelHeader(text: String) {
     val colors = LocalMushinColors.current
@@ -113,6 +120,10 @@ fun PanelHeader(text: String) {
     }
 }
 
+/**
+ * A row of an [AnchoredPanel]. [radio] non-null shows a radio mark with that state; [onHold], when set,
+ * fires after holding the row for [Motion.HOLD_MS] without moving, and the following release is not a click.
+ */
 @Composable
 fun PanelItem(
     text: String,

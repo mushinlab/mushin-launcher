@@ -23,6 +23,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
+/**
+ * Launch history: global usage, usage per space and search recents per space.
+ *
+ * Flows are collected eagerly in the given scope and start empty. [clock] returns epoch ms and is injectable
+ * for tests.
+ */
 class HistoryRepository(
     private val db: MushinDatabase,
     scope: CoroutineScope,
@@ -54,6 +60,10 @@ class HistoryRepository(
         }
         .stateIn(scope, SharingStarted.Eagerly, persistentMapOf())
 
+    /**
+     * Records one launch in one transaction: global usage always, space usage when [spaceId] is set, and a search
+     * recent when the launch came from search; recents are trimmed to the per-space limit.
+     */
     suspend fun recordLaunch(key: AppKey, spaceId: Long?, fromSearch: Boolean) {
         val now = clock()
         db.withTransaction {
@@ -116,6 +126,7 @@ class HistoryRepository(
         recentDao.clearAll()
     }
 
+    /** Deletes global and per-space usage; search recents are kept. */
     suspend fun clearUsage() {
         db.withTransaction {
             usageDao.deleteAll()
@@ -123,6 +134,7 @@ class HistoryRepository(
         }
     }
 
+    /** Remembers that the user rejected adding [key] to the home list of [spaceId]. */
     suspend fun dismissSuggestion(spaceId: Long, key: AppKey) {
         spaceDao.dismiss(spaceId, key.packageName, key.activityName, key.userSerial, clock())
     }

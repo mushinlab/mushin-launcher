@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+/** A package change in one profile, emitted by [AppCatalog.events] after the app list is updated. */
 sealed interface PackageEvent {
     val packageName: String
     val userSerial: Long
@@ -28,6 +29,12 @@ sealed interface PackageEvent {
     data class Removed(override val packageName: String, override val userSerial: Long) : PackageEvent
 }
 
+/**
+ * In-memory list of launchable activities across all user profiles.
+ *
+ * [start] loads everything, then package and profile callbacks are applied incrementally. Updates run on
+ * [dispatcher] under a mutex, so [apps] is always a consistent snapshot. Labels are cut to [MAX_LABEL_LENGTH].
+ */
 class AppCatalog(
     private val gateway: LauncherAppsGateway,
     private val scope: CoroutineScope,
@@ -40,18 +47,25 @@ class AppCatalog(
     private var profiles: Map<Long, ProfileInfo> = emptyMap()
 
     val apps: StateFlow<ImmutableList<AppEntry>> = _apps.asStateFlow()
+
+    /** True after the first full load, so an empty [apps] can be told apart from "not loaded yet". */
     val loaded: StateFlow<Boolean> = _loaded.asStateFlow()
+
+    /** Added, changed and removed packages, emitted after [apps] reflects the change. */
     val events: SharedFlow<PackageEvent> = _events.asSharedFlow()
 
+    /** Registers for package and profile callbacks and starts a full load. */
     fun start() {
         gateway.setListener(this)
         reloadAll()
     }
 
+    /** Unregisters callbacks; [apps] keeps its last value. */
     fun stop() {
         gateway.setListener(null)
     }
 
+    /** Reloads all profiles and their activities in the background. */
     fun reloadAll() {
         scope.launch(dispatcher) {
             mutex.withLock {
