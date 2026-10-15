@@ -10,6 +10,7 @@ plugins {
 val uploadKeystore = rootProject.file("keystore.properties").takeIf { it.isFile }?.let { file ->
     Properties().apply { file.inputStream().use(::load) }
 }
+val debugSignedRelease = providers.gradleProperty("env.debugSignedRelease").orNull == "true"
 
 android {
     namespace = "com.bluecubelabs.env"
@@ -33,7 +34,8 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.findByName("upload")
+                ?: signingConfigs.getByName("debug").takeIf { debugSignedRelease }
         }
     }
     buildFeatures {
