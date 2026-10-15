@@ -13,6 +13,7 @@ From this version on the changelog is kept in English.
 - UI state moved out of `MainActivity` into the ViewModel and plain state holders; platform actions are requested with events. The settings screen stack survives process death.
 - Icon loading split into a renderer and a disk cache; the disk cache ignores files whose size does not match.
 - detekt runs with standard thresholds; new unit tests for the ViewModel mappers, navigation, home and search interactions, app launching, icons and storage codecs.
+- KDoc on the public API of the core modules and Compose previews for the base components in `core:ui` (preview tooling is debug-only).
 - `CONTRIBUTING.md` added.
 
 ## 0.1.0 — 2026-10-15
