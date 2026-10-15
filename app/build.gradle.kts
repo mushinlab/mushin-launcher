@@ -2,18 +2,18 @@ import com.android.build.api.artifact.SingleArtifact
 import java.util.Properties
 
 plugins {
-    id("env.android.application")
-    id("env.android.compose")
+    id("mushin.android.application")
+    id("mushin.android.compose")
     alias(libs.plugins.baselineprofile)
 }
 
 val uploadKeystore = rootProject.file("keystore.properties").takeIf { it.isFile }?.let { file ->
     Properties().apply { file.inputStream().use(::load) }
 }
-val debugSignedRelease = providers.gradleProperty("env.debugSignedRelease").orNull == "true"
+val debugSignedRelease = providers.gradleProperty("mushin.debugSignedRelease").orNull == "true"
 
 android {
-    namespace = "com.bluecubelabs.env"
+    namespace = "com.mushinlab.launcher"
     defaultConfig {
         applicationId = "com.mushinlab.launcher"
         versionCode = 2

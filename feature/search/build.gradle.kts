@@ -1,10 +1,10 @@
 plugins {
-    id("env.android.library")
-    id("env.android.compose")
+    id("mushin.android.library")
+    id("mushin.android.compose")
 }
 
 android {
-    namespace = "com.bluecubelabs.env.feature.search"
+    namespace = "com.mushinlab.launcher.feature.search"
 }
 
 dependencies {

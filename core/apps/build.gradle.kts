@@ -1,9 +1,9 @@
 plugins {
-    id("env.android.library")
+    id("mushin.android.library")
 }
 
 android {
-    namespace = "com.bluecubelabs.env.core.apps"
+    namespace = "com.mushinlab.launcher.core.apps"
 }
 
 dependencies {

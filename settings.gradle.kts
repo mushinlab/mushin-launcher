@@ -15,7 +15,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "env-launcher"
+rootProject.name = "mushin-launcher"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 

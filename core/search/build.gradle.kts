@@ -1,5 +1,5 @@
 plugins {
-    id("env.jvm.library")
+    id("mushin.jvm.library")
 }
 
 dependencies {

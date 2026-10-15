@@ -1,11 +1,11 @@
 plugins {
-    id("env.android.library")
+    id("mushin.android.library")
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
 }
 
 android {
-    namespace = "com.bluecubelabs.env.core.data"
+    namespace = "com.mushinlab.launcher.core.data"
     sourceSets {
         getByName("test").assets.directories.add("schemas")
     }

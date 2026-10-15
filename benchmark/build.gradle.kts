@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.bluecubelabs.env.benchmark"
+    namespace = "com.mushinlab.launcher.benchmark"
     compileSdk = 37
     defaultConfig {
         minSdk = 33

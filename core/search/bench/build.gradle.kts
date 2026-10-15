@@ -1,10 +1,10 @@
 plugins {
-    id("env.android.library")
+    id("mushin.android.library")
     alias(libs.plugins.benchmark)
 }
 
 android {
-    namespace = "com.bluecubelabs.env.core.search.bench"
+    namespace = "com.mushinlab.launcher.core.search.bench"
     defaultConfig {
         testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
     }

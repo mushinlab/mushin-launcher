@@ -2,7 +2,7 @@ plugins {
     `kotlin-dsl`
 }
 
-group = "com.bluecubelabs.env.buildlogic"
+group = "com.mushinlab.launcher.buildlogic"
 
 dependencies {
     compileOnly(libs.android.gradlePlugin)
@@ -15,28 +15,28 @@ dependencies {
 gradlePlugin {
     plugins {
         register("androidApplication") {
-            id = "env.android.application"
-            implementationClass = "com.bluecubelabs.env.buildlogic.AndroidApplicationConventionPlugin"
+            id = "mushin.android.application"
+            implementationClass = "com.mushinlab.launcher.buildlogic.AndroidApplicationConventionPlugin"
         }
         register("androidLibrary") {
-            id = "env.android.library"
-            implementationClass = "com.bluecubelabs.env.buildlogic.AndroidLibraryConventionPlugin"
+            id = "mushin.android.library"
+            implementationClass = "com.mushinlab.launcher.buildlogic.AndroidLibraryConventionPlugin"
         }
         register("androidCompose") {
-            id = "env.android.compose"
-            implementationClass = "com.bluecubelabs.env.buildlogic.AndroidComposeConventionPlugin"
+            id = "mushin.android.compose"
+            implementationClass = "com.mushinlab.launcher.buildlogic.AndroidComposeConventionPlugin"
         }
         register("jvmLibrary") {
-            id = "env.jvm.library"
-            implementationClass = "com.bluecubelabs.env.buildlogic.JvmLibraryConventionPlugin"
+            id = "mushin.jvm.library"
+            implementationClass = "com.mushinlab.launcher.buildlogic.JvmLibraryConventionPlugin"
         }
         register("moduleGraph") {
-            id = "env.module-graph"
-            implementationClass = "com.bluecubelabs.env.buildlogic.ModuleGraphConventionPlugin"
+            id = "mushin.module-graph"
+            implementationClass = "com.mushinlab.launcher.buildlogic.ModuleGraphConventionPlugin"
         }
         register("quality") {
-            id = "env.quality"
-            implementationClass = "com.bluecubelabs.env.buildlogic.QualityConventionPlugin"
+            id = "mushin.quality"
+            implementationClass = "com.mushinlab.launcher.buildlogic.QualityConventionPlugin"
         }
     }
 }
