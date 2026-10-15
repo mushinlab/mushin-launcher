@@ -1,5 +1,9 @@
 package com.mushinlab.launcher.core.model
 
+/**
+ * Moves data stored for an app (space items, renames, history, gestures) when the app renames its launcher
+ * activity.
+ */
 object KeyRemap {
     /**
      * Finds stored keys whose activity no longer exists while their package is still installed in the same profile.

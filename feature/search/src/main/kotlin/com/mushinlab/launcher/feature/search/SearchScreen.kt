@@ -17,19 +17,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsTopHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -57,79 +52,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.AppKey
-import com.mushinlab.launcher.core.model.IconMode
-import com.mushinlab.launcher.core.model.SwipeDirection
-import com.mushinlab.launcher.core.search.KeyboardLayout
 import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
-import com.mushinlab.launcher.core.ui.SingleLineText
-import com.mushinlab.launcher.core.ui.SwipeMarks
-import com.mushinlab.launcher.core.ui.VerticalDivider
 import com.mushinlab.launcher.core.ui.pressable
 import kotlin.math.abs
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-
-@Immutable
-data class RecentRow(val key: AppKey, val label: String)
-
-@Immutable
-data class SearchChrome(
-    val iconMode: IconMode,
-    val layout: KeyboardLayout,
-    val nextLayoutLabel: String,
-    val digitHints: Boolean,
-    val haptics: Boolean,
-    val gestureShiftPenalty: Float,
-    val gestureSuggestMargin: Float,
-    val keyboardWidth: Float = 1f,
-    val keyboardShift: Float = 0f,
-    val fuzzy: Boolean = true,
-    val layoutSwap: Boolean = true,
-    val translit: Boolean = true,
-    val coloredIcons: Boolean = false,
-)
-
-interface SearchActions : KeyboardActions, SearchMenuActions, SearchOptionsActions {
-    fun onLaunch(key: AppKey)
-
-    fun onShowKeyboard()
-
-    fun onLongPress(key: AppKey, label: String, anchor: Offset)
-
-    fun onKeyboardFit(width: Float, shift: Float)
-}
-
-object SearchDimens {
-    val resultHeight: Dp = 56.dp
-    val recentHeight: Dp = 52.dp
-    val queryHeight: Dp = 36.dp
-    val queryTextSize: TextUnit = 18.sp
-    val padding: Dp = 16.dp
-    val resultIcon: Dp = 24.dp
-    val recentIcon: Dp = 20.dp
-    val paneTop: Dp = KeyboardDimens.verticalPadding + KeyboardDimens.gap / 2
-    val anchorLength: Dp = 48.dp
-    val anchorThickness: Dp = 6.dp
-    val anchorInset: Dp = 10.dp
-    val anchorTouch: Dp = 32.dp
-    val suggestionIcon: Dp = 28.dp
-    val suggestionGap: Dp = 12.dp
-    val headerHeight: Dp = 48.dp
-    val paneGap: Dp = 8.dp
-    val paneRadius: Dp = 16.dp
-    val closeSwipe: Dp = 72.dp
-    const val MAX_RECENTS = 10
-}
 
 @Composable
 fun SearchScreen(
@@ -258,149 +191,6 @@ private fun Modifier.swipeDownToClose(thresholdPx: Float, onClose: () -> Unit): 
 }
 
 @Composable
-private fun ResultsPane(
-    controller: SearchController,
-    iconMode: IconMode,
-    actions: SearchActions,
-    onLongPress: (AppKey, String) -> Unit,
-    modifier: Modifier,
-) {
-    val colors = LocalMushinColors.current
-    val rows = controller.rows
-    val listState = rememberLazyListState()
-    LaunchedEffect(controller.query, controller.suggesting) { listState.scrollToItem(0) }
-    if (rows.isEmpty() && controller.query.isNotEmpty()) {
-        Box(modifier.padding(SearchDimens.padding).testTag("no_results"), contentAlignment = Alignment.BottomStart) {
-            BasicText(
-                stringResource(R.string.search_nothing_found),
-                style = MushinType.style(MushinType.secondarySize, colors.textSecondary),
-            )
-        }
-        return
-    }
-    val selected = controller.selected
-    LazyColumn(modifier.testTag("results"), state = listState, reverseLayout = true) {
-        itemsIndexed(rows, key = { _, row -> row.key.id }) { index, row ->
-            AppRowItem(
-                label = row.label,
-                key = row.key,
-                index = index,
-                height = SearchDimens.resultHeight,
-                textSize = MushinType.resultSize.value,
-                iconMode = iconMode,
-                iconSize = SearchDimens.resultIcon,
-                hidden = row.hidden,
-                swipes = row.swipes,
-                shortcut = row.shortcut,
-                highlighted = index == selected,
-                tag = "result_$index",
-                onLongClick = { onLongPress(row.key, row.label) },
-                onClick = { actions.onLaunch(row.key) },
-            )
-        }
-    }
-}
-
-@Composable
-private fun RecentsPane(
-    recents: ImmutableList<RecentRow>,
-    iconMode: IconMode,
-    actions: SearchActions,
-    onLongPress: (AppKey, String) -> Unit,
-    modifier: Modifier,
-) {
-    BoxWithConstraints(modifier.testTag("recents")) {
-        val fit = (maxHeight / SearchDimens.recentHeight).toInt().coerceIn(0, SearchDimens.MAX_RECENTS)
-        Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
-            recents.take(fit).asReversed().forEachIndexed { reversedIndex, row ->
-                val index = recents.take(fit).size - 1 - reversedIndex
-                AppRowItem(
-                    label = row.label,
-                    key = row.key,
-                    index = index,
-                    height = SearchDimens.recentHeight,
-                    textSize = MushinType.recentSize.value,
-                    iconMode = iconMode,
-                    iconSize = SearchDimens.recentIcon,
-                    hidden = false,
-                    swipes = persistentListOf(),
-                    shortcut = false,
-                    highlighted = false,
-                    tag = "recent_$index",
-                    onLongClick = { onLongPress(row.key, row.label) },
-                    onClick = { actions.onLaunch(row.key) },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun AppRowItem(
-    label: String,
-    key: AppKey,
-    index: Int,
-    height: Dp,
-    textSize: Float,
-    iconMode: IconMode,
-    iconSize: Dp,
-    hidden: Boolean,
-    swipes: ImmutableList<SwipeDirection>,
-    shortcut: Boolean,
-    highlighted: Boolean,
-    tag: String,
-    onLongClick: () -> Unit,
-    onClick: () -> Unit,
-) {
-    val colors = LocalMushinColors.current
-    val background = when {
-        highlighted -> colors.accent.copy(alpha = HIGHLIGHT_ALPHA)
-        index % 2 == 1 -> colors.textPrimary.copy(alpha = PANE_ZEBRA_ALPHA)
-        else -> Color.Transparent
-    }
-    val textStyle = MushinType.style(textSize.sp, colors.textPrimary)
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .height(height)
-            .background(background)
-            .pressable(onLongClick = onLongClick, onClick = onClick)
-            .testTag(tag)
-            .padding(horizontal = SearchDimens.padding),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (iconMode == IconMode.LEFT) {
-            AppIcon(key, label, iconSize)
-            Spacer(Modifier.width(12.dp))
-        }
-        Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-            SingleLineText(label, textStyle, Modifier.weight(1f, fill = false))
-            if (swipes.isNotEmpty() || shortcut) {
-                Spacer(Modifier.width(8.dp))
-                SwipeMarks(
-                    swipes,
-                    textSize.sp,
-                    colors.textSecondary,
-                    Modifier.testTag("${tag}_swipe"),
-                    shortcut = shortcut,
-                )
-            }
-            if (hidden) {
-                Spacer(Modifier.width(6.dp))
-                SingleLineText(
-                    stringResource(R.string.search_hidden_suffix),
-                    MushinType.style(MushinType.recentSize, colors.textSecondary),
-                )
-            }
-        }
-        if (iconMode == IconMode.RIGHT) {
-            Spacer(Modifier.width(12.dp))
-            AppIcon(key, label, iconSize)
-        }
-    }
-}
-
-@Composable
 private fun InputPane(
     controller: SearchController,
     chrome: SearchChrome,
@@ -506,5 +296,5 @@ private fun SuggestionIcons(rows: ImmutableList<SearchRow>, actions: SearchActio
     }
 }
 
-private const val HIGHLIGHT_ALPHA = 0.12f
-private const val PANE_ZEBRA_ALPHA = 0.05f
+internal const val HIGHLIGHT_ALPHA = 0.12f
+internal const val PANE_ZEBRA_ALPHA = 0.05f

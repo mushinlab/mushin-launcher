@@ -57,7 +57,7 @@ class LauncherViewModel(
     private val roleHeld = MutableStateFlow(true)
     private val notificationAccess = MutableStateFlow(false)
     private val capacity = MutableStateFlow(0)
-    private val effectChannel = Channel<LauncherEffect>(Channel.BUFFERED)
+    private val effectChannel = Channel<LauncherEffect>(Channel.UNLIMITED)
     private val iconsWarm = MutableStateFlow(false)
 
     private val catalog: StateFlow<Map<AppKey, AppEntry>?> =
