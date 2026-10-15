@@ -24,7 +24,7 @@ class SearchInteractions(
     fun openMenu(key: AppKey, label: String, anchor: Offset) {
         val entry = model.entry(key) ?: return
         val override = model.override(key)
-        search.openMenu(
+        search.panels.openMenu(
             SearchMenu(
                 key = key,
                 label = label,
@@ -38,15 +38,15 @@ class SearchInteractions(
     }
 
     fun toggleHidden(key: AppKey, hidden: Boolean) {
-        val label = search.menu?.label ?: return
-        search.closeMenu()
+        val label = search.panels.menu?.label ?: return
+        search.panels.closeMenu()
         model.setHidden(key, hidden)
         navigator.notice =
             Notice(if (hidden) R.string.notice_hidden else R.string.notice_unhidden, persistentListOf(label))
     }
 
     fun toggleInSpace(key: AppKey, add: Boolean) {
-        search.closeMenu()
+        search.panels.closeMenu()
         val space = model.currentSpace ?: return
         val names = persistentListOf(space.name)
         navigator.notice = when {

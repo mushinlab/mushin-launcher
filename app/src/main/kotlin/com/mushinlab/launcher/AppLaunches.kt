@@ -6,7 +6,7 @@ import com.mushinlab.launcher.core.model.AppKey
 class AppLaunches(private val model: LauncherModel, private val navigator: LauncherNavigator) {
     fun launch(key: AppKey, fromSearch: Boolean, animate: Boolean = true): Boolean {
         val known = model.entry(key) != null
-        val gestures = if (fromSearch) navigator.search.gesturesToLearn(key) else emptyList()
+        val gestures = if (fromSearch) navigator.search.gestures.toLearn(key) else emptyList()
         val result = model.launch(key, fromSearch, animate, gestures)
         when (result) {
             LaunchResult.Started -> if (fromSearch) navigator.closeOverlays()

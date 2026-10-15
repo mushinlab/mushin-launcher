@@ -22,7 +22,7 @@ class SearchInteractionsTest {
     private val search = SearchInteractions(model, navigator, launches, effects::add)
 
     private fun openSearch() {
-        navigator.search.update(
+        navigator.search.sources.update(
             SearchIndex.build(listOf(SearchItem(slack, "Slack"), SearchItem(camera, "Camera"))),
             emptyMap(),
         )
@@ -35,7 +35,7 @@ class SearchInteractionsTest {
 
         search.openMenu(camera, "Camera", Offset.Zero)
 
-        val menu = navigator.search.menu
+        val menu = navigator.search.panels.menu
         assertThat(menu?.inSpace).isFalse()
         assertThat(menu?.canUninstall).isFalse()
     }
@@ -69,7 +69,7 @@ class SearchInteractionsTest {
 
         assertThat(model.hidden).containsExactly(slack, true)
         assertThat(navigator.notice?.args).containsExactly("Slack")
-        assertThat(navigator.search.menu).isNull()
+        assertThat(navigator.search.panels.menu).isNull()
     }
 
     @Test

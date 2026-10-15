@@ -66,9 +66,9 @@ class LauncherNavigator(
         when {
             renameTarget != null -> renameTarget = null
             overlay is Overlay.Popup || overlay is Overlay.Suggestion -> overlay = Overlay.None
-            search.menu != null -> search.closeMenu()
-            search.options != null -> search.closeOptions()
-            search.resizing -> search.toggleResize()
+            search.panels.menu != null -> search.panels.closeMenu()
+            search.panels.options != null -> search.panels.closeOptions()
+            search.panels.resizing -> search.panels.toggleResize()
             overlay == Overlay.Search -> closeOverlays()
             settings.isOpen -> settings.pop()
         }

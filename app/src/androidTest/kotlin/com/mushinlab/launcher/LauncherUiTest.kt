@@ -474,8 +474,8 @@ class LauncherUiTest {
     fun searchMenuHidesAppAndOptionsShowHiddenApps() {
         openSearch()
         rule.onNodeWithTag("result_0").performTouchInput { longClick() }
-        val key = rule.activity.launcher.navigator.search.menu!!.key
-        val label = rule.activity.launcher.navigator.search.menu!!.label
+        val key = rule.activity.launcher.navigator.search.panels.menu!!.key
+        val label = rule.activity.launcher.navigator.search.panels.menu!!.label
         rule.onNodeWithTag("menu_hide").performClick()
         try {
             rule.waitUntil(5_000) { container.overrides.overrides.value[key]?.hidden == true }
@@ -785,7 +785,7 @@ class LauncherUiTest {
     fun searchMenuRenamesTheApp() {
         openSearch()
         rule.onNodeWithTag("result_0").performTouchInput { longClick() }
-        val key = rule.activity.launcher.navigator.search.menu!!.key
+        val key = rule.activity.launcher.navigator.search.panels.menu!!.key
         rule.onNodeWithTag("menu_rename").performClick()
         rule.onNodeWithTag("text_input").assertIsDisplayed()
         assertThat(rule.activity.launcher.navigator.renameTarget).isEqualTo(key)

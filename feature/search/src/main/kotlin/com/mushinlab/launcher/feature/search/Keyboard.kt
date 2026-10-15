@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -42,6 +43,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ShapeVertex
@@ -196,7 +198,6 @@ fun Keyboard(
     drawn: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val colors = LocalMushinColors.current
     val density = LocalDensity.current
     val view = LocalView.current
     val state = remember { KeyboardState() }
@@ -220,9 +221,17 @@ fun Keyboard(
     LaunchedEffect(clearTrail) {
         if (clearTrail) state.clearDrawing()
     }
-    val stroke = LocalMushinStroke.current
-    val strokeColor = stroke.color(colors)
-    val strokePx = with(density) { stroke.width.toPx() }
+    val callbacks = KeyboardCallbacks(
+        actions = { currentActions },
+        glide = { points, vertices ->
+            val letters = rowHeightPx * KeyboardLayouts.LETTER_ROWS
+            val shape = vertices.map {
+                it.copy(x = it.x / size.width, y = (it.y - paddingPx) / letters)
+            }
+            currentGlide.onGlide(decoder, points, shape)
+        },
+        haptic = { type -> if (currentHaptics) view.performHapticFeedback(type) },
+    )
     val totalHeight = KeyboardDimens.rowHeight * layout.rowScales.sum() + KeyboardDimens.verticalPadding * 2
     Box(
         modifier
@@ -232,65 +241,73 @@ fun Keyboard(
             .systemGestureExclusion()
             .testTag("keyboard")
             .pointerInput(keys, decoder) {
-                coroutineScope {
-                    val handler = KeyboardGestureHandler(
-                        keys = keys,
-                        state = state,
-                        scope = this,
-                        actions = { currentActions },
-                        glide = { points, vertices ->
-                            val letters = rowHeightPx * KeyboardLayouts.LETTER_ROWS
-                            val shape = vertices.map {
-                                it.copy(x = it.x / size.width, y = (it.y - paddingPx) / letters)
-                            }
-                            currentGlide.onGlide(decoder, points, shape)
-                        },
-                        haptic = { type -> if (currentHaptics) view.performHapticFeedback(type) },
-                        thresholds = Thresholds(
-                            digitSwipe = KeyboardDimens.digitSwipe.toPx(),
-                            clearSwipe = KeyboardDimens.clearSwipe.toPx(),
-                            glideStart = KeyboardDimens.glideStart.toPx(),
-                            dwellRadius = viewConfiguration.touchSlop,
-                            vectorTolerance = rowHeightPx * VECTOR_TOLERANCE,
-                        ),
-                    )
-                    awaitPointerEventScope {
-                        while (true) {
-                            awaitPointerEvent().changes.forEach { change ->
-                                when {
-                                    change.pressed && !change.previousPressed -> handler.onDown(
-                                        change.id,
-                                        change.position,
-                                        change.uptimeMillis,
-                                    )
-
-                                    change.pressed -> handler.onMove(change.id, change.position, change.uptimeMillis)
-
-                                    else -> handler.onUp(change.id)
-                                }
-                                change.consume()
-                            }
-                        }
-                    }
-                }
+                handleKeys(keys, state, callbacks, rowHeightPx * VECTOR_TOLERANCE)
             },
     ) {
         keys.forEachIndexed { index, key ->
             KeyView(index, key, state, nextLayoutLabel, digitHints, drawn)
         }
-        Canvas(Modifier.matchParentSize().clipToBounds().testTag("glide_trail")) {
-            if (state.trail.size > 1) {
-                val path = Path().apply {
-                    moveTo(state.trail.first().x, state.trail.first().y)
-                    state.trail.drop(1).forEach { lineTo(it.x, it.y) }
-                }
-                drawPath(path, strokeColor, style = Stroke(strokePx, cap = StrokeCap.Round, join = StrokeJoin.Round))
-                if (stroke.dots) state.dwells.forEach { drawCircle(strokeColor, radius = strokePx * 2, center = it) }
-            }
-            drawVectors(state.vectors, strokeColor, strokePx, stroke.dots)
-        }
+        GlideTrail(state, Modifier.matchParentSize().clipToBounds().testTag("glide_trail"))
         state.bubbleKey?.let { index ->
             keys.getOrNull(index)?.let { DigitBubble(it) }
+        }
+    }
+}
+
+@Composable
+private fun GlideTrail(state: KeyboardState, modifier: Modifier) {
+    val colors = LocalMushinColors.current
+    val stroke = LocalMushinStroke.current
+    val strokeColor = stroke.color(colors)
+    val strokePx = with(LocalDensity.current) { stroke.width.toPx() }
+    Canvas(modifier) {
+        if (state.trail.size > 1) {
+            val path = Path().apply {
+                moveTo(state.trail.first().x, state.trail.first().y)
+                state.trail.drop(1).forEach { lineTo(it.x, it.y) }
+            }
+            drawPath(path, strokeColor, style = Stroke(strokePx, cap = StrokeCap.Round, join = StrokeJoin.Round))
+            if (stroke.dots) state.dwells.forEach { drawCircle(strokeColor, radius = strokePx * 2, center = it) }
+        }
+        drawVectors(state.vectors, strokeColor, strokePx, stroke.dots)
+    }
+}
+
+private suspend fun PointerInputScope.handleKeys(
+    keys: List<KeyGeometry>,
+    state: KeyboardState,
+    callbacks: KeyboardCallbacks,
+    vectorTolerance: Float,
+) = coroutineScope {
+    val handler = KeyboardGestureHandler(
+        keys = keys,
+        state = state,
+        scope = this,
+        callbacks = callbacks,
+        thresholds = Thresholds(
+            digitSwipe = KeyboardDimens.digitSwipe.toPx(),
+            clearSwipe = KeyboardDimens.clearSwipe.toPx(),
+            glideStart = KeyboardDimens.glideStart.toPx(),
+            dwellRadius = viewConfiguration.touchSlop,
+            vectorTolerance = vectorTolerance,
+        ),
+    )
+    awaitPointerEventScope {
+        while (true) {
+            awaitPointerEvent().changes.forEach { change ->
+                when {
+                    change.pressed && !change.previousPressed -> handler.onDown(
+                        change.id,
+                        change.position,
+                        change.uptimeMillis,
+                    )
+
+                    change.pressed -> handler.onMove(change.id, change.position, change.uptimeMillis)
+
+                    else -> handler.onUp(change.id)
+                }
+                change.consume()
+            }
         }
     }
 }
@@ -303,13 +320,17 @@ private class Thresholds(
     val vectorTolerance: Float,
 )
 
+private class KeyboardCallbacks(
+    val actions: () -> KeyboardActions,
+    val glide: (List<GesturePoint>, List<ShapeVertex>) -> Boolean,
+    val haptic: (Int) -> Unit,
+)
+
 private class KeyboardGestureHandler(
     private val keys: List<KeyGeometry>,
     private val state: KeyboardState,
     private val scope: CoroutineScope,
-    private val actions: () -> KeyboardActions,
-    private val glide: (List<GesturePoint>, List<ShapeVertex>) -> Boolean,
-    private val haptic: (Int) -> Unit,
+    private val callbacks: KeyboardCallbacks,
     private val thresholds: Thresholds,
 ) {
     private val active = LinkedHashMap<PointerId, ActivePress>()
@@ -322,7 +343,7 @@ private class KeyboardGestureHandler(
         val press = ActivePress(index, position, timeMs)
         active[id] = press
         state.pressed[index] = true
-        haptic(HapticFeedbackConstants.KEYBOARD_TAP)
+        callbacks.haptic(HapticFeedbackConstants.KEYBOARD_TAP)
         val spec = keys[index].spec
         press.timer = when {
             spec.digit != null -> scope.launch { holdForDigit(press) }
@@ -337,32 +358,36 @@ private class KeyboardGestureHandler(
         val delta = position - press.start
         press.points += GesturePoint(position.x, position.y)
         press.timed += TimedPoint(position.x, position.y, timeMs)
-        if (press.mode == PressMode.GLIDE) {
-            state.trail += position
-            if ((position - press.anchor).getDistance() > thresholds.dwellRadius) {
-                press.anchor = position
+        when {
+            press.mode == PressMode.GLIDE -> {
+                state.trail += position
+                if ((position - press.anchor).getDistance() > thresholds.dwellRadius) {
+                    press.anchor = position
+                    press.timer?.cancel()
+                    press.timer = scope.launch { dwell(press) }
+                }
+            }
+
+            press.mode == PressMode.NORMAL && startsGlide(press, spec, position, delta) -> {
                 press.timer?.cancel()
+                press.mode = PressMode.GLIDE
+                state.pressed.remove(press.keyIndex)
+                press.points.forEach { state.trail += Offset(it.x, it.y) }
+                press.anchor = position
                 press.timer = scope.launch { dwell(press) }
             }
-            return
+
+            else -> swipe(press, spec, delta)
         }
-        if (press.mode == PressMode.NORMAL && startsGlide(press, spec, position, delta)) {
-            press.timer?.cancel()
-            press.mode = PressMode.GLIDE
-            state.pressed.remove(press.keyIndex)
-            press.points.forEach { state.trail += Offset(it.x, it.y) }
-            press.anchor = position
-            press.timer = scope.launch { dwell(press) }
-            return
-        }
-        val digitSwipePx = thresholds.digitSwipe
-        val clearSwipePx = thresholds.clearSwipe
-        if (spec.digit != null && delta.y <= -digitSwipePx && press.mode == PressMode.NORMAL) {
+    }
+
+    private fun swipe(press: ActivePress, spec: KeySpec, delta: Offset) {
+        if (spec.digit != null && delta.y <= -thresholds.digitSwipe && press.mode == PressMode.NORMAL) {
             press.timer?.cancel()
             press.mode = PressMode.DIGIT
             state.bubbleKey = press.keyIndex
         }
-        if (spec.action == KeyAction.BACKSPACE && delta.x <= -clearSwipePx && press.mode != PressMode.CLEAR) {
+        if (spec.action == KeyAction.BACKSPACE && delta.x <= -thresholds.clearSwipe && press.mode != PressMode.CLEAR) {
             press.timer?.cancel()
             press.mode = PressMode.CLEAR
         }
@@ -385,7 +410,7 @@ private class KeyboardGestureHandler(
             if (press.mode != PressMode.GLIDE) return
             press.points += GesturePoint(press.anchor.x, press.anchor.y, repeat = true)
             state.dwells += press.anchor
-            haptic(HapticFeedbackConstants.KEYBOARD_TAP)
+            callbacks.haptic(HapticFeedbackConstants.KEYBOARD_TAP)
         }
     }
 
@@ -402,7 +427,7 @@ private class KeyboardGestureHandler(
         if (press.mode != PressMode.NORMAL) return
         press.mode = PressMode.REPEATING
         while (press.mode == PressMode.REPEATING) {
-            if (actions().onBackspace()) haptic(HapticFeedbackConstants.KEYBOARD_TAP)
+            if (callbacks.actions().onBackspace()) callbacks.haptic(HapticFeedbackConstants.KEYBOARD_TAP)
             delay(KeyboardDimens.REPEAT_STEP_MS)
         }
     }
@@ -410,7 +435,7 @@ private class KeyboardGestureHandler(
     private fun commit(press: ActivePress) {
         press.timer?.cancel()
         val spec = keys[press.keyIndex].spec
-        val target = actions()
+        val target = callbacks.actions()
         when (press.mode) {
             PressMode.COMMITTED, PressMode.REPEATING -> Unit
 
@@ -418,7 +443,7 @@ private class KeyboardGestureHandler(
                 val vertices = Shapes.vectorize(press.timed, thresholds.vectorTolerance, thresholds.dwellRadius)
                 state.trail.clear()
                 state.vectors = vertices
-                if (!glide(press.points, vertices)) haptic(HapticFeedbackConstants.REJECT)
+                if (!callbacks.glide(press.points, vertices)) callbacks.haptic(HapticFeedbackConstants.REJECT)
             }
 
             PressMode.CLEAR -> target.onClear()
@@ -439,7 +464,7 @@ private class KeyboardGestureHandler(
     }
 
     private fun type(c: Char) {
-        if (!actions().onChar(c)) haptic(HapticFeedbackConstants.REJECT)
+        if (!callbacks.actions().onChar(c)) callbacks.haptic(HapticFeedbackConstants.REJECT)
     }
 }
 
@@ -455,17 +480,8 @@ private fun KeyView(
     val colors = LocalMushinColors.current
     val density = LocalDensity.current
     val pressed by remember(index) { derivedStateOf { state.pressed[index] == true } }
-    val label = when (key.spec.action) {
-        KeyAction.BACKSPACE -> if (drawn) "×" else "⌫"
-        KeyAction.SWITCH_LAYOUT -> nextLayoutLabel
-        KeyAction.SPACE, KeyAction.RESIZE -> ""
-        null -> key.spec.char?.toString().orEmpty()
-    }
-    val size = when (key.spec.action) {
-        null -> MushinType.keySize
-        KeyAction.BACKSPACE -> if (drawn) KeyboardDimens.crossSize else MushinType.keySize
-        else -> MushinType.secondarySize
-    }
+    val label = keyLabel(key.spec, drawn, nextLayoutLabel)
+    val size = keyTextSize(key.spec, drawn)
     val widthDp = with(density) { key.rect.width.toDp() }
     val heightDp = with(density) { key.rect.height.toDp() }
     Box(
@@ -488,6 +504,19 @@ private fun KeyView(
             )
         }
     }
+}
+
+private fun keyLabel(spec: KeySpec, drawn: Boolean, nextLayoutLabel: String): String = when (spec.action) {
+    KeyAction.BACKSPACE -> if (drawn) "×" else "⌫"
+    KeyAction.SWITCH_LAYOUT -> nextLayoutLabel
+    KeyAction.SPACE, KeyAction.RESIZE -> ""
+    null -> spec.char?.toString().orEmpty()
+}
+
+private fun keyTextSize(spec: KeySpec, drawn: Boolean): TextUnit = when (spec.action) {
+    null -> MushinType.keySize
+    KeyAction.BACKSPACE -> if (drawn) KeyboardDimens.crossSize else MushinType.keySize
+    else -> MushinType.secondarySize
 }
 
 @Composable

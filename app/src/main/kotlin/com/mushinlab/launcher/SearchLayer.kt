@@ -99,49 +99,15 @@ internal fun SearchLayer(vm: LauncherViewModel, settings: LauncherSettings, icon
         withFrameNanos { }
         composed = true
     }
-    val index by vm.searchIndex.collectAsStateWithLifecycle()
-    val usage by vm.usage.collectAsStateWithLifecycle()
-    val engine by vm.searchEngine.collectAsStateWithLifecycle()
     val recents by vm.recents.collectAsStateWithLifecycle()
-    val learned by vm.learnedGestures.collectAsStateWithLifecycle()
-    LaunchedEffect(index, usage) { vm.navigator.search.update(index, usage) }
-    LaunchedEffect(learned) { vm.navigator.search.setLearned(learned) }
-    val bindings by vm.gestureBindings.collectAsStateWithLifecycle()
-    LaunchedEffect(bindings) { vm.navigator.search.setSwipes(bindings.swipesByApp()) }
-    val overrides by vm.overrides.collectAsStateWithLifecycle()
-    LaunchedEffect(overrides) {
-        vm.navigator.search.setShortcuts(overrides.values.filter { it.systemShortcut }.map { it.key }.toSet())
-    }
-    LaunchedEffect(engine) { vm.navigator.search.setEngine(engine) }
+    SearchSourcesEffect(vm)
     val active = vm.navigator.overlay == Overlay.Search
     val progress = remember { Animatable(0f) }
     LaunchedEffect(active) { progress.animateTo(if (active) 1f else 0f, tween(Motion.TRANSITION_MS)) }
     val shown by remember { derivedStateOf { progress.value > 0f } }
     if (!composed && !active) return
     val slidePx = with(LocalDensity.current) { SEARCH_SLIDE.toPx() }
-    val enabledLayouts = settings.keyboardLayouts.ifEmpty { listOf(KeyboardLayouts.EN.id) }
-    val layout = KeyboardLayouts.byId(settings.activeKeyboardLayout)?.takeIf { it.id in enabledLayouts }
-        ?: KeyboardLayouts.byId(enabledLayouts.first())
-        ?: KeyboardLayouts.EN
-    val next =
-        KeyboardLayouts.byId(enabledLayouts[(enabledLayouts.indexOf(layout.id) + 1).mod(enabledLayouts.size)]) ?: layout
-    val chrome = remember(settings, layout, next) {
-        SearchChrome(
-            iconMode = settings.iconMode,
-            layout = layout,
-            nextLayoutLabel = next.label,
-            digitHints = settings.keyboardDigitHints,
-            haptics = settings.keyboardHaptics,
-            gestureShiftPenalty = settings.gestureShiftPenalty,
-            gestureSuggestMargin = settings.gestureSuggestMargin,
-            fuzzy = settings.searchFuzzy,
-            layoutSwap = settings.searchLayoutSwap,
-            translit = settings.searchTranslit,
-            coloredIcons = settings.searchColoredIcons,
-            keyboardWidth = settings.keyboardWidth,
-            keyboardShift = settings.keyboardShift,
-        )
-    }
+    val chrome = rememberSearchChrome(settings)
     val actions = remember(vm) { searchActions(vm) }
     Box(
         Modifier
@@ -166,6 +132,51 @@ internal fun SearchLayer(vm: LauncherViewModel, settings: LauncherSettings, icon
     }
 }
 
+@Composable
+private fun SearchSourcesEffect(vm: LauncherViewModel) {
+    val sources = vm.navigator.search.sources
+    val index by vm.searchIndex.collectAsStateWithLifecycle()
+    val usage by vm.usage.collectAsStateWithLifecycle()
+    val engine by vm.searchEngine.collectAsStateWithLifecycle()
+    val learned by vm.learnedGestures.collectAsStateWithLifecycle()
+    LaunchedEffect(index, usage) { sources.update(index, usage) }
+    LaunchedEffect(learned) { sources.setLearned(learned) }
+    val bindings by vm.gestureBindings.collectAsStateWithLifecycle()
+    LaunchedEffect(bindings) { sources.setSwipes(bindings.swipesByApp()) }
+    val overrides by vm.overrides.collectAsStateWithLifecycle()
+    LaunchedEffect(overrides) {
+        sources.setShortcuts(overrides.values.filter { it.systemShortcut }.map { it.key }.toSet())
+    }
+    LaunchedEffect(engine) { sources.setEngine(engine) }
+}
+
+@Composable
+private fun rememberSearchChrome(settings: LauncherSettings): SearchChrome {
+    val enabledLayouts = settings.keyboardLayouts.ifEmpty { listOf(KeyboardLayouts.EN.id) }
+    val layout = KeyboardLayouts.byId(settings.activeKeyboardLayout)?.takeIf { it.id in enabledLayouts }
+        ?: KeyboardLayouts.byId(enabledLayouts.first())
+        ?: KeyboardLayouts.EN
+    val next =
+        KeyboardLayouts.byId(enabledLayouts[(enabledLayouts.indexOf(layout.id) + 1).mod(enabledLayouts.size)]) ?: layout
+    return remember(settings, layout, next) {
+        SearchChrome(
+            iconMode = settings.iconMode,
+            layout = layout,
+            nextLayoutLabel = next.label,
+            digitHints = settings.keyboardDigitHints,
+            haptics = settings.keyboardHaptics,
+            gestureShiftPenalty = settings.gestureShiftPenalty,
+            gestureSuggestMargin = settings.gestureSuggestMargin,
+            fuzzy = settings.searchFuzzy,
+            layoutSwap = settings.searchLayoutSwap,
+            translit = settings.searchTranslit,
+            coloredIcons = settings.searchColoredIcons,
+            keyboardWidth = settings.keyboardWidth,
+            keyboardShift = settings.keyboardShift,
+        )
+    }
+}
+
 private fun Modifier.blockInput(): Modifier = pointerInput(Unit) {
     awaitPointerEventScope {
         while (true) awaitPointerEvent(PointerEventPass.Initial).changes.forEach { it.consume() }
@@ -178,7 +189,7 @@ private fun searchActions(vm: LauncherViewModel) = object : SearchActions {
     }
 
     override fun onRename(key: AppKey) {
-        vm.navigator.search.closeMenu()
+        vm.navigator.search.panels.closeMenu()
         vm.navigator.renameTarget = key
     }
 
@@ -191,12 +202,12 @@ private fun searchActions(vm: LauncherViewModel) = object : SearchActions {
     }
 
     override fun onAppInfo(key: AppKey) {
-        vm.navigator.search.closeMenu()
+        vm.navigator.search.panels.closeMenu()
         vm.apps.openDetails(key)
     }
 
     override fun onUninstall(key: AppKey) {
-        vm.navigator.search.closeMenu()
+        vm.navigator.search.panels.closeMenu()
         vm.apps.uninstall(key)
     }
 
@@ -205,7 +216,7 @@ private fun searchActions(vm: LauncherViewModel) = object : SearchActions {
     }
 
     override fun onToggleShortcut(key: AppKey, bound: Boolean) {
-        vm.navigator.search.closeMenu()
+        vm.navigator.search.panels.closeMenu()
         vm.apps.setSystemShortcut(key, bound)
     }
 
@@ -214,7 +225,7 @@ private fun searchActions(vm: LauncherViewModel) = object : SearchActions {
     }
 
     override fun onDismissMenu() {
-        vm.navigator.search.closeMenu()
+        vm.navigator.search.panels.closeMenu()
     }
 
     override fun onSearchOption(option: SearchOption, enabled: Boolean) {
@@ -253,7 +264,7 @@ private fun searchActions(vm: LauncherViewModel) = object : SearchActions {
     }
 
     override fun onResize() {
-        vm.navigator.search.toggleResize()
+        vm.navigator.search.panels.toggleResize()
     }
 
     override fun onKeyboardFit(width: Float, shift: Float) {
