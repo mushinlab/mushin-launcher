@@ -46,14 +46,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.withTimeoutOrNull
 
-object PanelDimens {
-    val width = 240.dp
-    val margin = 8.dp
-    val gap = 8.dp
-    val radius = 12.dp
-    const val MAX_HEIGHT_FRACTION = 0.6f
-}
-
 @Composable
 fun AnchoredPanel(
     anchor: Offset,

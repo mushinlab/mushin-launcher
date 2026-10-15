@@ -199,5 +199,7 @@ object Palettes {
 
     fun of(preset: PalettePreset): Palette = presets[preset] ?: Graphite
 
-    private fun argb(rgb: Long): Int = (0xFF000000 or rgb).toInt()
+    private const val OPAQUE_ALPHA = 0xFF000000
+
+    private fun argb(rgb: Long): Int = (OPAQUE_ALPHA or rgb).toInt()
 }

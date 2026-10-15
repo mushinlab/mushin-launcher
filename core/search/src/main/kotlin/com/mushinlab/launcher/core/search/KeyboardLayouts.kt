@@ -27,18 +27,14 @@ object KeyboardLayouts {
     val EN: KeyboardLayout = layout(
         id = "en",
         label = "EN",
-        top = "qwertyuiop",
-        middle = "asdfghjkl",
-        bottom = "zxcvbnm",
+        letters = LetterRows(top = "qwertyuiop", middle = "asdfghjkl", bottom = "zxcvbnm"),
         middleInset = 0.05f,
     )
 
     val RU: KeyboardLayout = layout(
         id = "ru",
         label = "RU",
-        top = "йцукенгшщзхъ",
-        middle = "фывапролджэ",
-        bottom = "ячсмитьбю",
+        letters = LetterRows(top = "йцукенгшщзхъ", middle = "фывапролджэ", bottom = "ячсмитьбю"),
         middleInset = 0f,
     )
 
@@ -54,24 +50,26 @@ object KeyboardLayouts {
 
     fun swap(text: String): String? {
         val letters = text.filter { it.isLetter() }
-        if (letters.isEmpty()) return null
         val map = when {
+            letters.isEmpty() -> null
             letters.all { it in enToRu } -> enToRu
             letters.all { it in ruToEn } -> ruToEn
-            else -> return null
+            else -> null
         }
-        return text.map { map[it] ?: it }.joinToString("")
+        return map?.let { m -> text.map { m[it] ?: it }.joinToString("") }
     }
 
-    private fun layout(id: String, label: String, top: String, middle: String, bottom: String, middleInset: Float) =
+    private class LetterRows(val top: String, val middle: String, val bottom: String)
+
+    private fun layout(id: String, label: String, letters: LetterRows, middleInset: Float) =
         KeyboardLayout(
             id = id,
             label = label,
             rows = listOf(
-                top.mapIndexed { i, c -> KeySpec(char = c, digit = DIGITS.getOrNull(i)) },
-                middle.map { KeySpec(char = it) },
+                letters.top.mapIndexed { i, c -> KeySpec(char = c, digit = DIGITS.getOrNull(i)) },
+                letters.middle.map { KeySpec(char = it) },
                 listOf(KeySpec(action = KeyAction.SWITCH_LAYOUT, weight = SIDE_KEY_WEIGHT)) +
-                    bottom.map { KeySpec(char = it) } +
+                    letters.bottom.map { KeySpec(char = it) } +
                     KeySpec(action = KeyAction.BACKSPACE, weight = SIDE_KEY_WEIGHT),
                 listOf(
                     KeySpec(action = KeyAction.RESIZE, weight = SIDE_KEY_WEIGHT),

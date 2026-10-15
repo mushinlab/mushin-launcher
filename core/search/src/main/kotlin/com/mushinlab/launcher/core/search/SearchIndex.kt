@@ -12,18 +12,21 @@ data class SearchItem(
     val displayLabel: String get() = customLabel ?: originalLabel
 }
 
+internal class NameForm(
+    val text: String,
+    val words: List<String>,
+) {
+    val initials: String = words.mapNotNull { it.firstOrNull() }.joinToString("")
+}
+
 internal class IndexedName(
     val label: String,
-    val normalized: String,
-    val latin: String,
+    val native: NameForm,
+    val latin: NameForm,
     val key: String,
-    val words: List<String>,
-    val latinWords: List<String>,
-    val initials: String,
-    val latinInitials: String,
     val isCustom: Boolean,
 ) {
-    val latinIsNative: Boolean = normalized == latin
+    val latinIsNative: Boolean = native.text == latin.text
 }
 
 internal class IndexedItem(
@@ -68,16 +71,11 @@ class SearchIndex internal constructor(
             val normalized = Text.normalize(label)
             val latin = Translit.toLatin(normalized)
             val words = Text.splitWords(label).ifEmpty { listOf(normalized) }
-            val latinWords = words.map(Translit::toLatin)
             return IndexedName(
                 label = label,
-                normalized = normalized,
-                latin = latin,
+                native = NameForm(normalized, words),
+                latin = NameForm(latin, words.map(Translit::toLatin)),
                 key = Phonetic.key(latin),
-                words = words,
-                latinWords = latinWords,
-                initials = words.mapNotNull { it.firstOrNull() }.joinToString(""),
-                latinInitials = latinWords.mapNotNull { it.firstOrNull() }.joinToString(""),
                 isCustom = isCustom,
             )
         }
@@ -85,8 +83,8 @@ class SearchIndex internal constructor(
         private const val MIN_GESTURE_WORD = 3
 
         private fun gestureWords(key: AppKey, name: IndexedName): Sequence<GestureWord> {
-            val full = GestureWord(letters(name.latin), name.label.lowercase(Locale.ROOT), key)
-            val words = name.words.asSequence().zip(name.latinWords.asSequence()) { word, latin ->
+            val full = GestureWord(letters(name.latin.text), name.label.lowercase(Locale.ROOT), key)
+            val words = name.native.words.asSequence().zip(name.latin.words.asSequence()) { word, latin ->
                 GestureWord(letters(latin), word, key)
             }
             val tokens = name.label.split(NOT_LETTER).asSequence()

@@ -50,11 +50,11 @@ class AppLauncher(
                 )
             }
             LaunchResult.Started
-        } catch (e: SecurityException) {
+        } catch (ignored: SecurityException) {
             if (isSuspended(key)) LaunchResult.Suspended else LaunchResult.Failed
-        } catch (e: ActivityNotFoundException) {
+        } catch (ignored: ActivityNotFoundException) {
             LaunchResult.Failed
-        } catch (e: IllegalStateException) {
+        } catch (ignored: IllegalStateException) {
             if (isSuspended(key)) LaunchResult.Suspended else LaunchResult.Failed
         }
     }
