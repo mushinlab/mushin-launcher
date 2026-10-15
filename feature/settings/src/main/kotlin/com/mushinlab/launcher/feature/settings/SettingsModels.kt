@@ -10,7 +10,6 @@ import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.ShapeVertex
 import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
-import com.mushinlab.launcher.core.search.GestureSample
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentListOf
@@ -171,56 +170,4 @@ data class SettingsUiState(
     val hasBackground: Boolean = false,
 ) {
     val currentSpaceId: Long? get() = spaces.firstOrNull { it.current }?.id
-}
-
-interface SettingsActions : MemoryActions {
-    fun updateSettings(transform: (LauncherSettings) -> LauncherSettings)
-
-    suspend fun createSpace(name: String, type: SpaceType): String?
-
-    suspend fun renameSpace(id: Long, name: String): String?
-
-    fun deleteSpace(id: Long)
-
-    fun setPalette(id: Long, preset: PalettePreset)
-
-    fun setColoredIcons(id: Long, enabled: Boolean)
-
-    fun setSpaceItems(id: Long, keys: List<AppKey>)
-
-    fun addSpaceItem(id: Long, key: AppKey)
-
-    fun removeSpaceItem(id: Long, key: AppKey)
-
-    fun setGesture(direction: SwipeDirection, action: GestureAction)
-
-    fun setHidden(key: AppKey, hidden: Boolean)
-
-    fun rename(key: AppKey, label: String?)
-
-    fun switchSpace(id: Long)
-
-    fun requestDefaultLauncher()
-
-    fun openNotificationAccess()
-
-    fun openAssistantSettings()
-
-    fun requestSearchTile()
-
-    fun pickBackground()
-
-    fun clearBackground()
-}
-
-interface MemoryActions {
-    fun forgetDrawing(key: AppKey, path: String)
-
-    fun addDrawing(key: AppKey, sample: GestureSample)
-
-    fun forgetApp(key: AppKey)
-
-    fun forgetAllGestures()
-
-    fun clearUsage()
 }
