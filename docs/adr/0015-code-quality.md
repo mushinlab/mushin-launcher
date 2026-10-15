@@ -19,5 +19,5 @@
 4. **Тесты.** Правило «каждый публичный класс в core:* — unit-тест» уточнено: прямой тест нужен каждому классу с поведением; data-классы, enum и DAO проверяются через код, который их использует.
 5. **detekt.** Стандартные пороги detekt. Два общепринятых отступления: ранние `return` (guard clauses) не считаются в `ReturnCount`; функции Room (`@Query`, `@Insert` и т. п.) не считаются в `TooManyFunctions`. Для Compose `MagicNumber` и `LongParameterList` не применяются к `@Composable`. Подавлять правила через `@Suppress` нельзя.
 6. **Язык документов.** README, CONTRIBUTING и CHANGELOG начиная с 0.1.1 — на английском. Spec, ADR и вопросы остаются на русском как внутренняя история решений.
-7. **Превью.** Для `@Preview` добавлена зависимость `androidx.compose.ui:ui-tooling` только в `debugImplementation`: в release она не попадает. Превью есть у базовых компонентов `core:ui`.
+7. **Превью.** Для `@Preview` в `core:ui` добавлены `androidx.compose.ui:ui-tooling-preview` (только аннотации) и `androidx.compose.ui:ui-tooling` в `debugImplementation`: инструменты отрисовки превью в release не попадают. Превью есть у базовых компонентов `core:ui`.
 8. **`supportsRtl="false"`** остаётся: интерфейс есть только на русском и английском, оба пишутся слева направо, а жесты и раскладки рассчитаны на LTR.
