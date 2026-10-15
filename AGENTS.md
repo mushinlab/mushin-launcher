@@ -1,11 +1,11 @@
 # Mushin Launcher — правила для агента
 
-Продукт называется Mushin Launcher, понятие «энв» в интерфейсе — «спейс» (ADR-0007). В коде, БД и `applicationId` осталось рабочее имя `env`.
+Продукт называется Mushin Launcher, понятие «энв» в интерфейсе — «спейс» (ADR-0007). В коде пакет `com.mushinlab.launcher`, понятие — `Space`, общие для приложения имена — `Mushin*` (ADR-0015). Рабочее имя `env` осталось только в хранилище: таблицы и колонки Room (`environment`, `env_id`), файл БД `env.db`, ключи DataStore (`current_env_id`). Их не переименовывать без миграции.
 
 ## Источник истины
 - `docs/spec/*.md` — требования (AC Given/When/Then). `docs/plan.md` — эпики и DoD. `docs/adr/*.md` — неизменяемые решения.
 - Если spec противоречит коду — прав spec. Если spec неоднозначен — СТОП, предложи ADR, не додумывай.
-- Отклонения от spec уже приняты в ADR-0002 и далее (`docs/adr/README.md`). Открытые вопросы владельца — в журнале решений (ссылка в `docs/adr/README.md`).
+- Отклонения от spec уже приняты в ADR-0002 и далее (`docs/adr/README.md`). Открытые вопросы владельца — в `docs/questions.md` и в таблицах ADR.
 
 ## Команды
 - Сборка: `./gradlew assembleDebug` | Тесты: `./gradlew testDebugUnitTest test` | UI: `./gradlew connectedDebugAndroidTest`
@@ -22,7 +22,9 @@
 - `:core:model`, `:core:search` — чистый Kotlin/JVM, без Android.
 - `:core:data` (Room + DataStore), `:core:apps` (LauncherApps, иконки, запуск), `:core:ui` (палитра, базовые composable).
 - `:feature:home`, `:feature:search`, `:feature:settings` — зависят только от `:core:*`, не друг от друга.
-- `:app` — `MainActivity`, `EnvApp`, `AppContainer`, связывание фич. `:benchmark`, `:core:search:bench` — бенчмарки.
+- `:app` — `MainActivity`, `MushinApp`, `AppContainer`, `LauncherViewModel`, связывание фич.
+- Состояние интерфейса — во ViewModel и держателях состояния (`LauncherNavigator`, `HomeInteractions`, `SearchInteractions`), данные — через `LauncherModel` и редакторы. `MainActivity` — только жизненный цикл и системные вызовы по `LauncherEffect` (ADR-0015).
+- `:benchmark`, `:core:search:bench` — бенчмарки.
 
 ## Жёсткие запреты
 - НЕ использовать TextField/BasicTextField/фокус на экране поиска. Анимации — только переходы ≤ 200 мс из ADR-0003 (`Motion.TRANSITION_MS`) и пять стилей нажатия из ADR-0004 (`PressFeedback`); ripple запрещён.
@@ -34,8 +36,10 @@
 
 ## Стиль
 - Kotlin, Compose (только foundation), @Immutable UI-модели, ImmutableList, без !! (кроме тестов).
-- Без комментариев в коде: имена и структура объясняют сами себя.
-- Каждый публичный класс в core:* — unit-тест. Тесты на AC называются `AC_xx_y_...`.
+- Без комментариев в коде: имена и структура объясняют сами себя. Исключение — KDoc на публичном API модулей `core:*` (ADR-0015).
+- detekt — стандартные пороги (`config/detekt/detekt.yml`); не ослаблять конфиг и не подавлять правила detekt через `@Suppress`.
+- Каждый публичный класс с поведением в core:* — прямой unit-тест; data-классы, enum и DAO проверяются через использующий их код. Тесты на AC называются `AC_xx_y_...`.
+- Внешние документы (README, CONTRIBUTING, CHANGELOG с версии 0.1.1) — на английском; spec, ADR и вопросы — на русском.
 
 ## Definition of Done (общий)
 - DoD задачи выполнен, все тесты зелёные, нет новых lint/detekt-ошибок, обновлён `docs/CHANGELOG.md`.

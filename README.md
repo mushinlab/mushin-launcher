@@ -48,7 +48,11 @@ JDK 17 or newer and the Android SDK are required.
 
 To sign a release, put `keystore.properties` in the project root with `storeFile`, `storePassword`, `keyAlias` and `keyPassword`. The file is ignored by git.
 
-Requirements, decisions and the changelog live in [`docs/`](docs/). Most of them are in Russian.
+Requirements, decisions and the changelog live in [`docs/`](docs/). Requirements and decisions are in Russian.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the architecture, the rules and the checks every change has to pass.
 
 ## Privacy
 

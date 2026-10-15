@@ -2,9 +2,18 @@
 
 ## Unreleased
 
-### Публикация (ADR-0014)
-- `applicationId` — `com.mushinlab.launcher` (было `com.bluecubelabs.env`); версия 0.1.1 (versionCode 2).
-- Контакт `mushin-lab@proton.me` в политике конфиденциальности и в «Настройки → Система → Конфиденциальность».
+From this version on the changelog is kept in English.
+
+### Changed
+- New application ID `com.mushinlab.launcher` (was `com.bluecubelabs.env`). Android treats it as a new app: 0.1.0 has to be removed by hand, its spaces and settings are not carried over.
+- Contact address `mushin-lab@proton.me` in the privacy policy and in Settings → System → Privacy.
+
+### Code quality (ADR-0015)
+- Kotlin packages renamed to `com.mushinlab.launcher`; spaces are `Space` in code, app-wide names use the `Mushin` prefix. Database tables, columns and settings keys are unchanged, so stored data stays as it is.
+- UI state moved out of `MainActivity` into the ViewModel and plain state holders; platform actions are requested with events. The settings screen stack survives process death.
+- Icon loading split into a renderer and a disk cache; the disk cache ignores files whose size does not match.
+- detekt runs with standard thresholds; new unit tests for the ViewModel mappers, navigation, home and search interactions, app launching, icons and storage codecs.
+- `CONTRIBUTING.md` added.
 
 ## 0.1.0 — 2026-10-15
 
