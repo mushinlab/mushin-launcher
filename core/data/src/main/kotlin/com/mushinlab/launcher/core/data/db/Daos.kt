@@ -10,18 +10,18 @@ import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface EnvironmentDao {
+interface SpaceDao {
     @Query("SELECT * FROM environment ORDER BY sort_order, id")
-    fun observeAll(): Flow<List<EnvironmentEntity>>
+    fun observeAll(): Flow<List<SpaceEntity>>
 
     @Query("SELECT * FROM environment ORDER BY sort_order, id")
-    suspend fun getAll(): List<EnvironmentEntity>
+    suspend fun getAll(): List<SpaceEntity>
 
     @Query("SELECT * FROM environment WHERE id = :id")
-    suspend fun get(id: Long): EnvironmentEntity?
+    suspend fun get(id: Long): SpaceEntity?
 
     @Insert
-    suspend fun insert(entity: EnvironmentEntity): Long
+    suspend fun insert(entity: SpaceEntity): Long
 
     @Query("UPDATE environment SET name = :name WHERE id = :id")
     suspend fun rename(id: Long, name: String)
@@ -67,18 +67,18 @@ interface EnvironmentDao {
 }
 
 @Dao
-interface EnvironmentItemDao {
+interface SpaceItemDao {
     @Query("SELECT * FROM environment_item ORDER BY env_id, position")
-    fun observeAll(): Flow<List<EnvironmentItemEntity>>
+    fun observeAll(): Flow<List<SpaceItemEntity>>
 
-    @Query("SELECT * FROM environment_item WHERE env_id = :envId ORDER BY position")
-    suspend fun get(envId: Long): List<EnvironmentItemEntity>
+    @Query("SELECT * FROM environment_item WHERE env_id = :spaceId ORDER BY position")
+    suspend fun get(spaceId: Long): List<SpaceItemEntity>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertAll(items: List<EnvironmentItemEntity>)
+    suspend fun insertAll(items: List<SpaceItemEntity>)
 
-    @Query("DELETE FROM environment_item WHERE env_id = :envId")
-    suspend fun deleteForEnv(envId: Long)
+    @Query("DELETE FROM environment_item WHERE env_id = :spaceId")
+    suspend fun deleteForSpace(spaceId: Long)
 
     @Query("DELETE FROM environment_item WHERE package_name = :packageName AND user_serial = :userSerial")
     suspend fun deletePackage(packageName: String, userSerial: Long)
@@ -119,32 +119,32 @@ interface AppOverrideDao {
 
 @Dao
 interface SearchRecentDao {
-    @Query("SELECT * FROM search_recent WHERE env_id = :envId ORDER BY last_launched_at DESC")
-    fun observe(envId: Long): Flow<List<SearchRecentEntity>>
+    @Query("SELECT * FROM search_recent WHERE env_id = :spaceId ORDER BY last_launched_at DESC")
+    fun observe(spaceId: Long): Flow<List<SearchRecentEntity>>
 
     @Query("SELECT * FROM search_recent ORDER BY env_id, last_launched_at DESC")
     fun observeAll(): Flow<List<SearchRecentEntity>>
 
     @Query(
-        "SELECT * FROM search_recent WHERE env_id = :envId AND package_name = :packageName " +
+        "SELECT * FROM search_recent WHERE env_id = :spaceId AND package_name = :packageName " +
             "AND activity_name = :activityName AND user_serial = :userSerial",
     )
-    suspend fun get(envId: Long, packageName: String, activityName: String, userSerial: Long): SearchRecentEntity?
+    suspend fun get(spaceId: Long, packageName: String, activityName: String, userSerial: Long): SearchRecentEntity?
 
     @Upsert
     suspend fun upsert(entity: SearchRecentEntity)
 
     @Query(
         """
-        DELETE FROM search_recent WHERE env_id = :envId AND rowid NOT IN (
-            SELECT rowid FROM search_recent WHERE env_id = :envId ORDER BY last_launched_at DESC LIMIT :keep
+        DELETE FROM search_recent WHERE env_id = :spaceId AND rowid NOT IN (
+            SELECT rowid FROM search_recent WHERE env_id = :spaceId ORDER BY last_launched_at DESC LIMIT :keep
         )
         """,
     )
-    suspend fun trim(envId: Long, keep: Int)
+    suspend fun trim(spaceId: Long, keep: Int)
 
-    @Query("DELETE FROM search_recent WHERE env_id = :envId")
-    suspend fun clear(envId: Long)
+    @Query("DELETE FROM search_recent WHERE env_id = :spaceId")
+    suspend fun clear(spaceId: Long)
 
     @Query("DELETE FROM search_recent")
     suspend fun clearAll()
@@ -180,19 +180,19 @@ interface SpaceUsageDao {
     fun observeAll(): Flow<List<SpaceUsageEntity>>
 
     @Query(
-        "SELECT * FROM space_usage WHERE env_id = :envId AND package_name = :packageName " +
+        "SELECT * FROM space_usage WHERE env_id = :spaceId AND package_name = :packageName " +
             "AND activity_name = :activityName AND user_serial = :userSerial",
     )
-    suspend fun get(envId: Long, packageName: String, activityName: String, userSerial: Long): SpaceUsageEntity?
+    suspend fun get(spaceId: Long, packageName: String, activityName: String, userSerial: Long): SpaceUsageEntity?
 
     @Upsert
     suspend fun upsert(entity: SpaceUsageEntity)
 
     @Query(
-        "UPDATE space_usage SET dismissed_at = :at WHERE env_id = :envId AND package_name = :packageName " +
+        "UPDATE space_usage SET dismissed_at = :at WHERE env_id = :spaceId AND package_name = :packageName " +
             "AND activity_name = :activityName AND user_serial = :userSerial",
     )
-    suspend fun dismiss(envId: Long, packageName: String, activityName: String, userSerial: Long, at: Long)
+    suspend fun dismiss(spaceId: Long, packageName: String, activityName: String, userSerial: Long, at: Long)
 
     @Query("DELETE FROM space_usage WHERE package_name = :packageName AND user_serial = :userSerial")
     suspend fun deletePackage(packageName: String, userSerial: Long)
@@ -302,10 +302,10 @@ interface AppKeyDao {
     suspend fun moveBindings(packageName: String, userSerial: Long, from: String, to: String)
 
     @Query("UPDATE OR IGNORE environment_item SET activity_name = :to " + FROM_KEY)
-    suspend fun moveEnvironmentItems(packageName: String, userSerial: Long, from: String, to: String)
+    suspend fun moveSpaceItems(packageName: String, userSerial: Long, from: String, to: String)
 
     @Query("DELETE FROM environment_item " + FROM_KEY)
-    suspend fun deleteEnvironmentItems(packageName: String, userSerial: Long, from: String)
+    suspend fun deleteSpaceItems(packageName: String, userSerial: Long, from: String)
 
     @Query("UPDATE OR IGNORE app_override SET activity_name = :to " + FROM_KEY)
     suspend fun moveOverrides(packageName: String, userSerial: Long, from: String, to: String)

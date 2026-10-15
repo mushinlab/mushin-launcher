@@ -1,7 +1,7 @@
 package com.mushinlab.launcher.core.data.repo
 
-import com.mushinlab.launcher.core.data.db.EnvDatabase
 import com.mushinlab.launcher.core.data.db.GestureCodec
+import com.mushinlab.launcher.core.data.db.MushinDatabase
 import com.mushinlab.launcher.core.model.DefaultGestures
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.GestureBinding
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class GestureRepository(db: EnvDatabase, scope: CoroutineScope) {
+class GestureRepository(db: MushinDatabase, scope: CoroutineScope) {
     private val dao = db.gestureBindingDao()
 
     val bindings: StateFlow<ImmutableMap<SwipeDirection, GestureAction>> = dao.observeAll()

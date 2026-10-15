@@ -4,12 +4,12 @@ import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.model.AppEntry
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.AppOverride
-import com.mushinlab.launcher.core.model.EnvType
-import com.mushinlab.launcher.core.model.Environment
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.Palettes
 import com.mushinlab.launcher.core.model.ProfileType
+import com.mushinlab.launcher.core.model.Space
+import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SpaceUsage
 import org.junit.Test
 
@@ -19,16 +19,16 @@ class SuggestionForTest {
     private val frequent = AppKey("frequent", "Frequent", 0)
     private val swiped = AppKey("swiped", "Swiped", 0)
     private val elsewhere = AppKey("elsewhere", "Elsewhere", 0)
-    private val normal = space(1, EnvType.NORMAL)
-    private val work = space(2, EnvType.WORK)
+    private val normal = space(1, SpaceType.NORMAL)
+    private val work = space(2, SpaceType.WORK)
 
-    private fun space(id: Long, type: EnvType) =
-        Environment(id, "s$id", type, id.toInt(), PalettePreset.GRAPHITE, Palettes.Graphite, 0)
+    private fun space(id: Long, type: SpaceType) =
+        Space(id, "s$id", type, id.toInt(), PalettePreset.GRAPHITE, Palettes.Graphite, 0)
 
     private fun entry(key: AppKey) = AppEntry(key, key.packageName, 0, 0, false, ProfileType.MAIN)
 
     private fun data() = LauncherData(
-        envs = listOf(normal, work),
+        spaces = listOf(normal, work),
         current = normal,
         items = mapOf(normal.id to listOf(home), work.id to listOf(elsewhere)),
         apps = listOf(home, frequent, swiped, elsewhere).associateWith(::entry),

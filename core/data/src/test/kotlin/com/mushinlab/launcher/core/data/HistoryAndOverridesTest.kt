@@ -1,15 +1,15 @@
 package com.mushinlab.launcher.core.data
 
 import com.google.common.truth.Truth.assertThat
-import com.mushinlab.launcher.core.data.repo.EnvironmentRepository
 import com.mushinlab.launcher.core.data.repo.GestureRepository
 import com.mushinlab.launcher.core.data.repo.HistoryRepository
 import com.mushinlab.launcher.core.data.repo.OverrideRepository
 import com.mushinlab.launcher.core.data.repo.PackageDataCleaner
+import com.mushinlab.launcher.core.data.repo.SpaceRepository
 import com.mushinlab.launcher.core.model.AppKey
-import com.mushinlab.launcher.core.model.EnvLimits
-import com.mushinlab.launcher.core.model.EnvType
 import com.mushinlab.launcher.core.model.GestureAction
+import com.mushinlab.launcher.core.model.SpaceLimits
+import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
 import kotlin.math.exp
 import kotlinx.coroutines.flow.first
@@ -27,17 +27,17 @@ class HistoryAndOverridesTest {
     private val slack = AppKey("com.slack", "com.slack.Main", 0)
     private val maps = AppKey("com.google.maps", "com.google.maps.Main", 0)
 
-    private suspend fun normalId(repo: EnvironmentRepository): Long =
-        repo.environments.first { it.isNotEmpty() }.first { it.type == EnvType.NORMAL }.id
+    private suspend fun normalId(repo: SpaceRepository): Long =
+        repo.spaces.first { it.isNotEmpty() }.first { it.type == SpaceType.NORMAL }.id
 
     @Test
     fun AC_10_3_onlySearchLaunchesCreateRecents() = runTest {
-        val envs = EnvironmentRepository(rule.db, backgroundScope, rule.clock)
+        val spaces = SpaceRepository(rule.db, backgroundScope, rule.clock)
         val history = HistoryRepository(rule.db, backgroundScope, rule.clock)
-        val env = normalId(envs)
-        history.recordLaunch(slack, env, fromSearch = false)
-        history.recordLaunch(maps, env, fromSearch = true)
-        val recents = history.recents.first { it[env] != null }[env].orEmpty()
+        val space = normalId(spaces)
+        history.recordLaunch(slack, space, fromSearch = false)
+        history.recordLaunch(maps, space, fromSearch = true)
+        val recents = history.recents.first { it[space] != null }[space].orEmpty()
         assertThat(recents.map { it.key }).containsExactly(maps)
         val usage = history.usage.first { it.size == 2 }
         assertThat(usage[slack]?.launchCount).isEqualTo(1)
@@ -46,10 +46,10 @@ class HistoryAndOverridesTest {
 
     @Test
     fun usageAndAllRecentsCanBeErased() = runTest {
-        val envs = EnvironmentRepository(rule.db, backgroundScope, rule.clock)
+        val spaces = SpaceRepository(rule.db, backgroundScope, rule.clock)
         val history = HistoryRepository(rule.db, backgroundScope, rule.clock)
-        val normal = normalId(envs)
-        val work = envs.environments.first { it.isNotEmpty() }.first { it.type != EnvType.NORMAL }.id
+        val normal = normalId(spaces)
+        val work = spaces.spaces.first { it.isNotEmpty() }.first { it.type != SpaceType.NORMAL }.id
         history.recordLaunch(slack, normal, fromSearch = true)
         history.recordLaunch(maps, work, fromSearch = true)
         history.recents.first { it.size == 2 }
@@ -62,17 +62,17 @@ class HistoryAndOverridesTest {
 
     @Test
     fun everyLaunchIsCountedPerSpaceAndDismissalIsKept() = runTest {
-        val envs = EnvironmentRepository(rule.db, backgroundScope, rule.clock)
+        val spaces = SpaceRepository(rule.db, backgroundScope, rule.clock)
         val history = HistoryRepository(rule.db, backgroundScope, rule.clock)
-        val normal = normalId(envs)
-        val work = envs.environments.first { it.isNotEmpty() }.first { it.type != EnvType.NORMAL }.id
+        val normal = normalId(spaces)
+        val work = spaces.spaces.first { it.isNotEmpty() }.first { it.type != SpaceType.NORMAL }.id
         history.recordLaunch(slack, normal, fromSearch = false)
         history.recordLaunch(slack, normal, fromSearch = true)
         history.recordLaunch(slack, work, fromSearch = false)
         history.recordLaunch(maps, null, fromSearch = false)
-        val spaces = history.spaceUsage.first { it[normal]?.firstOrNull()?.launchCount == 2 && it[work] != null }
-        assertThat(spaces[normal]?.map { it.key }).containsExactly(slack)
-        assertThat(spaces[work]?.single()?.launchCount).isEqualTo(1)
+        val usage = history.spaceUsage.first { it[normal]?.firstOrNull()?.launchCount == 2 && it[work] != null }
+        assertThat(usage[normal]?.map { it.key }).containsExactly(slack)
+        assertThat(usage[work]?.single()?.launchCount).isEqualTo(1)
         history.dismissSuggestion(normal, slack)
         rule.now += 1000
         history.recordLaunch(slack, normal, fromSearch = false)
@@ -83,16 +83,16 @@ class HistoryAndOverridesTest {
     }
 
     @Test
-    fun recentsAreCappedPerEnvironment() = runTest {
-        val envs = EnvironmentRepository(rule.db, backgroundScope, rule.clock)
+    fun recentsAreCappedPerSpace() = runTest {
+        val spaces = SpaceRepository(rule.db, backgroundScope, rule.clock)
         val history = HistoryRepository(rule.db, backgroundScope, rule.clock)
-        val env = normalId(envs)
-        repeat(EnvLimits.RECENTS_PER_ENV + 5) { i ->
+        val space = normalId(spaces)
+        repeat(SpaceLimits.RECENTS_PER_SPACE + 5) { i ->
             rule.now += 1000
-            history.recordLaunch(AppKey("p$i", "a$i", 0), env, fromSearch = true)
+            history.recordLaunch(AppKey("p$i", "a$i", 0), space, fromSearch = true)
         }
-        val rows = history.recents.first { it[env]?.firstOrNull()?.key?.packageName == "p54" }[env].orEmpty()
-        assertThat(rows).hasSize(EnvLimits.RECENTS_PER_ENV)
+        val rows = history.recents.first { it[space]?.firstOrNull()?.key?.packageName == "p54" }[space].orEmpty()
+        assertThat(rows).hasSize(SpaceLimits.RECENTS_PER_SPACE)
         assertThat(rows.map { it.key.packageName }).doesNotContain("p0")
     }
 
@@ -139,24 +139,24 @@ class HistoryAndOverridesTest {
 
     @Test
     fun Q12_removedPackageClearsDataAndKeepsOverrideFor30Days() = runTest {
-        val envs = EnvironmentRepository(rule.db, backgroundScope, rule.clock)
+        val spaces = SpaceRepository(rule.db, backgroundScope, rule.clock)
         val history = HistoryRepository(rule.db, backgroundScope, rule.clock)
         val overrides = OverrideRepository(rule.db, backgroundScope, rule.clock)
         val cleaner = PackageDataCleaner(rule.db, rule.clock)
-        val env = normalId(envs)
-        envs.setItems(env, listOf(slack, maps))
-        history.recordLaunch(slack, env, fromSearch = true)
+        val space = normalId(spaces)
+        spaces.setItems(space, listOf(slack, maps))
+        history.recordLaunch(slack, space, fromSearch = true)
         overrides.rename(slack, "Чат")
 
         cleaner.onPackageRemoved(slack.packageName, slack.userSerial)
 
-        assertThat(envs.itemsOf(env)).containsExactly(maps)
+        assertThat(spaces.itemsOf(space)).containsExactly(maps)
         assertThat(rule.db.appUsageDao().get(slack.packageName, slack.activityName, 0)).isNull()
-        assertThat(rule.db.searchRecentDao().get(env, slack.packageName, slack.activityName, 0)).isNull()
+        assertThat(rule.db.searchRecentDao().get(space, slack.packageName, slack.activityName, 0)).isNull()
         val orphan = rule.db.appOverrideDao().get(slack.packageName, slack.activityName, 0)
         assertThat(orphan?.orphanedAt).isEqualTo(rule.now)
 
-        rule.now += EnvLimits.ORPHAN_TTL_MS - 1
+        rule.now += SpaceLimits.ORPHAN_TTL_MS - 1
         assertThat(cleaner.purgeExpiredOverrides()).isEqualTo(0)
         rule.now += 2
         assertThat(cleaner.purgeExpiredOverrides()).isEqualTo(1)
@@ -169,7 +169,7 @@ class HistoryAndOverridesTest {
         overrides.rename(slack, "Чат")
         cleaner.onPackageRemoved(slack.packageName, 0)
         cleaner.onPackageAdded(slack.packageName, 0)
-        rule.now += EnvLimits.ORPHAN_TTL_MS * 2
+        rule.now += SpaceLimits.ORPHAN_TTL_MS * 2
         assertThat(cleaner.purgeExpiredOverrides()).isEqualTo(0)
         assertThat(rule.db.appOverrideDao().get(slack.packageName, slack.activityName, 0)?.customLabel).isEqualTo("Чат")
     }

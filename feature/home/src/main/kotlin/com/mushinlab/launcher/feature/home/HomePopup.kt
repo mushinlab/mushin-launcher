@@ -12,23 +12,23 @@ import com.mushinlab.launcher.core.ui.PanelItem
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
-data class PopupEnv(val id: Long, val name: String, val current: Boolean)
+data class PopupSpace(val id: Long, val name: String, val current: Boolean)
 
 @Immutable
 data class PopupApp(
     val key: AppKey,
     val label: String,
     val hidden: Boolean,
-    val inEnv: Boolean,
+    val inSpace: Boolean,
     val canUninstall: Boolean,
 )
 
 interface PopupActions {
-    fun onSelectEnv(id: Long)
+    fun onSelectSpace(id: Long)
 
     fun onOpenSettings()
 
-    fun onOpenEnvSettings(id: Long)
+    fun onOpenSpaceSettings(id: Long)
 
     fun onAbout(key: AppKey)
 
@@ -36,7 +36,7 @@ interface PopupActions {
 
     fun onToggleHidden(key: AppKey, hidden: Boolean)
 
-    fun onRemoveFromEnv(key: AppKey)
+    fun onRemoveFromSpace(key: AppKey)
 
     fun onUninstall(key: AppKey)
 
@@ -47,7 +47,7 @@ interface PopupActions {
 fun HomePopup(
     anchor: Offset,
     app: PopupApp?,
-    envs: ImmutableList<PopupEnv>,
+    spaces: ImmutableList<PopupSpace>,
     actions: PopupActions,
 ) {
     AnchoredPanel(anchor = anchor, onDismiss = actions::onDismiss) {
@@ -55,13 +55,13 @@ fun HomePopup(
             AppSection(app, actions)
             HorizontalDivider()
         }
-        envs.forEach { env ->
+        spaces.forEach { space ->
             PanelItem(
-                text = env.name,
-                radio = env.current,
-                tag = "popup_env_${env.id}",
-                onHold = { actions.onOpenEnvSettings(env.id) },
-                onClick = { actions.onSelectEnv(env.id) },
+                text = space.name,
+                radio = space.current,
+                tag = "popup_env_${space.id}",
+                onHold = { actions.onOpenSpaceSettings(space.id) },
+                onClick = { actions.onSelectSpace(space.id) },
             )
         }
         HorizontalDivider()
@@ -78,9 +78,9 @@ private fun AppSection(app: PopupApp, actions: PopupActions) {
         stringResource(if (app.hidden) R.string.popup_show else R.string.popup_hide),
         tag = "popup_hide",
     ) { actions.onToggleHidden(app.key, !app.hidden) }
-    if (app.inEnv) {
-        PanelItem(stringResource(R.string.popup_remove_from_env), tag = "popup_remove") {
-            actions.onRemoveFromEnv(app.key)
+    if (app.inSpace) {
+        PanelItem(stringResource(R.string.popup_remove_from_space), tag = "popup_remove") {
+            actions.onRemoveFromSpace(app.key)
         }
     }
     if (app.canUninstall) {

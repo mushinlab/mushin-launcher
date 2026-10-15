@@ -3,7 +3,7 @@ package com.mushinlab.launcher.core.model
 import kotlin.math.roundToInt
 
 data class SpaceUsage(
-    val envId: Long,
+    val spaceId: Long,
     val key: AppKey,
     val launchCount: Int,
     val lastLaunchedAt: Long,

@@ -47,7 +47,7 @@ import com.mushinlab.launcher.feature.settings.SettingsRoute
 import com.mushinlab.launcher.feature.settings.SettingsStack
 
 class MainActivity : ComponentActivity() {
-    private val container get() = (application as EnvApp).container
+    private val container get() = (application as MushinApp).container
     private lateinit var viewModel: LauncherViewModel
 
     val minute = mutableLongStateOf(System.currentTimeMillis())
@@ -222,11 +222,11 @@ class MainActivity : ComponentActivity() {
 
             LaunchResult.Suspended -> notice = Notice(getString(R.string.notice_suspended))
 
-            LaunchResult.Failed -> notice = if (viewModel.isInCurrentEnv(key)) {
+            LaunchResult.Failed -> notice = if (viewModel.isInCurrentSpace(key)) {
                 Notice(
                     text = getString(R.string.notice_launch_failed),
-                    actionLabel = getString(R.string.notice_remove_from_env),
-                    action = { viewModel.removeFromCurrentEnv(key) },
+                    actionLabel = getString(R.string.notice_remove_from_space),
+                    action = { viewModel.removeFromCurrentSpace(key) },
                 )
             } else {
                 Notice(getString(R.string.notice_launch_failed))
@@ -285,7 +285,7 @@ class MainActivity : ComponentActivity() {
                 key,
                 label,
                 anchor,
-                viewModel.isInCurrentEnv(key),
+                viewModel.isInCurrentSpace(key),
                 !entry.isSystem,
                 viewModel.override(key)?.hidden == true,
                 viewModel.override(key)?.systemShortcut == true,
@@ -299,19 +299,19 @@ class MainActivity : ComponentActivity() {
         notice = Notice(getString(if (hidden) R.string.notice_hidden else R.string.notice_unhidden, label))
     }
 
-    fun toggleInEnv(key: AppKey, add: Boolean) {
+    fun toggleInSpace(key: AppKey, add: Boolean) {
         search.closeMenu()
-        val env = viewModel.currentEnvName ?: return
-        val envId = viewModel.currentEnvId() ?: return
+        val space = viewModel.currentSpaceName ?: return
+        val spaceId = viewModel.currentSpaceId() ?: return
         notice = when {
             !add -> {
-                viewModel.removeFromCurrentEnv(key)
-                Notice(getString(R.string.notice_removed_from_env, env))
+                viewModel.removeFromCurrentSpace(key)
+                Notice(getString(R.string.notice_removed_from_space, space))
             }
 
-            viewModel.addEnvItem(envId, key) -> Notice(getString(R.string.notice_added_to_env, env))
+            viewModel.addSpaceItem(spaceId, key) -> Notice(getString(R.string.notice_added_to_space, space))
 
-            else -> Notice(getString(R.string.notice_env_full, env))
+            else -> Notice(getString(R.string.notice_space_full, space))
         }
     }
 
@@ -324,9 +324,9 @@ class MainActivity : ComponentActivity() {
     }
 
     fun editCurrentSpace() {
-        val envId = viewModel.currentEnvId() ?: return
+        val spaceId = viewModel.currentSpaceId() ?: return
         overlay = Overlay.None
-        settingsStack.open(SettingsRoute.EnvEditor(envId))
+        settingsStack.open(SettingsRoute.SpaceEditor(spaceId))
     }
 
     fun onHomeDrawing(points: List<Offset>, width: Float) {

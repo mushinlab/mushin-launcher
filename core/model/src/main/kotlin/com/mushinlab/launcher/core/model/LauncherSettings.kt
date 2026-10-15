@@ -53,7 +53,7 @@ object StrokeWidth {
 }
 
 data class LauncherSettings(
-    val currentEnvId: Long? = null,
+    val currentSpaceId: Long? = null,
     val iconMode: IconMode = IconMode.NONE,
     val clockFormat: ClockFormat = ClockFormat.SYSTEM,
     val showDate: Boolean = true,

@@ -66,12 +66,12 @@ import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mushinlab.launcher.core.ui.EnvType
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
-import com.mushinlab.launcher.core.ui.LocalEnvColors
+import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.SingleLineText
+import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.pressable
 import kotlin.math.roundToInt
 
@@ -82,7 +82,7 @@ fun SettingsPage(
     scrollable: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Column(
         Modifier
             .fillMaxSize()
@@ -105,11 +105,11 @@ fun SettingsPage(
                 onClick = onBack,
             )
             Column {
-                SingleLineText(title, EnvType.style(22.sp, colors.textPrimary))
+                SingleLineText(title, SpaceType.style(22.sp, colors.textPrimary))
                 LocalSpaceName.current?.let { space ->
                     SingleLineText(
                         space,
-                        EnvType.style(12.sp, colors.textSecondary),
+                        SpaceType.style(12.sp, colors.textSecondary),
                         Modifier.testTag("settings_space"),
                     )
                 }
@@ -125,10 +125,10 @@ val LocalSpaceName = staticCompositionLocalOf<String?> { null }
 
 @Composable
 fun SectionHeader(text: String) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     BasicText(
         text,
-        style = EnvType.style(14.sp, colors.accent, FontWeight.Medium),
+        style = SpaceType.style(14.sp, colors.accent, FontWeight.Medium),
         modifier = Modifier.padding(start = 28.dp, end = 28.dp, top = 20.dp, bottom = 8.dp),
     )
 }
@@ -138,7 +138,7 @@ internal fun Modifier.settingsCard(): Modifier = this
     .fillMaxWidth()
     .padding(horizontal = CARD_MARGIN, vertical = CARD_GAP / 2)
     .clip(RoundedCornerShape(CARD_RADIUS))
-    .background(LocalEnvColors.current.surface)
+    .background(LocalMushinColors.current.surface)
 
 @Composable
 fun CardGap() {
@@ -147,7 +147,7 @@ fun CardGap() {
 
 @Composable
 internal fun Modifier.selectedBackground(selected: Boolean): Modifier {
-    val accent = LocalEnvColors.current.accent
+    val accent = LocalMushinColors.current.accent
     val color by animateColorAsState(
         if (selected) accent.copy(alpha = SELECTED_ALPHA) else accent.copy(alpha = 0f),
         tween(Motion.TRANSITION_MS),
@@ -166,7 +166,7 @@ fun NavRow(
     tag: String? = null,
     onClick: () -> Unit,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Row(
         Modifier
             .settingsCard()
@@ -180,22 +180,22 @@ fun NavRow(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Column(Modifier.weight(1f, fill = false)) {
-            BasicText(title, style = EnvType.style(17.sp, colors.textPrimary))
+            BasicText(title, style = SpaceType.style(17.sp, colors.textPrimary))
             if (summary != null) {
                 Spacer(Modifier.height(2.dp))
-                BasicText(summary, style = EnvType.style(14.sp, colors.textSecondary))
+                BasicText(summary, style = SpaceType.style(14.sp, colors.textSecondary))
             }
         }
         if (value != null) {
             Spacer(Modifier.width(16.dp))
-            SingleLineText(value, EnvType.style(15.sp, colors.textSecondary))
+            SingleLineText(value, SpaceType.style(15.sp, colors.textSecondary))
         }
     }
 }
 
 @Composable
 fun InfoRow(title: String, value: String, tag: String) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Row(
         Modifier
             .settingsCard()
@@ -204,15 +204,15 @@ fun InfoRow(title: String, value: String, tag: String) {
             .padding(horizontal = CARD_PADDING, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        BasicText(title, style = EnvType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
+        BasicText(title, style = SpaceType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
         Spacer(Modifier.width(16.dp))
-        SingleLineText(value, EnvType.style(15.sp, colors.textSecondary))
+        SingleLineText(value, SpaceType.style(15.sp, colors.textSecondary))
     }
 }
 
 @Composable
 fun ToggleRow(title: String, checked: Boolean, tag: String? = null, onToggle: (Boolean) -> Unit) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Row(
         Modifier
             .settingsCard()
@@ -222,14 +222,14 @@ fun ToggleRow(title: String, checked: Boolean, tag: String? = null, onToggle: (B
             .padding(horizontal = CARD_PADDING, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        BasicText(title, style = EnvType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
+        BasicText(title, style = SpaceType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
         Switch(checked)
     }
 }
 
 @Composable
 private fun Switch(checked: Boolean) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Box(
         Modifier
             .size(width = 40.dp, height = 24.dp)
@@ -258,7 +258,7 @@ fun SliderRow(
     format: ((Float) -> String)? = null,
     onChange: (Float) -> Unit,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val locale = LocalConfiguration.current.locales[0]
     val steps = ((range.endInclusive - range.start) / step).roundToInt()
     var shown by remember(value) { mutableFloatStateOf(value) }
@@ -272,11 +272,11 @@ fun SliderRow(
     }
     Column(Modifier.settingsCard().padding(horizontal = CARD_PADDING, vertical = 10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            BasicText(title, style = EnvType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
+            BasicText(title, style = SpaceType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
             Spacer(Modifier.width(16.dp))
             SingleLineText(
                 format?.invoke(shown) ?: String.format(locale, "%.2f", shown),
-                EnvType.style(15.sp, colors.textSecondary),
+                SpaceType.style(15.sp, colors.textSecondary),
             )
         }
         Box(
@@ -336,10 +336,10 @@ fun <T> ChoiceRows(options: List<Pair<T, String>>, selected: T, tagPrefix: Strin
 }
 
 @Composable
-fun NoteText(text: String, color: Color = LocalEnvColors.current.textSecondary) {
+fun NoteText(text: String, color: Color = LocalMushinColors.current.textSecondary) {
     BasicText(
         text,
-        style = EnvType.style(14.sp, color),
+        style = SpaceType.style(14.sp, color),
         modifier = Modifier.padding(horizontal = 28.dp, vertical = 8.dp),
     )
 }
@@ -352,7 +352,7 @@ fun ConfirmDialog(
     onDismiss: () -> Unit,
 ) {
     DialogFrame(onDismiss) {
-        BasicText(message, style = EnvType.style(17.sp, LocalEnvColors.current.textPrimary))
+        BasicText(message, style = SpaceType.style(17.sp, LocalMushinColors.current.textPrimary))
         Spacer(Modifier.height(16.dp))
         DialogButtons(
             listOf(
@@ -374,18 +374,18 @@ fun TextInputDialog(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     var text by remember { mutableStateOf(initial) }
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { focus.requestFocus() }
     DialogFrame(onDismiss) {
-        BasicText(title, style = EnvType.style(17.sp, colors.textPrimary, FontWeight.Medium))
+        BasicText(title, style = SpaceType.style(17.sp, colors.textPrimary, FontWeight.Medium))
         Spacer(Modifier.height(12.dp))
         BasicTextField(
             value = text,
             onValueChange = { if (it.length <= maxLength) text = it },
             singleLine = true,
-            textStyle = EnvType.style(18.sp, colors.textPrimary),
+            textStyle = SpaceType.style(18.sp, colors.textPrimary),
             cursorBrush = SolidColor(colors.accent),
             modifier = Modifier
                 .fillMaxWidth()
@@ -396,7 +396,7 @@ fun TextInputDialog(
         )
         if (error != null) {
             Spacer(Modifier.height(6.dp))
-            BasicText(error, style = EnvType.style(14.sp, colors.accent))
+            BasicText(error, style = SpaceType.style(14.sp, colors.accent))
         }
         Spacer(Modifier.height(16.dp))
         DialogButtons(
@@ -411,7 +411,7 @@ fun TextInputDialog(
 
 @Composable
 private fun DialogFrame(onDismiss: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Box(
         Modifier
             .fillMaxSize()
@@ -437,7 +437,7 @@ private fun DialogFrame(onDismiss: () -> Unit, content: @Composable ColumnScope.
 
 @Composable
 private fun DialogButtons(buttons: List<Pair<String, () -> Unit>>) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
         buttons.forEachIndexed { index, (label, action) ->
             Box(
@@ -448,7 +448,7 @@ private fun DialogButtons(buttons: List<Pair<String, () -> Unit>>) {
                     .padding(horizontal = 12.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                BasicText(label, style = EnvType.style(16.sp, colors.accent, FontWeight.Medium))
+                BasicText(label, style = SpaceType.style(16.sp, colors.accent, FontWeight.Medium))
             }
         }
     }

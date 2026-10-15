@@ -1,7 +1,7 @@
 package com.mushinlab.launcher.core.data.repo
 
 import androidx.room.withTransaction
-import com.mushinlab.launcher.core.data.db.EnvDatabase
+import com.mushinlab.launcher.core.data.db.MushinDatabase
 import com.mushinlab.launcher.core.data.db.toEntity
 import com.mushinlab.launcher.core.data.db.toModel
 import com.mushinlab.launcher.core.model.LearnedGesture
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class GestureLearningRepository(private val db: EnvDatabase, scope: CoroutineScope) {
+class GestureLearningRepository(private val db: MushinDatabase, scope: CoroutineScope) {
     private val dao = db.gestureSampleDao()
 
     val samples: StateFlow<ImmutableList<LearnedGesture>> = dao.observeAll()

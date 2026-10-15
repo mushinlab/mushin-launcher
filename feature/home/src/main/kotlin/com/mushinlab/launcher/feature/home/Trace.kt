@@ -29,8 +29,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.mushinlab.launcher.core.ui.LocalEnvColors
-import com.mushinlab.launcher.core.ui.LocalEnvStroke
+import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.LocalMushinStroke
 import com.mushinlab.launcher.core.ui.Motion
 import kotlinx.coroutines.flow.first
 
@@ -49,8 +49,8 @@ class Trace {
 
 @Composable
 fun TraceLayer(trace: Trace, modifier: Modifier = Modifier) {
-    val stroke = LocalEnvStroke.current
-    val color = stroke.color(LocalEnvColors.current)
+    val stroke = LocalMushinStroke.current
+    val color = stroke.color(LocalMushinColors.current)
     val widthPx = with(LocalDensity.current) { stroke.width.toPx() }
     LaunchedEffect(trace) {
         while (true) {
@@ -78,7 +78,7 @@ fun TraceLayer(trace: Trace, modifier: Modifier = Modifier) {
 
 @Composable
 fun ListHandle(active: Boolean, onBounds: (Rect) -> Unit) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Box(
         Modifier
             .fillMaxWidth()

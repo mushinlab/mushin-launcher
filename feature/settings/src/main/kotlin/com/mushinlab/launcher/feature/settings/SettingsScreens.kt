@@ -45,12 +45,12 @@ import com.mushinlab.launcher.core.model.StrokeColor
 import com.mushinlab.launcher.core.model.StrokeWidth
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.search.KeyboardLayouts
-import com.mushinlab.launcher.core.ui.EnvFonts
-import com.mushinlab.launcher.core.ui.EnvStroke
-import com.mushinlab.launcher.core.ui.EnvType
-import com.mushinlab.launcher.core.ui.LocalEnvColors
+import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.MushinFonts
+import com.mushinlab.launcher.core.ui.MushinStroke
 import com.mushinlab.launcher.core.ui.RadioMark
 import com.mushinlab.launcher.core.ui.SingleLineText
+import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.pressable
 import kotlin.math.roundToInt
 
@@ -62,7 +62,7 @@ internal fun RootScreen(
     back: () -> Unit,
 ) {
     SettingsPage(stringResource(R.string.settings_title), back) {
-        SpaceChips(state.envs, actions::switchEnv)
+        SpaceChips(state.spaces, actions::switchSpace)
         NavRow(
             stringResource(R.string.settings_style),
             summary = stringResource(R.string.summary_style),
@@ -84,10 +84,10 @@ internal fun RootScreen(
             tag = "nav_gestures",
         ) { push(SettingsRoute.Gestures) }
         NavRow(
-            stringResource(R.string.settings_envs),
-            summary = stringResource(R.string.summary_envs),
+            stringResource(R.string.settings_spaces),
+            summary = stringResource(R.string.summary_spaces),
             tag = "nav_envs",
-        ) { push(SettingsRoute.Environments) }
+        ) { push(SettingsRoute.Spaces) }
         NavRow(
             stringResource(R.string.settings_apps),
             summary = stringResource(R.string.summary_apps),
@@ -102,8 +102,8 @@ internal fun RootScreen(
 }
 
 @Composable
-private fun SpaceChips(envs: List<EnvSummary>, onSelect: (Long) -> Unit) {
-    val colors = LocalEnvColors.current
+private fun SpaceChips(spaces: List<SpaceSummary>, onSelect: (Long) -> Unit) {
+    val colors = LocalMushinColors.current
     val scroll = rememberScrollState()
     Row(
         Modifier
@@ -113,26 +113,26 @@ private fun SpaceChips(envs: List<EnvSummary>, onSelect: (Long) -> Unit) {
             .testTag("space_chips"),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        envs.forEach { env ->
+        spaces.forEach { space ->
             Row(
                 Modifier
                     .clip(RoundedCornerShape(CARD_RADIUS))
-                    .background(if (env.current) colors.accent.copy(alpha = CHIP_ALPHA) else colors.surface)
+                    .background(if (space.current) colors.accent.copy(alpha = CHIP_ALPHA) else colors.surface)
                     .border(
                         1.dp,
-                        if (env.current) colors.accent else colors.surface,
+                        if (space.current) colors.accent else colors.surface,
                         RoundedCornerShape(CARD_RADIUS),
                     )
-                    .pressable(role = Role.RadioButton) { onSelect(env.id) }
-                    .semantics { selected = env.current }
-                    .testTag("space_chip_${env.id}")
+                    .pressable(role = Role.RadioButton) { onSelect(space.id) }
+                    .semantics { selected = space.current }
+                    .testTag("space_chip_${space.id}")
                     .heightIn(min = 48.dp)
                     .padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                RadioMark(env.current)
+                RadioMark(space.current)
                 Spacer(Modifier.width(8.dp))
-                SingleLineText(env.name, EnvType.style(16.sp, colors.textPrimary))
+                SingleLineText(space.name, SpaceType.style(16.sp, colors.textPrimary))
             }
         }
     }
@@ -141,13 +141,13 @@ private fun SpaceChips(envs: List<EnvSummary>, onSelect: (Long) -> Unit) {
 @Composable
 internal fun StyleScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
     val s = state.settings
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     SettingsPage(stringResource(R.string.settings_style), back) {
-        state.envs.firstOrNull { it.current }?.let { env ->
-            SectionHeader(stringResource(R.string.style_theme, env.name))
-            PaletteDropdown(env.preset) { actions.setPalette(env.id, it) }
-            ToggleRow(stringResource(R.string.env_colored_icons), env.coloredIcons, tag = "style_colored_icons") {
-                actions.setColoredIcons(env.id, it)
+        state.spaces.firstOrNull { it.current }?.let { space ->
+            SectionHeader(stringResource(R.string.style_theme, space.name))
+            PaletteDropdown(space.preset) { actions.setPalette(space.id, it) }
+            ToggleRow(stringResource(R.string.space_colored_icons), space.coloredIcons, tag = "style_colored_icons") {
+                actions.setColoredIcons(space.id, it)
             }
             SectionHeader(stringResource(R.string.style_text))
         }
@@ -164,7 +164,7 @@ internal fun StyleScreen(state: SettingsUiState, actions: SettingsActions, back:
             "font",
             style = { font ->
                 TextStyle(
-                    fontFamily = EnvFonts.family(font),
+                    fontFamily = MushinFonts.family(font),
                     fontSize = 17.sp,
                     fontWeight = FontWeight(s.fontWeight.value),
                     color = colors.textPrimary,
@@ -284,7 +284,7 @@ internal fun HomeSettingsScreen(state: SettingsUiState, actions: SettingsActions
             if (it && !state.notificationAccess) actions.openNotificationAccess()
         }
         if (s.notificationCounts && !state.notificationAccess) {
-            NoteText(stringResource(R.string.home_notifications_no_access), LocalEnvColors.current.accent)
+            NoteText(stringResource(R.string.home_notifications_no_access), LocalMushinColors.current.accent)
             NavRow(stringResource(R.string.home_notifications_grant), tag = "notification_access") {
                 actions.openNotificationAccess()
             }
@@ -554,7 +554,7 @@ private const val PERCENT = 100
 
 @Composable
 private fun StrokeColorDropdown(selected: StrokeColor, onSelect: (StrokeColor) -> Unit) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val names = mapOf(
         StrokeColor.ACCENT to stringResource(R.string.stroke_accent),
         StrokeColor.TEXT to stringResource(R.string.stroke_text),
@@ -579,7 +579,7 @@ private fun StrokeColorDropdown(selected: StrokeColor, onSelect: (StrokeColor) -
                 Modifier
                     .size(STROKE_SWATCH)
                     .clip(CircleShape)
-                    .background(EnvStroke(StrokeWidth.DEFAULT_DP.dp, color).color(colors)),
+                    .background(MushinStroke(StrokeWidth.DEFAULT_DP.dp, color).color(colors)),
             )
         },
         onSelect = onSelect,

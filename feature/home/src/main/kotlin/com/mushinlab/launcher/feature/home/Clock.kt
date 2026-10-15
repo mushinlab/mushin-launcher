@@ -39,8 +39,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
-import com.mushinlab.launcher.core.ui.EnvType
-import com.mushinlab.launcher.core.ui.LocalEnvColors
+import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.SpaceType
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -91,7 +91,7 @@ fun ClockArea(
     onTap: () -> Unit,
     onMeasured: (area: Int, block: Int) -> Unit,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val density = LocalDensity.current
     val inset = with(density) { HomeDimens.rowPadding.roundToPx() }
     var area by remember { mutableIntStateOf(0) }
@@ -184,8 +184,8 @@ private fun ClockPosition.textAlign(): TextAlign = when (this) {
 @Composable
 private fun ClockTime(minute: State<Long>, format: ClockFormat, position: ClockPosition) {
     val context = LocalContext.current
-    val colors = LocalEnvColors.current
-    val style = EnvType.style(EnvType.clockSize, colors.textPrimary, FontWeight.Light).copy(
+    val colors = LocalMushinColors.current
+    val style = SpaceType.style(SpaceType.clockSize, colors.textPrimary, FontWeight.Light).copy(
         textAlign = position.textAlign(),
     )
     val use24h = ClockText.is24h(format, DateFormat.is24HourFormat(context))
@@ -198,9 +198,9 @@ private fun ClockTime(minute: State<Long>, format: ClockFormat, position: ClockP
 
 @Composable
 private fun ClockDate(minute: State<Long>, position: ClockPosition) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val locale = LocalConfiguration.current.locales[0]
-    val style = EnvType.style(EnvType.dateSize, colors.textSecondary).copy(textAlign = position.textAlign())
+    val style = SpaceType.style(SpaceType.dateSize, colors.textSecondary).copy(textAlign = position.textAlign())
     BasicText(
         text = ClockText.date(minute.value, ZoneId.systemDefault(), locale),
         style = style,

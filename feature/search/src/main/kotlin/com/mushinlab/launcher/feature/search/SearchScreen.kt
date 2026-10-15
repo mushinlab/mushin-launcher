@@ -76,14 +76,14 @@ import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.search.KeyboardLayout
 import com.mushinlab.launcher.core.ui.AnchoredPanel
 import com.mushinlab.launcher.core.ui.AppIcon
-import com.mushinlab.launcher.core.ui.EnvType
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.HorizontalDivider
-import com.mushinlab.launcher.core.ui.LocalEnvColors
+import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.PanelHeader
 import com.mushinlab.launcher.core.ui.PanelItem
 import com.mushinlab.launcher.core.ui.SingleLineText
+import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.SwipeMarks
 import com.mushinlab.launcher.core.ui.VerticalDivider
 import com.mushinlab.launcher.core.ui.pressable
@@ -122,7 +122,7 @@ interface SearchActions : KeyboardActions {
 
     fun onLongPress(key: AppKey, label: String, anchor: Offset)
 
-    fun onToggleInEnv(key: AppKey, add: Boolean)
+    fun onToggleInSpace(key: AppKey, add: Boolean)
 
     fun onAppInfo(key: AppKey)
 
@@ -174,7 +174,7 @@ fun SearchScreen(
     actions: SearchActions,
     modifier: Modifier = Modifier,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val closePx = with(LocalDensity.current) { SearchDimens.closeSwipe.toPx() }
     var lastDown by remember { mutableStateOf(Offset.Zero) }
     val onLongPress: (AppKey, String) -> Unit = { key, label -> actions.onLongPress(key, label, lastDown) }
@@ -230,7 +230,7 @@ fun SearchScreen(
 
 @Composable
 private fun SearchHeader(controller: SearchController) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     var anchor by remember { mutableStateOf(Offset.Zero) }
     Row(
         Modifier.fillMaxWidth().height(SearchDimens.headerHeight).testTag("search_header"),
@@ -338,7 +338,7 @@ private fun ResultsPane(
     onLongPress: (AppKey, String) -> Unit,
     modifier: Modifier,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val rows = controller.rows
     val listState = rememberLazyListState()
     LaunchedEffect(controller.query, controller.suggesting) { listState.scrollToItem(0) }
@@ -346,7 +346,7 @@ private fun ResultsPane(
         Box(modifier.padding(SearchDimens.padding).testTag("no_results"), contentAlignment = Alignment.BottomStart) {
             BasicText(
                 stringResource(R.string.search_nothing_found),
-                style = EnvType.style(EnvType.secondarySize, colors.textSecondary),
+                style = SpaceType.style(SpaceType.secondarySize, colors.textSecondary),
             )
         }
         return
@@ -359,7 +359,7 @@ private fun ResultsPane(
                 key = row.key,
                 index = index,
                 height = SearchDimens.resultHeight,
-                textSize = EnvType.resultSize.value,
+                textSize = SpaceType.resultSize.value,
                 iconMode = iconMode,
                 iconSize = SearchDimens.resultIcon,
                 hidden = row.hidden,
@@ -392,7 +392,7 @@ private fun RecentsPane(
                     key = row.key,
                     index = index,
                     height = SearchDimens.recentHeight,
-                    textSize = EnvType.recentSize.value,
+                    textSize = SpaceType.recentSize.value,
                     iconMode = iconMode,
                     iconSize = SearchDimens.recentIcon,
                     hidden = false,
@@ -425,13 +425,13 @@ private fun AppRowItem(
     onLongClick: () -> Unit,
     onClick: () -> Unit,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val background = when {
         highlighted -> colors.accent.copy(alpha = HIGHLIGHT_ALPHA)
         index % 2 == 1 -> colors.textPrimary.copy(alpha = PANE_ZEBRA_ALPHA)
         else -> Color.Transparent
     }
-    val textStyle = EnvType.style(textSize.sp, colors.textPrimary)
+    val textStyle = SpaceType.style(textSize.sp, colors.textPrimary)
     Row(
         Modifier
             .fillMaxWidth()
@@ -462,7 +462,7 @@ private fun AppRowItem(
                 Spacer(Modifier.width(6.dp))
                 SingleLineText(
                     stringResource(R.string.search_hidden_suffix),
-                    EnvType.style(EnvType.recentSize, colors.textSecondary),
+                    SpaceType.style(SpaceType.recentSize, colors.textSecondary),
                 )
             }
         }
@@ -538,7 +538,7 @@ private fun ResizeOverlay(
     onExit: () -> Unit,
     modifier: Modifier,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val current by rememberUpdatedState(frame)
     val density = LocalDensity.current
     val view = LocalView.current
@@ -627,7 +627,7 @@ private fun ResizeOverlay(
 
 @Composable
 private fun QueryRow(controller: SearchController, actions: SearchActions) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Row(
         Modifier
             .fillMaxWidth()
@@ -642,11 +642,11 @@ private fun QueryRow(controller: SearchController, actions: SearchActions) {
         } else {
             BasicText(
                 text = controller.query,
-                style = EnvType.style(SearchDimens.queryTextSize, colors.textPrimary),
+                style = SpaceType.style(SearchDimens.queryTextSize, colors.textPrimary),
                 maxLines = 1,
                 modifier = Modifier.testTag("query"),
             )
-            BasicText("▏", style = EnvType.style(SearchDimens.queryTextSize, colors.accent, FontWeight.Light))
+            BasicText("▏", style = SpaceType.style(SearchDimens.queryTextSize, colors.accent, FontWeight.Light))
             Spacer(Modifier.weight(1f))
         }
     }
@@ -682,9 +682,9 @@ private fun SearchMenuPanel(menu: SearchMenu, actions: SearchActions) {
     AnchoredPanel(anchor = menu.anchor, onDismiss = actions::onDismissMenu) {
         PanelHeader(menu.label)
         PanelItem(
-            stringResource(if (menu.inEnv) R.string.menu_remove_from_env else R.string.menu_add_to_env),
+            stringResource(if (menu.inSpace) R.string.menu_remove_from_space else R.string.menu_add_to_space),
             tag = "menu_env",
-        ) { actions.onToggleInEnv(menu.key, add = !menu.inEnv) }
+        ) { actions.onToggleInSpace(menu.key, add = !menu.inSpace) }
         PanelItem(
             stringResource(if (menu.hidden) R.string.menu_unhide else R.string.menu_hide),
             tag = "menu_hide",

@@ -1,11 +1,11 @@
 package com.mushinlab.launcher.core.data
 
 import androidx.test.core.app.ApplicationProvider
-import com.mushinlab.launcher.core.data.db.EnvDatabase
+import com.mushinlab.launcher.core.data.db.MushinDatabase
 import org.junit.rules.ExternalResource
 
 class DbTestRule : ExternalResource() {
-    lateinit var db: EnvDatabase
+    lateinit var db: MushinDatabase
         private set
 
     var now: Long = 1_000_000_000_000L
@@ -13,7 +13,7 @@ class DbTestRule : ExternalResource() {
     val clock: () -> Long = { now }
 
     override fun before() {
-        db = EnvDatabase.build(ApplicationProvider.getApplicationContext(), inMemory = true)
+        db = MushinDatabase.build(ApplicationProvider.getApplicationContext(), inMemory = true)
         db.openHelper.writableDatabase
     }
 

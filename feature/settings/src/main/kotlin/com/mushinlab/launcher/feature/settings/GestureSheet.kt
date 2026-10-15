@@ -64,10 +64,10 @@ import com.mushinlab.launcher.core.search.GesturePoint
 import com.mushinlab.launcher.core.search.GestureSample
 import com.mushinlab.launcher.core.search.Shapes
 import com.mushinlab.launcher.core.search.TimedPoint
-import com.mushinlab.launcher.core.ui.EnvType
-import com.mushinlab.launcher.core.ui.LocalEnvColors
-import com.mushinlab.launcher.core.ui.LocalEnvStroke
+import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.LocalMushinStroke
 import com.mushinlab.launcher.core.ui.Motion
+import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.drawVectors
 import com.mushinlab.launcher.core.ui.pressable
 import kotlinx.coroutines.launch
@@ -80,7 +80,7 @@ internal fun GestureSheet(
     onAdd: (GestureSample) -> Unit,
     onClose: () -> Unit,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
     val drag = remember { Animatable(0f) }
@@ -141,7 +141,7 @@ internal fun GestureSheet(
             }
             BasicText(
                 label,
-                style = EnvType.style(20.sp, colors.textPrimary, FontWeight.Medium),
+                style = SpaceType.style(20.sp, colors.textPrimary, FontWeight.Medium),
                 modifier = Modifier.padding(horizontal = CARD_PADDING),
             )
             Spacer(Modifier.height(4.dp))
@@ -153,7 +153,7 @@ internal fun GestureSheet(
             }
             BasicText(
                 stringResource(hint),
-                style = EnvType.style(15.sp, colors.textSecondary),
+                style = SpaceType.style(15.sp, colors.textSecondary),
                 modifier = Modifier.padding(horizontal = CARD_PADDING).testTag("gesture_sheet_hint"),
             )
             Spacer(Modifier.weight(1f))
@@ -215,11 +215,11 @@ private class PadState(private var draft: List<ShapeVertex>?) {
 
 @Composable
 private fun DrawPad(pad: PadState) {
-    val colors = LocalEnvColors.current
-    val stroke = LocalEnvStroke.current
+    val colors = LocalMushinColors.current
+    val stroke = LocalMushinStroke.current
     val strokeColor = stroke.color(colors)
     val measurer = rememberTextMeasurer()
-    val style = EnvType.style(18.sp, colors.textPrimary)
+    val style = SpaceType.style(18.sp, colors.textPrimary)
     val letters = remember(measurer, style) {
         QWERTY.flatMap { it.first.toList() }.associateWith { measurer.measure(it.toString(), style) }
     }
@@ -289,7 +289,7 @@ private fun SheetButton(
     enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Box(
         modifier
             .height(48.dp)
@@ -302,7 +302,7 @@ private fun SheetButton(
         val text = if (accent) colors.background else colors.textPrimary
         BasicText(
             label,
-            style = EnvType.style(16.sp, text.copy(alpha = if (enabled) 1f else DISABLED_ALPHA), FontWeight.Medium),
+            style = SpaceType.style(16.sp, text.copy(alpha = if (enabled) 1f else DISABLED_ALPHA), FontWeight.Medium),
         )
     }
 }

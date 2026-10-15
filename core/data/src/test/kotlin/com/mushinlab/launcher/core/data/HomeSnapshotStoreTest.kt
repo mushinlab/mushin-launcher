@@ -23,7 +23,7 @@ class HomeSnapshotStoreTest {
         val store = HomeSnapshotStore(tmp.root)
         assertThat(store.read()).isNull()
         val snapshot = HomeSnapshot(
-            envId = 3,
+            spaceId = 3,
             palette = Palettes.Paper,
             iconMode = IconMode.LEFT,
             textSize = HomeTextSize.L,

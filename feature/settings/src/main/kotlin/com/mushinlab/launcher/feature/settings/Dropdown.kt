@@ -38,9 +38,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
-import com.mushinlab.launcher.core.ui.EnvType
-import com.mushinlab.launcher.core.ui.LocalEnvColors
+import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.SingleLineText
+import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.pressable
 
 @Composable
@@ -53,7 +53,7 @@ fun <T> DropdownRow(
     leading: (@Composable (T) -> Unit)? = null,
     onSelect: (T) -> Unit,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     var expanded by remember { mutableStateOf(false) }
     var rowWidth by remember { mutableIntStateOf(0) }
     val current = options.firstOrNull { it.first == selected }
@@ -68,17 +68,17 @@ fun <T> DropdownRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                BasicText(title, style = EnvType.style(17.sp, colors.textPrimary))
+                BasicText(title, style = SpaceType.style(17.sp, colors.textPrimary))
                 if (current != null) {
                     Spacer(Modifier.height(2.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         leading?.invoke(current.first)
                         if (leading != null) Spacer(Modifier.width(8.dp))
-                        SingleLineText(current.second, EnvType.style(14.sp, colors.textSecondary))
+                        SingleLineText(current.second, SpaceType.style(14.sp, colors.textSecondary))
                     }
                 }
             }
-            BasicText("▾", style = EnvType.style(17.sp, colors.textSecondary))
+            BasicText("▾", style = SpaceType.style(17.sp, colors.textSecondary))
         }
         if (expanded) {
             Popup(
@@ -105,7 +105,7 @@ private fun <T> DropdownMenu(
     leading: (@Composable (T) -> Unit)?,
     onPick: (T) -> Unit,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val width = with(LocalDensity.current) { widthPx.toDp() }
     Column(
         Modifier
@@ -130,7 +130,7 @@ private fun <T> DropdownMenu(
             ) {
                 leading?.invoke(value)
                 if (leading != null) Spacer(Modifier.width(12.dp))
-                SingleLineText(label, style?.invoke(value) ?: EnvType.style(16.sp, colors.textPrimary))
+                SingleLineText(label, style?.invoke(value) ?: SpaceType.style(16.sp, colors.textPrimary))
             }
         }
     }

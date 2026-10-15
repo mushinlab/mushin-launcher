@@ -1,18 +1,18 @@
 package com.mushinlab.launcher.core.data.repo
 
 import androidx.room.withTransaction
-import com.mushinlab.launcher.core.data.db.EnvDatabase
+import com.mushinlab.launcher.core.data.db.MushinDatabase
 import com.mushinlab.launcher.core.model.AppKey
-import com.mushinlab.launcher.core.model.EnvLimits
 import com.mushinlab.launcher.core.model.KeyRemap
+import com.mushinlab.launcher.core.model.SpaceLimits
 
 class PackageDataCleaner(
-    private val db: EnvDatabase,
+    private val db: MushinDatabase,
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
     suspend fun onPackageRemoved(packageName: String, userSerial: Long) {
         db.withTransaction {
-            db.environmentItemDao().deletePackage(packageName, userSerial)
+            db.spaceItemDao().deletePackage(packageName, userSerial)
             db.searchRecentDao().deletePackage(packageName, userSerial)
             db.appUsageDao().deletePackage(packageName, userSerial)
             db.spaceUsageDao().deletePackage(packageName, userSerial)
@@ -37,13 +37,13 @@ class PackageDataCleaner(
                 dao.mergeSpaceUsage(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.mergeSamples(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveBindings(from.packageName, from.userSerial, from.activityName, to.activityName)
-                dao.moveEnvironmentItems(from.packageName, from.userSerial, from.activityName, to.activityName)
+                dao.moveSpaceItems(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveOverrides(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveRecents(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveUsage(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveSpaceUsage(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveSamples(from.packageName, from.userSerial, from.activityName, to.activityName)
-                dao.deleteEnvironmentItems(from.packageName, from.userSerial, from.activityName)
+                dao.deleteSpaceItems(from.packageName, from.userSerial, from.activityName)
                 dao.deleteOverrides(from.packageName, from.userSerial, from.activityName)
                 dao.deleteRecents(from.packageName, from.userSerial, from.activityName)
                 dao.deleteUsage(from.packageName, from.userSerial, from.activityName)
@@ -54,6 +54,6 @@ class PackageDataCleaner(
     }
 
     suspend fun purgeExpiredOverrides(): Int = db.appOverrideDao().purgeOrphanedBefore(
-        clock() - EnvLimits.ORPHAN_TTL_MS,
+        clock() - SpaceLimits.ORPHAN_TTL_MS,
     )
 }

@@ -3,8 +3,6 @@ package com.mushinlab.launcher.core.data.db
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.AppOverride
 import com.mushinlab.launcher.core.model.AppUsage
-import com.mushinlab.launcher.core.model.EnvType
-import com.mushinlab.launcher.core.model.Environment
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.GestureBinding
 import com.mushinlab.launcher.core.model.LearnedGesture
@@ -13,15 +11,17 @@ import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.Palettes
 import com.mushinlab.launcher.core.model.SearchRecent
 import com.mushinlab.launcher.core.model.ShapeVertex
+import com.mushinlab.launcher.core.model.Space
+import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SpaceUsage
 import com.mushinlab.launcher.core.model.SwipeDirection
 
-internal fun EnvironmentEntity.toModel(): Environment {
+internal fun SpaceEntity.toModel(): Space {
     val preset = runCatching { PalettePreset.valueOf(palettePreset) }.getOrDefault(PalettePreset.CUSTOM)
-    return Environment(
+    return Space(
         id = id,
         name = name,
-        type = EnvType.valueOf(type),
+        type = SpaceType.valueOf(type),
         sortOrder = sortOrder,
         preset = preset,
         palette = Palettes.presets[preset] ?: Palette(
@@ -44,7 +44,7 @@ internal fun EnvironmentEntity.toModel(): Environment {
     )
 }
 
-internal fun EnvironmentItemEntity.key(): AppKey = AppKey(packageName, activityName, userSerial)
+internal fun SpaceItemEntity.key(): AppKey = AppKey(packageName, activityName, userSerial)
 
 internal fun AppOverrideEntity.toModel(): AppOverride = AppOverride(
     key = AppKey(packageName, activityName, userSerial),
@@ -63,7 +63,7 @@ internal fun AppUsageEntity.toModel(): AppUsage = AppUsage(
 )
 
 internal fun SpaceUsageEntity.toModel(): SpaceUsage = SpaceUsage(
-    envId = envId,
+    spaceId = spaceId,
     key = AppKey(packageName, activityName, userSerial),
     launchCount = launchCount,
     lastLaunchedAt = lastLaunchedAt,

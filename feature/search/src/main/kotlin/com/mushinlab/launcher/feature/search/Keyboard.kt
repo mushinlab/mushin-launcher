@@ -53,9 +53,9 @@ import com.mushinlab.launcher.core.search.KeyboardLayout
 import com.mushinlab.launcher.core.search.KeyboardLayouts
 import com.mushinlab.launcher.core.search.Shapes
 import com.mushinlab.launcher.core.search.TimedPoint
-import com.mushinlab.launcher.core.ui.EnvType
-import com.mushinlab.launcher.core.ui.LocalEnvColors
-import com.mushinlab.launcher.core.ui.LocalEnvStroke
+import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.LocalMushinStroke
+import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.drawVectors
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -196,7 +196,7 @@ fun Keyboard(
     drawn: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val density = LocalDensity.current
     val view = LocalView.current
     val state = remember { KeyboardState() }
@@ -220,7 +220,7 @@ fun Keyboard(
     LaunchedEffect(clearTrail) {
         if (clearTrail) state.clearDrawing()
     }
-    val stroke = LocalEnvStroke.current
+    val stroke = LocalMushinStroke.current
     val strokeColor = stroke.color(colors)
     val strokePx = with(density) { stroke.width.toPx() }
     val totalHeight = KeyboardDimens.rowHeight * layout.rowScales.sum() + KeyboardDimens.verticalPadding * 2
@@ -452,7 +452,7 @@ private fun KeyView(
     digitHints: Boolean,
     drawn: Boolean,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val density = LocalDensity.current
     val pressed by remember(index) { derivedStateOf { state.pressed[index] == true } }
     val label = when (key.spec.action) {
@@ -462,9 +462,9 @@ private fun KeyView(
         null -> key.spec.char?.toString().orEmpty()
     }
     val size = when (key.spec.action) {
-        null -> EnvType.keySize
-        KeyAction.BACKSPACE -> if (drawn) KeyboardDimens.crossSize else EnvType.keySize
-        else -> EnvType.secondarySize
+        null -> SpaceType.keySize
+        KeyAction.BACKSPACE -> if (drawn) KeyboardDimens.crossSize else SpaceType.keySize
+        else -> SpaceType.secondarySize
     }
     val widthDp = with(density) { key.rect.width.toDp() }
     val heightDp = with(density) { key.rect.height.toDp() }
@@ -477,13 +477,13 @@ private fun KeyView(
             .testTag("key_${key.spec.char ?: key.spec.action?.name}"),
         contentAlignment = Alignment.Center,
     ) {
-        BasicText(label, style = EnvType.style(size, colors.textPrimary))
+        BasicText(label, style = SpaceType.style(size, colors.textPrimary))
         if (key.spec.action == KeyAction.RESIZE) ResizeMark(colors.textPrimary)
         val digit = key.spec.digit
         if (digitHints && digit != null) {
             BasicText(
                 digit.toString(),
-                style = EnvType.style(EnvType.digitHintSize, colors.textSecondary),
+                style = SpaceType.style(SpaceType.digitHintSize, colors.textSecondary),
                 modifier = Modifier.align(Alignment.TopEnd).padding(top = 2.dp, end = 4.dp),
             )
         }
@@ -492,7 +492,7 @@ private fun KeyView(
 
 @Composable
 private fun DigitBubble(key: KeyGeometry) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val density = LocalDensity.current
     val digit = key.spec.digit ?: return
     val bubbleW = with(density) { KeyboardDimens.bubbleWidth.toPx() }
@@ -508,7 +508,7 @@ private fun DigitBubble(key: KeyGeometry) {
             .testTag("digit_bubble"),
         contentAlignment = Alignment.Center,
     ) {
-        BasicText(digit.toString(), style = EnvType.style(EnvType.querySize, colors.textPrimary))
+        BasicText(digit.toString(), style = SpaceType.style(SpaceType.querySize, colors.textPrimary))
     }
 }
 

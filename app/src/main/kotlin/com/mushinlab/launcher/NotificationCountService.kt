@@ -8,7 +8,7 @@ import com.mushinlab.launcher.core.apps.NotificationCounts
 import com.mushinlab.launcher.core.apps.PostedNotification
 
 class NotificationCountService : NotificationListenerService() {
-    private val container get() = (application as EnvApp).container
+    private val container get() = (application as MushinApp).container
 
     override fun onListenerConnected() = publish()
 

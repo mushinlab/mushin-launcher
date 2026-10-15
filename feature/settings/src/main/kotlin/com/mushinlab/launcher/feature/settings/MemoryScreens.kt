@@ -37,10 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ShapeVertex
-import com.mushinlab.launcher.core.ui.EnvType
-import com.mushinlab.launcher.core.ui.LocalEnvColors
-import com.mushinlab.launcher.core.ui.LocalEnvStroke
+import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.LocalMushinStroke
 import com.mushinlab.launcher.core.ui.SingleLineText
+import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.drawVectors
 import com.mushinlab.launcher.core.ui.pressable
 
@@ -86,9 +86,9 @@ internal fun MemoryScreen(
                 confirm = actions::clearUsage
             }
         }
-        state.envs.firstOrNull { it.current }?.let { env ->
+        state.spaces.firstOrNull { it.current }?.let { space ->
             CardGap()
-            SectionHeader(stringResource(R.string.memory_usefulness, env.name))
+            SectionHeader(stringResource(R.string.memory_usefulness, space.name))
             NoteText(stringResource(R.string.memory_usefulness_note))
             if (state.usefulness.isEmpty()) NoteText(stringResource(R.string.memory_usage_none))
             state.usefulness.forEach { row ->
@@ -166,7 +166,7 @@ internal fun MemoryAppScreen(
 
 @Composable
 private fun DrawingRow(drawing: LearnedDrawing, index: Int, onForget: () -> Unit) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val locale = LocalConfiguration.current.locales[0]
     Column(
         Modifier.settingsCard().padding(horizontal = CARD_PADDING, vertical = 10.dp).testTag("memory_drawing_$index"),
@@ -179,7 +179,7 @@ private fun DrawingRow(drawing: LearnedDrawing, index: Int, onForget: () -> Unit
         ) {
             SingleLineText(
                 stringResource(R.string.memory_weight, String.format(locale, "%.1f", drawing.weight)),
-                EnvType.style(14.sp, colors.textSecondary),
+                SpaceType.style(14.sp, colors.textSecondary),
             )
             Box(
                 Modifier
@@ -188,7 +188,7 @@ private fun DrawingRow(drawing: LearnedDrawing, index: Int, onForget: () -> Unit
                     .testTag("memory_forget_$index")
                     .padding(horizontal = 12.dp, vertical = 8.dp),
             ) {
-                BasicText(stringResource(R.string.memory_forget), style = EnvType.style(15.sp, colors.accent))
+                BasicText(stringResource(R.string.memory_forget), style = SpaceType.style(15.sp, colors.accent))
             }
         }
     }
@@ -196,10 +196,10 @@ private fun DrawingRow(drawing: LearnedDrawing, index: Int, onForget: () -> Unit
 
 @Composable
 internal fun GestureThumbnail(drawing: LearnedDrawing, modifier: Modifier) {
-    val colors = LocalEnvColors.current
-    val stroke = LocalEnvStroke.current
+    val colors = LocalMushinColors.current
+    val stroke = LocalMushinStroke.current
     val measurer = rememberTextMeasurer()
-    val style = EnvType.style(11.sp, colors.textSecondary.copy(alpha = LETTER_ALPHA))
+    val style = SpaceType.style(11.sp, colors.textSecondary.copy(alpha = LETTER_ALPHA))
     val letters = remember(measurer, style) {
         QWERTY.flatMap { it.first.toList() }.associateWith { measurer.measure(it.toString(), style) }
     }
@@ -225,13 +225,13 @@ private fun thumbnailVectors(drawing: LearnedDrawing, size: Size, centers: Map<C
 
 @Composable
 private fun ValueRow(title: String, value: String, tag: String) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Row(
         Modifier.settingsCard().heightIn(min = 48.dp).padding(horizontal = CARD_PADDING, vertical = 10.dp).testTag(tag),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        BasicText(title, style = EnvType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
-        SingleLineText(value, EnvType.style(15.sp, colors.textSecondary))
+        BasicText(title, style = SpaceType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
+        SingleLineText(value, SpaceType.style(15.sp, colors.textSecondary))
     }
 }
 

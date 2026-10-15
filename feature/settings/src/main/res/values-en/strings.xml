@@ -9,7 +9,7 @@
     <string name="settings_on">On</string>
     <string name="settings_off">Off</string>
 
-    <string name="settings_envs">Spaces</string>
+    <string name="settings_spaces">Spaces</string>
     <string name="settings_home">Home screen</string>
     <string name="settings_keyboard">Keyboard</string>
     <string name="settings_gestures">Gestures</string>
@@ -17,28 +17,28 @@
     <string name="settings_apps">Hidden &amp; renamed</string>
     <string name="settings_system">System</string>
 
-    <string name="env_create">+ New space</string>
-    <string name="env_create_title">New space</string>
-    <string name="env_work_default_name">Work</string>
-    <string name="env_create_work">+ Create “Work”</string>
-    <string name="env_type_normal">normal</string>
-    <string name="env_type_work">work</string>
-    <string name="env_type_custom">custom</string>
-    <string name="env_current">current</string>
-    <string name="env_name">Name</string>
-    <string name="env_rename_title">Space name</string>
-    <string name="env_palette">Palette</string>
-    <string name="env_items">Apps</string>
-    <string name="env_add">+ Add</string>
-    <string name="env_overflow">%1$d of %2$d fit — the rest are not shown on Home</string>
-    <string name="env_delete">Delete space</string>
-    <string name="env_delete_confirm">Delete space “%1$s”? Its apps and history will be deleted</string>
-    <string name="env_item_hidden">hidden</string>
-    <string name="env_item_missing">uninstalled</string>
-    <string name="env_move_up">Move up</string>
-    <string name="env_move_down">Move down</string>
-    <string name="env_remove_item">Remove</string>
-    <string name="env_empty">Empty for now. Tap “Add”.</string>
+    <string name="space_create">+ New space</string>
+    <string name="space_create_title">New space</string>
+    <string name="space_work_default_name">Work</string>
+    <string name="space_create_work">+ Create “Work”</string>
+    <string name="space_type_normal">normal</string>
+    <string name="space_type_work">work</string>
+    <string name="space_type_custom">custom</string>
+    <string name="space_current">current</string>
+    <string name="space_name">Name</string>
+    <string name="space_rename_title">Space name</string>
+    <string name="space_palette">Palette</string>
+    <string name="space_items">Apps</string>
+    <string name="space_add">+ Add</string>
+    <string name="space_overflow">%1$d of %2$d fit — the rest are not shown on Home</string>
+    <string name="space_delete">Delete space</string>
+    <string name="space_delete_confirm">Delete space “%1$s”? Its apps and history will be deleted</string>
+    <string name="space_item_hidden">hidden</string>
+    <string name="space_item_missing">uninstalled</string>
+    <string name="space_move_up">Move up</string>
+    <string name="space_move_down">Move down</string>
+    <string name="space_remove_item">Remove</string>
+    <string name="space_empty">Empty for now. Tap “Add”.</string>
 
     <string name="error_name_empty">Enter a name</string>
     <string name="error_name_long">24 characters at most</string>
@@ -47,8 +47,8 @@
     <string name="error_custom_limit">20 custom spaces at most</string>
     <string name="error_generic">Something went wrong</string>
 
-    <string name="env_colored_icons">Color icons</string>
-    <string name="env_colored_icons_note">App icons in their own colors instead of monochrome while this space is active — on the home screen, in search and in swipe suggestions. Applies when icons are on in “Home screen”.</string>
+    <string name="space_colored_icons">Color icons</string>
+    <string name="space_colored_icons_note">App icons in their own colors instead of monochrome while this space is active — on the home screen, in search and in swipe suggestions. Applies when icons are on in “Home screen”.</string>
     <string name="palette_graphite">Graphite</string>
     <string name="palette_navy">Navy</string>
     <string name="palette_paper">Paper</string>
@@ -151,7 +151,7 @@
     </plurals>
     <string name="settings_style">Style</string>
     <string name="settings_advanced">Advanced</string>
-    <string name="summary_envs">Create spaces, names, themes and apps</string>
+    <string name="summary_spaces">Create spaces, names, themes and apps</string>
     <string name="summary_style">Font, weight, text size</string>
     <string name="summary_home">Icons, clock and date, notification counts</string>
     <string name="summary_keyboard">Layouts, vibration, digit hints</string>
@@ -172,7 +172,7 @@
     <string name="memory_usefulness_note">A score from 1 to 100: how often and how recently you opened the app in this space. If an app that is not on the home screen scores clearly higher than one that is, a “?” with a suggestion appears in the bottom right corner.</string>
     <string name="home_clock_note">Tap the clock to open the Clock app. Hold the clock to move it left, centre or right.</string>
     <string name="settings_back">Back</string>
-    <string name="env_list_note">To change a space, make it current (the row at the top of settings) and tap ✎ on the home screen.</string>
+    <string name="space_list_note">To change a space, make it current (the row at the top of settings) and tap ✎ on the home screen.</string>
     <string name="style_theme">Theme of “%1$s”</string>
     <string name="style_text">Text</string>
     <string name="keyboard_fit_note">Change the keyboard width and position with the button left of the space bar: drag the side anchors to resize, the bottom one to move. The whole input panel changes.</string>

@@ -17,7 +17,7 @@ import com.mushinlab.launcher.core.model.Palette
 import com.mushinlab.launcher.core.model.Palettes
 
 @Immutable
-data class EnvColors(
+data class MushinColors(
     val background: Color,
     val zebraA: Color,
     val zebraB: Color,
@@ -34,7 +34,7 @@ data class EnvColors(
     fun zebra(index: Int): Color = if (index % 2 == 0) zebraA else zebraB
 
     companion object {
-        fun from(p: Palette) = EnvColors(
+        fun from(p: Palette) = MushinColors(
             background = Color(p.background),
             zebraA = Color(p.zebraA),
             zebraB = Color(p.zebraB),
@@ -51,39 +51,39 @@ data class EnvColors(
     }
 }
 
-val LocalEnvColors = staticCompositionLocalOf { EnvColors.from(Palettes.Graphite) }
+val LocalMushinColors = staticCompositionLocalOf { MushinColors.from(Palettes.Graphite) }
 
 @Immutable
-data class EnvFont(val family: FontFamily, val weight: FontWeight) {
+data class MushinFont(val family: FontFamily, val weight: FontWeight) {
     companion object {
-        val Default = EnvFont(FontFamily.Default, FontWeight.Normal)
+        val Default = MushinFont(FontFamily.Default, FontWeight.Normal)
 
-        fun of(font: AppFont, weight: AppFontWeight) = EnvFont(EnvFonts.family(font), FontWeight(weight.value))
+        fun of(font: AppFont, weight: AppFontWeight) = MushinFont(MushinFonts.family(font), FontWeight(weight.value))
     }
 }
 
-val LocalEnvFont = staticCompositionLocalOf { EnvFont.Default }
+val LocalMushinFont = staticCompositionLocalOf { MushinFont.Default }
 
 @Composable
-fun EnvTheme(
+fun MushinTheme(
     palette: Palette,
-    font: EnvFont = EnvFont.Default,
-    stroke: EnvStroke = EnvStroke.Default,
+    font: MushinFont = MushinFont.Default,
+    stroke: MushinStroke = MushinStroke.Default,
     content: @Composable () -> Unit,
 ) {
     CompositionLocalProvider(
-        LocalEnvColors provides EnvColors.from(palette),
-        LocalEnvFont provides font,
-        LocalEnvStroke provides stroke,
+        LocalMushinColors provides MushinColors.from(palette),
+        LocalMushinFont provides font,
+        LocalMushinStroke provides stroke,
         content = content,
     )
 }
 
-object EnvType {
+object SpaceType {
     @Composable
     @ReadOnlyComposable
     fun style(size: TextUnit, color: Color, weight: FontWeight = FontWeight.Normal): TextStyle {
-        val font = LocalEnvFont.current
+        val font = LocalMushinFont.current
         return TextStyle(
             fontFamily = font.family,
             fontSize = size,

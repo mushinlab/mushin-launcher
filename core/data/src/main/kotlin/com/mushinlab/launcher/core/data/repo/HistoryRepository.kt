@@ -2,14 +2,14 @@ package com.mushinlab.launcher.core.data.repo
 
 import androidx.room.withTransaction
 import com.mushinlab.launcher.core.data.db.AppUsageEntity
-import com.mushinlab.launcher.core.data.db.EnvDatabase
+import com.mushinlab.launcher.core.data.db.MushinDatabase
 import com.mushinlab.launcher.core.data.db.SearchRecentEntity
 import com.mushinlab.launcher.core.data.db.SpaceUsageEntity
 import com.mushinlab.launcher.core.data.db.toModel
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.AppUsage
-import com.mushinlab.launcher.core.model.EnvLimits
 import com.mushinlab.launcher.core.model.SearchRecent
+import com.mushinlab.launcher.core.model.SpaceLimits
 import com.mushinlab.launcher.core.model.SpaceUsage
 import com.mushinlab.launcher.core.model.UsageDecay
 import kotlinx.collections.immutable.ImmutableList
@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 class HistoryRepository(
-    private val db: EnvDatabase,
+    private val db: MushinDatabase,
     scope: CoroutineScope,
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
@@ -38,7 +38,7 @@ class HistoryRepository(
 
     val recents: StateFlow<ImmutableMap<Long, ImmutableList<SearchRecent>>> = recentDao.observeAll()
         .map { list ->
-            list.groupBy { it.envId }
+            list.groupBy { it.spaceId }
                 .mapValues { (_, rows) ->
                     rows.sortedByDescending { it.lastLaunchedAt }.map { it.toModel() }.toImmutableList()
                 }
@@ -48,13 +48,13 @@ class HistoryRepository(
 
     val spaceUsage: StateFlow<ImmutableMap<Long, ImmutableList<SpaceUsage>>> = spaceDao.observeAll()
         .map { list ->
-            list.groupBy { it.envId }
+            list.groupBy { it.spaceId }
                 .mapValues { (_, rows) -> rows.map { it.toModel() }.toImmutableList() }
                 .toImmutableMap()
         }
         .stateIn(scope, SharingStarted.Eagerly, persistentMapOf())
 
-    suspend fun recordLaunch(key: AppKey, envId: Long?, fromSearch: Boolean) {
+    suspend fun recordLaunch(key: AppKey, spaceId: Long?, fromSearch: Boolean) {
         val now = clock()
         db.withTransaction {
             val usage = usageDao.get(key.packageName, key.activityName, key.userSerial)
@@ -72,11 +72,11 @@ class HistoryRepository(
                     },
                 ),
             )
-            if (envId != null) {
-                val space = spaceDao.get(envId, key.packageName, key.activityName, key.userSerial)
+            if (spaceId != null) {
+                val space = spaceDao.get(spaceId, key.packageName, key.activityName, key.userSerial)
                 spaceDao.upsert(
                     SpaceUsageEntity(
-                        envId = envId,
+                        spaceId = spaceId,
                         packageName = key.packageName,
                         activityName = key.activityName,
                         userSerial = key.userSerial,
@@ -91,11 +91,11 @@ class HistoryRepository(
                     ),
                 )
             }
-            if (fromSearch && envId != null) {
-                val recent = recentDao.get(envId, key.packageName, key.activityName, key.userSerial)
+            if (fromSearch && spaceId != null) {
+                val recent = recentDao.get(spaceId, key.packageName, key.activityName, key.userSerial)
                 recentDao.upsert(
                     SearchRecentEntity(
-                        envId = envId,
+                        spaceId = spaceId,
                         packageName = key.packageName,
                         activityName = key.activityName,
                         userSerial = key.userSerial,
@@ -103,13 +103,13 @@ class HistoryRepository(
                         launchCount = (recent?.launchCount ?: 0) + 1,
                     ),
                 )
-                recentDao.trim(envId, EnvLimits.RECENTS_PER_ENV)
+                recentDao.trim(spaceId, SpaceLimits.RECENTS_PER_SPACE)
             }
         }
     }
 
-    suspend fun clearRecents(envId: Long) {
-        recentDao.clear(envId)
+    suspend fun clearRecents(spaceId: Long) {
+        recentDao.clear(spaceId)
     }
 
     suspend fun clearAllRecents() {
@@ -123,7 +123,7 @@ class HistoryRepository(
         }
     }
 
-    suspend fun dismissSuggestion(envId: Long, key: AppKey) {
-        spaceDao.dismiss(envId, key.packageName, key.activityName, key.userSerial, clock())
+    suspend fun dismissSuggestion(spaceId: Long, key: AppKey) {
+        spaceDao.dismiss(spaceId, key.packageName, key.activityName, key.userSerial, clock())
     }
 }

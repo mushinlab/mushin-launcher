@@ -10,7 +10,7 @@ import androidx.room.PrimaryKey
     tableName = "environment",
     indices = [Index(value = ["name"], unique = true)],
 )
-data class EnvironmentEntity(
+data class SpaceEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "name", collate = ColumnInfo.NOCASE) val name: String,
     @ColumnInfo(name = "type") val type: String,
@@ -38,7 +38,7 @@ data class EnvironmentEntity(
     primaryKeys = ["env_id", "package_name", "activity_name", "user_serial"],
     foreignKeys = [
         ForeignKey(
-            entity = EnvironmentEntity::class,
+            entity = SpaceEntity::class,
             parentColumns = ["id"],
             childColumns = ["env_id"],
             onDelete = ForeignKey.CASCADE,
@@ -46,8 +46,8 @@ data class EnvironmentEntity(
     ],
     indices = [Index(value = ["env_id", "position"], name = "idx_env_item_order")],
 )
-data class EnvironmentItemEntity(
-    @ColumnInfo(name = "env_id") val envId: Long,
+data class SpaceItemEntity(
+    @ColumnInfo(name = "env_id") val spaceId: Long,
     @ColumnInfo(name = "package_name") val packageName: String,
     @ColumnInfo(name = "activity_name") val activityName: String,
     @ColumnInfo(name = "user_serial") val userSerial: Long,
@@ -74,7 +74,7 @@ data class AppOverrideEntity(
     primaryKeys = ["env_id", "package_name", "activity_name", "user_serial"],
     foreignKeys = [
         ForeignKey(
-            entity = EnvironmentEntity::class,
+            entity = SpaceEntity::class,
             parentColumns = ["id"],
             childColumns = ["env_id"],
             onDelete = ForeignKey.CASCADE,
@@ -83,7 +83,7 @@ data class AppOverrideEntity(
     indices = [Index(value = ["env_id", "last_launched_at"], name = "idx_recent_env_time")],
 )
 data class SearchRecentEntity(
-    @ColumnInfo(name = "env_id") val envId: Long,
+    @ColumnInfo(name = "env_id") val spaceId: Long,
     @ColumnInfo(name = "package_name") val packageName: String,
     @ColumnInfo(name = "activity_name") val activityName: String,
     @ColumnInfo(name = "user_serial") val userSerial: Long,
@@ -109,7 +109,7 @@ data class AppUsageEntity(
     primaryKeys = ["env_id", "package_name", "activity_name", "user_serial"],
     foreignKeys = [
         ForeignKey(
-            entity = EnvironmentEntity::class,
+            entity = SpaceEntity::class,
             parentColumns = ["id"],
             childColumns = ["env_id"],
             onDelete = ForeignKey.CASCADE,
@@ -117,7 +117,7 @@ data class AppUsageEntity(
     ],
 )
 data class SpaceUsageEntity(
-    @ColumnInfo(name = "env_id") val envId: Long,
+    @ColumnInfo(name = "env_id") val spaceId: Long,
     @ColumnInfo(name = "package_name") val packageName: String,
     @ColumnInfo(name = "activity_name") val activityName: String,
     @ColumnInfo(name = "user_serial") val userSerial: Long,

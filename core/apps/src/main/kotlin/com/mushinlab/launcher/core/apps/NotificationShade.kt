@@ -20,7 +20,7 @@ class ReflectionNotificationShade(private val context: Context) : NotificationSh
     }
 
     private companion object {
-        const val TAG = "EnvShade"
+        const val TAG = "NotificationShade"
         const val STATUS_BAR_SERVICE = "statusbar"
     }
 }

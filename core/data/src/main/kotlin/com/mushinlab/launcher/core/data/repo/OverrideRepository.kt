@@ -2,11 +2,11 @@ package com.mushinlab.launcher.core.data.repo
 
 import androidx.room.withTransaction
 import com.mushinlab.launcher.core.data.db.AppOverrideEntity
-import com.mushinlab.launcher.core.data.db.EnvDatabase
+import com.mushinlab.launcher.core.data.db.MushinDatabase
 import com.mushinlab.launcher.core.data.db.toModel
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.AppOverride
-import com.mushinlab.launcher.core.model.EnvLimits
+import com.mushinlab.launcher.core.model.SpaceLimits
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableMap
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 class OverrideRepository(
-    private val db: EnvDatabase,
+    private val db: MushinDatabase,
     scope: CoroutineScope,
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
@@ -29,7 +29,7 @@ class OverrideRepository(
 
     suspend fun rename(key: AppKey, label: String?): Boolean {
         val trimmed = label?.trim()?.takeIf { it.isNotEmpty() }
-        if (trimmed != null && trimmed.length > EnvLimits.LABEL_MAX_LENGTH) return false
+        if (trimmed != null && trimmed.length > SpaceLimits.LABEL_MAX_LENGTH) return false
         update(key) { it.copy(customLabel = trimmed) }
         return true
     }

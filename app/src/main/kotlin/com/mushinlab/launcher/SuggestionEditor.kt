@@ -7,14 +7,14 @@ import com.mushinlab.launcher.feature.home.HomeSuggestion
 import kotlinx.coroutines.launch
 
 class SuggestionEditor(private val container: AppContainer, private val items: (Long) -> List<AppKey>) {
-    fun accept(envId: Long, hint: HomeSuggestion, replace: Boolean) {
-        val current = items(envId)
+    fun accept(spaceId: Long, hint: HomeSuggestion, replace: Boolean) {
+        val current = items(spaceId)
         val next = if (replace) current.map { if (it == hint.replace) hint.add else it } else current + hint.add
-        container.scope.launch { container.environments.setItems(envId, next.distinct()) }
+        container.scope.launch { container.spaces.setItems(spaceId, next.distinct()) }
     }
 
-    fun dismiss(envId: Long, hint: HomeSuggestion) {
-        container.scope.launch { container.history.dismissSuggestion(envId, hint.add) }
+    fun dismiss(spaceId: Long, hint: HomeSuggestion) {
+        container.scope.launch { container.history.dismissSuggestion(spaceId, hint.add) }
     }
 }
 
@@ -25,13 +25,13 @@ internal fun suggestionFor(
     cap: Int,
     now: Long,
 ): HomeSuggestion? {
-    val env = d.current ?: return null
-    val home = d.items[env.id].orEmpty()
-    val elsewhere = d.items.filterKeys { it != env.id }.values.flatten().toSet()
+    val space = d.current ?: return null
+    val home = d.items[space.id].orEmpty()
+    val elsewhere = d.items.filterKeys { it != space.id }.values.flatten().toSet()
     val label = { key: AppKey -> d.overrides[key]?.customLabel ?: d.apps[key]?.label.orEmpty() }
     val hint = Usefulness.suggest(
         home = home,
-        usage = usage[env.id].orEmpty(),
+        usage = usage[space.id].orEmpty(),
         eligible = { key ->
             val override = d.overrides[key]
             key in d.apps && override?.hidden != true && override?.systemShortcut != true &&

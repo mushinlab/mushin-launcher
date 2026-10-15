@@ -5,16 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.mushinlab.launcher.core.apps.LaunchResult
 import com.mushinlab.launcher.core.apps.NotificationSource
 import com.mushinlab.launcher.core.apps.icons.IconKey
-import com.mushinlab.launcher.core.data.repo.EnvError
-import com.mushinlab.launcher.core.data.repo.EnvOutcome
-import com.mushinlab.launcher.core.data.repo.resolveCurrentEnvironment
+import com.mushinlab.launcher.core.data.repo.SpaceError
+import com.mushinlab.launcher.core.data.repo.SpaceOutcome
+import com.mushinlab.launcher.core.data.repo.resolveCurrentSpace
 import com.mushinlab.launcher.core.data.snapshot.HomeSnapshot
 import com.mushinlab.launcher.core.data.snapshot.SnapshotRow
 import com.mushinlab.launcher.core.model.AppEntry
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.AppOverride
-import com.mushinlab.launcher.core.model.EnvType
-import com.mushinlab.launcher.core.model.Environment
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.LauncherSettings
@@ -22,6 +20,8 @@ import com.mushinlab.launcher.core.model.Palette
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.Palettes
 import com.mushinlab.launcher.core.model.ProfileType
+import com.mushinlab.launcher.core.model.Space
+import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.swipesByApp
 import com.mushinlab.launcher.core.search.Alphabet
@@ -34,7 +34,7 @@ import com.mushinlab.launcher.core.search.SearchOptions
 import com.mushinlab.launcher.feature.home.HomeRow
 import com.mushinlab.launcher.feature.home.HomeSuggestion
 import com.mushinlab.launcher.feature.home.HomeUiState
-import com.mushinlab.launcher.feature.home.PopupEnv
+import com.mushinlab.launcher.feature.home.PopupSpace
 import com.mushinlab.launcher.feature.search.RecentRow
 import com.mushinlab.launcher.feature.settings.ERR_CUSTOM
 import com.mushinlab.launcher.feature.settings.ERR_EMPTY
@@ -42,11 +42,11 @@ import com.mushinlab.launcher.feature.settings.ERR_LONG
 import com.mushinlab.launcher.feature.settings.ERR_TAKEN
 import com.mushinlab.launcher.feature.settings.ERR_WORK
 import com.mushinlab.launcher.feature.settings.EditorItem
-import com.mushinlab.launcher.feature.settings.EnvSummary
 import com.mushinlab.launcher.feature.settings.GestureSummary
 import com.mushinlab.launcher.feature.settings.PickerApp
 import com.mushinlab.launcher.feature.settings.RenamedApp
 import com.mushinlab.launcher.feature.settings.SettingsUiState
+import com.mushinlab.launcher.feature.settings.SpaceSummary
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -71,8 +71,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 data class LauncherData(
-    val envs: List<Environment>,
-    val current: Environment?,
+    val spaces: List<Space>,
+    val current: Space?,
     val items: Map<Long, List<AppKey>>,
     val apps: Map<AppKey, AppEntry>,
     val overrides: Map<AppKey, AppOverride>,
@@ -95,19 +95,19 @@ class LauncherViewModel(
         }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val data: StateFlow<LauncherData?> = combine(
-        container.environments.environments,
-        container.environments.items,
+        container.spaces.spaces,
+        container.spaces.items,
         catalogMap,
         container.overrides.overrides,
         container.settings.loaded,
-    ) { envs, items, apps, overrides, settings ->
+    ) { spaces, items, apps, overrides, settings ->
         if (apps == null || settings == null) {
             null
         } else {
-            LauncherData(envs, resolveCurrentEnvironment(envs, settings.currentEnvId), items, apps, overrides, settings)
+            LauncherData(spaces, resolveCurrentSpace(spaces, settings.currentSpaceId), items, apps, overrides, settings)
         }
     }
-        .filter { it != null && it.envs.isNotEmpty() }
+        .filter { it != null && it.spaces.isNotEmpty() }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
@@ -150,8 +150,8 @@ class LauncherViewModel(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, snapshotState(initial, roleHeld.value))
 
-    val popupEnvs: StateFlow<ImmutableList<PopupEnv>> = data.map { d ->
-        d?.envs?.map { PopupEnv(it.id, it.name, it.id == d.current?.id) }?.toImmutableList() ?: persistentListOf()
+    val popupSpaces: StateFlow<ImmutableList<PopupSpace>> = data.map { d ->
+        d?.spaces?.map { PopupSpace(it.id, it.name, it.id == d.current?.id) }?.toImmutableList() ?: persistentListOf()
     }.stateIn(viewModelScope, SharingStarted.Eagerly, persistentListOf())
 
     val searchIndex: StateFlow<SearchIndex> = data
@@ -171,9 +171,9 @@ class LauncherViewModel(
     val settings: StateFlow<LauncherSettings> = container.settings.settings
 
     val recents: StateFlow<ImmutableList<RecentRow>> = combine(data, container.history.recents) { d, recents ->
-        val env = d?.current ?: return@combine persistentListOf()
-        val favorites = d.items[env.id].orEmpty().toSet()
-        recents[env.id].orEmpty()
+        val space = d?.current ?: return@combine persistentListOf()
+        val favorites = d.items[space.id].orEmpty().toSet()
+        recents[space.id].orEmpty()
             .asSequence()
             .filter { it.key !in favorites }
             .filter { d.overrides[it.key]?.hidden != true }
@@ -198,7 +198,7 @@ class LauncherViewModel(
         state.withMemory(
             samples,
             usage,
-        ).withUsefulness(spaces[state.currentEnvId].orEmpty(), System.currentTimeMillis())
+        ).withUsefulness(spaces[state.currentSpaceId].orEmpty(), System.currentTimeMillis())
     }
         .stateIn(viewModelScope, SharingStarted.Eagerly, SettingsUiState(versionName = versionName))
 
@@ -233,18 +233,18 @@ class LauncherViewModel(
         capacity.value = value
     }
 
-    fun currentEnvId(): Long? = data.value?.current?.id
+    fun currentSpaceId(): Long? = data.value?.current?.id
 
     fun entry(key: AppKey): AppEntry? = data.value?.apps?.get(key)
 
     fun override(key: AppKey): AppOverride? = data.value?.overrides?.get(key)
 
-    fun isInCurrentEnv(key: AppKey): Boolean {
+    fun isInCurrentSpace(key: AppKey): Boolean {
         val d = data.value ?: return false
         return d.current?.let { key in d.items[it.id].orEmpty() } == true
     }
 
-    val currentEnvName: String? get() = data.value?.current?.name
+    val currentSpaceName: String? get() = data.value?.current?.name
 
     fun launch(
         key: AppKey,
@@ -254,8 +254,8 @@ class LauncherViewModel(
     ): LaunchResult {
         val result = container.launcher.launch(key, animate = animate)
         if (result == LaunchResult.Started) {
-            val envId = currentEnvId()
-            container.scope.launch { container.history.recordLaunch(key, envId, fromSearch) }
+            val spaceId = currentSpaceId()
+            container.scope.launch { container.history.recordLaunch(key, spaceId, fromSearch) }
             if (gestures.isNotEmpty()) {
                 container.scope.launch { container.gestureLearning.update { GestureLearning.learn(it, gestures, key) } }
             }
@@ -263,8 +263,8 @@ class LauncherViewModel(
         return result
     }
 
-    fun switchEnv(id: Long) {
-        container.scope.launch { container.settings.update { it.copy(currentEnvId = id) } }
+    fun switchSpace(id: Long) {
+        container.scope.launch { container.settings.update { it.copy(currentSpaceId = id) } }
     }
 
     fun setActiveLayout(id: String) {
@@ -283,20 +283,20 @@ class LauncherViewModel(
         container.scope.launch { container.overrides.rename(key, label) }
     }
 
-    fun removeFromCurrentEnv(key: AppKey) {
-        val envId = currentEnvId() ?: return
-        removeEnvItem(envId, key)
+    fun removeFromCurrentSpace(key: AppKey) {
+        val spaceId = currentSpaceId() ?: return
+        removeSpaceItem(spaceId, key)
     }
 
-    fun addEnvItem(envId: Long, key: AppKey): Boolean {
+    fun addSpaceItem(spaceId: Long, key: AppKey): Boolean {
         val limit = itemLimit
-        if (data.value?.items?.get(envId).orEmpty().size >= limit) return false
-        container.scope.launch { container.environments.addItems(envId, listOf(key), limit) }
+        if (data.value?.items?.get(spaceId).orEmpty().size >= limit) return false
+        container.scope.launch { container.spaces.addItems(spaceId, listOf(key), limit) }
         return true
     }
 
-    fun removeEnvItem(envId: Long, key: AppKey) {
-        container.scope.launch { container.environments.removeItem(envId, key) }
+    fun removeSpaceItem(spaceId: Long, key: AppKey) {
+        container.scope.launch { container.spaces.removeItem(spaceId, key) }
     }
 
     private val itemLimit: Int get() = capacity.value.takeIf { it > 0 } ?: Int.MAX_VALUE
@@ -305,13 +305,13 @@ class LauncherViewModel(
         container.scope.launch { container.settings.update(transform) }
     }
 
-    suspend fun createEnv(name: String, type: EnvType): String? =
+    suspend fun createSpace(name: String, type: SpaceType): String? =
         when (
-            val result = container.environments.create(
+            val result = container.spaces.create(
                 name,
                 type,
                 if (type ==
-                    EnvType.WORK
+                    SpaceType.WORK
                 ) {
                     PalettePreset.NAVY
                 } else {
@@ -319,55 +319,55 @@ class LauncherViewModel(
                 },
             )
         ) {
-            is EnvOutcome.Ok -> null
-            is EnvOutcome.Failed -> errorCode(result.error)
+            is SpaceOutcome.Ok -> null
+            is SpaceOutcome.Failed -> errorCode(result.error)
         }
 
-    suspend fun renameEnv(id: Long, name: String): String? = when (
-        val result = container.environments.rename(
+    suspend fun renameSpace(id: Long, name: String): String? = when (
+        val result = container.spaces.rename(
             id,
             name,
         )
     ) {
-        is EnvOutcome.Ok -> null
-        is EnvOutcome.Failed -> errorCode(result.error)
+        is SpaceOutcome.Ok -> null
+        is SpaceOutcome.Failed -> errorCode(result.error)
     }
 
-    fun deleteEnv(id: Long) {
-        container.scope.launch { container.environments.delete(id) }
+    fun deleteSpace(id: Long) {
+        container.scope.launch { container.spaces.delete(id) }
     }
 
-    fun setEnvItems(id: Long, keys: List<AppKey>) {
-        container.scope.launch { container.environments.setItems(id, keys) }
+    fun setSpaceItems(id: Long, keys: List<AppKey>) {
+        container.scope.launch { container.spaces.setItems(id, keys) }
     }
 
     fun setGesture(direction: SwipeDirection, action: GestureAction) {
         container.scope.launch { container.gestures.set(direction, action) }
     }
 
-    fun clearHistory(envId: Long) {
-        container.scope.launch { container.history.clearRecents(envId) }
+    fun clearHistory(spaceId: Long) {
+        container.scope.launch { container.history.clearRecents(spaceId) }
     }
 
-    private fun errorCode(error: EnvError): String = when (error) {
-        EnvError.NameEmpty -> ERR_EMPTY
-        EnvError.NameTooLong -> ERR_LONG
-        EnvError.NameTaken -> ERR_TAKEN
-        EnvError.WorkLimitReached -> ERR_WORK
-        EnvError.CustomLimitReached -> ERR_CUSTOM
+    private fun errorCode(error: SpaceError): String = when (error) {
+        SpaceError.NameEmpty -> ERR_EMPTY
+        SpaceError.NameTooLong -> ERR_LONG
+        SpaceError.NameTaken -> ERR_TAKEN
+        SpaceError.WorkLimitReached -> ERR_WORK
+        SpaceError.CustomLimitReached -> ERR_CUSTOM
         else -> error.toString()
     }
 
     private suspend fun warmIcons() {
         val d = data.filterNotNull().first()
         if (d.settings.iconMode != IconMode.NONE) {
-            val env = d.current
-            val keys = env?.let { d.items[it.id] }.orEmpty()
+            val space = d.current
+            val keys = space?.let { d.items[it.id] }.orEmpty()
             withContext(Dispatchers.IO) {
                 keys.forEach { key ->
                     d.apps[key]?.let { entry ->
                         container.icons.load(
-                            IconKey(key, entry.lastUpdateTime, homeIconPx(), env?.coloredIcons == true),
+                            IconKey(key, entry.lastUpdateTime, homeIconPx(), space?.coloredIcons == true),
                         )
                     }
                 }
@@ -391,8 +391,8 @@ class LauncherViewModel(
         counts: Map<NotificationSource, Int>,
         swipes: Map<AppKey, List<SwipeDirection>>,
     ): HomeUiState {
-        val env = d.current
-        val rows = env?.let { d.items[it.id] }.orEmpty().mapNotNull { key ->
+        val space = d.current
+        val rows = space?.let { d.items[it.id] }.orEmpty().mapNotNull { key ->
             val entry = d.apps[key] ?: return@mapNotNull null
             HomeRow(
                 key = key,
@@ -433,11 +433,11 @@ class LauncherViewModel(
             .sortedWith(Alphabet.comparator { it.label })
         return SettingsUiState(
             settings = d.settings,
-            envs = d.envs.map {
-                EnvSummary(it.id, it.name, it.type, it.preset, it.id == d.current?.id, it.coloredIcons)
+            spaces = d.spaces.map {
+                SpaceSummary(it.id, it.name, it.type, it.preset, it.id == d.current?.id, it.coloredIcons)
             }.toImmutableList(),
-            envItems = d.envs.associate { env ->
-                env.id to d.items[env.id].orEmpty().map { key ->
+            spaceItems = d.spaces.associate { space ->
+                space.id to d.items[space.id].orEmpty().map { key ->
                     EditorItem(
                         key = key,
                         label = label(key) ?: key.packageName,
@@ -462,11 +462,11 @@ class LauncherViewModel(
     }
 
     private fun writeSnapshot(d: LauncherData, state: HomeUiState) {
-        val env = d.current ?: return
+        val space = d.current ?: return
         container.snapshots.write(
             HomeSnapshot(
-                envId = env.id,
-                palette = env.palette,
+                spaceId = space.id,
+                palette = space.palette,
                 iconMode = state.iconMode,
                 textSize = state.textSize,
                 clockFormat = state.clockFormat,

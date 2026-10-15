@@ -38,7 +38,7 @@ data class SearchMenu(
     val key: AppKey,
     val label: String,
     val anchor: Offset,
-    val inEnv: Boolean,
+    val inSpace: Boolean,
     val canUninstall: Boolean,
     val hidden: Boolean = false,
     val shortcut: Boolean = false,

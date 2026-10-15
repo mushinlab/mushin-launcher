@@ -3,11 +3,11 @@
     <string name="app_name">Mushin Launcher</string>
     <string name="notice_suspended">App is paused</string>
     <string name="notice_launch_failed">Couldn’t open the app</string>
-    <string name="notice_remove_from_env">Remove from space</string>
+    <string name="notice_remove_from_space">Remove from space</string>
     <string name="notice_shade_unavailable">Notification shade isn’t available on this Android version</string>
-    <string name="notice_added_to_env">Added to “%1$s”</string>
-    <string name="notice_removed_from_env">Removed from “%1$s”</string>
-    <string name="notice_env_full">“%1$s” is full</string>
+    <string name="notice_added_to_space">Added to “%1$s”</string>
+    <string name="notice_removed_from_space">Removed from “%1$s”</string>
+    <string name="notice_space_full">“%1$s” is full</string>
     <string name="rename_title">Rename “%1$s”</string>
     <string name="rename_save">Save</string>
     <string name="rename_reset">Reset</string>

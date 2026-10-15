@@ -39,28 +39,28 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mushinlab.launcher.core.model.EnvLimits
-import com.mushinlab.launcher.core.model.EnvType
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.Palettes
-import com.mushinlab.launcher.core.ui.EnvColors
-import com.mushinlab.launcher.core.ui.EnvType as Type
-import com.mushinlab.launcher.core.ui.LocalEnvColors
+import com.mushinlab.launcher.core.model.SpaceLimits
+import com.mushinlab.launcher.core.model.SpaceType
+import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.MushinColors
 import com.mushinlab.launcher.core.ui.SingleLineText
+import com.mushinlab.launcher.core.ui.SpaceType as Type
 import com.mushinlab.launcher.core.ui.pressable
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun envTypeLabel(type: EnvType): String = stringResource(
+internal fun spaceTypeLabel(type: SpaceType): String = stringResource(
     when (type) {
-        EnvType.NORMAL -> R.string.env_type_normal
-        EnvType.WORK -> R.string.env_type_work
-        EnvType.CUSTOM -> R.string.env_type_custom
+        SpaceType.NORMAL -> R.string.space_type_normal
+        SpaceType.WORK -> R.string.space_type_work
+        SpaceType.CUSTOM -> R.string.space_type_custom
     },
 )
 
 @Composable
-internal fun envErrorText(code: String?): String? = when (code) {
+internal fun spaceErrorText(code: String?): String? = when (code) {
     null -> null
     ERR_EMPTY -> stringResource(R.string.error_name_empty)
     ERR_LONG -> stringResource(R.string.error_name_long)
@@ -77,46 +77,46 @@ const val ERR_WORK = "work"
 const val ERR_CUSTOM = "custom"
 
 @Composable
-internal fun EnvironmentsScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
-    var createType by remember { mutableStateOf<EnvType?>(null) }
+internal fun SpacesScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+    var createType by remember { mutableStateOf<SpaceType?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
-    val hasWork = state.envs.any { it.type == EnvType.WORK }
-    val customCount = state.envs.count { it.type == EnvType.CUSTOM }
+    val hasWork = state.spaces.any { it.type == SpaceType.WORK }
+    val customCount = state.spaces.count { it.type == SpaceType.CUSTOM }
     Box {
-        SettingsPage(stringResource(R.string.settings_envs), back) {
-            state.envs.forEach { env ->
-                val suffix = if (env.current) " · ${stringResource(R.string.env_current)}" else ""
-                InfoRow(env.name, envTypeLabel(env.type) + suffix, tag = "env_${env.id}")
+        SettingsPage(stringResource(R.string.settings_spaces), back) {
+            state.spaces.forEach { space ->
+                val suffix = if (space.current) " · ${stringResource(R.string.space_current)}" else ""
+                InfoRow(space.name, spaceTypeLabel(space.type) + suffix, tag = "env_${space.id}")
             }
-            NoteText(stringResource(R.string.env_list_note))
+            NoteText(stringResource(R.string.space_list_note))
             CardGap()
             NavRow(
-                stringResource(R.string.env_create),
-                enabled = customCount < EnvLimits.MAX_CUSTOM,
+                stringResource(R.string.space_create),
+                enabled = customCount < SpaceLimits.MAX_CUSTOM,
                 tag = "env_create",
             ) {
                 error = null
-                createType = EnvType.CUSTOM
+                createType = SpaceType.CUSTOM
             }
             if (!hasWork) {
-                NavRow(stringResource(R.string.env_create_work), tag = "env_create_work") {
+                NavRow(stringResource(R.string.space_create_work), tag = "env_create_work") {
                     error = null
-                    createType = EnvType.WORK
+                    createType = SpaceType.WORK
                 }
             }
         }
         val type = createType
         if (type != null) {
             TextInputDialog(
-                title = stringResource(R.string.env_create_title),
-                initial = if (type == EnvType.WORK) stringResource(R.string.env_work_default_name) else "",
-                maxLength = EnvLimits.NAME_MAX_LENGTH + 8,
-                error = envErrorText(error),
+                title = stringResource(R.string.space_create_title),
+                initial = if (type == SpaceType.WORK) stringResource(R.string.space_work_default_name) else "",
+                maxLength = SpaceLimits.NAME_MAX_LENGTH + 8,
+                error = spaceErrorText(error),
                 confirm = stringResource(R.string.settings_save),
                 onConfirm = { name ->
                     scope.launch {
-                        val result = actions.createEnv(name, type)
+                        val result = actions.createSpace(name, type)
                         if (result == null) createType = null else error = result
                     }
                 },
@@ -127,15 +127,15 @@ internal fun EnvironmentsScreen(state: SettingsUiState, actions: SettingsActions
 }
 
 @Composable
-internal fun EnvEditorScreen(
-    envId: Long,
+internal fun SpaceEditorScreen(
+    spaceId: Long,
     state: SettingsUiState,
     actions: SettingsActions,
     push: (SettingsRoute) -> Unit,
     back: () -> Unit,
 ) {
-    val env = state.envs.firstOrNull { it.id == envId }
-    if (env == null) {
+    val space = state.spaces.firstOrNull { it.id == spaceId }
+    if (space == null) {
         back()
         return
     }
@@ -144,34 +144,38 @@ internal fun EnvEditorScreen(
     var deleting by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     Box {
-        SettingsPage(env.name, back) {
-            NavRow(stringResource(R.string.env_name), value = env.name, tag = "env_rename") {
+        SettingsPage(space.name, back) {
+            NavRow(stringResource(R.string.space_name), value = space.name, tag = "env_rename") {
                 renameError = null
                 renaming = true
             }
             CardGap()
-            PaletteDropdown(env.preset) { actions.setPalette(envId, it) }
-            ToggleRow(stringResource(R.string.env_colored_icons), env.coloredIcons, tag = "env_colored_icons") {
-                actions.setColoredIcons(envId, it)
+            PaletteDropdown(space.preset) { actions.setPalette(spaceId, it) }
+            ToggleRow(stringResource(R.string.space_colored_icons), space.coloredIcons, tag = "env_colored_icons") {
+                actions.setColoredIcons(spaceId, it)
             }
-            NoteText(stringResource(R.string.env_colored_icons_note))
-            SectionHeader(stringResource(R.string.env_items))
-            EnvItemsSection(envId, state, actions, push)
+            NoteText(stringResource(R.string.space_colored_icons_note))
+            SectionHeader(stringResource(R.string.space_items))
+            SpaceItemsSection(spaceId, state, actions, push)
             CardGap()
-            NavRow(stringResource(R.string.env_delete), enabled = env.type != EnvType.NORMAL, tag = "env_delete") {
+            NavRow(
+                stringResource(R.string.space_delete),
+                enabled = space.type != SpaceType.NORMAL,
+                tag = "env_delete",
+            ) {
                 deleting = true
             }
         }
         if (renaming) {
             TextInputDialog(
-                title = stringResource(R.string.env_rename_title),
-                initial = env.name,
-                maxLength = EnvLimits.NAME_MAX_LENGTH + 8,
-                error = envErrorText(renameError),
+                title = stringResource(R.string.space_rename_title),
+                initial = space.name,
+                maxLength = SpaceLimits.NAME_MAX_LENGTH + 8,
+                error = spaceErrorText(renameError),
                 confirm = stringResource(R.string.settings_save),
                 onConfirm = { name ->
                     scope.launch {
-                        val result = actions.renameEnv(envId, name)
+                        val result = actions.renameSpace(spaceId, name)
                         if (result == null) renaming = false else renameError = result
                     }
                 },
@@ -180,11 +184,11 @@ internal fun EnvEditorScreen(
         }
         if (deleting) {
             ConfirmDialog(
-                message = stringResource(R.string.env_delete_confirm, env.name),
+                message = stringResource(R.string.space_delete_confirm, space.name),
                 confirm = stringResource(R.string.settings_delete),
                 onConfirm = {
                     deleting = false
-                    actions.deleteEnv(envId)
+                    actions.deleteSpace(spaceId)
                     back()
                 },
                 onDismiss = { deleting = false },
@@ -194,22 +198,22 @@ internal fun EnvEditorScreen(
 }
 
 @Composable
-private fun EnvItemsSection(
-    envId: Long,
+private fun SpaceItemsSection(
+    spaceId: Long,
     state: SettingsUiState,
     actions: SettingsActions,
     push: (SettingsRoute) -> Unit,
 ) {
-    val items = state.envItems[envId].orEmpty()
+    val items = state.spaceItems[spaceId].orEmpty()
     if (items.size > state.capacity && state.capacity > 0) {
         NoteText(
-            stringResource(R.string.env_overflow, state.capacity, items.size),
-            LocalEnvColors.current.accent,
+            stringResource(R.string.space_overflow, state.capacity, items.size),
+            LocalMushinColors.current.accent,
         )
     }
-    if (items.isEmpty()) NoteText(stringResource(R.string.env_empty))
-    ReorderableItems(items, onChange = { keys -> actions.setEnvItems(envId, keys) })
-    NavRow(stringResource(R.string.env_add), tag = "env_add") { push(SettingsRoute.PickApps(envId)) }
+    if (items.isEmpty()) NoteText(stringResource(R.string.space_empty))
+    ReorderableItems(items, onChange = { keys -> actions.setSpaceItems(spaceId, keys) })
+    NavRow(stringResource(R.string.space_add), tag = "env_add") { push(SettingsRoute.PickApps(spaceId)) }
 }
 
 @Composable
@@ -228,17 +232,17 @@ internal fun PaletteDropdown(selected: PalettePreset, onSelect: (PalettePreset) 
         PalettePreset.ROSE to stringResource(R.string.palette_rose),
     )
     DropdownRow(
-        stringResource(R.string.env_palette),
+        stringResource(R.string.space_palette),
         Palettes.presets.keys.map { it to names[it].orEmpty() },
         selected,
         "palette",
-        leading = { preset -> Palettes.presets[preset]?.let { Swatch(EnvColors.from(it)) } },
+        leading = { preset -> Palettes.presets[preset]?.let { Swatch(MushinColors.from(it)) } },
         onSelect = onSelect,
     )
 }
 
 @Composable
-private fun Swatch(swatch: EnvColors) {
+private fun Swatch(swatch: MushinColors) {
     Row(Modifier.clip(RoundedCornerShape(CARD_RADIUS))) {
         listOf(swatch.background, swatch.zebraB, swatch.textPrimary, swatch.accent).forEach {
             Box(Modifier.size(SWATCH).background(it))
@@ -251,15 +255,15 @@ private fun ReorderableItems(
     items: List<EditorItem>,
     onChange: (List<com.mushinlab.launcher.core.model.AppKey>) -> Unit,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val density = LocalDensity.current
     val rowHeightPx = with(density) { (ROW_HEIGHT + CARD_GAP).toPx() }
     var order by remember(items) { mutableStateOf(items) }
     var dragKey by remember { mutableStateOf<com.mushinlab.launcher.core.model.AppKey?>(null) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
     val currentOrder by rememberUpdatedState(order)
-    val moveUp = stringResource(R.string.env_move_up)
-    val moveDown = stringResource(R.string.env_move_down)
+    val moveUp = stringResource(R.string.space_move_up)
+    val moveDown = stringResource(R.string.space_move_down)
     fun move(from: Int, to: Int): List<EditorItem> {
         val list = currentOrder.toMutableList()
         val item = list.removeAt(from)
@@ -308,8 +312,8 @@ private fun ReorderableItems(
                     contentAlignment = Alignment.Center,
                 ) { BasicText("−", style = Type.style(22.sp, colors.textPrimary)) }
                 val note = when {
-                    item.missing -> " · ${stringResource(R.string.env_item_missing)}"
-                    item.hidden -> " · ${stringResource(R.string.env_item_hidden)}"
+                    item.missing -> " · ${stringResource(R.string.space_item_missing)}"
+                    item.hidden -> " · ${stringResource(R.string.space_item_hidden)}"
                     else -> ""
                 }
                 SingleLineText(item.label + note, Type.style(17.sp, colors.textPrimary), Modifier.weight(1f))

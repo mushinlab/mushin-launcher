@@ -9,7 +9,7 @@
     <string name="settings_on">Вкл</string>
     <string name="settings_off">Выкл</string>
 
-    <string name="settings_envs">Спейсы</string>
+    <string name="settings_spaces">Спейсы</string>
     <string name="settings_home">Главный экран</string>
     <string name="settings_keyboard">Клавиатура</string>
     <string name="settings_gestures">Жесты</string>
@@ -17,28 +17,28 @@
     <string name="settings_apps">Скрытые и переименованные</string>
     <string name="settings_system">Система</string>
 
-    <string name="env_create">+ Создать спейс</string>
-    <string name="env_create_title">Новый спейс</string>
-    <string name="env_work_default_name">Работа</string>
-    <string name="env_create_work">+ Создать «Работа»</string>
-    <string name="env_type_normal">обычный</string>
-    <string name="env_type_work">работа</string>
-    <string name="env_type_custom">свой</string>
-    <string name="env_current">текущий</string>
-    <string name="env_name">Название</string>
-    <string name="env_rename_title">Название спейса</string>
-    <string name="env_palette">Палитра</string>
-    <string name="env_items">Приложения</string>
-    <string name="env_add">+ Добавить</string>
-    <string name="env_overflow">Помещается %1$d из %2$d — лишние не видны на главном экране</string>
-    <string name="env_delete">Удалить спейс</string>
-    <string name="env_delete_confirm">Удалить спейс «%1$s»? Приложения и история спейса будут удалены</string>
-    <string name="env_item_hidden">скрыто</string>
-    <string name="env_item_missing">удалено</string>
-    <string name="env_move_up">Вверх</string>
-    <string name="env_move_down">Вниз</string>
-    <string name="env_remove_item">Убрать</string>
-    <string name="env_empty">Пока пусто. Нажмите «Добавить».</string>
+    <string name="space_create">+ Создать спейс</string>
+    <string name="space_create_title">Новый спейс</string>
+    <string name="space_work_default_name">Работа</string>
+    <string name="space_create_work">+ Создать «Работа»</string>
+    <string name="space_type_normal">обычный</string>
+    <string name="space_type_work">работа</string>
+    <string name="space_type_custom">свой</string>
+    <string name="space_current">текущий</string>
+    <string name="space_name">Название</string>
+    <string name="space_rename_title">Название спейса</string>
+    <string name="space_palette">Палитра</string>
+    <string name="space_items">Приложения</string>
+    <string name="space_add">+ Добавить</string>
+    <string name="space_overflow">Помещается %1$d из %2$d — лишние не видны на главном экране</string>
+    <string name="space_delete">Удалить спейс</string>
+    <string name="space_delete_confirm">Удалить спейс «%1$s»? Приложения и история спейса будут удалены</string>
+    <string name="space_item_hidden">скрыто</string>
+    <string name="space_item_missing">удалено</string>
+    <string name="space_move_up">Вверх</string>
+    <string name="space_move_down">Вниз</string>
+    <string name="space_remove_item">Убрать</string>
+    <string name="space_empty">Пока пусто. Нажмите «Добавить».</string>
 
     <string name="error_name_empty">Введите название</string>
     <string name="error_name_long">Не больше 24 символов</string>
@@ -47,8 +47,8 @@
     <string name="error_custom_limit">Не больше 20 своих спейсов</string>
     <string name="error_generic">Не получилось</string>
 
-    <string name="env_colored_icons">Цветные иконки</string>
-    <string name="env_colored_icons_note">Иконки в цветах приложений вместо монохромных, пока активен этот спейс: на главном экране, в поиске и в вариантах рисунка. Работает, когда иконки включены в «Главный экран».</string>
+    <string name="space_colored_icons">Цветные иконки</string>
+    <string name="space_colored_icons_note">Иконки в цветах приложений вместо монохромных, пока активен этот спейс: на главном экране, в поиске и в вариантах рисунка. Работает, когда иконки включены в «Главный экран».</string>
     <string name="palette_graphite">Graphite</string>
     <string name="palette_navy">Navy</string>
     <string name="palette_paper">Paper</string>
@@ -153,7 +153,7 @@
     </plurals>
     <string name="settings_style">Стиль</string>
     <string name="settings_advanced">Дополнительно</string>
-    <string name="summary_envs">Создание, названия, темы и приложения спейсов</string>
+    <string name="summary_spaces">Создание, названия, темы и приложения спейсов</string>
     <string name="summary_style">Шрифт, насыщенность, размер текста</string>
     <string name="summary_home">Иконки, часы и дата, счётчик уведомлений</string>
     <string name="summary_keyboard">Раскладки, вибрация, подсказки цифр</string>
@@ -174,7 +174,7 @@
     <string name="memory_usefulness_note">Оценка от 1 до 100: как часто и как недавно вы открывали приложение в этом спейсе. Если приложение не на главном экране оценено заметно выше, чем одно из приложений на нём, внизу справа появится «?» с предложением.</string>
     <string name="home_clock_note">Тап по часам открывает приложение «Часы». Удерживайте часы, чтобы передвинуть их влево, в центр или вправо.</string>
     <string name="settings_back">Назад</string>
-    <string name="env_list_note">Чтобы изменить спейс, сделайте его текущим (ряд сверху в настройках) и нажмите ✎ на главном экране.</string>
+    <string name="space_list_note">Чтобы изменить спейс, сделайте его текущим (ряд сверху в настройках) и нажмите ✎ на главном экране.</string>
     <string name="style_theme">Тема спейса «%1$s»</string>
     <string name="style_text">Текст</string>
     <string name="keyboard_fit_note">Ширину и положение клавиатуры меняет кнопка слева от пробела: потяните боковые якоря, чтобы изменить ширину, нижний — чтобы сдвинуть. Меняется вся панель ввода.</string>

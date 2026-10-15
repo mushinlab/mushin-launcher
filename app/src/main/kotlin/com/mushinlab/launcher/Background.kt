@@ -13,7 +13,7 @@ internal fun MainActivity.pickBackground() {
 }
 
 internal fun MainActivity.setBackground(uri: Uri) {
-    val container = (application as EnvApp).container
+    val container = (application as MushinApp).container
     val source = ImageDecoder.createSource(contentResolver, uri)
     container.scope.launch(Dispatchers.IO) {
         if (!container.background.save(source)) {

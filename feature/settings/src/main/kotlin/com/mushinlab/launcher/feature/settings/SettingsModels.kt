@@ -4,11 +4,11 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateListOf
 import com.mushinlab.launcher.core.model.AppKey
-import com.mushinlab.launcher.core.model.EnvType
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.ShapeVertex
+import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.search.GestureSample
 import kotlinx.collections.immutable.ImmutableList
@@ -19,11 +19,11 @@ import kotlinx.collections.immutable.persistentMapOf
 sealed interface SettingsRoute {
     data object Root : SettingsRoute
 
-    data object Environments : SettingsRoute
+    data object Spaces : SettingsRoute
 
-    data class EnvEditor(val envId: Long) : SettingsRoute
+    data class SpaceEditor(val spaceId: Long) : SettingsRoute
 
-    data class PickApps(val envId: Long) : SettingsRoute
+    data class PickApps(val spaceId: Long) : SettingsRoute
 
     data class PickGestureApp(val direction: SwipeDirection) : SettingsRoute
 
@@ -86,10 +86,10 @@ class SettingsStack {
 }
 
 @Immutable
-data class EnvSummary(
+data class SpaceSummary(
     val id: Long,
     val name: String,
-    val type: EnvType,
+    val type: SpaceType,
     val preset: PalettePreset,
     val current: Boolean,
     val coloredIcons: Boolean = false,
@@ -143,8 +143,8 @@ data class ScoreRow(val key: AppKey, val label: String, val score: Int)
 @Immutable
 data class SettingsUiState(
     val settings: LauncherSettings = LauncherSettings(),
-    val envs: ImmutableList<EnvSummary> = persistentListOf(),
-    val envItems: ImmutableMap<Long, ImmutableList<EditorItem>> = persistentMapOf(),
+    val spaces: ImmutableList<SpaceSummary> = persistentListOf(),
+    val spaceItems: ImmutableMap<Long, ImmutableList<EditorItem>> = persistentMapOf(),
     val apps: ImmutableList<PickerApp> = persistentListOf(),
     val renamed: ImmutableList<RenamedApp> = persistentListOf(),
     val gestures: ImmutableMap<SwipeDirection, GestureSummary> = persistentMapOf(),
@@ -157,27 +157,27 @@ data class SettingsUiState(
     val usefulness: ImmutableList<ScoreRow> = persistentListOf(),
     val hasBackground: Boolean = false,
 ) {
-    val currentEnvId: Long? get() = envs.firstOrNull { it.current }?.id
+    val currentSpaceId: Long? get() = spaces.firstOrNull { it.current }?.id
 }
 
 interface SettingsActions : MemoryActions {
     fun updateSettings(transform: (LauncherSettings) -> LauncherSettings)
 
-    suspend fun createEnv(name: String, type: EnvType): String?
+    suspend fun createSpace(name: String, type: SpaceType): String?
 
-    suspend fun renameEnv(id: Long, name: String): String?
+    suspend fun renameSpace(id: Long, name: String): String?
 
-    fun deleteEnv(id: Long)
+    fun deleteSpace(id: Long)
 
     fun setPalette(id: Long, preset: PalettePreset)
 
     fun setColoredIcons(id: Long, enabled: Boolean)
 
-    fun setEnvItems(id: Long, keys: List<AppKey>)
+    fun setSpaceItems(id: Long, keys: List<AppKey>)
 
-    fun addEnvItem(id: Long, key: AppKey)
+    fun addSpaceItem(id: Long, key: AppKey)
 
-    fun removeEnvItem(id: Long, key: AppKey)
+    fun removeSpaceItem(id: Long, key: AppKey)
 
     fun setGesture(direction: SwipeDirection, action: GestureAction)
 
@@ -185,7 +185,7 @@ interface SettingsActions : MemoryActions {
 
     fun rename(key: AppKey, label: String?)
 
-    fun switchEnv(id: Long)
+    fun switchSpace(id: Long)
 
     fun requestDefaultLauncher()
 

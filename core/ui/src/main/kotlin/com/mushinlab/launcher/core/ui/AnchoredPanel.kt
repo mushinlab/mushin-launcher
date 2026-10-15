@@ -61,7 +61,7 @@ fun AnchoredPanel(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val density = LocalDensity.current
     val direction = LocalLayoutDirection.current
     val insets = WindowInsets.statusBars.union(WindowInsets.navigationBars).union(WindowInsets.displayCutout)
@@ -115,9 +115,9 @@ fun AnchoredPanel(
 
 @Composable
 fun PanelHeader(text: String) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Box(Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 16.dp), contentAlignment = Alignment.CenterStart) {
-        SingleLineText(text, EnvType.style(EnvType.popupHeaderSize, colors.textSecondary))
+        SingleLineText(text, SpaceType.style(SpaceType.popupHeaderSize, colors.textSecondary))
     }
 }
 
@@ -130,7 +130,7 @@ fun PanelItem(
     onHold: (() -> Unit)? = null,
     onClick: () -> Unit,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val view = LocalView.current
     val currentOnHold by rememberUpdatedState(onHold)
     Box(
@@ -173,7 +173,11 @@ fun PanelItem(
             }
             SingleLineText(
                 text,
-                EnvType.style(EnvType.popupSize, colors.textPrimary, if (bold) FontWeight.Bold else FontWeight.Normal),
+                SpaceType.style(
+                    SpaceType.popupSize,
+                    colors.textPrimary,
+                    if (bold) FontWeight.Bold else FontWeight.Normal,
+                ),
             )
         }
     }

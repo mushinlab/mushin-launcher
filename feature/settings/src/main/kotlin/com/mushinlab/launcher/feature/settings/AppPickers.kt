@@ -29,25 +29,25 @@ import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.search.SearchEngine
 import com.mushinlab.launcher.core.search.SearchIndex
 import com.mushinlab.launcher.core.search.SearchItem
-import com.mushinlab.launcher.core.ui.EnvType
-import com.mushinlab.launcher.core.ui.LocalEnvColors
+import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.SingleLineText
+import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.pressable
 
 @Composable
 private fun FilterField(value: String, onChange: (String) -> Unit) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     BasicTextField(
         value = value,
         onValueChange = onChange,
         singleLine = true,
-        textStyle = EnvType.style(18.sp, colors.textPrimary),
+        textStyle = SpaceType.style(18.sp, colors.textPrimary),
         cursorBrush = SolidColor(colors.accent),
         decorationBox = { inner ->
             if (value.isEmpty()) {
                 androidx.compose.foundation.text.BasicText(
                     stringResource(R.string.picker_filter),
-                    style = EnvType.style(18.sp, colors.textSecondary),
+                    style = SpaceType.style(18.sp, colors.textSecondary),
                 )
             }
             inner()
@@ -69,9 +69,9 @@ private fun filterApps(apps: List<PickerApp>, query: String): List<PickerApp> {
 }
 
 @Composable
-internal fun EnvAppPicker(envId: Long, state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
-    val existing = state.envItems[envId].orEmpty().map { it.key }.toSet()
-    var pending by remember(envId) { mutableStateOf(emptyMap<AppKey, Boolean>()) }
+internal fun SpaceAppPicker(spaceId: Long, state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+    val existing = state.spaceItems[spaceId].orEmpty().map { it.key }.toSet()
+    var pending by remember(spaceId) { mutableStateOf(emptyMap<AppKey, Boolean>()) }
     LaunchedEffect(existing) { pending = pending.filter { (key, added) -> (key in existing) != added } }
     val selected = existing.filter { pending[it] != false }.toSet() + pending.filterValues { it }.keys
     var query by remember { mutableStateOf("") }
@@ -83,7 +83,7 @@ internal fun EnvAppPicker(envId: Long, state: SettingsUiState, actions: Settings
         if (limit != Int.MAX_VALUE) {
             NoteText(
                 stringResource(if (full) R.string.picker_full else R.string.picker_selected, selected.size, limit),
-                if (full) LocalEnvColors.current.accent else LocalEnvColors.current.textSecondary,
+                if (full) LocalMushinColors.current.accent else LocalMushinColors.current.textSecondary,
             )
         }
         CardGap()
@@ -92,7 +92,7 @@ internal fun EnvAppPicker(envId: Long, state: SettingsUiState, actions: Settings
                 val checked = app.key in selected
                 PickerRow(app.label, checked, enabled = checked || !full, tag = "pick_${app.label}") {
                     pending = pending + (app.key to !checked)
-                    if (checked) actions.removeEnvItem(envId, app.key) else actions.addEnvItem(envId, app.key)
+                    if (checked) actions.removeSpaceItem(spaceId, app.key) else actions.addSpaceItem(spaceId, app.key)
                 }
             }
         }
@@ -101,7 +101,7 @@ internal fun EnvAppPicker(envId: Long, state: SettingsUiState, actions: Settings
 
 @Composable
 private fun PickerRow(label: String, selected: Boolean, enabled: Boolean, tag: String, onClick: () -> Unit) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Box(
         Modifier
             .settingsCard()
@@ -113,7 +113,7 @@ private fun PickerRow(label: String, selected: Boolean, enabled: Boolean, tag: S
             .padding(horizontal = CARD_PADDING, vertical = 8.dp),
         contentAlignment = Alignment.CenterStart,
     ) {
-        SingleLineText(label, EnvType.style(17.sp, colors.textPrimary))
+        SingleLineText(label, SpaceType.style(17.sp, colors.textPrimary))
     }
 }
 

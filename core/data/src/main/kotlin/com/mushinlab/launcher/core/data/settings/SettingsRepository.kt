@@ -60,7 +60,7 @@ class SettingsRepository(
                 produceFile = file,
             )
 
-        internal val CURRENT_ENV_ID = longPreferencesKey("current_env_id")
+        internal val CURRENT_SPACE_ID = longPreferencesKey("current_env_id")
         internal val ICON_MODE = stringPreferencesKey("icon_mode")
         internal val CLOCK_FORMAT = stringPreferencesKey("clock_format")
         internal val SHOW_DATE = booleanPreferencesKey("show_date")
@@ -92,7 +92,7 @@ class SettingsRepository(
         internal fun decode(prefs: Preferences): LauncherSettings {
             val defaults = LauncherSettings()
             return LauncherSettings(
-                currentEnvId = prefs[CURRENT_ENV_ID],
+                currentSpaceId = prefs[CURRENT_SPACE_ID],
                 iconMode = enumOr(prefs[ICON_MODE], defaults.iconMode),
                 clockFormat = enumOr(prefs[CLOCK_FORMAT], defaults.clockFormat),
                 showDate = prefs[SHOW_DATE] ?: defaults.showDate,
@@ -135,8 +135,8 @@ class SettingsRepository(
         }
 
         private fun encode(settings: LauncherSettings, prefs: MutablePreferences) {
-            val envId = settings.currentEnvId
-            if (envId == null) prefs.remove(CURRENT_ENV_ID) else prefs[CURRENT_ENV_ID] = envId
+            val spaceId = settings.currentSpaceId
+            if (spaceId == null) prefs.remove(CURRENT_SPACE_ID) else prefs[CURRENT_SPACE_ID] = spaceId
             prefs[ICON_MODE] = settings.iconMode.name
             prefs[CLOCK_FORMAT] = settings.clockFormat.name
             prefs[SHOW_DATE] = settings.showDate

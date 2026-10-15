@@ -13,12 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
-import com.mushinlab.launcher.core.ui.EnvType
-import com.mushinlab.launcher.core.ui.LocalEnvColors
+import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.SpaceType
 
 @Composable
 fun CountBadge(count: Int, diameter: Dp, modifier: Modifier = Modifier) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val textSize = with(LocalDensity.current) { (diameter * TEXT_TO_DIAMETER).toSp() }
     Box(
         modifier
@@ -30,7 +30,7 @@ fun CountBadge(count: Int, diameter: Dp, modifier: Modifier = Modifier) {
     ) {
         BasicText(
             if (count > MAX_BADGE) "$MAX_BADGE+" else count.toString(),
-            style = EnvType.style(textSize, colors.background, FontWeight.Medium),
+            style = SpaceType.style(textSize, colors.background, FontWeight.Medium),
         )
     }
 }

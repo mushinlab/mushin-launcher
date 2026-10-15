@@ -2,7 +2,7 @@ package com.mushinlab.launcher
 
 import android.app.Application
 
-class EnvApp : Application() {
+class MushinApp : Application() {
     lateinit var container: AppContainer
         private set
 

@@ -18,7 +18,7 @@ data class SnapshotRow(
 )
 
 data class HomeSnapshot(
-    val envId: Long,
+    val spaceId: Long,
     val palette: Palette,
     val iconMode: IconMode,
     val textSize: HomeTextSize,
@@ -37,7 +37,7 @@ class HomeSnapshotStore(directory: File) {
         if (!file.exists()) return null
         DataInputStream(file.inputStream().buffered()).use { input ->
             if (input.readInt() != VERSION) return null
-            val envId = input.readLong()
+            val spaceId = input.readLong()
             val palette = Palette(
                 background = input.readInt(),
                 zebraA = input.readInt(),
@@ -66,7 +66,7 @@ class HomeSnapshotStore(directory: File) {
                     work = input.readBoolean(),
                 )
             }
-            HomeSnapshot(envId, palette, iconMode, textSize, clockFormat, showDate, rows, clockPosition, listOffset)
+            HomeSnapshot(spaceId, palette, iconMode, textSize, clockFormat, showDate, rows, clockPosition, listOffset)
         }
     }.getOrNull()
 
@@ -74,7 +74,7 @@ class HomeSnapshotStore(directory: File) {
         runCatching {
             DataOutputStream(temp.outputStream().buffered()).use { out ->
                 out.writeInt(VERSION)
-                out.writeLong(snapshot.envId)
+                out.writeLong(snapshot.spaceId)
                 with(snapshot.palette) {
                     listOf(
                         background, zebraA, zebraB, textPrimary, textSecondary, accent,

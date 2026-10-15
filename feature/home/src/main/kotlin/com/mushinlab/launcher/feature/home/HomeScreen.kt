@@ -65,12 +65,12 @@ import com.mushinlab.launcher.core.model.HomeListOffset
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.ui.AppIcon
-import com.mushinlab.launcher.core.ui.EnvType
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
-import com.mushinlab.launcher.core.ui.LocalEnvColors
+import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.SingleLineText
+import com.mushinlab.launcher.core.ui.SpaceType
 import com.mushinlab.launcher.core.ui.SwipeMarks
 import com.mushinlab.launcher.core.ui.pressable
 import com.mushinlab.launcher.feature.home.gesture.GestureArbiter
@@ -129,7 +129,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     background: ImageBitmap? = null,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val registry = remember { RowRegistry() }
     val currentState by rememberUpdatedState(state)
     val currentActions by rememberUpdatedState(actions)
@@ -301,7 +301,7 @@ fun HomeScreen(
 
 @Composable
 private fun HomeBar(suggestion: HomeSuggestion?, registry: RowRegistry, actions: HomeActions) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val tint = colors.textSecondary.copy(alpha = BAR_ALPHA)
     Row(
         Modifier.fillMaxWidth().height(HomeDimens.barHeight).padding(end = 8.dp),
@@ -358,7 +358,7 @@ private fun rememberStartZone(): State<StartZone> {
 
 @Composable
 private fun RoleCard(registry: RowRegistry, onClick: () -> Unit) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Box(
         Modifier
             .fillMaxWidth()
@@ -371,7 +371,7 @@ private fun RoleCard(registry: RowRegistry, onClick: () -> Unit) {
     ) {
         SingleLineText(
             text = stringResourceRoleCard(),
-            style = EnvType.style(EnvType.secondarySize, colors.background),
+            style = SpaceType.style(SpaceType.secondarySize, colors.background),
             modifier = Modifier.padding(horizontal = HomeDimens.rowPadding),
         )
     }
@@ -389,8 +389,8 @@ private fun FavoritesList(
     modifier: Modifier,
     onCapacity: (Int) -> Unit,
 ) {
-    val colors = LocalEnvColors.current
-    val textStyle = EnvType.style(state.textSize.sp.sp, colors.textPrimary)
+    val colors = LocalMushinColors.current
+    val textStyle = SpaceType.style(state.textSize.sp.sp, colors.textPrimary)
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
     val rowHeight = remember(textStyle, density) {
@@ -404,8 +404,8 @@ private fun FavoritesList(
         LaunchedEffect(visible.size) { registry.retainBelow(visible.size) }
         if (state.rows.isEmpty()) {
             BasicText(
-                text = androidx.compose.ui.res.stringResource(R.string.home_empty_env),
-                style = EnvType.style(EnvType.secondarySize, colors.textSecondary),
+                text = androidx.compose.ui.res.stringResource(R.string.home_empty_space),
+                style = SpaceType.style(SpaceType.secondarySize, colors.textSecondary),
                 modifier = Modifier.padding(horizontal = HomeDimens.rowPadding).testTag("empty_env"),
             )
         } else {
@@ -428,7 +428,7 @@ private fun FavoriteRow(
     registry: RowRegistry,
     background: Color,
 ) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Row(
         Modifier
             .fillMaxWidth()

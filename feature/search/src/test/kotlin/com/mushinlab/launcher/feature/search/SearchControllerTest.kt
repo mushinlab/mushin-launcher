@@ -85,7 +85,7 @@ class SearchControllerTest {
         assertThat(controller.query).isEqualTo("slack")
         assertThat(controller.target()?.label).isEqualTo("Slack")
         controller.openMenu(
-            SearchMenu(controller.rows.first().key, "Slack", Offset.Zero, inEnv = false, canUninstall = true),
+            SearchMenu(controller.rows.first().key, "Slack", Offset.Zero, inSpace = false, canUninstall = true),
         )
         assertThat(controller.menu).isNotNull()
         controller.reset()

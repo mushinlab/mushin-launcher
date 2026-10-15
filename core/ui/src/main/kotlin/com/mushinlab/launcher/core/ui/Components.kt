@@ -31,12 +31,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun HorizontalDivider(modifier: Modifier = Modifier, color: Color = LocalEnvColors.current.divider) {
+fun HorizontalDivider(modifier: Modifier = Modifier, color: Color = LocalMushinColors.current.divider) {
     Box(modifier.fillMaxWidth().height(1.dp).background(color))
 }
 
 @Composable
-fun VerticalDivider(modifier: Modifier = Modifier, color: Color = LocalEnvColors.current.divider) {
+fun VerticalDivider(modifier: Modifier = Modifier, color: Color = LocalMushinColors.current.divider) {
     Box(modifier.width(1.dp).background(color))
 }
 
@@ -57,13 +57,13 @@ val LocalPressFeedback = staticCompositionLocalOf { PressFeedback.FLASH }
 @Composable
 fun Modifier.pressable(
     enabled: Boolean = true,
-    pressedColor: Color = LocalEnvColors.current.keyPressed,
+    pressedColor: Color = LocalMushinColors.current.keyPressed,
     role: Role = Role.Button,
     onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit,
 ): Modifier {
     val style = LocalPressFeedback.current
-    val accent = LocalEnvColors.current.accent
+    val accent = LocalMushinColors.current.accent
     val source = remember { MutableInteractionSource() }
     val pressed by source.collectIsPressedAsState()
     val level = remember { Animatable(0f) }

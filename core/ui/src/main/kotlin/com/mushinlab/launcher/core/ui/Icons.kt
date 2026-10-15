@@ -54,7 +54,7 @@ fun AppIcon(key: AppKey, label: String, size: Dp, modifier: Modifier = Modifier)
     if (image == null && provider != null) {
         LaunchedEffect(provider, key, sizePx) { image = provider.load(key, sizePx) }
     }
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     Box(modifier.size(size), contentAlignment = Alignment.Center) {
         when (val current = image) {
             is AppIconImage.Mask -> Image(
@@ -76,7 +76,7 @@ fun AppIcon(key: AppKey, label: String, size: Dp, modifier: Modifier = Modifier)
             ) {
                 BasicText(
                     text = label.firstOrNull { it.isLetterOrDigit() }?.uppercase() ?: "•",
-                    style = EnvType.style((size.value * LETTER_RATIO).sp, colors.iconTint),
+                    style = SpaceType.style((size.value * LETTER_RATIO).sp, colors.iconTint),
                 )
             }
 

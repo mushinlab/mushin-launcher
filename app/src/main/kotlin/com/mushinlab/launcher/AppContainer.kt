@@ -15,13 +15,13 @@ import com.mushinlab.launcher.core.apps.ReflectionNotificationShade
 import com.mushinlab.launcher.core.apps.icons.IconLoader
 import com.mushinlab.launcher.core.apps.icons.LauncherIconSource
 import com.mushinlab.launcher.core.data.background.BackgroundStore
-import com.mushinlab.launcher.core.data.db.EnvDatabase
-import com.mushinlab.launcher.core.data.repo.EnvironmentRepository
+import com.mushinlab.launcher.core.data.db.MushinDatabase
 import com.mushinlab.launcher.core.data.repo.GestureLearningRepository
 import com.mushinlab.launcher.core.data.repo.GestureRepository
 import com.mushinlab.launcher.core.data.repo.HistoryRepository
 import com.mushinlab.launcher.core.data.repo.OverrideRepository
 import com.mushinlab.launcher.core.data.repo.PackageDataCleaner
+import com.mushinlab.launcher.core.data.repo.SpaceRepository
 import com.mushinlab.launcher.core.data.settings.SettingsRepository
 import com.mushinlab.launcher.core.data.snapshot.HomeSnapshotStore
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -43,8 +43,8 @@ class AppContainer(private val app: Application) {
             CoroutineExceptionHandler { _, e -> Log.w(TAG, "Background task failed", e) },
     )
 
-    val database by lazy { EnvDatabase.build(app) }
-    val environments by lazy { EnvironmentRepository(database, scope) }
+    val database by lazy { MushinDatabase.build(app) }
+    val spaces by lazy { SpaceRepository(database, scope) }
     val overrides by lazy { OverrideRepository(database, scope) }
     val history by lazy { HistoryRepository(database, scope) }
     val gestures by lazy { GestureRepository(database, scope) }
@@ -101,6 +101,6 @@ class AppContainer(private val app: Application) {
     }
 
     private companion object {
-        const val TAG = "EnvContainer"
+        const val TAG = "AppContainer"
     }
 }

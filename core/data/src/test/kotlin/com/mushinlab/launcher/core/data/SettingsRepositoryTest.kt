@@ -36,7 +36,7 @@ class SettingsRepositoryTest {
             SettingsRepository(PreferenceDataStoreFactory.create(scope = backgroundScope) { file }, backgroundScope)
         val settings = repo.settings.first()
         assertThat(settings).isEqualTo(LauncherSettings())
-        assertThat(settings.currentEnvId).isNull()
+        assertThat(settings.currentSpaceId).isNull()
         assertThat(settings.iconMode).isEqualTo(IconMode.NONE)
         assertThat(settings.clockFormat).isEqualTo(ClockFormat.SYSTEM)
         assertThat(settings.showDate).isTrue()
@@ -70,7 +70,7 @@ class SettingsRepositoryTest {
             SettingsRepository(PreferenceDataStoreFactory.create(scope = backgroundScope) { file }, backgroundScope)
         repo.update {
             it.copy(
-                currentEnvId = 7,
+                currentSpaceId = 7,
                 iconMode = IconMode.RIGHT,
                 keyboardLayouts = listOf("ru", "en"),
                 keyboardWidth = 0.1f,
@@ -87,7 +87,7 @@ class SettingsRepositoryTest {
                 backgroundOpacity = 1.7f,
             )
         }
-        val settings = repo.settings.first { it.currentEnvId == 7L }
+        val settings = repo.settings.first { it.currentSpaceId == 7L }
         assertThat(settings.iconMode).isEqualTo(IconMode.RIGHT)
         assertThat(settings.keyboardWidth).isEqualTo(0.6f)
         assertThat(settings.keyboardShift).isEqualTo(-0.5f)
@@ -102,7 +102,7 @@ class SettingsRepositoryTest {
         assertThat(settings.font).isEqualTo(AppFont.MONTSERRAT)
         assertThat(settings.fontWeight).isEqualTo(AppFontWeight.LIGHT)
         assertThat(settings.backgroundOpacity).isEqualTo(1f)
-        repo.update { it.copy(currentEnvId = null) }
-        assertThat(repo.settings.first { it.currentEnvId == null }.iconMode).isEqualTo(IconMode.RIGHT)
+        repo.update { it.copy(currentSpaceId = null) }
+        assertThat(repo.settings.first { it.currentSpaceId == null }.iconMode).isEqualTo(IconMode.RIGHT)
     }
 }

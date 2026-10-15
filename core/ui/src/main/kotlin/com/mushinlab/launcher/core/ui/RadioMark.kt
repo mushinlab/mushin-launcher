@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun RadioMark(selected: Boolean, modifier: Modifier = Modifier, size: Dp = 18.dp) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val ring = if (selected) colors.accent else colors.textSecondary
     Canvas(modifier.size(size)) {
         val stroke = this.size.width * RADIO_STROKE

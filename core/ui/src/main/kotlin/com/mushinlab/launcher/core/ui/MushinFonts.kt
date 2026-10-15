@@ -7,7 +7,7 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import com.mushinlab.launcher.core.model.AppFont
 
-object EnvFonts {
+object MushinFonts {
     private val weights = listOf(300, 400, 500, 600, 700)
 
     private val inter by lazy { bundled(R.font.inter) }

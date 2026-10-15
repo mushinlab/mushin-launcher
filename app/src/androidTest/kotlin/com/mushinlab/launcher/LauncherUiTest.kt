@@ -41,13 +41,13 @@ import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
 import com.mushinlab.launcher.core.model.BackgroundOpacity
 import com.mushinlab.launcher.core.model.ClockPosition
-import com.mushinlab.launcher.core.model.EnvType
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.GestureTuning
 import com.mushinlab.launcher.core.model.KeyboardFit
 import com.mushinlab.launcher.core.model.LearnedGesture
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.PressFeedback
+import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.StrokeColor
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.Usefulness
@@ -70,16 +70,16 @@ class LauncherUiTest {
     @get:Rule
     val rule = createAndroidComposeRule<MainActivity>()
 
-    private val container get() = ApplicationProvider.getApplicationContext<EnvApp>().container
+    private val container get() = ApplicationProvider.getApplicationContext<MushinApp>().container
     private var normalId = 0L
 
     @Before
     fun seedFavorites() = runBlocking {
-        val normal = container.environments.environments.first { it.isNotEmpty() }.first { it.type == EnvType.NORMAL }
+        val normal = container.spaces.spaces.first { it.isNotEmpty() }.first { it.type == SpaceType.NORMAL }
         normalId = normal.id
-        container.settings.update { it.copy(currentEnvId = normal.id) }
+        container.settings.update { it.copy(currentSpaceId = normal.id) }
         val apps = container.catalog.apps.first { it.size >= 3 }.sortedBy { it.label }.take(3)
-        container.environments.setItems(normal.id, apps.map { it.key })
+        container.spaces.setItems(normal.id, apps.map { it.key })
         rule.waitUntil(5_000) { rule.activity.overlay == Overlay.None }
         rule.waitUntil(5_000) {
             runCatching { rule.onNodeWithTag("row_2").assertIsDisplayed() }.isSuccess
@@ -105,7 +105,7 @@ class LauncherUiTest {
                 strokeColor = StrokeColor.ACCENT,
             )
         }
-        container.environments.environments.value.forEach { container.environments.setListOffset(it.id, 0) }
+        container.spaces.spaces.value.forEach { container.spaces.setListOffset(it.id, 0) }
         container.history.clearUsage()
         container.notificationCounts.value = emptyMap()
     }
@@ -118,10 +118,10 @@ class LauncherUiTest {
     }
 
     private fun listOffsetOf(id: Long): Int =
-        container.environments.environments.value.first { it.id == id }.listOffset ?: 0
+        container.spaces.spaces.value.first { it.id == id }.listOffset ?: 0
 
-    private fun envItems(): List<com.mushinlab.launcher.core.model.AppKey> =
-        runBlocking { container.environments.itemsOf(normalId) }
+    private fun spaceItems(): List<com.mushinlab.launcher.core.model.AppKey> =
+        runBlocking { container.spaces.itemsOf(normalId) }
 
     @Test
     fun AC_03_2_rowsAreAtLeast48dpTall() {
@@ -268,28 +268,28 @@ class LauncherUiTest {
     }
 
     @Test
-    fun longPressOnResultTogglesAppInCurrentEnv() {
+    fun longPressOnResultTogglesAppInCurrentSpace() {
         openSearch()
         val key = rule.runOnIdle { rule.activity.search.rows.first().key }
-        val before = key in envItems()
+        val before = key in spaceItems()
         rule.onNodeWithTag("result_0").performTouchInput { longClick() }
         rule.onNodeWithTag("menu_info").assertIsDisplayed()
         rule.onNodeWithTag("menu_env").performClick()
         rule.onNodeWithTag("popup").assertDoesNotExist()
-        rule.waitUntil(5_000) { (key in envItems()) != before }
+        rule.waitUntil(5_000) { (key in spaceItems()) != before }
     }
 
     @Test
     fun pickerAppliesEachTapWithoutDone() {
         rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("env_add").performScrollTo().performClick()
-        val app = runBlocking { container.catalog.apps.first() }.first { it.key !in envItems() }
+        val app = runBlocking { container.catalog.apps.first() }.first { it.key !in spaceItems() }
         rule.onNodeWithTag("picker_filter").performTextInput(app.label)
         rule.onNodeWithTag("pick_${app.label}").performClick()
-        rule.waitUntil(5_000) { app.key in envItems() }
+        rule.waitUntil(5_000) { app.key in spaceItems() }
         rule.onNodeWithTag("pick_${app.label}").assertIsSelected()
         rule.onNodeWithTag("pick_${app.label}").performClick()
-        rule.waitUntil(5_000) { app.key !in envItems() }
+        rule.waitUntil(5_000) { app.key !in spaceItems() }
         rule.onNodeWithTag("pick_${app.label}").assertIsNotSelected()
         Espresso.closeSoftKeyboard()
     }
@@ -380,7 +380,7 @@ class LauncherUiTest {
 
     @Test
     fun notificationCountShowsNextToRowLabelWhenEnabled() {
-        val key = envItems().first()
+        val key = spaceItems().first()
         container.notificationCounts.value = mapOf(NotificationSource(key.packageName, key.userSerial) to 3)
         rule.onNodeWithTag("badge_0", useUnmergedTree = true).assertDoesNotExist()
         runBlocking { container.settings.update { it.copy(notificationCounts = true) } }
@@ -450,17 +450,17 @@ class LauncherUiTest {
     fun holdingASpaceInThePopupForOneSecondOpensItsSettings() {
         backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
         rule.onNodeWithTag("popup_env_$normalId").performTouchInput { longClick(durationMillis = 1_200) }
-        rule.waitUntil(5_000) { rule.activity.settingsStack.top == SettingsRoute.EnvEditor(normalId) }
+        rule.waitUntil(5_000) { rule.activity.settingsStack.top == SettingsRoute.SpaceEditor(normalId) }
         assertThat(rule.activity.overlay).isEqualTo(Overlay.None)
     }
 
     @Test
     fun colouredIconsAreToggledInTheSpaceSettings() {
-        rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.EnvEditor(normalId)) }
+        rule.runOnIdle { rule.activity.settingsStack.open(SettingsRoute.SpaceEditor(normalId)) }
         rule.onNodeWithTag("env_colored_icons").performScrollTo().performClick()
-        rule.waitUntil(5_000) { container.environments.environments.value.first { it.id == normalId }.coloredIcons }
+        rule.waitUntil(5_000) { container.spaces.spaces.value.first { it.id == normalId }.coloredIcons }
         rule.onNodeWithTag("env_colored_icons").performClick()
-        rule.waitUntil(5_000) { !container.environments.environments.value.first { it.id == normalId }.coloredIcons }
+        rule.waitUntil(5_000) { !container.spaces.spaces.value.first { it.id == normalId }.coloredIcons }
     }
 
     @Test
@@ -485,7 +485,7 @@ class LauncherUiTest {
 
     @Test
     fun appBoundToASwipeShowsTheArrowNextToItsName() {
-        val key = envItems().first()
+        val key = spaceItems().first()
         runBlocking { container.gestures.set(SwipeDirection.LEFT, GestureAction.LaunchApp(key)) }
         try {
             rule.waitUntil(5_000) {
@@ -537,12 +537,12 @@ class LauncherUiTest {
     @Test
     fun editButtonOpensTheCurrentSpace() {
         rule.onNodeWithTag("home_edit").performClick()
-        rule.waitUntil(5_000) { rule.activity.settingsStack.top == SettingsRoute.EnvEditor(normalId) }
+        rule.waitUntil(5_000) { rule.activity.settingsStack.top == SettingsRoute.SpaceEditor(normalId) }
     }
 
     @Test
     fun frequentlyUsedAppIsSuggestedInsteadOfTheWeakestHomeApp() {
-        val home = envItems()
+        val home = spaceItems()
         val frequent = runBlocking { container.catalog.apps.first() }.first { it.key !in home }.key
         runBlocking {
             container.history.clearUsage()
@@ -553,7 +553,7 @@ class LauncherUiTest {
         }
         rule.onNodeWithTag("home_suggestion").performClick()
         rule.onNodeWithTag("suggest_replace").performClick()
-        rule.waitUntil(5_000) { envItems() == home.dropLast(1) + frequent }
+        rule.waitUntil(5_000) { spaceItems() == home.dropLast(1) + frequent }
         rule.waitUntil(5_000) {
             runCatching { rule.onNodeWithTag("home_suggestion").assertDoesNotExist() }.isSuccess
         }
@@ -562,13 +562,13 @@ class LauncherUiTest {
     @Test
     fun settingsRootListsSpacesAsRadioRowWithCurrentFirst() {
         rule.runOnIdle { rule.activity.settingsStack.open() }
-        val work = container.environments.environments.value.first { it.type == EnvType.WORK }.id
+        val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }.id
         rule.onNodeWithTag("space_chip_$normalId").assertIsSelected()
         val normalLeft = rule.onNodeWithTag("space_chip_$normalId").fetchSemanticsNode().boundsInRoot.left
         val workLeft = rule.onNodeWithTag("space_chip_$work").fetchSemanticsNode().boundsInRoot.left
         assertThat(normalLeft).isLessThan(workLeft)
         rule.onNodeWithTag("space_chip_$work").assertIsNotSelected().performClick()
-        rule.waitUntil(5_000) { container.settings.settings.value.currentEnvId == work }
+        rule.waitUntil(5_000) { container.settings.settings.value.currentSpaceId == work }
         rule.onNodeWithTag("space_chip_$work").assertIsSelected()
         rule.onNodeWithTag("nav_search").assertDoesNotExist()
     }
@@ -625,15 +625,15 @@ class LauncherUiTest {
 
     @Test
     fun eachSpaceKeepsItsOwnListPosition() {
-        val work = container.environments.environments.value.first { it.type == EnvType.WORK }.id
+        val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }.id
         val top = { rule.onNodeWithTag("list_handle").fetchSemanticsNode().boundsInRoot.top }
         val start = top()
-        runBlocking { container.environments.setListOffset(normalId, 100) }
+        runBlocking { container.spaces.setListOffset(normalId, 100) }
         rule.waitUntil(5_000) { top() - start > 50f }
         val moved = top()
-        runBlocking { container.settings.update { it.copy(currentEnvId = work) } }
+        runBlocking { container.settings.update { it.copy(currentSpaceId = work) } }
         rule.waitUntil(5_000) { abs(top() - start) < 2f }
-        runBlocking { container.settings.update { it.copy(currentEnvId = normalId) } }
+        runBlocking { container.settings.update { it.copy(currentSpaceId = normalId) } }
         rule.waitUntil(5_000) { abs(top() - moved) < 2f }
     }
 
@@ -645,20 +645,20 @@ class LauncherUiTest {
         listOf("LAGOON", "PLUM", "EMBER", "MIST", "ROSE").forEach {
             rule.onNodeWithTag("palette_$it").performScrollTo().assertIsDisplayed()
         }
-        val original = container.environments.environments.value.first { it.id == normalId }.preset
+        val original = container.spaces.spaces.value.first { it.id == normalId }.preset
         rule.onNodeWithTag("palette_ROSE").performClick()
         try {
             rule.waitUntil(5_000) {
-                container.environments.environments.value.first { it.id == normalId }.preset == PalettePreset.ROSE
+                container.spaces.spaces.value.first { it.id == normalId }.preset == PalettePreset.ROSE
             }
         } finally {
-            runBlocking { container.environments.setPalette(normalId, original) }
+            runBlocking { container.spaces.setPalette(normalId, original) }
         }
     }
 
     @Test
     fun drawingALearnedShapeOnTheHomeScreenFindsTheAppAtAnotherScale() {
-        val key = envItems().first()
+        val key = spaceItems().first()
         runBlocking { container.gestureLearning.update { listOf(LearnedGesture("mapsdfghjkl", key, 1.0)) } }
         rule.waitUntil(5_000) { container.gestureLearning.samples.value.isNotEmpty() }
         drawOnHome("mapsdfghjkl".filterIndexed { i, _ -> i in listOf(0, 1, 2, 3, 10) }, scale = 1.5f)
@@ -781,7 +781,7 @@ class LauncherUiTest {
     @Test
     fun popupListsSpacesAsVerticalRadioButtons() {
         backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
-        val work = container.environments.environments.value.first { it.type == EnvType.WORK }.id
+        val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }.id
         rule.onNodeWithTag("popup_env_$normalId").assertIsSelected()
         rule.onNodeWithTag("popup_env_$work").assertIsNotSelected()
         val first = rule.onNodeWithTag("popup_env_$normalId").fetchSemanticsNode().boundsInRoot
@@ -791,7 +791,7 @@ class LauncherUiTest {
 
     @Test
     fun everySettingsPageShowsTheCurrentSpaceName() {
-        val name = container.environments.environments.value.first { it.id == normalId }.name
+        val name = container.spaces.spaces.value.first { it.id == normalId }.name
         rule.runOnIdle { rule.activity.settingsStack.open() }
         rule.onNodeWithTag("settings_space", useUnmergedTree = true).assertTextEquals(name)
         rule.onNodeWithTag("nav_keyboard").performClick()
@@ -862,7 +862,7 @@ class LauncherUiTest {
     @Test
     fun suggestionIconsHaveEqualGapsAboveAndBelow() {
         openSearch()
-        rule.runOnIdle { rule.activity.search.suggest(envItems().take(2)) }
+        rule.runOnIdle { rule.activity.search.suggest(spaceItems().take(2)) }
         val icon = rule.onNodeWithTag("suggestion_0").fetchSemanticsNode().boundsInRoot
         val pane = rule.onNodeWithTag("input_pane").fetchSemanticsNode().boundsInRoot
         val q = rule.onNodeWithTag("key_q").fetchSemanticsNode().boundsInRoot
@@ -871,7 +871,7 @@ class LauncherUiTest {
 
     @Test
     fun appBoundToASystemGestureIsMarkedInSearchAndOnHome() {
-        val key = envItems().first()
+        val key = spaceItems().first()
         openSearch()
         val label = rule.runOnIdle { rule.activity.search.rows.first { it.key == key }.label }
         rule.runOnIdle { rule.activity.openSearchMenu(key, label, Offset(100f, 100f)) }

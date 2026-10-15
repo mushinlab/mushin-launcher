@@ -27,7 +27,7 @@ fun SettingsHost(stack: SettingsStack, state: SettingsUiState, actions: Settings
         label = "settings",
     ) { entry ->
         if (entry != null) {
-            CompositionLocalProvider(LocalSpaceName provides state.envs.firstOrNull { it.current }?.name) {
+            CompositionLocalProvider(LocalSpaceName provides state.spaces.firstOrNull { it.current }?.name) {
                 SettingsRouteScreen(entry.route, stack, state, actions)
             }
         }
@@ -64,9 +64,9 @@ private fun SettingsRouteScreen(
     val push: (SettingsRoute) -> Unit = { if (stack.top == route) stack.push(it) }
     when (route) {
         SettingsRoute.Root -> RootScreen(state, actions, push, back)
-        SettingsRoute.Environments -> EnvironmentsScreen(state, actions, back)
-        is SettingsRoute.EnvEditor -> EnvEditorScreen(route.envId, state, actions, push, back)
-        is SettingsRoute.PickApps -> EnvAppPicker(route.envId, state, actions, back)
+        SettingsRoute.Spaces -> SpacesScreen(state, actions, back)
+        is SettingsRoute.SpaceEditor -> SpaceEditorScreen(route.spaceId, state, actions, push, back)
+        is SettingsRoute.PickApps -> SpaceAppPicker(route.spaceId, state, actions, back)
         is SettingsRoute.PickGestureApp -> GestureAppPicker(route.direction, state, actions, back)
         SettingsRoute.Home -> HomeSettingsScreen(state, actions, back)
         SettingsRoute.Style -> StyleScreen(state, actions, back)

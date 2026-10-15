@@ -52,22 +52,22 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ClockPosition
-import com.mushinlab.launcher.core.model.EnvType
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.model.PalettePreset
+import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.swipesByApp
 import com.mushinlab.launcher.core.search.GestureSample
 import com.mushinlab.launcher.core.search.KeyboardLayouts
-import com.mushinlab.launcher.core.ui.EnvFont
-import com.mushinlab.launcher.core.ui.EnvStroke
-import com.mushinlab.launcher.core.ui.EnvTheme
-import com.mushinlab.launcher.core.ui.EnvType as Type
-import com.mushinlab.launcher.core.ui.LocalEnvColors
 import com.mushinlab.launcher.core.ui.LocalIconProvider
+import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.LocalPressFeedback
 import com.mushinlab.launcher.core.ui.Motion
+import com.mushinlab.launcher.core.ui.MushinFont
+import com.mushinlab.launcher.core.ui.MushinStroke
+import com.mushinlab.launcher.core.ui.MushinTheme
+import com.mushinlab.launcher.core.ui.SpaceType as Type
 import com.mushinlab.launcher.core.ui.pressable
 import com.mushinlab.launcher.feature.home.HomeActions
 import com.mushinlab.launcher.feature.home.HomePopup
@@ -103,14 +103,14 @@ fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: La
     BackHandler(enabled = true) { activity.handleBack() }
 
     val colored by vm.coloredIcons.collectAsStateWithLifecycle()
-    val backgroundBitmap by (activity.application as EnvApp).container.background.image.collectAsStateWithLifecycle()
+    val backgroundBitmap by (activity.application as MushinApp).container.background.image.collectAsStateWithLifecycle()
     val background = remember(backgroundBitmap) { backgroundBitmap?.asImageBitmap() }
     val icons = remember(iconProvider, colored) { iconProvider.withColors(colored) }
-    val font = remember(settings.font, settings.fontWeight) { EnvFont.of(settings.font, settings.fontWeight) }
+    val font = remember(settings.font, settings.fontWeight) { MushinFont.of(settings.font, settings.fontWeight) }
     val stroke = remember(settings.strokeWidth, settings.strokeColor, settings.strokeDots) {
-        EnvStroke(settings.strokeWidth.dp, settings.strokeColor, settings.strokeDots)
+        MushinStroke(settings.strokeWidth.dp, settings.strokeColor, settings.strokeDots)
     }
-    EnvTheme(palette, font, stroke) {
+    MushinTheme(palette, font, stroke) {
         CompositionLocalProvider(
             LocalIconProvider provides icons,
             LocalPressFeedback provides settings.pressFeedback,
@@ -118,7 +118,7 @@ fun LauncherRoot(activity: MainActivity, vm: LauncherViewModel, iconProvider: La
             Box(
                 Modifier
                     .fillMaxSize()
-                    .background(LocalEnvColors.current.background)
+                    .background(LocalMushinColors.current.background)
                     .semantics { testTagsAsResourceId = true },
             ) {
                 val homeActions = remember(activity) { homeActions(activity, vm) }
@@ -219,7 +219,7 @@ private fun homeActions(activity: MainActivity, vm: LauncherViewModel) = object 
     }
 
     override fun onListOffset(dp: Int) {
-        vm.currentEnvId()?.let { vm.spaces.setListOffset(it, dp) }
+        vm.currentSpaceId()?.let { vm.spaces.setListOffset(it, dp) }
     }
 
     override fun onDraw(points: List<Offset>, width: Float) {
@@ -238,17 +238,17 @@ private fun SuggestionLayer(activity: MainActivity, vm: LauncherViewModel, sugge
         object : SuggestionActions {
             override fun onReplace(suggestion: HomeSuggestion) {
                 activity.overlay = Overlay.None
-                vm.currentEnvId()?.let { vm.suggestions.accept(it, suggestion, replace = true) }
+                vm.currentSpaceId()?.let { vm.suggestions.accept(it, suggestion, replace = true) }
             }
 
             override fun onAdd(suggestion: HomeSuggestion) {
                 activity.overlay = Overlay.None
-                vm.currentEnvId()?.let { vm.suggestions.accept(it, suggestion, replace = false) }
+                vm.currentSpaceId()?.let { vm.suggestions.accept(it, suggestion, replace = false) }
             }
 
             override fun onDismissSuggestion(suggestion: HomeSuggestion) {
                 activity.overlay = Overlay.None
-                vm.currentEnvId()?.let { vm.suggestions.dismiss(it, suggestion) }
+                vm.currentSpaceId()?.let { vm.suggestions.dismiss(it, suggestion) }
             }
 
             override fun onClose() {
@@ -277,7 +277,7 @@ private fun SearchLayer(activity: MainActivity, vm: LauncherViewModel, settings:
     LaunchedEffect(learned) { activity.search.setLearned(learned) }
     val bindings by vm.gestureBindings.collectAsStateWithLifecycle()
     LaunchedEffect(bindings) { activity.search.setSwipes(bindings.swipesByApp()) }
-    val overrides by (activity.application as EnvApp).container.overrides.overrides.collectAsStateWithLifecycle()
+    val overrides by (activity.application as MushinApp).container.overrides.overrides.collectAsStateWithLifecycle()
     LaunchedEffect(overrides) {
         activity.search.setShortcuts(overrides.values.filter { it.systemShortcut }.map { it.key }.toSet())
     }
@@ -342,7 +342,7 @@ private fun Modifier.blockInput(): Modifier = pointerInput(Unit) {
 }
 
 private fun searchActions(activity: MainActivity, vm: LauncherViewModel) = object : SearchActions {
-    private val container get() = (activity.application as EnvApp).container
+    private val container get() = (activity.application as MushinApp).container
 
     override fun onLaunch(key: AppKey) {
         activity.launch(key, fromSearch = true)
@@ -357,8 +357,8 @@ private fun searchActions(activity: MainActivity, vm: LauncherViewModel) = objec
         activity.openSearchMenu(key, label, anchor)
     }
 
-    override fun onToggleInEnv(key: AppKey, add: Boolean) {
-        activity.toggleInEnv(key, add)
+    override fun onToggleInSpace(key: AppKey, add: Boolean) {
+        activity.toggleInSpace(key, add)
     }
 
     override fun onAppInfo(key: AppKey) {
@@ -401,7 +401,7 @@ private fun searchActions(activity: MainActivity, vm: LauncherViewModel) = objec
     }
 
     override fun onClearHistory() {
-        vm.currentEnvId()?.let(vm::clearHistory)
+        vm.currentSpaceId()?.let(vm::clearHistory)
     }
 
     override fun onClose() {
@@ -436,28 +436,28 @@ private fun searchActions(activity: MainActivity, vm: LauncherViewModel) = objec
 @Composable
 private fun PopupLayer(activity: MainActivity, vm: LauncherViewModel) {
     val popup = activity.overlay as? Overlay.Popup ?: return
-    val envs by vm.popupEnvs.collectAsStateWithLifecycle()
+    val spaces by vm.popupSpaces.collectAsStateWithLifecycle()
     val app = popup.app?.let { key ->
         val entry = vm.entry(key) ?: return@let null
         PopupApp(
             key = key,
             label = vm.override(key)?.customLabel ?: entry.label,
             hidden = vm.override(key)?.hidden == true,
-            inEnv = vm.isInCurrentEnv(key),
+            inSpace = vm.isInCurrentSpace(key),
             canUninstall = !entry.isSystem,
         )
     }
     val actions = remember(activity) { popupActions(activity, vm) }
     Box(Modifier.zIndex(2f).fillMaxSize()) {
-        HomePopup(popup.anchor, app, envs, actions)
+        HomePopup(popup.anchor, app, spaces, actions)
     }
 }
 
 private fun popupActions(activity: MainActivity, vm: LauncherViewModel) = object : PopupActions {
-    private val container get() = (activity.application as EnvApp).container
+    private val container get() = (activity.application as MushinApp).container
 
-    override fun onSelectEnv(id: Long) {
-        vm.switchEnv(id)
+    override fun onSelectSpace(id: Long) {
+        vm.switchSpace(id)
         activity.overlay = Overlay.None
     }
 
@@ -466,9 +466,9 @@ private fun popupActions(activity: MainActivity, vm: LauncherViewModel) = object
         activity.settingsStack.open()
     }
 
-    override fun onOpenEnvSettings(id: Long) {
+    override fun onOpenSpaceSettings(id: Long) {
         activity.overlay = Overlay.None
-        activity.settingsStack.open(SettingsRoute.EnvEditor(id))
+        activity.settingsStack.open(SettingsRoute.SpaceEditor(id))
     }
 
     override fun onAbout(key: AppKey) {
@@ -486,9 +486,9 @@ private fun popupActions(activity: MainActivity, vm: LauncherViewModel) = object
         vm.setHidden(key, hidden)
     }
 
-    override fun onRemoveFromEnv(key: AppKey) {
+    override fun onRemoveFromSpace(key: AppKey) {
         activity.overlay = Overlay.None
-        vm.removeFromCurrentEnv(key)
+        vm.removeFromCurrentSpace(key)
     }
 
     override fun onUninstall(key: AppKey) {
@@ -510,23 +510,23 @@ private fun SettingsLayer(activity: MainActivity, vm: LauncherViewModel) {
                 transform: (LauncherSettings) -> LauncherSettings,
             ) = vm.updateSettings(transform)
 
-            override suspend fun createEnv(name: String, type: EnvType): String? = vm.createEnv(name, type)
+            override suspend fun createSpace(name: String, type: SpaceType): String? = vm.createSpace(name, type)
 
-            override suspend fun renameEnv(id: Long, name: String): String? = vm.renameEnv(id, name)
+            override suspend fun renameSpace(id: Long, name: String): String? = vm.renameSpace(id, name)
 
-            override fun deleteEnv(id: Long) = vm.deleteEnv(id)
+            override fun deleteSpace(id: Long) = vm.deleteSpace(id)
 
             override fun setPalette(id: Long, preset: PalettePreset) = vm.spaces.setPalette(id, preset)
 
             override fun setColoredIcons(id: Long, enabled: Boolean) = vm.spaces.setColoredIcons(id, enabled)
 
-            override fun setEnvItems(id: Long, keys: List<AppKey>) = vm.setEnvItems(id, keys)
+            override fun setSpaceItems(id: Long, keys: List<AppKey>) = vm.setSpaceItems(id, keys)
 
-            override fun addEnvItem(id: Long, key: AppKey) {
-                vm.addEnvItem(id, key)
+            override fun addSpaceItem(id: Long, key: AppKey) {
+                vm.addSpaceItem(id, key)
             }
 
-            override fun removeEnvItem(id: Long, key: AppKey) = vm.removeEnvItem(id, key)
+            override fun removeSpaceItem(id: Long, key: AppKey) = vm.removeSpaceItem(id, key)
 
             override fun setGesture(direction: SwipeDirection, action: GestureAction) = vm.setGesture(direction, action)
 
@@ -534,7 +534,7 @@ private fun SettingsLayer(activity: MainActivity, vm: LauncherViewModel) {
 
             override fun rename(key: AppKey, label: String?) = vm.rename(key, label)
 
-            override fun switchEnv(id: Long) = vm.switchEnv(id)
+            override fun switchSpace(id: Long) = vm.switchSpace(id)
 
             override fun requestDefaultLauncher() = activity.requestRole()
 
@@ -547,7 +547,7 @@ private fun SettingsLayer(activity: MainActivity, vm: LauncherViewModel) {
             override fun pickBackground() = activity.pickBackground()
 
             override fun clearBackground() {
-                val container = (activity.application as EnvApp).container
+                val container = (activity.application as MushinApp).container
                 container.scope.launch(Dispatchers.IO) { container.background.clear() }
             }
 
@@ -564,7 +564,7 @@ private fun SettingsLayer(activity: MainActivity, vm: LauncherViewModel) {
             override fun clearUsage() = vm.memory.clearUsage()
         }
     }
-    val background by (activity.application as EnvApp).container.background.image.collectAsStateWithLifecycle()
+    val background by (activity.application as MushinApp).container.background.image.collectAsStateWithLifecycle()
     SettingsHost(activity.settingsStack, state.copy(hasBackground = background != null), actions)
 }
 
@@ -575,7 +575,7 @@ private fun RenameDialog(activity: MainActivity, vm: LauncherViewModel, key: App
     TextInputDialog(
         title = stringResource(R.string.rename_title, entry?.label.orEmpty()),
         initial = current,
-        maxLength = com.mushinlab.launcher.core.model.EnvLimits.LABEL_MAX_LENGTH,
+        maxLength = com.mushinlab.launcher.core.model.SpaceLimits.LABEL_MAX_LENGTH,
         error = null,
         confirm = stringResource(R.string.rename_save),
         extra = stringResource(R.string.rename_reset) to {
@@ -592,7 +592,7 @@ private fun RenameDialog(activity: MainActivity, vm: LauncherViewModel, key: App
 
 @Composable
 private fun LearnHint(onOpen: () -> Unit, onDismiss: () -> Unit) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     val offset = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
     val dismissPx = with(LocalDensity.current) { LEARN_HINT_SWIPE.toPx() }
@@ -642,7 +642,7 @@ private fun LearnHint(onOpen: () -> Unit, onDismiss: () -> Unit) {
 
 @Composable
 private fun NoticeBar(notice: Notice, top: Boolean, onDismiss: () -> Unit) {
-    val colors = LocalEnvColors.current
+    val colors = LocalMushinColors.current
     LaunchedEffect(notice.id) {
         delay(NOTICE_MS)
         onDismiss()

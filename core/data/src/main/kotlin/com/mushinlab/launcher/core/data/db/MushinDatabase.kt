@@ -10,14 +10,14 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.mushinlab.launcher.core.data.R
 import com.mushinlab.launcher.core.model.DefaultGestures
-import com.mushinlab.launcher.core.model.EnvType
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.Palettes
+import com.mushinlab.launcher.core.model.SpaceType
 
 @Database(
     entities = [
-        EnvironmentEntity::class,
-        EnvironmentItemEntity::class,
+        SpaceEntity::class,
+        SpaceItemEntity::class,
         AppOverrideEntity::class,
         SearchRecentEntity::class,
         AppUsageEntity::class,
@@ -35,10 +35,10 @@ import com.mushinlab.launcher.core.model.Palettes
         AutoMigration(from = 5, to = 6),
     ],
 )
-abstract class EnvDatabase : RoomDatabase() {
-    abstract fun environmentDao(): EnvironmentDao
+abstract class MushinDatabase : RoomDatabase() {
+    abstract fun spaceDao(): SpaceDao
 
-    abstract fun environmentItemDao(): EnvironmentItemDao
+    abstract fun spaceItemDao(): SpaceItemDao
 
     abstract fun appOverrideDao(): AppOverrideDao
 
@@ -57,15 +57,15 @@ abstract class EnvDatabase : RoomDatabase() {
     companion object {
         const val NAME = "env.db"
 
-        fun build(context: Context, inMemory: Boolean = false): EnvDatabase {
+        fun build(context: Context, inMemory: Boolean = false): MushinDatabase {
             val builder = if (inMemory) {
-                Room.inMemoryDatabaseBuilder(context, EnvDatabase::class.java)
+                Room.inMemoryDatabaseBuilder(context, MushinDatabase::class.java)
             } else {
-                Room.databaseBuilder(context, EnvDatabase::class.java, NAME)
+                Room.databaseBuilder(context, MushinDatabase::class.java, NAME)
             }
             val names = SeedNames(
-                normal = context.getString(R.string.env_default_normal),
-                work = context.getString(R.string.env_default_work),
+                normal = context.getString(R.string.space_default_normal),
+                work = context.getString(R.string.space_default_work),
             )
             return builder.addCallback(SeedCallback(names)).build()
         }
@@ -79,8 +79,8 @@ abstract class EnvDatabase : RoomDatabase() {
         }
 
         fun seed(db: SupportSQLiteDatabase, createdAt: Long) {
-            insertEnvironment(db, names.normal, EnvType.NORMAL, 0, PalettePreset.GRAPHITE, createdAt)
-            insertEnvironment(db, names.work, EnvType.WORK, 1, PalettePreset.NAVY, createdAt)
+            insertSpace(db, names.normal, SpaceType.NORMAL, 0, PalettePreset.GRAPHITE, createdAt)
+            insertSpace(db, names.work, SpaceType.WORK, 1, PalettePreset.NAVY, createdAt)
             DefaultGestures.bindings.forEach { binding ->
                 val values = ContentValues().apply {
                     put("direction", binding.direction.name)
@@ -90,10 +90,10 @@ abstract class EnvDatabase : RoomDatabase() {
             }
         }
 
-        private fun insertEnvironment(
+        private fun insertSpace(
             db: SupportSQLiteDatabase,
             name: String,
-            type: EnvType,
+            type: SpaceType,
             sortOrder: Int,
             preset: PalettePreset,
             createdAt: Long,
