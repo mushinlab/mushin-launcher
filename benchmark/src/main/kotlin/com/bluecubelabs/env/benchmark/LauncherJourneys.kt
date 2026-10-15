@@ -6,14 +6,15 @@ import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 
-const val TARGET_PACKAGE = "com.bluecubelabs.env"
+const val TARGET_PACKAGE = "com.mushinlab.launcher"
+private const val MAIN_ACTIVITY = "com.bluecubelabs.env.MainActivity"
 private const val WAIT_MS = 3_000L
 
 fun MacrobenchmarkScope.startLauncher() {
     startActivityAndWait(
         Intent(Intent.ACTION_MAIN)
             .addCategory(Intent.CATEGORY_HOME)
-            .setComponent(ComponentName(TARGET_PACKAGE, "$TARGET_PACKAGE.MainActivity")),
+            .setComponent(ComponentName(TARGET_PACKAGE, MAIN_ACTIVITY)),
     )
 }
 

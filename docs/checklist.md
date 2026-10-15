@@ -43,8 +43,8 @@
 
 ## Стабильность (G4)
 - [ ] 14 дней ежедневного использования без падений.
-- [ ] `adb shell run-as com.bluecubelabs.env cat files/exit_log.tsv` — нет строк с `MEMORY_LIMITER`.
-- [ ] `adb shell dumpsys meminfo com.bluecubelabs.env` — PSS ≤ 60 МБ после 10 минут (D.14).
+- [ ] `adb shell run-as com.mushinlab.launcher cat files/exit_log.tsv` — нет строк с `MEMORY_LIMITER`.
+- [ ] `adb shell dumpsys meminfo com.mushinlab.launcher` — PSS ≤ 60 МБ после 10 минут (D.14).
 
 ## Правки раунда 1 (ADR-0003)
 - [ ] Свайп с привязкой к приложению: Home уезжает в сторону свайпа, без заметной пустой паузы перед приложением (Q-47).
@@ -73,7 +73,7 @@
 - [ ] Рисунок слова, общего для двух приложений (например, «google»), показывает «варианты…» и оба приложения; «⌫» возвращает обычный список.
 - [ ] После 1–2 выборов из вариантов тот же рисунок сразу даёт выбранное приложение.
 - [ ] Значок Энва виден в «Приложения по умолчанию → Главный экран» и в диалоге выбора.
-- [ ] Когда лаунчер по умолчанию другой, `adb shell monkey -p com.bluecubelabs.env -c android.intent.category.INFO 1` открывает Энв с плашкой «Сделать лаунчером по умолчанию».
+- [ ] Когда лаунчер по умолчанию другой, `adb shell monkey -p com.mushinlab.launcher -c android.intent.category.INFO 1` открывает Энв с плашкой «Сделать лаунчером по умолчанию».
 - [ ] «Настройки → Система → Конфиденциальность» показывает текст политики.
 - [ ] `./gradlew :app:checkReleasePermissions` зелёный; `:app:bundleRelease` с `keystore.properties` даёт подписанный ключом загрузки `.aab`.
 

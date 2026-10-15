@@ -15,9 +15,9 @@ val debugSignedRelease = providers.gradleProperty("env.debugSignedRelease").orNu
 android {
     namespace = "com.bluecubelabs.env"
     defaultConfig {
-        applicationId = "com.bluecubelabs.env"
-        versionCode = 1
-        versionName = "0.1.0"
+        applicationId = "com.mushinlab.launcher"
+        versionCode = 2
+        versionName = "0.1.1"
     }
     signingConfigs {
         if (uploadKeystore != null) {

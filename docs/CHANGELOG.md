@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Публикация (ADR-0014)
+- `applicationId` — `com.mushinlab.launcher` (было `com.bluecubelabs.env`); версия 0.1.1 (versionCode 2).
+- Контакт `mushin-lab@proton.me` в политике конфиденциальности и в «Настройки → Система → Конфиденциальность».
+
 ## 0.1.0 — 2026-10-15
 
 ### Аудит безопасности перед публикацией на GitHub

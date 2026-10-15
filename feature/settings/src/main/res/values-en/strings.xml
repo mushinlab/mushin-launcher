@@ -125,7 +125,7 @@
     <string name="system_default_no">No — tap to set</string>
     <string name="system_version">Version</string>
     <string name="system_privacy">Privacy</string>
-    <string name="system_privacy_text">Mushin collects and shares no data: the app has no internet access, no ads and no analytics. Your spaces, launch history, learned gestures and settings are stored only on this device, are excluded from backups and are deleted together with the app. Mushin reads the list of installed apps from the system to show them on the home screen and in search. If you turn on notification counts, Mushin sees only how many notifications each app has — notification text is never read or stored.</string>
+    <string name="system_privacy_text">Mushin collects and shares no data: the app has no internet access, no ads and no analytics. Your spaces, launch history, learned gestures and settings are stored only on this device, are excluded from backups and are deleted together with the app. Mushin reads the list of installed apps from the system to show them on the home screen and in search. If you turn on notification counts, Mushin sees only how many notifications each app has — notification text is never read or stored. Questions: mushin-lab@proton.me</string>
     <string name="system_licenses">Licenses</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, Material Symbols icons — Apache License 2.0. Inter, Open Sans and Montserrat fonts — SIL Open Font License 1.1 (licence texts are inside the app, assets/licenses).</string>
     <string name="settings_memory">Memory</string>
