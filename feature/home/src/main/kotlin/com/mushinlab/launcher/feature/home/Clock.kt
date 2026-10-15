@@ -91,7 +91,6 @@ fun ClockArea(
     onTap: () -> Unit,
     onMeasured: (area: Int, block: Int) -> Unit,
 ) {
-    val colors = LocalMushinColors.current
     val density = LocalDensity.current
     val inset = with(density) { HomeDimens.rowPadding.roundToPx() }
     var area by remember { mutableIntStateOf(0) }
@@ -114,38 +113,7 @@ fun ClockArea(
             },
     ) {
         if (drag != null && block > 0) {
-            val nearest = ClockSlots.nearest(left, area, block, inset)
-            val markWidth = with(density) { SLOT_MARK_WIDTH.roundToPx() }
-            Box(
-                Modifier
-                    .offset { IntOffset(ClockSlots.left(nearest, area, block, inset), 0) }
-                    .size(with(density) { block.toDp() }, with(density) { height.toDp() })
-                    .background(colors.accent.copy(alpha = SLOT_ALPHA), RoundedCornerShape(SLOT_RADIUS))
-                    .border(1.dp, colors.accent.copy(alpha = SLOT_BORDER_ALPHA), RoundedCornerShape(SLOT_RADIUS)),
-            )
-            ClockPosition.entries.forEach { slot ->
-                val slotLeft = ClockSlots.left(slot, area, block, inset)
-                val x = when (slot) {
-                    ClockPosition.START -> slotLeft
-                    ClockPosition.CENTER -> slotLeft + (block - markWidth) / 2
-                    ClockPosition.END -> slotLeft + block - markWidth
-                }
-                Box(
-                    Modifier
-                        .offset { IntOffset(x, height + SLOT_MARK_GAP.roundToPx()) }
-                        .size(SLOT_MARK_WIDTH, SLOT_MARK_HEIGHT)
-                        .background(
-                            colors.accent.copy(alpha = if (slot == nearest) 1f else SLOT_MARK_ALPHA),
-                            RoundedCornerShape(SLOT_MARK_HEIGHT),
-                        )
-                        .testTag("clock_slot_$slot"),
-                )
-            }
-        }
-        val align = when (position) {
-            ClockPosition.START -> Alignment.Start
-            ClockPosition.CENTER -> Alignment.CenterHorizontally
-            ClockPosition.END -> Alignment.End
+            ClockSlotMarks(ClockSlots.nearest(left, area, block, inset), area, block, height, inset)
         }
         Column(
             Modifier
@@ -164,7 +132,7 @@ fun ClockArea(
                     }
                 }
                 .testTag("clock_block"),
-            horizontalAlignment = align,
+            horizontalAlignment = position.horizontalAlignment(),
         ) {
             ClockTime(minute, format, position)
             if (showDate) {
@@ -173,6 +141,44 @@ fun ClockArea(
             }
         }
     }
+}
+
+@Composable
+private fun ClockSlotMarks(nearest: ClockPosition, area: Int, block: Int, height: Int, inset: Int) {
+    val colors = LocalMushinColors.current
+    val density = LocalDensity.current
+    val markWidth = with(density) { SLOT_MARK_WIDTH.roundToPx() }
+    Box(
+        Modifier
+            .offset { IntOffset(ClockSlots.left(nearest, area, block, inset), 0) }
+            .size(with(density) { block.toDp() }, with(density) { height.toDp() })
+            .background(colors.accent.copy(alpha = SLOT_ALPHA), RoundedCornerShape(SLOT_RADIUS))
+            .border(1.dp, colors.accent.copy(alpha = SLOT_BORDER_ALPHA), RoundedCornerShape(SLOT_RADIUS)),
+    )
+    ClockPosition.entries.forEach { slot ->
+        val slotLeft = ClockSlots.left(slot, area, block, inset)
+        val x = when (slot) {
+            ClockPosition.START -> slotLeft
+            ClockPosition.CENTER -> slotLeft + (block - markWidth) / 2
+            ClockPosition.END -> slotLeft + block - markWidth
+        }
+        Box(
+            Modifier
+                .offset { IntOffset(x, height + SLOT_MARK_GAP.roundToPx()) }
+                .size(SLOT_MARK_WIDTH, SLOT_MARK_HEIGHT)
+                .background(
+                    colors.accent.copy(alpha = if (slot == nearest) 1f else SLOT_MARK_ALPHA),
+                    RoundedCornerShape(SLOT_MARK_HEIGHT),
+                )
+                .testTag("clock_slot_$slot"),
+        )
+    }
+}
+
+private fun ClockPosition.horizontalAlignment(): Alignment.Horizontal = when (this) {
+    ClockPosition.START -> Alignment.Start
+    ClockPosition.CENTER -> Alignment.CenterHorizontally
+    ClockPosition.END -> Alignment.End
 }
 
 private fun ClockPosition.textAlign(): TextAlign = when (this) {
