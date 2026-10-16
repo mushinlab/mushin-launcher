@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_make_default">Make default launcher</string>
-    <string name="home_empty_space">Tap ✎ in the bottom right corner to add apps</string>
+    <string name="home_empty_space">Tap + to add apps</string>
     <string name="popup_settings">⚙  Settings</string>
     <string name="popup_about">App info</string>
     <string name="popup_rename">Rename</string>

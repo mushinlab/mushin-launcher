@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_make_default">Сделать лаунчером по умолчанию</string>
-    <string name="home_empty_space">Нажмите ✎ внизу справа, чтобы добавить приложения</string>
+    <string name="home_empty_space">Нажмите «+», чтобы добавить приложения</string>
     <string name="popup_settings">⚙  Настройки</string>
     <string name="popup_about">О приложении</string>
     <string name="popup_rename">Переименовать</string>
