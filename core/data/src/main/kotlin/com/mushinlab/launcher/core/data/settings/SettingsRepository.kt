@@ -64,6 +64,7 @@ class SettingsRepository(
         internal fun dataStore(scope: CoroutineScope, file: () -> File): DataStore<Preferences> =
             PreferenceDataStoreFactory.create(
                 corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+                migrations = listOf(ListOffsetAutoMigration),
                 scope = scope,
                 produceFile = file,
             )
