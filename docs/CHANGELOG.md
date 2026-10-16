@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — 2026-10-16
 
 ### Added
 - A “+” button on the home screen under the last row (centred when the space is empty) opens the app picker of the current space (ADR-0017).
