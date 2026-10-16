@@ -66,8 +66,9 @@ class SearchInteractions(
         model.setActiveLayout(enabled[(index + 1).mod(enabled.size)])
     }
 
-    fun accepts(key: HardwareKey): Boolean =
-        navigator.acceptsInput && (navigator.overlay == Overlay.Search || key is HardwareKey.Text)
+    fun accepts(key: HardwareKey): Boolean = model.settings.onboardingDone &&
+        navigator.acceptsInput &&
+        (navigator.overlay == Overlay.Search || key is HardwareKey.Text)
 
     fun onHardwareKey(key: HardwareKey) {
         if (navigator.overlay != Overlay.Search) {

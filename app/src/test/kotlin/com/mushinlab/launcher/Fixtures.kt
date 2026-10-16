@@ -33,7 +33,7 @@ class FakeLauncherModel(
     var capacity: Int = Int.MAX_VALUE,
     var result: LaunchResult = LaunchResult.Started,
     var shadeAvailable: Boolean = true,
-    override var settings: LauncherSettings = LauncherSettings(),
+    override var settings: LauncherSettings = LauncherSettings(onboardingDone = true),
     override var gestureBindings: Map<SwipeDirection, GestureAction> = emptyMap(),
     override var learnedGestures: List<LearnedGesture> = emptyList(),
 ) : LauncherModel {

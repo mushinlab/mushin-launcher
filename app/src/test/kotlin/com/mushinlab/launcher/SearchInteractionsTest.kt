@@ -74,7 +74,8 @@ class SearchInteractionsTest {
 
     @Test
     fun layoutSwitchCyclesThroughEnabledLayouts() {
-        model.settings = LauncherSettings(keyboardLayouts = listOf("en", "ru"), activeKeyboardLayout = "ru")
+        model.settings =
+            LauncherSettings(keyboardLayouts = listOf("en", "ru"), activeKeyboardLayout = "ru")
 
         search.switchLayout()
 
@@ -135,5 +136,12 @@ class SearchInteractionsTest {
         launches.launch(slack, fromSearch = true)
 
         assertThat(navigator.notice?.text).isEqualTo(R.string.notice_suspended)
+    }
+
+    @Test
+    fun keysAreIgnoredWhileOnboardingIsShown() {
+        model.settings = LauncherSettings(onboardingDone = false)
+
+        assertThat(search.accepts(HardwareKey.Text('s'))).isFalse()
     }
 }
