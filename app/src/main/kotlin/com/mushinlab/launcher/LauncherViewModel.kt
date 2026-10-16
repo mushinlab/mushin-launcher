@@ -89,7 +89,6 @@ class LauncherViewModel(
     val usage = container.history.usage
     val gestureBindings = container.gestures.bindings
     val learnedGestures = container.gestureLearning.samples
-    val overrides = container.overrides.overrides
     val background = container.background.image
 
     val spaces = SpaceEditor(container, { id -> data.value?.items?.get(id).orEmpty() }, { capacity.value })

@@ -11,6 +11,7 @@
     <string name="popup_uninstall">Удалить</string>
     <string name="home_suggestion">Подсказка: приложение, которое вы открываете чаще</string>
     <string name="home_edit">Изменить спейс</string>
+    <string name="home_add_apps">Добавить приложения</string>
     <string name="suggest_header">Чаще открываете «%1$s»</string>
     <string name="suggest_replace">Поставить вместо «%1$s»</string>
     <string name="suggest_add">Добавить на главный экран</string>

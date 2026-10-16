@@ -31,7 +31,6 @@ class SearchInteractions(
                 inSpace = model.isInCurrentSpace(key),
                 canUninstall = !entry.isSystem,
                 hidden = override?.hidden == true,
-                shortcut = override?.systemShortcut == true,
             ),
         )
     }

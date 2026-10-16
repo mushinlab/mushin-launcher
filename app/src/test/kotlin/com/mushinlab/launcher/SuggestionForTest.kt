@@ -57,12 +57,12 @@ class SuggestionForTest {
     }
 
     @Test
-    fun appsBoundToASystemGestureAreNeverSuggested() {
+    fun hiddenAppsAreNeverSuggested() {
         val usage = mapOf(normal.id to listOf(usage(frequent, 9.0)))
-        val bound = data().let { d ->
-            d.copy(overrides = mapOf(frequent to AppOverride(frequent, null, false, null, 0, systemShortcut = true)))
+        val hidden = data().let { d ->
+            d.copy(overrides = mapOf(frequent to AppOverride(frequent, null, true, null, 0)))
         }
 
-        assertThat(suggestionFor(bound, usage, emptySet(), cap = 5, now = now)).isNull()
+        assertThat(suggestionFor(hidden, usage, emptySet(), cap = 5, now = now)).isNull()
     }
 }

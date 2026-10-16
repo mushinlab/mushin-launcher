@@ -70,7 +70,6 @@ internal fun homeState(
                 0
             },
             swipes = swipes[key]?.toImmutableList() ?: persistentListOf(),
-            shortcut = d.overrides[key]?.systemShortcut == true,
         )
     }
     return HomeUiState(

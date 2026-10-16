@@ -115,6 +115,25 @@ class HomeInteractionsTest {
     }
 
     @Test
+    fun addAppsOpensTheAppPickerOfTheCurrentSpace() {
+        navigator.openSearch(SearchMode.TYPING)
+
+        home.addApps()
+
+        assertThat(navigator.overlay).isEqualTo(Overlay.None)
+        assertThat(navigator.settings.routes).containsExactly(SettingsRoute.PickApps(1))
+    }
+
+    @Test
+    fun addAppsWithoutACurrentSpaceDoesNothing() {
+        model.currentSpace = null
+
+        home.addApps()
+
+        assertThat(navigator.settings.isOpen).isFalse()
+    }
+
+    @Test
     fun stoppingCancelsThePendingSwipeAndClosesOverlays() {
         model.gestureBindings = mapOf(SwipeDirection.LEFT to GestureAction.LaunchApp(slack))
         home.onSwipe(SwipeDirection.LEFT, fromShadeZone = false)

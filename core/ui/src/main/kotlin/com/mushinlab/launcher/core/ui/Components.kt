@@ -1,6 +1,7 @@
 package com.mushinlab.launcher.core.ui
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -55,7 +56,7 @@ fun SingleLineText(text: String, style: TextStyle, modifier: Modifier = Modifier
     )
 }
 
-/** Press style used by [pressable] in the current subtree. */
+/** Press style used by [pressable] and [pressFeedback] in the current subtree. */
 val LocalPressFeedback = staticCompositionLocalOf { PressFeedback.FLASH }
 
 /**
@@ -72,36 +73,13 @@ fun Modifier.pressable(
     onClick: () -> Unit,
 ): Modifier {
     val style = LocalPressFeedback.current
-    val accent = LocalMushinColors.current.accent
     val source = remember { MutableInteractionSource() }
     val pressed by source.collectIsPressedAsState()
-    val level = remember { Animatable(0f) }
+    val level = rememberPressLevel(pressed, style)
     val scope = rememberCoroutineScope()
     val visible = enabled && pressedColor.alpha > 0f
-    LaunchedEffect(pressed) {
-        if (pressed) {
-            level.snapTo(1f)
-        } else if (level.value > 0f) {
-            level.release(style, quick = false)
-        }
-    }
-    val feedback = when {
-        !visible -> Modifier
-
-        style == PressFeedback.DIM -> Modifier.graphicsLayer { alpha = 1f - DIM_AMOUNT * level.value }
-
-        style == PressFeedback.SCALE -> Modifier.graphicsLayer {
-            scaleX = 1f - SCALE_AMOUNT * level.value
-            scaleY = scaleX
-        }
-
-        else -> {
-            val color = if (style == PressFeedback.ACCENT) accent.copy(alpha = ACCENT_ALPHA) else pressedColor
-            Modifier.drawBehind { if (level.value > 0f) drawRect(color, alpha = level.value) }
-        }
-    }
     return this
-        .then(feedback)
+        .then(if (visible) Modifier.pressFeedback({ level.value }, pressedColor) else Modifier)
         .combinedClickable(
             interactionSource = source,
             indication = null,
@@ -118,6 +96,52 @@ fun Modifier.pressable(
                 onClick()
             },
         )
+}
+
+/**
+ * The visual part of [pressable] for elements whose touches are handled elsewhere: shows the [LocalPressFeedback]
+ * style while [pressed] is true and releases it the same way. A transparent [pressedColor] disables it.
+ */
+@Composable
+fun Modifier.pressFeedback(pressed: Boolean, pressedColor: Color = LocalMushinColors.current.keyPressed): Modifier {
+    val level = rememberPressLevel(pressed, LocalPressFeedback.current)
+    return if (pressedColor.alpha > 0f) pressFeedback({ level.value }, pressedColor) else this
+}
+
+/** Draws the [LocalPressFeedback] style at strength [level], from 0 (released) to 1 (pressed). */
+@Composable
+fun Modifier.pressFeedback(level: () -> Float, pressedColor: Color = LocalMushinColors.current.keyPressed): Modifier {
+    val style = LocalPressFeedback.current
+    val accent = LocalMushinColors.current.accent
+    return when (style) {
+        PressFeedback.DIM -> graphicsLayer { alpha = 1f - DIM_AMOUNT * level() }
+
+        PressFeedback.SCALE -> graphicsLayer {
+            scaleX = 1f - SCALE_AMOUNT * level()
+            scaleY = scaleX
+        }
+
+        else -> {
+            val color = if (style == PressFeedback.ACCENT) accent.copy(alpha = ACCENT_ALPHA) else pressedColor
+            drawBehind {
+                val value = level()
+                if (value > 0f) drawRect(color, alpha = value)
+            }
+        }
+    }
+}
+
+@Composable
+private fun rememberPressLevel(pressed: Boolean, style: PressFeedback): Animatable<Float, AnimationVector1D> {
+    val level = remember { Animatable(0f) }
+    LaunchedEffect(pressed) {
+        if (pressed) {
+            level.snapTo(1f)
+        } else if (level.value > 0f) {
+            level.release(style, quick = false)
+        }
+    }
+    return level
 }
 
 private suspend fun Animatable<Float, *>.release(style: PressFeedback, quick: Boolean) {

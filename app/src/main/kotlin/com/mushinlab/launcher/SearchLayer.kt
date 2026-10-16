@@ -86,10 +86,6 @@ private fun SearchSourcesEffect(vm: LauncherViewModel) {
     LaunchedEffect(learned) { sources.setLearned(learned) }
     val bindings by vm.gestureBindings.collectAsStateWithLifecycle()
     LaunchedEffect(bindings) { sources.setSwipes(bindings.swipesByApp()) }
-    val overrides by vm.overrides.collectAsStateWithLifecycle()
-    LaunchedEffect(overrides) {
-        sources.setShortcuts(overrides.values.filter { it.systemShortcut }.map { it.key }.toSet())
-    }
     LaunchedEffect(engine) { sources.setEngine(engine) }
 }
 
@@ -156,11 +152,6 @@ private fun searchActions(vm: LauncherViewModel) = object : SearchActions {
 
     override fun onToggleHidden(key: AppKey, hidden: Boolean) {
         vm.searchInput.toggleHidden(key, hidden)
-    }
-
-    override fun onToggleShortcut(key: AppKey, bound: Boolean) {
-        vm.navigator.search.panels.closeMenu()
-        vm.apps.setSystemShortcut(key, bound)
     }
 
     override fun onToggleShowHidden() {

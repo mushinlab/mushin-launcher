@@ -161,6 +161,8 @@ private fun homeActions(vm: LauncherViewModel, density: Density) = object : Home
 
     override fun onEdit() = vm.homeInput.editCurrentSpace()
 
+    override fun onAddApps() = vm.homeInput.addApps()
+
     override fun onSuggestion(anchor: Offset) {
         navigator.overlay = Overlay.Suggestion(anchor)
     }

@@ -26,8 +26,6 @@ interface SearchMenuActions {
 
     fun onToggleHidden(key: AppKey, hidden: Boolean)
 
-    fun onToggleShortcut(key: AppKey, bound: Boolean)
-
     fun onDismissMenu()
 }
 
@@ -91,10 +89,6 @@ internal fun SearchMenuPanel(menu: SearchMenu, actions: SearchMenuActions) {
             stringResource(if (menu.hidden) R.string.menu_unhide else R.string.menu_hide),
             tag = "menu_hide",
         ) { actions.onToggleHidden(menu.key, !menu.hidden) }
-        PanelItem(
-            (if (menu.shortcut) "✓  " else "     ") + stringResource(R.string.menu_system_shortcut),
-            tag = "menu_shortcut",
-        ) { actions.onToggleShortcut(menu.key, !menu.shortcut) }
         PanelItem(stringResource(R.string.menu_rename), tag = "menu_rename") { actions.onRename(menu.key) }
         PanelItem(stringResource(R.string.menu_app_info), tag = "menu_info") { actions.onAppInfo(menu.key) }
         if (menu.canUninstall) {

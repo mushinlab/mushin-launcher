@@ -18,13 +18,17 @@ import androidx.compose.ui.unit.dp
 
 /** Vector icons used for toolbar buttons; [res] is the drawable resource. */
 enum class Glyph(@param:DrawableRes val res: Int) {
+    ADD(R.drawable.ic_add),
     BACK(R.drawable.ic_arrow_back),
     EDIT(R.drawable.ic_edit),
     HELP(R.drawable.ic_help),
     SETTINGS(R.drawable.ic_settings),
 }
 
-/** A square icon button tinted with [tint]; [description] is read by accessibility services. */
+/**
+ * A square icon button tinted with [tint]; [description] is read by accessibility services.
+ * Press feedback is off unless [pressedColor] is set (see [pressable]).
+ */
 @Composable
 fun GlyphButton(
     glyph: Glyph,
@@ -34,12 +38,13 @@ fun GlyphButton(
     modifier: Modifier = Modifier,
     size: Dp = 48.dp,
     glyphSize: Dp = 22.dp,
+    pressedColor: Color = Color.Transparent,
     onClick: () -> Unit,
 ) {
     Box(
         modifier
             .size(size)
-            .pressable(pressedColor = Color.Transparent, onClick = onClick)
+            .pressable(pressedColor = pressedColor, onClick = onClick)
             .semantics { contentDescription = description }
             .testTag(tag),
         contentAlignment = Alignment.Center,

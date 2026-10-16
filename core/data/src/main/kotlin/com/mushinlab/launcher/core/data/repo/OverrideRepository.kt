@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 /**
- * Per-app user overrides: custom label, hidden flag and system gesture mark.
+ * Per-app user overrides: custom label and hidden flag.
  *
  * A row exists only while at least one override is set; clearing the last one deletes it.
  */
@@ -47,17 +47,12 @@ class OverrideRepository(
         update(key) { it.copy(hidden = hidden) }
     }
 
-    /** Marks the app as launched by a system gesture; it gets a mark and is not suggested for home. */
-    suspend fun setSystemShortcut(key: AppKey, bound: Boolean) {
-        update(key) { it.copy(systemShortcut = bound) }
-    }
-
     private suspend fun update(key: AppKey, change: (AppOverrideEntity) -> AppOverrideEntity) {
         db.withTransaction {
             val current = dao.get(key.packageName, key.activityName, key.userSerial)
                 ?: AppOverrideEntity(key.packageName, key.activityName, key.userSerial, null, false, null, clock())
             val next = change(current).copy(updatedAt = clock())
-            if (next.customLabel == null && !next.hidden && !next.systemShortcut) {
+            if (next.customLabel == null && !next.hidden) {
                 dao.delete(key.packageName, key.activityName, key.userSerial)
             } else {
                 dao.upsert(next)

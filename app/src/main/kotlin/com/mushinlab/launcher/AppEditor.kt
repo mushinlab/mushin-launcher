@@ -8,10 +8,6 @@ class AppEditor(private val container: AppContainer) {
         container.scope.launch { container.overrides.setHidden(key, hidden) }
     }
 
-    fun setSystemShortcut(key: AppKey, bound: Boolean) {
-        container.scope.launch { container.overrides.setSystemShortcut(key, bound) }
-    }
-
     fun rename(key: AppKey, label: String?) {
         container.scope.launch { container.overrides.rename(key, label) }
     }

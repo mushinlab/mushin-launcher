@@ -68,6 +68,7 @@ import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.SwipeMarks
+import com.mushinlab.launcher.core.ui.pressFeedback
 import com.mushinlab.launcher.core.ui.pressable
 import com.mushinlab.launcher.feature.home.gesture.HomeGestureDetector
 import com.mushinlab.launcher.feature.home.gesture.RowRegistry
@@ -98,6 +99,8 @@ interface HomeControlActions {
     fun onClockMoved(position: ClockPosition)
 
     fun onEdit()
+
+    fun onAddApps()
 
     fun onSuggestion(anchor: Offset)
 
@@ -201,7 +204,14 @@ private fun HomeColumn(
                 }
             }
         }
-        FavoritesList(state, registry, rowColor, Modifier.weight(1f).fillMaxWidth()) { capacity ->
+        FavoritesList(
+            state = state,
+            registry = registry,
+            rowColor = rowColor,
+            pressedRow = { gestures.pressedRow },
+            onAddApps = { actions.value.onAddApps() },
+            modifier = Modifier.weight(1f).fillMaxWidth(),
+        ) { capacity ->
             actions.value.onCapacityChanged(capacity)
         }
         HomeBar(state.suggestion, registry, actions.value)
@@ -296,6 +306,8 @@ private fun FavoritesList(
     state: HomeUiState,
     registry: RowRegistry,
     rowColor: (Int) -> Color,
+    pressedRow: () -> Int?,
+    onAddApps: () -> Unit,
     modifier: Modifier,
     onCapacity: (Int) -> Unit,
 ) {
@@ -321,11 +333,35 @@ private fun FavoritesList(
         } else {
             Column(verticalArrangement = Arrangement.Top) {
                 visible.forEachIndexed { index, row ->
-                    FavoriteRow(index, row, state.iconMode, textStyle, rowHeight, registry, rowColor(index))
+                    val pressed = pressedRow() == index
+                    FavoriteRow(index, row, state.iconMode, textStyle, rowHeight, registry, rowColor(index), pressed)
+                }
+                if (state.rows.size < capacity) {
+                    Box(Modifier.fillMaxWidth().height(rowHeight), contentAlignment = Alignment.CenterEnd) {
+                        AddAppsButton(registry, onAddApps, Modifier.padding(end = 8.dp))
+                    }
                 }
             }
         }
+        if (state.rows.isEmpty() && capacity > 0) {
+            AddAppsButton(registry, onAddApps, Modifier.align(Alignment.Center))
+        }
     }
+}
+
+@Composable
+private fun AddAppsButton(registry: RowRegistry, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = LocalMushinColors.current
+    DisposableEffect(Unit) { onDispose { registry.block(HOME_ADD, null) } }
+    GlyphButton(
+        Glyph.ADD,
+        stringResource(R.string.home_add_apps),
+        colors.textSecondary.copy(alpha = BAR_ALPHA),
+        tag = "home_add",
+        modifier = modifier.onGloballyPositioned { registry.block(HOME_ADD, it.boundsInRoot()) },
+        pressedColor = colors.keyPressed,
+        onClick = onClick,
+    )
 }
 
 @Composable
@@ -337,6 +373,7 @@ private fun FavoriteRow(
     height: Dp,
     registry: RowRegistry,
     background: Color,
+    pressed: Boolean,
 ) {
     val colors = LocalMushinColors.current
     Row(
@@ -345,6 +382,7 @@ private fun FavoriteRow(
             .height(height)
             .background(background)
             .onGloballyPositioned { registry.update(index, it.boundsInRoot()) }
+            .pressFeedback(pressed)
             .semantics(mergeDescendants = true) {
                 role = Role.Button
                 contentDescription = row.label
@@ -372,15 +410,9 @@ private fun FavoriteRow(
                 val diameter = with(LocalDensity.current) { textStyle.fontSize.toDp() } * HomeDimens.BADGE_TO_TEXT
                 CountBadge(row.notifications, diameter, Modifier.testTag("badge_$index"))
             }
-            if (row.swipes.isNotEmpty() || row.shortcut) {
+            if (row.swipes.isNotEmpty()) {
                 Spacer(Modifier.width(8.dp))
-                SwipeMarks(
-                    row.swipes,
-                    textStyle.fontSize,
-                    colors.textSecondary,
-                    Modifier.testTag("swipe_$index"),
-                    shortcut = row.shortcut,
-                )
+                SwipeMarks(row.swipes, textStyle.fontSize, colors.textSecondary, Modifier.testTag("swipe_$index"))
             }
         }
         if (iconMode == IconMode.RIGHT) {
@@ -411,6 +443,7 @@ private fun BadgedIcon(row: HomeRow, index: Int, badge: Boolean, modifier: Modif
 private const val ROLE_CARD = "role_card"
 private const val BAR_EDIT = "bar_edit"
 private const val BAR_SUGGEST = "bar_suggest"
+private const val HOME_ADD = "home_add"
 private const val BAR_ALPHA = 0.7f
 private const val SHADE_ZONE = 0.2f
 private const val DIMMED_ALPHA = 0.5f

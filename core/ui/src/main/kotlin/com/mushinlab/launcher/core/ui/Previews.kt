@@ -108,7 +108,7 @@ private fun GlyphsPreview() {
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                SwipeMarks(SwipeDirection.entries, MushinType.resultSize, colors.textSecondary, shortcut = true)
+                SwipeMarks(SwipeDirection.entries, MushinType.resultSize, colors.textSecondary)
                 VerticalDivider(Modifier.padding(horizontal = 8.dp).height(18.dp))
                 RadioMark(selected = true)
                 RadioMark(selected = false, modifier = Modifier.padding(start = 8.dp))

@@ -21,6 +21,7 @@ import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.Usefulness
+import com.mushinlab.launcher.feature.settings.SettingsRoute
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -152,5 +153,33 @@ class HomeUiTest : LauncherUiTestBase() {
         assertThat(after - before).isWithin(4f).of(200f)
         val handle = rule.onNodeWithTag("list_handle").fetchSemanticsNode().boundsInRoot
         assertThat(after - handle.bottom).isWithin(2f).of(0f)
+    }
+
+    @Test
+    fun plusUnderTheListOpensTheAppPickerOfTheCurrentSpace() {
+        val lastRow = rule.onNodeWithTag("row_2").fetchSemanticsNode().boundsInRoot
+        val plus = rule.onNodeWithTag("home_add").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        assertThat(plus.top).isAtLeast(lastRow.bottom - 1f)
+        assertThat(plus.center.x).isGreaterThan(lastRow.center.x)
+        rule.onNodeWithTag("home_add").performClick()
+        rule.waitUntil(5_000) {
+            rule.activity.launcher.navigator.settings.top == SettingsRoute.PickApps(normalId)
+        }
+        assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None)
+    }
+
+    @Test
+    fun emptySpaceShowsTheCentredPlusThatOpensTheAppPicker() {
+        runBlocking { container.spaces.setItems(normalId, emptyList()) }
+        rule.waitUntil(5_000) {
+            runCatching { rule.onNodeWithTag("empty_env").assertIsDisplayed() }.isSuccess
+        }
+        val home = rule.onNodeWithTag("home").fetchSemanticsNode().boundsInRoot
+        val plus = rule.onNodeWithTag("home_add").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        assertThat(plus.center.x).isWithin(home.width * 0.05f).of(home.center.x)
+        rule.onNodeWithTag("home_add").performClick()
+        rule.waitUntil(5_000) {
+            rule.activity.launcher.navigator.settings.top == SettingsRoute.PickApps(normalId)
+        }
     }
 }

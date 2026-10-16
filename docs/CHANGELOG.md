@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Added
+- A “+” button on the home screen under the last row (centred when the space is empty) opens the app picker of the current space (ADR-0017).
+
+### Changed
+- Home rows show the press feedback style chosen in settings while the finger is on them, like other buttons (ADR-0017).
+
+### Removed
+- The “Bound to a system gesture” mark: the search menu item and the mark on home and in search are gone, and such apps can be suggested again. Database v7 drops the `app_override.system_shortcut` column; other app overrides are kept (ADR-0017).
+
 ### Fixed
 - Nightly UI tests in CI run on an API 36 emulator: GitHub runners have no API 37 image (ADR-0016).
 

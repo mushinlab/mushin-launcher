@@ -130,11 +130,11 @@ class HistoryAndOverridesTest {
     }
 
     @Test
-    fun systemShortcutMarkIsStoredAndClearingItRemovesTheRow() = runTest {
+    fun unhidingAnAppWithoutCustomLabelRemovesTheRow() = runTest {
         val overrides = OverrideRepository(rule.db, backgroundScope, rule.clock)
-        overrides.setSystemShortcut(slack, true)
-        assertThat(overrides.overrides.first { it.isNotEmpty() }[slack]?.systemShortcut).isTrue()
-        overrides.setSystemShortcut(slack, false)
+        overrides.setHidden(slack, true)
+        assertThat(overrides.overrides.first { it.isNotEmpty() }[slack]?.hidden).isTrue()
+        overrides.setHidden(slack, false)
         assertThat(overrides.overrides.first { it.isEmpty() }).isEmpty()
     }
 

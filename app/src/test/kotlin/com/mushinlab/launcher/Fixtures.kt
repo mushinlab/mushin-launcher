@@ -22,8 +22,8 @@ fun entry(key: AppKey, system: Boolean = false) = AppEntry(key, key.activityName
 fun space(id: Long, type: SpaceType = SpaceType.NORMAL, name: String = "s$id") =
     Space(id, name, type, id.toInt(), PalettePreset.GRAPHITE, Palettes.Graphite, 0)
 
-fun override(key: AppKey, label: String? = null, hidden: Boolean = false, shortcut: Boolean = false) =
-    AppOverride(key, label, hidden, null, 0, shortcut)
+fun override(key: AppKey, label: String? = null, hidden: Boolean = false) =
+    AppOverride(key, label, hidden, null, 0)
 
 class FakeLauncherModel(
     var apps: Map<AppKey, AppEntry> = emptyMap(),

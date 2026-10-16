@@ -19,7 +19,6 @@ data class SearchRow(
     val label: String,
     val hidden: Boolean,
     val swipes: ImmutableList<SwipeDirection> = persistentListOf(),
-    val shortcut: Boolean = false,
 )
 
 enum class SearchMode { TYPING, BROWSING }
@@ -32,7 +31,6 @@ data class SearchMenu(
     val inSpace: Boolean,
     val canUninstall: Boolean,
     val hidden: Boolean = false,
-    val shortcut: Boolean = false,
 )
 
 @Stable

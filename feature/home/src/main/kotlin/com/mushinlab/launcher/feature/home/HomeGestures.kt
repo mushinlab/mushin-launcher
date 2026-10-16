@@ -109,6 +109,12 @@ internal class HomeGestureHandler(
     override val handle: ListHandleDrag,
 ) : HomeGestureCallbacks {
     var width by mutableFloatStateOf(0f)
+    var pressedRow by mutableStateOf<Int?>(null)
+        private set
+
+    override fun onRowPressed(index: Int?) {
+        pressedRow = index
+    }
 
     override fun onRowTap(index: Int) {
         state.value.rows.getOrNull(index)?.let { actions.value.onRowTap(it, index) }

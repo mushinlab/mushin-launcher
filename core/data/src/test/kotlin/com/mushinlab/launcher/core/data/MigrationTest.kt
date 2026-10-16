@@ -115,6 +115,46 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun migrationTo7DropsTheSystemShortcutAndKeepsOverrides() {
+        helper.createDatabase(DB_NAME, 6).use { db ->
+            db.execSQL(
+                "INSERT INTO app_override (package_name, activity_name, user_serial, custom_label, hidden, " +
+                    "orphaned_at, updated_at, system_shortcut) VALUES ('p', 'a', 0, 'Name', 1, 5, 7, 1)",
+            )
+            db.execSQL(
+                "INSERT INTO app_override (package_name, activity_name, user_serial, custom_label, hidden, " +
+                    "orphaned_at, updated_at, system_shortcut) VALUES ('q', 'b', 10, NULL, 0, NULL, 9, 1)",
+            )
+        }
+        helper.runMigrationsAndValidate(DB_NAME, 7, true).use { db ->
+            db.query(
+                "SELECT package_name, activity_name, user_serial, custom_label, hidden, orphaned_at, updated_at " +
+                    "FROM app_override ORDER BY package_name",
+            ).use { cursor ->
+                assertThat(cursor.count).isEqualTo(2)
+                cursor.moveToFirst()
+                assertThat(cursor.getString(0)).isEqualTo("p")
+                assertThat(cursor.getString(1)).isEqualTo("a")
+                assertThat(cursor.getLong(2)).isEqualTo(0L)
+                assertThat(cursor.getString(3)).isEqualTo("Name")
+                assertThat(cursor.getInt(4)).isEqualTo(1)
+                assertThat(cursor.getLong(5)).isEqualTo(5L)
+                assertThat(cursor.getLong(6)).isEqualTo(7L)
+                cursor.moveToNext()
+                assertThat(cursor.getString(0)).isEqualTo("q")
+                assertThat(cursor.getLong(2)).isEqualTo(10L)
+                assertThat(cursor.isNull(3)).isTrue()
+                assertThat(cursor.isNull(5)).isTrue()
+                assertThat(cursor.getLong(6)).isEqualTo(9L)
+            }
+            db.query("PRAGMA table_info(app_override)").use { cursor ->
+                val columns = buildList { while (cursor.moveToNext()) add(cursor.getString(1)) }
+                assertThat(columns).doesNotContain("system_shortcut")
+            }
+        }
+    }
+
     private companion object {
         const val DB_NAME = "migration-test"
     }

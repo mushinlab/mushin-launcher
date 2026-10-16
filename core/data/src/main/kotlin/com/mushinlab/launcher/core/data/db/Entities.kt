@@ -66,7 +66,6 @@ data class AppOverrideEntity(
     @ColumnInfo(name = "hidden", defaultValue = "0") val hidden: Boolean,
     @ColumnInfo(name = "orphaned_at") val orphanedAt: Long?,
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
-    @ColumnInfo(name = "system_shortcut", defaultValue = "0") val systemShortcut: Boolean = false,
 )
 
 @Entity(

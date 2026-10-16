@@ -95,6 +95,11 @@ class HomeInteractions(
         navigator.openSettings(SettingsRoute.SpaceEditor(space.id))
     }
 
+    fun addApps() {
+        val space = model.currentSpace ?: return
+        navigator.openSettings(SettingsRoute.PickApps(space.id))
+    }
+
     fun onStop() {
         exit = null
         pendingSwipeLaunch = null

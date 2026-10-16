@@ -52,7 +52,6 @@ internal fun AppOverrideEntity.toModel(): AppOverride = AppOverride(
     hidden = hidden,
     orphanedAt = orphanedAt,
     updatedAt = updatedAt,
-    systemShortcut = systemShortcut,
 )
 
 internal fun AppUsageEntity.toModel(): AppUsage = AppUsage(

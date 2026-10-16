@@ -75,7 +75,6 @@ internal fun ResultsPane(
                 iconSize = SearchDimens.resultIcon,
                 hidden = row.hidden,
                 swipes = row.swipes,
-                shortcut = row.shortcut,
                 highlighted = index == selected,
                 tag = "result_$index",
                 onLongClick = { onLongPress(row.key, row.label) },
@@ -108,7 +107,6 @@ internal fun RecentsPane(
                     iconSize = SearchDimens.recentIcon,
                     hidden = false,
                     swipes = persistentListOf(),
-                    shortcut = false,
                     highlighted = false,
                     tag = "recent_$index",
                     onLongClick = { onLongPress(row.key, row.label) },
@@ -130,7 +128,6 @@ private fun AppRowItem(
     iconSize: Dp,
     hidden: Boolean,
     swipes: ImmutableList<SwipeDirection>,
-    shortcut: Boolean,
     highlighted: Boolean,
     tag: String,
     onLongClick: () -> Unit,
@@ -159,15 +156,9 @@ private fun AppRowItem(
         }
         Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
             SingleLineText(label, textStyle, Modifier.weight(1f, fill = false))
-            if (swipes.isNotEmpty() || shortcut) {
+            if (swipes.isNotEmpty()) {
                 Spacer(Modifier.width(8.dp))
-                SwipeMarks(
-                    swipes,
-                    textSize.sp,
-                    colors.textSecondary,
-                    Modifier.testTag("${tag}_swipe"),
-                    shortcut = shortcut,
-                )
+                SwipeMarks(swipes, textSize.sp, colors.textSecondary, Modifier.testTag("${tag}_swipe"))
             }
             if (hidden) {
                 Spacer(Modifier.width(6.dp))

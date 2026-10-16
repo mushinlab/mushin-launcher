@@ -21,7 +21,6 @@ class SearchSources internal constructor(
         private set
     private var usage: Map<AppKey, AppUsage> = emptyMap()
     private var swipes: Map<AppKey, List<SwipeDirection>> = emptyMap()
-    private var shortcuts: Set<AppKey> = emptySet()
 
     fun update(index: SearchIndex, usage: Map<AppKey, AppUsage>) {
         this.index = index
@@ -36,12 +35,6 @@ class SearchSources internal constructor(
     fun setSwipes(byApp: Map<AppKey, List<SwipeDirection>>) {
         if (byApp == swipes) return
         swipes = byApp
-        onChange()
-    }
-
-    fun setShortcuts(keys: Set<AppKey>) {
-        if (keys == shortcuts) return
-        shortcuts = keys
         onChange()
     }
 
@@ -67,5 +60,5 @@ class SearchSources internal constructor(
     }
 
     private fun row(key: AppKey, label: String, hidden: Boolean) =
-        SearchRow(key, label, hidden, swipes[key]?.toImmutableList() ?: persistentListOf(), key in shortcuts)
+        SearchRow(key, label, hidden, swipes[key]?.toImmutableList() ?: persistentListOf())
 }

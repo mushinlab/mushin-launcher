@@ -10,14 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.SwipeDirection
 
 /**
- * Small arrows for the swipe [directions] bound to an app, plus a system-gesture mark when [shortcut] is set.
+ * Small arrows for the swipe [directions] bound to an app.
  * Glyphs are sized relative to [fontSize] so they line up with the label. Draws nothing when there is no mark.
  */
 @Composable
@@ -26,9 +25,8 @@ fun SwipeMarks(
     fontSize: TextUnit,
     color: Color,
     modifier: Modifier = Modifier,
-    shortcut: Boolean = false,
 ) {
-    if (directions.isEmpty() && !shortcut) return
+    if (directions.isEmpty()) return
     val size = with(LocalDensity.current) { fontSize.toDp() * GLYPH_TO_FONT }
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(2.dp), verticalAlignment = Alignment.CenterVertically) {
         directions.forEach { direction ->
@@ -37,14 +35,6 @@ fun SwipeMarks(
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(color),
                 modifier = Modifier.size(size),
-            )
-        }
-        if (shortcut) {
-            Image(
-                painterResource(R.drawable.ic_system_shortcut),
-                contentDescription = null,
-                colorFilter = ColorFilter.tint(color),
-                modifier = Modifier.size(size).testTag("system_shortcut_mark"),
             )
         }
     }

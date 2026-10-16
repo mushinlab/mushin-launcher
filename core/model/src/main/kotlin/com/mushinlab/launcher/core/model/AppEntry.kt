@@ -23,7 +23,7 @@ data class AppEntry(
 }
 
 /**
- * User changes to one app: custom label, hidden flag and the manual "bound to a system gesture" mark.
+ * User changes to one app: custom label and hidden flag.
  *
  * [orphanedAt] is set when the package is removed; the override is kept for [OverrideLimits.ORPHAN_TTL_MS]
  * so that reinstalling the app restores it.
@@ -34,7 +34,6 @@ data class AppOverride(
     val hidden: Boolean,
     val orphanedAt: Long?,
     val updatedAt: Long,
-    val systemShortcut: Boolean = false,
 )
 
 /** Launch statistics of an app across all spaces; [decayedScore] is a launch count decayed by [UsageDecay]. */

@@ -37,8 +37,11 @@ class HomeGestureDetector(
         val tracker = VelocityTracker()
         tracker.addPointerInputChange(down)
         val holdMs = if (target == PressTarget.Clock) clockHoldMs else viewConfiguration.longPressTimeoutMillis
-        val outcome = withTimeoutOrNull(holdMs) {
-            awaitSlopOrUp(down.id, down.position, tracker)
+        callbacks.onRowPressed(target.rowIndex)
+        val outcome = try {
+            withTimeoutOrNull(holdMs) { awaitSlopOrUp(down.id, down.position, tracker) }
+        } finally {
+            callbacks.onRowPressed(null)
         }
         when (outcome) {
             null -> onHold(down, target, callbacks)

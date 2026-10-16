@@ -5,8 +5,10 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import androidx.room.AutoMigration
 import androidx.room.Database
+import androidx.room.DeleteColumn
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.AutoMigrationSpec
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.mushinlab.launcher.core.data.R
 import com.mushinlab.launcher.core.model.DefaultGestures
@@ -18,8 +20,9 @@ import com.mushinlab.launcher.core.model.SpaceType
  * Room database of spaces, home lists, app overrides, launch history, gesture bindings and learned drawings.
  *
  * The file and several tables keep the working name "env" (ADR-0015). Schemas are exported and every version
- * step is an auto-migration that only adds tables or columns: v2 gesture_sample, v3 environment.colored_icons,
- * v4 space_usage, v5 app_override.system_shortcut and gesture_sample.shape, v6 environment.list_offset.
+ * step is an auto-migration: v2 gesture_sample, v3 environment.colored_icons, v4 space_usage,
+ * v5 app_override.system_shortcut and gesture_sample.shape, v6 environment.list_offset,
+ * v7 drops app_override.system_shortcut ([DropSystemShortcut]).
  * A new database is seeded with the normal and work spaces and the default gestures.
  */
 @Database(
@@ -33,7 +36,7 @@ import com.mushinlab.launcher.core.model.SpaceType
         GestureSampleEntity::class,
         SpaceUsageEntity::class,
     ],
-    version = 6,
+    version = 7,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -41,6 +44,7 @@ import com.mushinlab.launcher.core.model.SpaceType
         AutoMigration(from = 3, to = 4),
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6),
+        AutoMigration(from = 6, to = 7, spec = MushinDatabase.DropSystemShortcut::class),
     ],
 )
 abstract class MushinDatabase : RoomDatabase() {
@@ -79,6 +83,10 @@ abstract class MushinDatabase : RoomDatabase() {
             return builder.addCallback(SeedCallback(names)).build()
         }
     }
+
+    /** Removes the "bound to a system gesture" mark (ADR-0017); other override columns are kept. */
+    @DeleteColumn(tableName = "app_override", columnName = "system_shortcut")
+    class DropSystemShortcut : AutoMigrationSpec
 
     /** Localized names of the spaces created with a new database. */
     data class SeedNames(val normal: String, val work: String)

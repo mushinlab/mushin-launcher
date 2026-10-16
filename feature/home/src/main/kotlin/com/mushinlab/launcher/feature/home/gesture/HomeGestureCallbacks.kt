@@ -8,6 +8,8 @@ interface HomeGestureCallbacks {
 
     val handle: DragCallbacks
 
+    fun onRowPressed(index: Int?)
+
     fun onRowTap(index: Int)
 
     fun onLongPress(position: Offset, rowIndex: Int?)

@@ -88,17 +88,14 @@ class SearchUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun appBoundToASystemGestureIsMarkedInSearchAndOnHome() {
+    fun searchMenuHasNoSystemGestureItem() {
         val key = spaceItems().first()
         openSearch()
         val label = rule.runOnIdle { rule.activity.launcher.navigator.search.rows.first { it.key == key }.label }
         rule.runOnIdle { rule.activity.launcher.searchInput.openMenu(key, label, Offset(100f, 100f)) }
-        rule.onNodeWithTag("menu_shortcut").performClick()
-        rule.waitUntil(5_000) { container.overrides.overrides.value[key]?.systemShortcut == true }
-        rule.waitUntil(5_000) { rule.activity.launcher.navigator.search.rows.first { it.key == key }.shortcut }
+        rule.onNodeWithTag("menu_hide").assertIsDisplayed()
+        rule.onNodeWithTag("menu_shortcut").assertDoesNotExist()
         Espresso.pressBack()
-        rule.onNodeWithTag("swipe_0", useUnmergedTree = true).assertIsDisplayed()
-        runBlocking { container.overrides.setSystemShortcut(key, false) }
     }
 
     @Test
