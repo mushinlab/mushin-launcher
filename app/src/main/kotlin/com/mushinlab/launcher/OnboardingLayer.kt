@@ -16,10 +16,9 @@ import com.mushinlab.launcher.feature.settings.tips.rememberOnboardingPager
 
 @Composable
 internal fun OnboardingLayer(vm: LauncherViewModel) {
-    val ready by vm.ready.collectAsStateWithLifecycle()
-    val settings by vm.settings.collectAsStateWithLifecycle()
+    val done by vm.onboardingDone.collectAsStateWithLifecycle()
     var closed by rememberSaveable { mutableStateOf(false) }
-    if (!ready || settings.onboardingDone || closed) return
+    if (done != false || closed) return
     val pager = rememberOnboardingPager()
     val finish = {
         closed = true

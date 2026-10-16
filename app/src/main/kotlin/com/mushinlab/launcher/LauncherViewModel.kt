@@ -86,6 +86,8 @@ class LauncherViewModel(
     val minute = mutableLongStateOf(System.currentTimeMillis())
     val iconsReady: StateFlow<Boolean> = iconsWarm.asStateFlow()
     val settings = container.settings.settings
+    val onboardingDone: StateFlow<Boolean?> = container.settings.loaded.map { it?.onboardingDone }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
     val usage = container.history.usage
     val gestureBindings = container.gestures.bindings
     val learnedGestures = container.gestureLearning.samples
