@@ -34,10 +34,12 @@ abstract class LauncherUiTestBase {
     fun seedFavorites() = runBlocking {
         val normal = container.spaces.spaces.first { it.isNotEmpty() }.first { it.type == SpaceType.NORMAL }
         normalId = normal.id
-        container.settings.update { it.copy(currentSpaceId = normal.id, onboardingDone = true) }
+        container.settings.update { it.copy(currentSpaceId = normal.id, onboardingDone = true, homeListOffset = 0) }
+        container.spaces.spaces.value.forEach { container.spaces.setListOffset(it.id, null) }
         val apps = container.catalog.apps.first { it.size >= 3 }.sortedBy { it.label }.take(3)
         container.spaces.setItems(normal.id, apps.map { it.key })
         rule.waitUntil(5_000) { rule.activity.launcher.navigator.overlay == Overlay.None }
+        rule.waitUntil(5_000) { rule.activity.launcher.home.value.homeListOffset == 0 }
         rule.waitUntil(5_000) {
             runCatching { rule.onNodeWithTag("row_2").assertIsDisplayed() }.isSuccess
         }
@@ -50,7 +52,7 @@ abstract class LauncherUiTestBase {
                 notificationCounts = false,
                 keyboardWidth = KeyboardFit.WIDTH_MAX,
                 keyboardShift = 0f,
-                homeListOffset = 0,
+                homeListOffset = null,
                 searchColoredIcons = false,
                 pressFeedback = PressFeedback.FLASH,
                 gestureShiftPenalty = GestureTuning.SHIFT_PENALTY,
@@ -62,7 +64,7 @@ abstract class LauncherUiTestBase {
                 strokeColor = StrokeColor.ACCENT,
             )
         }
-        container.spaces.spaces.value.forEach { container.spaces.setListOffset(it.id, 0) }
+        container.spaces.spaces.value.forEach { container.spaces.setListOffset(it.id, null) }
         container.history.clearUsage()
         container.notificationCounts.value = emptyMap()
     }
@@ -74,8 +76,7 @@ abstract class LauncherUiTestBase {
         rule.onNodeWithTag("search").assertIsDisplayed()
     }
 
-    protected fun listOffsetOf(id: Long): Int =
-        container.spaces.spaces.value.first { it.id == id }.listOffset ?: 0
+    protected fun listOffsetOf(id: Long): Int? = container.spaces.spaces.value.first { it.id == id }.listOffset
 
     protected fun spaceItems(): List<com.mushinlab.launcher.core.model.AppKey> =
         runBlocking { container.spaces.itemsOf(normalId) }

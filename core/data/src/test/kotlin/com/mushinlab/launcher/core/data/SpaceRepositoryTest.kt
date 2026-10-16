@@ -208,5 +208,9 @@ class SpaceRepositoryTest {
         val updated = repo.spaces.first { list -> list.all { it.listOffset != null } }
         assertThat(updated.first { it.id == work.id }.listOffset).isEqualTo(120)
         assertThat(updated.first { it.id == normal.id }.listOffset).isEqualTo(HomeListOffset.MAX_DP)
+        repo.setListOffset(work.id, 0)
+        repo.setListOffset(normal.id, null)
+        val reset = repo.spaces.first { list -> list.any { it.id == normal.id && it.listOffset == null } }
+        assertThat(reset.first { it.id == work.id }.listOffset).isEqualTo(0)
     }
 }

@@ -155,9 +155,12 @@ class SpaceRepository(
         spaceDao.setColoredIcons(id, enabled)
     }
 
-    /** Sets the home list offset of a space in dp, clamped to 0..[HomeListOffset.MAX_DP]. */
-    suspend fun setListOffset(id: Long, dp: Int) {
-        spaceDao.setListOffset(id, dp.coerceIn(0, HomeListOffset.MAX_DP))
+    /**
+     * Sets the home list offset of a space in dp, clamped to 0..[HomeListOffset.MAX_DP]; null falls back to the
+     * global offset.
+     */
+    suspend fun setListOffset(id: Long, dp: Int?) {
+        spaceDao.setListOffset(id, dp?.coerceIn(0, HomeListOffset.MAX_DP))
     }
 
     suspend fun setPalette(id: Long, preset: PalettePreset) {

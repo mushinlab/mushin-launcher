@@ -21,9 +21,9 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemGestures
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
@@ -53,11 +54,12 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ClockPosition
+import com.mushinlab.launcher.core.model.HomeListOffset
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.ui.AppIcon
@@ -73,7 +75,6 @@ import com.mushinlab.launcher.core.ui.pressable
 import com.mushinlab.launcher.feature.home.gesture.HomeGestureDetector
 import com.mushinlab.launcher.feature.home.gesture.RowRegistry
 import com.mushinlab.launcher.feature.home.gesture.StartZone
-import kotlin.math.max
 
 interface HomeActions : HomeGestureActions, HomeControlActions
 
@@ -173,7 +174,64 @@ private fun HomeColumn(
 ) {
     val colors = LocalMushinColors.current
     val density = LocalDensity.current
-    Column(Modifier.fillMaxSize()) {
+    val textStyle = MushinType.style(state.textSize.sp.sp, colors.textPrimary)
+    val rowHeight = rememberRowHeight(textStyle)
+    val rowColor: (Int) -> Color = if (!hasBackground) {
+        colors::zebra
+    } else {
+        { index ->
+            if (index % 2 ==
+                0
+            ) {
+                Color.Transparent
+            } else {
+                colors.zebraB.copy(alpha = 1f - state.backgroundOpacity)
+            }
+        }
+    }
+    val placement = with(density) {
+        ListPlacement(
+            savedOffsetPx = state.homeListOffset?.dp?.toPx(),
+            rowHeightPx = rowHeight.toPx(),
+            maxOffsetPx = HomeListOffset.MAX_DP.dp.toPx(),
+            handleHeightPx = HANDLE_HEIGHT.roundToPx(),
+        )
+    }
+    Layout(
+        content = {
+            HomeHeader(state, minute, registry, gestures, actions)
+            Column(Modifier.fillMaxWidth()) {
+                ListHandle(active = gestures.handle.active, onBounds = registry.handle::set)
+                FavoritesList(
+                    state = state,
+                    registry = registry,
+                    rowStyle = RowStyle(textStyle, rowHeight, rowColor),
+                    pressedRow = { gestures.pressedRow },
+                    onAddApps = { actions.value.onAddApps() },
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                ) { capacity ->
+                    actions.value.onCapacityChanged(capacity)
+                }
+            }
+            Column(Modifier.fillMaxWidth()) {
+                HomeBar(state.suggestion, registry, actions.value)
+                Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
+            }
+        },
+        modifier = Modifier.fillMaxSize(),
+        measurePolicy = remember(placement, gestures.handle) { homeColumnPolicy(placement, gestures.handle) },
+    )
+}
+
+@Composable
+private fun HomeHeader(
+    state: HomeUiState,
+    minute: State<Long>,
+    registry: RowRegistry,
+    gestures: HomeGestureHandler,
+    actions: State<HomeActions>,
+) {
+    Column(Modifier.fillMaxWidth()) {
         Spacer(Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + HomeDimens.topGap))
         if (state.roleMissing) {
             RoleCard(registry, onClick = { actions.value.onRequestRole() })
@@ -189,33 +247,6 @@ private fun HomeColumn(
             onMeasured = gestures.clock::measured,
         )
         Spacer(Modifier.height(HomeDimens.listGap - HANDLE_HEIGHT))
-        Spacer(Modifier.height(with(density) { gestures.handle.offsetPx.toDp() }))
-        ListHandle(active = gestures.handle.active, onBounds = registry.handle::set)
-        val rowColor: (Int) -> Color = if (!hasBackground) {
-            colors::zebra
-        } else {
-            { index ->
-                if (index % 2 ==
-                    0
-                ) {
-                    Color.Transparent
-                } else {
-                    colors.zebraB.copy(alpha = 1f - state.backgroundOpacity)
-                }
-            }
-        }
-        FavoritesList(
-            state = state,
-            registry = registry,
-            rowColor = rowColor,
-            pressedRow = { gestures.pressedRow },
-            onAddApps = { actions.value.onAddApps() },
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-        ) { capacity ->
-            actions.value.onCapacityChanged(capacity)
-        }
-        HomeBar(state.suggestion, registry, actions.value)
-        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
 }
 
@@ -301,67 +332,43 @@ private fun RoleCard(registry: RowRegistry, onClick: () -> Unit) {
 @Composable
 private fun stringResourceRoleCard(): String = androidx.compose.ui.res.stringResource(R.string.home_make_default)
 
+@Immutable
+internal class RowStyle(val text: TextStyle, val height: Dp, val color: (Int) -> Color)
+
 @Composable
 private fun FavoritesList(
     state: HomeUiState,
     registry: RowRegistry,
-    rowColor: (Int) -> Color,
+    rowStyle: RowStyle,
     pressedRow: () -> Int?,
     onAddApps: () -> Unit,
     modifier: Modifier,
     onCapacity: (Int) -> Unit,
 ) {
-    val colors = LocalMushinColors.current
-    val textStyle = MushinType.style(state.textSize.sp.sp, colors.textPrimary)
-    val measurer = rememberTextMeasurer()
-    val density = LocalDensity.current
-    val rowHeight = remember(textStyle, density) {
-        val textHeight = with(density) { measurer.measure("Ag", textStyle).size.height.toDp() }
-        max(HomeDimens.rowHeight.value, (textHeight + 16.dp).value).dp
-    }
     BoxWithConstraints(modifier) {
-        val capacity = (maxHeight / rowHeight).toInt().coerceAtLeast(0)
+        val capacity = (maxHeight / rowStyle.height).toInt().coerceAtLeast(0)
         LaunchedEffect(capacity) { onCapacity(capacity) }
         val visible = state.rows.take(capacity)
         LaunchedEffect(visible.size) { registry.retainBelow(visible.size) }
-        if (state.rows.isEmpty()) {
-            BasicText(
-                text = androidx.compose.ui.res.stringResource(R.string.home_empty_space),
-                style = MushinType.style(MushinType.secondarySize, colors.textSecondary),
-                modifier = Modifier.padding(horizontal = HomeDimens.rowPadding).testTag("empty_env"),
-            )
-        } else {
-            Column(verticalArrangement = Arrangement.Top) {
-                visible.forEachIndexed { index, row ->
-                    val pressed = pressedRow() == index
-                    FavoriteRow(index, row, state.iconMode, textStyle, rowHeight, registry, rowColor(index), pressed)
-                }
-                if (state.rows.size < capacity) {
-                    Box(Modifier.fillMaxWidth().height(rowHeight), contentAlignment = Alignment.CenterEnd) {
-                        AddAppsButton(registry, onAddApps, Modifier.padding(end = 8.dp))
-                    }
-                }
+        Column(verticalArrangement = Arrangement.Top) {
+            visible.forEachIndexed { index, row ->
+                val pressed = pressedRow() == index
+                FavoriteRow(
+                    index,
+                    row,
+                    state.iconMode,
+                    rowStyle.text,
+                    rowStyle.height,
+                    registry,
+                    rowStyle.color(index),
+                    pressed,
+                )
+            }
+            if (state.rows.size < capacity) {
+                AddAppsRow(state.iconMode, rowStyle, rowStyle.color(visible.size), registry, onAddApps)
             }
         }
-        if (state.rows.isEmpty() && capacity > 0) {
-            AddAppsButton(registry, onAddApps, Modifier.align(Alignment.Center))
-        }
     }
-}
-
-@Composable
-private fun AddAppsButton(registry: RowRegistry, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = LocalMushinColors.current
-    DisposableEffect(Unit) { onDispose { registry.block(HOME_ADD, null) } }
-    GlyphButton(
-        Glyph.ADD,
-        stringResource(R.string.home_add_apps),
-        colors.textSecondary.copy(alpha = BAR_ALPHA),
-        tag = "home_add",
-        modifier = modifier.onGloballyPositioned { registry.block(HOME_ADD, it.boundsInRoot()) },
-        pressedColor = colors.keyPressed,
-        onClick = onClick,
-    )
 }
 
 @Composable
@@ -369,7 +376,7 @@ private fun FavoriteRow(
     index: Int,
     row: HomeRow,
     iconMode: IconMode,
-    textStyle: androidx.compose.ui.text.TextStyle,
+    textStyle: TextStyle,
     height: Dp,
     registry: RowRegistry,
     background: Color,
@@ -443,7 +450,6 @@ private fun BadgedIcon(row: HomeRow, index: Int, badge: Boolean, modifier: Modif
 private const val ROLE_CARD = "role_card"
 private const val BAR_EDIT = "bar_edit"
 private const val BAR_SUGGEST = "bar_suggest"
-private const val HOME_ADD = "home_add"
 private const val BAR_ALPHA = 0.7f
 private const val SHADE_ZONE = 0.2f
 private const val DIMMED_ALPHA = 0.5f

@@ -58,7 +58,7 @@ interface SpaceDao {
     suspend fun setColoredIcons(id: Long, enabled: Boolean)
 
     @Query("UPDATE environment SET list_offset = :dp WHERE id = :id")
-    suspend fun setListOffset(id: Long, dp: Int)
+    suspend fun setListOffset(id: Long, dp: Int?)
 
     @Query("DELETE FROM environment WHERE id = :id")
     suspend fun delete(id: Long)

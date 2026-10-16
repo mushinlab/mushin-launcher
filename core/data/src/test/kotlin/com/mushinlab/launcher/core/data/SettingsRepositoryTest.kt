@@ -1,6 +1,8 @@
 package com.mushinlab.launcher.core.data
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.data.settings.SettingsRepository
 import com.mushinlab.launcher.core.model.AppFont
@@ -52,7 +54,7 @@ class SettingsRepositoryTest {
         assertThat(settings.keyboardDigitHints).isTrue()
         assertThat(settings.keyboardWidth).isEqualTo(1f)
         assertThat(settings.keyboardShift).isEqualTo(0f)
-        assertThat(settings.homeListOffset).isEqualTo(0)
+        assertThat(settings.homeListOffset).isNull()
         assertThat(settings.searchColoredIcons).isFalse()
         assertThat(settings.gestureShiftPenalty).isEqualTo(0.5f)
         assertThat(settings.gestureSuggestMargin).isEqualTo(0.3f)
@@ -104,5 +106,31 @@ class SettingsRepositoryTest {
         assertThat(settings.backgroundOpacity).isEqualTo(1f)
         repo.update { it.copy(currentSpaceId = null) }
         assertThat(repo.settings.first { it.currentSpaceId == null }.iconMode).isEqualTo(IconMode.RIGHT)
+    }
+
+    @Test
+    fun homeListOffsetStaysAutoUntilSavedAndNullRemovesTheKey() = runTest {
+        val file = File(tmp.root, "settings.preferences_pb")
+        val store = PreferenceDataStoreFactory.create(scope = backgroundScope) { file }
+        val repo = SettingsRepository(store, backgroundScope)
+        val key = intPreferencesKey("home_list_offset")
+        repo.update { it.copy(iconMode = IconMode.LEFT) }
+        assertThat(repo.settings.first { it.iconMode == IconMode.LEFT }.homeListOffset).isNull()
+        assertThat(store.data.first().contains(key)).isFalse()
+        repo.update { it.copy(homeListOffset = 0) }
+        assertThat(repo.settings.first { it.homeListOffset != null }.homeListOffset).isEqualTo(0)
+        assertThat(store.data.first()[key]).isEqualTo(0)
+        repo.update { it.copy(homeListOffset = null) }
+        assertThat(repo.settings.first { it.homeListOffset == null }.iconMode).isEqualTo(IconMode.LEFT)
+        assertThat(store.data.first().contains(key)).isFalse()
+    }
+
+    @Test
+    fun previouslySavedHomeListOffsetIsKept() = runTest {
+        val file = File(tmp.root, "settings.preferences_pb")
+        val store = PreferenceDataStoreFactory.create(scope = backgroundScope) { file }
+        store.edit { it[intPreferencesKey("home_list_offset")] = 120 }
+        val repo = SettingsRepository(store, backgroundScope)
+        assertThat(repo.settings.first { it.homeListOffset != null }.homeListOffset).isEqualTo(120)
     }
 }

@@ -38,7 +38,7 @@ data class HomeUiState(
     val clockFormat: ClockFormat = ClockFormat.SYSTEM,
     val showDate: Boolean = true,
     val clockPosition: ClockPosition = ClockPosition.START,
-    val homeListOffset: Int = 0,
+    val homeListOffset: Int? = null,
     val backgroundOpacity: Float = BackgroundOpacity.DEFAULT,
     val roleMissing: Boolean = false,
     val suggestion: HomeSuggestion? = null,

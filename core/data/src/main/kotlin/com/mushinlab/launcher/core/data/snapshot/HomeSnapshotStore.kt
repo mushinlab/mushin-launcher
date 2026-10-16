@@ -3,6 +3,7 @@ package com.mushinlab.launcher.core.data.snapshot
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
+import com.mushinlab.launcher.core.model.HomeListOffset
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.Palette
@@ -18,7 +19,10 @@ data class SnapshotRow(
     val work: Boolean,
 )
 
-/** What the home screen showed last time, enough to draw it before the database and app list load. */
+/**
+ * What the home screen showed last time, enough to draw it before the database and app list load.
+ * [listOffset] null means the automatic list position.
+ */
 data class HomeSnapshot(
     val spaceId: Long,
     val palette: Palette,
@@ -28,7 +32,7 @@ data class HomeSnapshot(
     val showDate: Boolean,
     val rows: List<SnapshotRow>,
     val clockPosition: ClockPosition = ClockPosition.START,
-    val listOffset: Int = 0,
+    val listOffset: Int? = null,
 )
 
 /**
@@ -65,7 +69,7 @@ class HomeSnapshotStore(directory: File) {
             val clockFormat = ClockFormat.valueOf(input.readUTF())
             val showDate = input.readBoolean()
             val clockPosition = ClockPosition.valueOf(input.readUTF())
-            val listOffset = input.readInt()
+            val listOffset = input.readInt().takeIf { it in 0..HomeListOffset.MAX_DP }
             val rows = List(input.readInt()) {
                 SnapshotRow(
                     key = AppKey(input.readUTF(), input.readUTF(), input.readLong()),
@@ -95,7 +99,7 @@ class HomeSnapshotStore(directory: File) {
                 out.writeUTF(snapshot.clockFormat.name)
                 out.writeBoolean(snapshot.showDate)
                 out.writeUTF(snapshot.clockPosition.name)
-                out.writeInt(snapshot.listOffset)
+                out.writeInt(snapshot.listOffset ?: AUTO_LIST_OFFSET)
                 out.writeInt(snapshot.rows.size)
                 snapshot.rows.forEach { row ->
                     out.writeUTF(row.key.packageName)
@@ -113,5 +117,6 @@ class HomeSnapshotStore(directory: File) {
     private companion object {
         const val FILE_NAME = "home_snapshot.bin"
         const val VERSION = 3
+        const val AUTO_LIST_OFFSET = -1
     }
 }

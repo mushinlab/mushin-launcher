@@ -76,7 +76,7 @@ object StrokeWidth {
  * Global preferences, persisted by `SettingsRepository`.
  *
  * [currentSpaceId] null means the normal space. Per-space options (palette, colored icons, list offset) live
- * in [Space].
+ * in [Space]. [homeListOffset] null means the home list position is computed automatically.
  */
 data class LauncherSettings(
     val currentSpaceId: Long? = null,
@@ -84,7 +84,7 @@ data class LauncherSettings(
     val clockFormat: ClockFormat = ClockFormat.SYSTEM,
     val showDate: Boolean = true,
     val clockPosition: ClockPosition = ClockPosition.START,
-    val homeListOffset: Int = 0,
+    val homeListOffset: Int? = null,
     val font: AppFont = AppFont.SYSTEM,
     val fontWeight: AppFontWeight = AppFontWeight.REGULAR,
     val homeTextSize: HomeTextSize = HomeTextSize.M,

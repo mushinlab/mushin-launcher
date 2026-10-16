@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- The “+” button on the home screen is now a list row, “+ Add apps”, with the same height, font, text size and press feedback as app rows; with icons on, its label lines up with app names. It is shown when it fits under the list; in an empty space it is the only row, and the separate “Tap + to add apps” hint is gone (ADR-0018).
+- The home list starts lower by default: the drag handle sits at three times its old distance from the top of the screen, but never so low that fewer than four rows fit. A position you set by dragging the handle, including the very top, is kept as before (ADR-0018).
+
 ## 0.2.0 — 2026-10-16
 
 ### Added

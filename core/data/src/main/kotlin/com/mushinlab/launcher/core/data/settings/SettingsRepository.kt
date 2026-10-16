@@ -123,8 +123,7 @@ class SettingsRepository(
                     .coerceIn(KeyboardFit.WIDTH_MIN, KeyboardFit.WIDTH_MAX),
                 keyboardShift = prefs.valueOr(KB_SHIFT, defaults.keyboardShift)
                     .coerceIn(KeyboardFit.SHIFT_MIN, KeyboardFit.SHIFT_MAX),
-                homeListOffset = prefs.valueOr(HOME_LIST_OFFSET, defaults.homeListOffset)
-                    .coerceIn(0, HomeListOffset.MAX_DP),
+                homeListOffset = prefs[HOME_LIST_OFFSET]?.coerceIn(0, HomeListOffset.MAX_DP),
                 searchColoredIcons = prefs.valueOr(SEARCH_COLORED_ICONS, defaults.searchColoredIcons),
                 gestureShiftPenalty = prefs.valueOr(GESTURE_SHIFT_PENALTY, defaults.gestureShiftPenalty)
                     .coerceIn(GestureTuning.SHIFT_PENALTY_MIN, GestureTuning.SHIFT_PENALTY_MAX),
@@ -159,7 +158,8 @@ class SettingsRepository(
             prefs[KB_DIGIT_HINTS] = settings.keyboardDigitHints
             prefs[KB_WIDTH] = settings.keyboardWidth
             prefs[KB_SHIFT] = settings.keyboardShift
-            prefs[HOME_LIST_OFFSET] = settings.homeListOffset
+            val listOffset = settings.homeListOffset
+            if (listOffset == null) prefs.remove(HOME_LIST_OFFSET) else prefs[HOME_LIST_OFFSET] = listOffset
             prefs[SEARCH_COLORED_ICONS] = settings.searchColoredIcons
             prefs[GESTURE_SHIFT_PENALTY] = settings.gestureShiftPenalty
             prefs[GESTURE_SUGGEST_MARGIN] = settings.gestureSuggestMargin

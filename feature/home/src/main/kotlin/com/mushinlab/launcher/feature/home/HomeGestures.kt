@@ -69,34 +69,39 @@ internal class ClockMover(
 }
 
 internal class ListHandleDrag(
-    offsetPx: Float,
     private val maxOffsetPx: Float,
     private val view: View,
     private val onReleased: (Float) -> Unit,
 ) : DragCallbacks {
-    var offsetPx by mutableFloatStateOf(offsetPx)
-        private set
+    private var restingPx = 0f
+    private var draggedPx by mutableStateOf<Float?>(null)
     private var last by mutableStateOf<Float?>(null)
     val active: Boolean get() = last != null
 
-    fun sync(offsetPx: Float) {
-        if (last == null) this.offsetPx = offsetPx
+    fun offsetPx(restingPx: Float): Float {
+        this.restingPx = restingPx
+        return draggedPx ?: restingPx
+    }
+
+    fun settle() {
+        if (last == null) draggedPx = null
     }
 
     override fun onHold(position: Float) {
         view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        draggedPx = draggedPx ?: restingPx
         last = position
     }
 
     override fun onDrag(position: Float) {
         val previous = last ?: return
-        offsetPx = (offsetPx + position - previous).coerceIn(0f, maxOffsetPx)
+        draggedPx = ((draggedPx ?: restingPx) + position - previous).coerceIn(0f, maxOffsetPx)
         last = position
     }
 
     override fun onRelease() {
         last = null
-        onReleased(offsetPx)
+        draggedPx?.let(onReleased)
     }
 }
 
@@ -165,15 +170,13 @@ internal fun rememberHomeGestures(
             actions = actions,
             trace = trace,
             clock = ClockMover(home.clockPosition, inset, view) { actions.value.onClockMoved(it) },
-            handle = ListHandleDrag(with(density) { home.homeListOffset.dp.toPx() }, maxOffsetPx, view) {
+            handle = ListHandleDrag(maxOffsetPx, view) {
                 actions.value.onListOffset(with(density) { it.toDp().value.toInt() })
             },
         )
     }
     LaunchedEffect(home.clockPosition) { gestures.clock.sync(home.clockPosition) }
-    LaunchedEffect(home.homeListOffset, density) {
-        gestures.handle.sync(with(density) { home.homeListOffset.dp.toPx() })
-    }
+    LaunchedEffect(home.homeListOffset) { gestures.handle.settle() }
     return gestures
 }
 
