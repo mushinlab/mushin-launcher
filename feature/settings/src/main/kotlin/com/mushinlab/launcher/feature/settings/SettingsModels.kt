@@ -47,6 +47,10 @@ sealed interface SettingsRoute {
     data class MemoryApp(val key: AppKey, val sketch: Boolean = false) : SettingsRoute
 
     data object MemoryPickApp : SettingsRoute
+
+    data object Tips : SettingsRoute
+
+    data class Tip(val id: String) : SettingsRoute
 }
 
 @Stable

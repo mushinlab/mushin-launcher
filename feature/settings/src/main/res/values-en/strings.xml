@@ -211,4 +211,28 @@
     <string name="gestures_assistant_summary">Choose Mushin Launcher as the digital assistant: search opens by holding the power button or the bottom bar, or by swiping from a bottom corner (depends on the phone).</string>
     <string name="gestures_tile">Quick Settings tile</string>
     <string name="gestures_tile_summary">The “Mushin search” tile in the shade opens search from any app.</string>
+    <string name="settings_tips">Tips</string>
+    <string name="summary_tips">Short animations about what the launcher can do</string>
+    <string name="tip_space_title">Set up your first space</string>
+    <string name="tip_space_text">Tap the pencil at the bottom of the home screen, pick a palette and check the apps you want in this space.</string>
+    <string name="tip_style_title">Customize the launcher</string>
+    <string name="tip_style_text">Change the font, text size and icons in Style and Home screen. To move the clock, hold it and drag.</string>
+    <string name="tip_memory_title">Teach the launcher</string>
+    <string name="tip_memory_text">In System → Advanced → Memory, draw a shape for an app. Draw the same shape on the home screen and the launcher suggests that app.</string>
+    <string name="tips_more_title">For more, explore Tips</string>
+    <string name="tips_more_text">Replay these tips any time in Settings → Tips.</string>
+    <string name="tip_space_name">Personal</string>
+    <string-array name="tip_apps">
+        <item>Phone</item>
+        <item>Messages</item>
+        <item>Camera</item>
+        <item>Maps</item>
+        <item>Music</item>
+        <item>Notes</item>
+        <item>Calendar</item>
+    </string-array>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_done">Done</string>
+    <string name="onboarding_position">Slide %1$d of %2$d</string>
 </resources>

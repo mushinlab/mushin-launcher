@@ -2,6 +2,7 @@ package com.mushinlab.launcher.feature.settings
 
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.SwipeDirection
+import com.mushinlab.launcher.feature.settings.tips.Tip
 
 object SettingsRouteCodec {
     private const val SEPARATOR = "|"
@@ -19,6 +20,7 @@ object SettingsRouteCodec {
         SettingsRoute.System,
         SettingsRoute.Memory,
         SettingsRoute.MemoryPickApp,
+        SettingsRoute.Tips,
     ).associateBy { it.toString() }
 
     fun encode(route: SettingsRoute): String = when (route) {
@@ -31,6 +33,8 @@ object SettingsRouteCodec {
         is SettingsRoute.MemoryApp -> with(route.key) {
             join("MemoryApp", packageName, activityName, userSerial, route.sketch)
         }
+
+        is SettingsRoute.Tip -> join("Tip", route.id)
 
         else -> route.toString()
     }
@@ -51,6 +55,8 @@ object SettingsRouteCodec {
             AppKey(parts[PACKAGE_PART], parts[ACTIVITY_PART], parts[USER_PART].toLong()),
             parts[SKETCH_PART].toBooleanStrict(),
         )
+
+        "Tip" -> Tip.byId(parts[1])?.let { SettingsRoute.Tip(it.id) }
 
         else -> null
     }

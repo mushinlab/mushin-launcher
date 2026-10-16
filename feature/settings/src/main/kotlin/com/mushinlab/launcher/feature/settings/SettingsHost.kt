@@ -15,6 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import com.mushinlab.launcher.core.ui.Motion
+import com.mushinlab.launcher.feature.settings.tips.Tip
+import com.mushinlab.launcher.feature.settings.tips.TipScreen
+import com.mushinlab.launcher.feature.settings.tips.TipsScreen
 
 @Immutable
 private data class SettingsEntry(val route: SettingsRoute, val depth: Int)
@@ -79,6 +82,8 @@ private fun SettingsRouteScreen(
 
         SettingsRoute.Memory, is SettingsRoute.MemoryApp, SettingsRoute.MemoryPickApp ->
             MemoryRouteScreen(route, stack, state, actions, push, back)
+
+        SettingsRoute.Tips, is SettingsRoute.Tip -> TipsRouteScreen(route, push, back)
     }
 }
 
@@ -155,4 +160,10 @@ private fun MemoryRouteScreen(
         SettingsRoute.MemoryPickApp -> MemoryAppPicker(state, stack, push, back)
         else -> MemoryScreen(state, actions, push, back)
     }
+}
+
+@Composable
+private fun TipsRouteScreen(route: SettingsRoute, push: (SettingsRoute) -> Unit, back: () -> Unit) {
+    val tip = (route as? SettingsRoute.Tip)?.let { Tip.byId(it.id) }
+    if (tip != null) TipScreen(tip, back) else TipsScreen(push, back)
 }

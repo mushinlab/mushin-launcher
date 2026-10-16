@@ -4,6 +4,8 @@
 
 ### Added
 - A “+” button on the home screen under the last row (centred when the space is empty) opens the app picker of the current space (ADR-0017).
+- First-run onboarding (ADR-0017): four slides over the home screen with dot indicators, swipes, Skip and Next/Done. Short looping animations drawn in Compose show how to set up a space, customize the launcher and teach it a drawing. It is shown once; Back goes to the previous slide.
+- Settings → Tips: the onboarding animations, each on its own screen with a title and a short explanation. With animations turned off in system settings the last frame is shown still.
 
 ### Changed
 - Home rows show the press feedback style chosen in settings while the finger is on them, like other buttons (ADR-0017).
