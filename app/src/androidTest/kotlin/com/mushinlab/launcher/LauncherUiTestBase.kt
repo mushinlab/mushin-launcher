@@ -34,7 +34,7 @@ abstract class LauncherUiTestBase {
     fun seedFavorites() = runBlocking {
         val normal = container.spaces.spaces.first { it.isNotEmpty() }.first { it.type == SpaceType.NORMAL }
         normalId = normal.id
-        container.settings.update { it.copy(currentSpaceId = normal.id) }
+        container.settings.update { it.copy(currentSpaceId = normal.id, onboardingDone = true) }
         val apps = container.catalog.apps.first { it.size >= 3 }.sortedBy { it.label }.take(3)
         container.spaces.setItems(normal.id, apps.map { it.key })
         rule.waitUntil(5_000) { rule.activity.launcher.navigator.overlay == Overlay.None }

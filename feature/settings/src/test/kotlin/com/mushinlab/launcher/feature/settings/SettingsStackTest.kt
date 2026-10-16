@@ -15,6 +15,8 @@ class SettingsStackTest {
         SettingsRoute.Memory,
         SettingsRoute.MemoryApp(AppKey("org.telegram", "org.telegram.Main\$Alias", 10), sketch = true),
         SettingsRoute.MemoryPickApp,
+        SettingsRoute.Tips,
+        SettingsRoute.Tip("memory"),
     )
 
     @Test
@@ -29,6 +31,8 @@ class SettingsStackTest {
         assertThat(SettingsRouteCodec.decode("Nowhere")).isNull()
         assertThat(SettingsRouteCodec.decode("SpaceEditor|x")).isNull()
         assertThat(SettingsRouteCodec.decode("MemoryApp|only")).isNull()
+        assertThat(SettingsRouteCodec.decode("Tip|nowhere")).isNull()
+        assertThat(SettingsRouteCodec.decode("Tip")).isNull()
     }
 
     @Test

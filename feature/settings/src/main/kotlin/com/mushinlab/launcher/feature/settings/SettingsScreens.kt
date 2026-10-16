@@ -76,6 +76,11 @@ internal fun RootScreen(
             summary = stringResource(R.string.summary_system),
             tag = "nav_system",
         ) { push(SettingsRoute.System) }
+        NavRow(
+            stringResource(R.string.settings_tips),
+            summary = stringResource(R.string.summary_tips),
+            tag = "nav_tips",
+        ) { push(SettingsRoute.Tips) }
     }
 }
 

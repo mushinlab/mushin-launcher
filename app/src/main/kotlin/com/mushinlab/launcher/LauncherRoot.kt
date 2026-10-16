@@ -70,6 +70,7 @@ fun LauncherRoot(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
                 PopupLayer(vm)
                 SuggestionLayer(vm)
                 Box(Modifier.zIndex(3f)) { SettingsLayer(vm) }
+                OnboardingLayer(vm)
                 MessageLayer(vm)
             }
         }

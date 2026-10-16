@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+- First-run onboarding (ADR-0017): four slides over the home screen with dot indicators, swipes, Skip and Next/Done. Short looping animations drawn in Compose show how to set up a space, customize the launcher and teach it a drawing. It is shown once; Back goes to the previous slide.
+- Settings → Tips: the onboarding animations, each on its own screen with a title and a short explanation. With animations turned off in system settings the last frame is shown still.
+
 ### Fixed
 - Nightly UI tests in CI run on an API 36 emulator: GitHub runners have no API 37 image (ADR-0016).
 
