@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Nightly UI tests in CI run on an API 36 emulator: GitHub runners have no API 37 image (ADR-0016).
+
 ## 0.1.1 — 2026-10-16
 
 From this version on the changelog is kept in English.
