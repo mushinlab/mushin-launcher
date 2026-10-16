@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.1 — 2026-10-16
 
 From this version on the changelog is kept in English.
 
