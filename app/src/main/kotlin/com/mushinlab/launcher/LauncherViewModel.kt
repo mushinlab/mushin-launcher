@@ -218,6 +218,10 @@ class LauncherViewModel(
         effectChannel.trySend(effect)
     }
 
+    fun appLanguage(): String? = container.language.current()
+
+    fun setAppLanguage(tag: String?) = container.language.set(tag)
+
     private suspend fun warmIcons() {
         val d = data.filterNotNull().first()
         if (d.settings.iconMode != IconMode.NONE) {

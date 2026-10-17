@@ -3,10 +3,17 @@
 ## Unreleased
 
 ### Added
+- Interface languages (ADR-0023): English is now the base language and Russian a translation; the app declares English, Russian, Spanish, Portuguese (Brazil), German, French and Indonesian through the Android 13 per-app language setting (`locales_config.xml`). Settings → System → Language (second item) offers “System default” and the seven languages, each named in itself; the choice applies at once, without a restart, and is also available in the system app-language settings. Spanish, Portuguese, German, French and Indonesian texts follow in a separate change; until then those languages show English.
+- Keyboard layouts ES (QWERTY with ñ), PT (QWERTY with ç), DE (QWERTZ with ü, ö, ä), FR (AZERTY) and ID (QWERTY) next to EN and RU (ADR-0023). EN and RU keys keep their exact places, so learned drawings are unaffected. Swipe typing on a Latin layout follows that layout's own keys; on RU it still uses the QWERTY positions, and drawings on the home screen keep the QWERTY geometry.
+- Search ignores diacritics: plain letters find “España”, “Ação”, “Über” or “Café”, letters such as ñ, ç and ü typed on the new layouts find names with or without them, and ß, æ, œ, ø and ł are spelled out (ss, ae, oe, o, l). Wrong-layout correction and transliteration still work between EN and RU only.
 - Each space has its own background (ADR-0020). Space settings → Background → “Change background” opens the system photo picker when the space has no image yet, then a full-screen editor: the image in a frame with the proportions of the screen, under a mock home screen of the space (clock, date, list handle and five rows in its palette, font and text size). Drag to move the image, pinch to zoom (it always fills the screen), double-tap to reset. “Brightness” (darker to the left, lighter to the right) and “Blur” apply live. “Other image” picks a new photo, “Save” keeps the visible part at screen resolution, “Cancel” changes nothing. The space settings show a small preview, and “Remove background” deletes the image and resets both sliders. Deleting a space deletes its image; a new space starts without one.
 
 ### Changed
+<<<<<<< HEAD
 - Tips and onboarding animations play 1.5 times slower; slide transitions are unchanged.
+=======
+- Settings → Keyboard → Layouts is a list of the enabled layouts in switching order, each with its native name, its two-letter code and “Remove” (unavailable for the last one), followed by “Add more” with the layouts not yet in the list; a new one goes to the end. The per-layout switches and the move-up buttons are gone. New installs start with the layout of the phone language followed by EN (only EN for English or an unsupported language), and the first one is active; a stored list such as EN, RU is kept (ADR-0023).
+>>>>>>> worktree-agent-a702aa0a771893fea
 - With icons shown, the “Add apps” row has a “+” icon in the icon place and no “+” in its text; without icons the text starts with “+”.
 - New installs show app icons on the left and in colour by default (Home screen → Icons: Left; Style → Color icons: on for the built-in and new spaces). Existing settings are kept (ADR-0022).
 - Every icon button (edit, help, settings, back) sits on a circle with an outline, and the list drag handle on a small pill, so they keep their contrast over any background image (ADR-0021).

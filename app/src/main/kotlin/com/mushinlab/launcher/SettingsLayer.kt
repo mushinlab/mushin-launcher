@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.GestureAction
@@ -41,7 +42,9 @@ internal fun SettingsLayer(vm: LauncherViewModel) {
     }
     val editing by vm.backgrounds.source.collectAsStateWithLifecycle()
     val source = remember(editing) { editing?.let { BackgroundSource(it.spaceId, it.bitmap.asImageBitmap()) } }
-    SettingsHost(vm.navigator.settings, state.copy(backgroundSource = source), actions)
+    val configuration = LocalConfiguration.current
+    val language = remember(configuration) { vm.appLanguage() }
+    SettingsHost(vm.navigator.settings, state.copy(backgroundSource = source, appLanguage = language), actions)
 }
 
 private fun preferenceActions(vm: LauncherViewModel) = object : PreferenceActions {
@@ -89,6 +92,8 @@ private fun systemActions(vm: LauncherViewModel) = object : SystemActions {
     override fun openAssistantSettings() = vm.request(LauncherEffect.OpenAssistantSettings)
 
     override fun requestSearchTile() = vm.request(LauncherEffect.RequestSearchTile)
+
+    override fun setAppLanguage(tag: String?) = vm.setAppLanguage(tag)
 }
 
 private fun backgroundActions(vm: LauncherViewModel) = object : BackgroundActions {

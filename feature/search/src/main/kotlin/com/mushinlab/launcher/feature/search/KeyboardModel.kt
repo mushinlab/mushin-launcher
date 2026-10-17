@@ -123,7 +123,13 @@ class Glide(
     val onGlide: (GestureDecoder, List<GesturePoint>, List<ShapeVertex>) -> Boolean,
 )
 
-fun glideCenters(width: Float, rowHeight: Float, padding: Float, gap: Float): Map<Char, GesturePoint> =
-    KeyboardGeometry.compute(KeyboardLayouts.EN, width, rowHeight, padding, gap)
+fun glideCenters(
+    width: Float,
+    rowHeight: Float,
+    padding: Float,
+    gap: Float,
+    layout: KeyboardLayout = KeyboardLayouts.EN,
+): Map<Char, GesturePoint> =
+    KeyboardGeometry.compute(layout.takeIf { it.hasLatinLetters } ?: KeyboardLayouts.EN, width, rowHeight, padding, gap)
         .mapNotNull { key -> key.spec.char?.takeIf { it in 'a'..'z' }?.let { it to key.rect.center } }
         .associate { (char, center) -> char to GesturePoint(center.x, center.y) }

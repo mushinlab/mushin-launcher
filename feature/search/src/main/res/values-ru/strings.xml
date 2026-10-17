@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_nothing_found">Ничего не найдено</string>
+    <string name="search_hidden_suffix">(скрыто)</string>
+    <string name="search_suggestions">варианты…</string>
+    <string name="menu_add_to_space">Добавить в спейс</string>
+    <string name="menu_remove_from_space">Убрать из спейса</string>
+    <string name="menu_app_info">О приложении</string>
+    <string name="menu_uninstall">Удалить</string>
+    <string name="menu_hide">Скрыть</string>
+    <string name="menu_unhide">Показать</string>
+    <string name="search_show_hidden">Показывать скрытые</string>
+    <string name="search_options">Настройки поиска</string>
+    <string name="search_fuzzy">Исправлять опечатки</string>
+    <string name="search_layout_swap">Исправлять раскладку</string>
+    <string name="search_translit">Транслит</string>
+    <string name="search_clear_history">Очистить историю спейса</string>
+    <string name="search_clear_confirm">Очистить недавние этого спейса?</string>
+    <string name="search_clear">Очистить</string>
+    <string name="search_cancel">Отмена</string>
+    <string name="search_colored_icons">Цветные иконки</string>
+    <string name="search_backspace">Стереть символ</string>
+    <string name="search_clear_drawing">Стереть нарисованное</string>
+    <string name="menu_rename">Переименовать</string>
+</resources>

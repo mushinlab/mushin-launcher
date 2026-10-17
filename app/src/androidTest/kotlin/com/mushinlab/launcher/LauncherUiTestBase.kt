@@ -36,7 +36,14 @@ abstract class LauncherUiTestBase {
         val normal = container.spaces.spaces.first { it.isNotEmpty() }.first { it.type == SpaceType.NORMAL }
         normalId = normal.id
         container.settings.update {
-            it.copy(currentSpaceId = normal.id, onboardingDone = true, homeListOffset = 0, iconMode = IconMode.NONE)
+            it.copy(
+                currentSpaceId = normal.id,
+                onboardingDone = true,
+                homeListOffset = 0,
+                iconMode = IconMode.NONE,
+                keyboardLayouts = listOf("en", "ru"),
+                activeKeyboardLayout = "en",
+            )
         }
         container.spaces.spaces.value.forEach {
             container.spaces.setListOffset(it.id, null)

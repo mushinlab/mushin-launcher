@@ -186,6 +186,7 @@ data class SettingsUiState(
     val usage: ImmutableList<UsageRow> = persistentListOf(),
     val usefulness: ImmutableList<ScoreRow> = persistentListOf(),
     val backgroundSource: BackgroundSource? = null,
+    val appLanguage: String? = null,
 ) {
     val currentSpaceId: Long? get() = spaces.firstOrNull { it.current }?.id
 }

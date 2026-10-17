@@ -61,6 +61,8 @@ interface SystemActions {
     fun openAssistantSettings()
 
     fun requestSearchTile()
+
+    fun setAppLanguage(tag: String?)
 }
 
 interface BackgroundActions {

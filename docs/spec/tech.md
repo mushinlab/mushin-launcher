@@ -125,8 +125,8 @@ CREATE TABLE gesture_binding (
 | `clock_format` | String SYSTEM/H24/H12 | SYSTEM |
 | `show_date` | Boolean | true |
 | `home_text_size` | String S/M/L | M |
-| `kb_layouts` | String "en,ru" (порядок) | "en,ru" |
-| `kb_active_layout` | String | "en" |
+| `kb_layouts` | String "en,ru" (порядок) | раскладка языка устройства + "en", для английского и неподдерживаемого — "en" (ADR-0023; было "en,ru") |
+| `kb_active_layout` | String | первая из `kb_layouts` (ADR-0023; было "en") |
 | `kb_haptics` | Boolean | true |
 | `kb_digit_hints` | Boolean | true |
 | `search_fuzzy` / `search_layout_swap` / `search_translit` | Boolean | true |
