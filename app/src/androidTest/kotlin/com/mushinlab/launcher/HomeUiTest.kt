@@ -172,8 +172,9 @@ class HomeUiTest : LauncherUiTestBase() {
         rule.waitForIdle()
         val auto = handle()
         val screen = rule.onNodeWithTag("home").fetchSemanticsNode().boundsInRoot
-        assertThat(auto.top >= natural * 2.5f || auto.top >= screen.height * 0.5f).isTrue()
-        assertThat(auto.top).isAtMost(natural * 3f + 2f)
+        val gap = with(rule.density) { 32.dp.toPx() }
+        assertThat(auto.top - natural).isWithin(2f).of(gap * 2)
+        assertThat(auto.top).isLessThan(screen.height * 0.5f)
         val rowHeight = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.height
         val bar = rule.onNodeWithTag("home_edit").fetchSemanticsNode().boundsInRoot
         assertThat(bar.top - auto.bottom).isAtLeast(rowHeight * 4 - 1f)

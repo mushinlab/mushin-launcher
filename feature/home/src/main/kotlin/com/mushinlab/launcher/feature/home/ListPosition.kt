@@ -13,12 +13,13 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-internal fun autoListOffset(naturalTop: Float, listHeight: Float, rowHeight: Float, maxOffset: Float): Float =
-    minOf(naturalTop * (AUTO_DEPTH - 1), listHeight - rowHeight * MIN_VISIBLE_ROWS, maxOffset).coerceAtLeast(0f)
+internal fun autoListOffset(clockGap: Float, listHeight: Float, rowHeight: Float, maxOffset: Float): Float =
+    minOf(clockGap * (AUTO_DEPTH - 1), listHeight - rowHeight * MIN_VISIBLE_ROWS, maxOffset).coerceAtLeast(0f)
 
 @Immutable
 internal data class ListPlacement(
     val savedOffsetPx: Float?,
+    val clockGapPx: Float,
     val rowHeightPx: Float,
     val maxOffsetPx: Float,
     val handleHeightPx: Int,
@@ -32,7 +33,7 @@ internal fun homeColumnPolicy(placement: ListPlacement, handle: ListHandleDrag):
         val space = (constraints.maxHeight - header.height - bar.height).coerceAtLeast(0)
         val listSpace = (space - placement.handleHeightPx).coerceAtLeast(0)
         val resting = placement.savedOffsetPx ?: with(placement) {
-            autoListOffset(header.height.toFloat(), listSpace.toFloat(), rowHeightPx, maxOffsetPx)
+            autoListOffset(clockGapPx, listSpace.toFloat(), rowHeightPx, maxOffsetPx)
         }
         val offset = handle.offsetPx(resting).roundToInt().coerceIn(0, listSpace)
         val list = measurables[1].measure(Constraints.fixed(constraints.maxWidth, space - offset))

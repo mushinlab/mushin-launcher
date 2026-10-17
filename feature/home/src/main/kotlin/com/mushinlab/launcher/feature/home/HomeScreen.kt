@@ -180,6 +180,7 @@ private fun HomeColumn(
     val placement = with(density) {
         ListPlacement(
             savedOffsetPx = state.homeListOffset?.dp?.toPx(),
+            clockGapPx = HomeDimens.listGap.toPx(),
             rowHeightPx = rowHeight.toPx(),
             maxOffsetPx = HomeListOffset.MAX_DP.dp.toPx(),
             handleHeightPx = HANDLE_HEIGHT.roundToPx(),
