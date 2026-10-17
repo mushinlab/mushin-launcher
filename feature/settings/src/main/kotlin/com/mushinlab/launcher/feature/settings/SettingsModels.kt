@@ -29,8 +29,6 @@ sealed interface SettingsRoute {
 
     data class PickGestureApp(val direction: SwipeDirection) : SettingsRoute
 
-    data object Home : SettingsRoute
-
     data object Style : SettingsRoute
 
     data object Advanced : SettingsRoute

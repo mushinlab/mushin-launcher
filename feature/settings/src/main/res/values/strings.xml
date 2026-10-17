@@ -152,7 +152,6 @@
     <string name="settings_style">Style</string>
     <string name="settings_advanced">Advanced</string>
     <string name="summary_style">Font, weight, text size</string>
-    <string name="summary_home">Icons, clock and date, notification counts</string>
     <string name="summary_keyboard">Layouts, vibration, digit hints, swipe typing</string>
     <string name="summary_gestures">Swipes on the home screen</string>
     <string name="summary_apps">Hidden apps, custom names</string>
@@ -212,7 +211,7 @@
     <string name="tip_space_title">Set up your first space</string>
     <string name="tip_space_text">Tap the pencil at the bottom of the home screen, pick a palette and check the apps you want in this space.</string>
     <string name="tip_style_title">Customize the launcher</string>
-    <string name="tip_style_text">Change the font, text size and icons in Style and Home screen. To move the clock, hold it and drag.</string>
+    <string name="tip_style_text">Change the font, text size and icons in Style. To move the clock, hold it and drag.</string>
     <string name="tip_memory_title">Teach the launcher</string>
     <string name="tip_memory_text">In System → Advanced → Memory, draw a shape for an app. Draw the same shape on the home screen and the launcher suggests that app.</string>
     <string name="tips_more_title">For more, explore Tips</string>

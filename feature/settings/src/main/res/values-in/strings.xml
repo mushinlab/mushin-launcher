@@ -151,7 +151,6 @@
     <string name="settings_style">Gaya</string>
     <string name="settings_advanced">Lanjutan</string>
     <string name="summary_style">Font, ketebalan, ukuran teks</string>
-    <string name="summary_home">Ikon, jam dan tanggal, jumlah notifikasi</string>
     <string name="summary_keyboard">Tata letak, getaran, petunjuk angka, ketik geser</string>
     <string name="summary_gestures">Geser di layar utama</string>
     <string name="summary_apps">Aplikasi tersembunyi, nama kustom</string>
@@ -211,7 +210,7 @@
     <string name="tip_space_title">Atur ruang pertama Anda</string>
     <string name="tip_space_text">Ketuk pensil di bagian bawah layar utama, pilih palet, dan centang aplikasi yang Anda inginkan di ruang ini.</string>
     <string name="tip_style_title">Sesuaikan launcher</string>
-    <string name="tip_style_text">Ubah font, ukuran teks, dan ikon di Gaya dan Layar utama. Untuk memindahkan jam, tahan lalu seret.</string>
+    <string name="tip_style_text">Ubah font, ukuran teks, dan ikon di Gaya. Untuk memindahkan jam, tahan lalu seret.</string>
     <string name="tip_memory_title">Ajari launcher</string>
     <string name="tip_memory_text">Di Sistem → Lanjutan → Memori, gambar bentuk untuk sebuah aplikasi. Gambar bentuk yang sama di layar utama, dan launcher akan menyarankan aplikasi itu.</string>
     <string name="tips_more_title">Selengkapnya, buka Tips</string>

@@ -37,6 +37,8 @@ internal fun StyleScreen(state: SettingsUiState, actions: SettingsActions, back:
         }
         TextStyleRows(state.settings, actions.preferences)
         NoteText(stringResource(R.string.style_note))
+        SectionHeader(stringResource(R.string.settings_home))
+        HomeSettingsSection(state, actions)
         SectionHeader(stringResource(R.string.style_stroke))
         StrokeRows(state.settings, actions.preferences)
     }

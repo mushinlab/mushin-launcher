@@ -21,7 +21,6 @@ internal fun TipsHintAnimation(modifier: Modifier = Modifier) {
     val strings = listOf(
         stringResource(R.string.settings_title),
         stringResource(R.string.settings_style),
-        stringResource(R.string.settings_home),
         stringResource(R.string.settings_keyboard),
         stringResource(R.string.settings_gestures),
         stringResource(R.string.settings_apps),

@@ -51,11 +51,6 @@ private fun RootRows(push: (SettingsRoute) -> Unit) {
         tag = "nav_style",
     ) { push(SettingsRoute.Style) }
     NavRow(
-        stringResource(R.string.settings_home),
-        summary = stringResource(R.string.summary_home),
-        tag = "nav_home",
-    ) { push(SettingsRoute.Home) }
-    NavRow(
         stringResource(R.string.settings_keyboard),
         summary = stringResource(R.string.summary_keyboard),
         tag = "nav_keyboard",
@@ -100,48 +95,46 @@ internal fun AdvancedScreen(state: SettingsUiState, push: (SettingsRoute) -> Uni
 }
 
 @Composable
-internal fun HomeSettingsScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+internal fun HomeSettingsSection(state: SettingsUiState, actions: SettingsActions) {
     val s = state.settings
     val preferences = actions.preferences
-    SettingsPage(stringResource(R.string.settings_home), back) {
-        DropdownRow(
-            stringResource(R.string.home_icons),
-            listOf(
-                IconMode.NONE to stringResource(R.string.home_icons_none),
-                IconMode.LEFT to stringResource(R.string.home_icons_left),
-                IconMode.RIGHT to stringResource(R.string.home_icons_right),
-            ),
-            s.iconMode,
-            "icon_mode",
-        ) { mode -> preferences.updateSettings { it.copy(iconMode = mode) } }
-        DropdownRow(
-            stringResource(R.string.home_clock),
-            listOf(
-                ClockFormat.SYSTEM to stringResource(R.string.home_clock_system),
-                ClockFormat.H24 to stringResource(R.string.home_clock_24),
-                ClockFormat.H12 to stringResource(R.string.home_clock_12),
-            ),
-            s.clockFormat,
-            "clock",
-        ) { format -> preferences.updateSettings { it.copy(clockFormat = format) } }
-        CardGap()
-        ToggleRow(stringResource(R.string.home_show_date), s.showDate, tag = "show_date") { value ->
-            preferences.updateSettings { it.copy(showDate = value) }
+    DropdownRow(
+        stringResource(R.string.home_icons),
+        listOf(
+            IconMode.NONE to stringResource(R.string.home_icons_none),
+            IconMode.LEFT to stringResource(R.string.home_icons_left),
+            IconMode.RIGHT to stringResource(R.string.home_icons_right),
+        ),
+        s.iconMode,
+        "icon_mode",
+    ) { mode -> preferences.updateSettings { it.copy(iconMode = mode) } }
+    DropdownRow(
+        stringResource(R.string.home_clock),
+        listOf(
+            ClockFormat.SYSTEM to stringResource(R.string.home_clock_system),
+            ClockFormat.H24 to stringResource(R.string.home_clock_24),
+            ClockFormat.H12 to stringResource(R.string.home_clock_12),
+        ),
+        s.clockFormat,
+        "clock",
+    ) { format -> preferences.updateSettings { it.copy(clockFormat = format) } }
+    CardGap()
+    ToggleRow(stringResource(R.string.home_show_date), s.showDate, tag = "show_date") { value ->
+        preferences.updateSettings { it.copy(showDate = value) }
+    }
+    NoteText(stringResource(R.string.home_clock_note))
+    CardGap()
+    ToggleRow(stringResource(R.string.home_notifications), s.notificationCounts, tag = "notification_counts") {
+        preferences.updateSettings { settings -> settings.copy(notificationCounts = it) }
+        if (it && !state.notificationAccess) actions.system.openNotificationAccess()
+    }
+    if (s.notificationCounts && !state.notificationAccess) {
+        NoteText(stringResource(R.string.home_notifications_no_access), LocalMushinColors.current.accent)
+        NavRow(stringResource(R.string.home_notifications_grant), tag = "notification_access") {
+            actions.system.openNotificationAccess()
         }
-        NoteText(stringResource(R.string.home_clock_note))
-        CardGap()
-        ToggleRow(stringResource(R.string.home_notifications), s.notificationCounts, tag = "notification_counts") {
-            preferences.updateSettings { settings -> settings.copy(notificationCounts = it) }
-            if (it && !state.notificationAccess) actions.system.openNotificationAccess()
-        }
-        if (s.notificationCounts && !state.notificationAccess) {
-            NoteText(stringResource(R.string.home_notifications_no_access), LocalMushinColors.current.accent)
-            NavRow(stringResource(R.string.home_notifications_grant), tag = "notification_access") {
-                actions.system.openNotificationAccess()
-            }
-        } else {
-            NoteText(stringResource(R.string.home_notifications_note))
-        }
+    } else {
+        NoteText(stringResource(R.string.home_notifications_note))
     }
 }
 

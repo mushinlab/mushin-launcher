@@ -154,7 +154,6 @@
     <string name="settings_style">Стиль</string>
     <string name="settings_advanced">Дополнительно</string>
     <string name="summary_style">Шрифт, насыщенность, размер текста</string>
-    <string name="summary_home">Иконки, часы и дата, счётчик уведомлений</string>
     <string name="summary_keyboard">Раскладки, вибрация, подсказки цифр, рисунок на клавиатуре</string>
     <string name="summary_gestures">Свайпы на главном экране</string>
     <string name="summary_apps">Скрытые приложения, свои названия</string>
@@ -214,7 +213,7 @@
     <string name="tip_space_title">Настройте первый спейс</string>
     <string name="tip_space_text">Нажмите на карандаш внизу главного экрана, выберите палитру и отметьте приложения, которые нужны в этом спейсе.</string>
     <string name="tip_style_title">Настройте лаунчер под себя</string>
-    <string name="tip_style_text">Шрифт, размер текста и значки меняются в «Стиле» и «Главном экране». Часы можно передвинуть: удержите их и перетащите.</string>
+    <string name="tip_style_text">Шрифт, размер текста и значки меняются в «Стиле». Часы можно передвинуть: удержите их и перетащите.</string>
     <string name="tip_memory_title">Научите лаунчер</string>
     <string name="tip_memory_text">В «Системе → Дополнительно → Память» нарисуйте фигуру для приложения. Нарисуйте её же на главном экране, и лаунчер предложит это приложение.</string>
     <string name="tips_more_title">Больше — в «Советах»</string>

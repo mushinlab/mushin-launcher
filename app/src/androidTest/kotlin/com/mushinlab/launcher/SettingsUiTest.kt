@@ -47,7 +47,6 @@ class SettingsUiTest : LauncherUiTestBase() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         val order = listOf(
             "nav_style",
-            "nav_home",
             "nav_keyboard",
             "nav_gestures",
             "nav_apps",

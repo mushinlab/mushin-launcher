@@ -97,6 +97,7 @@ fun SearchScreen(
         ) {
             Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
             SearchHeader(controller)
+            Spacer(Modifier.height(SearchDimens.headerGap))
             ResultsPane(
                 controller,
                 chrome.iconMode,

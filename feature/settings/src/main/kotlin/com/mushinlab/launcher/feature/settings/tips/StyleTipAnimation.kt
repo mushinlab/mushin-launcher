@@ -26,7 +26,6 @@ internal fun StyleTipAnimation(modifier: Modifier = Modifier) {
     val apps = stringArrayResource(R.array.tip_apps).toList()
     val root = listOf(
         stringResource(R.string.settings_style),
-        stringResource(R.string.settings_home),
         stringResource(R.string.settings_keyboard),
         stringResource(R.string.settings_gestures),
         stringResource(R.string.settings_apps),

@@ -59,6 +59,7 @@ object SearchDimens {
     val suggestionIcon: Dp = 28.dp
     val suggestionGap: Dp = 12.dp
     val headerHeight: Dp = 48.dp
+    val headerGap: Dp = 6.dp
     val paneGap: Dp = 8.dp
     val paneRadius: Dp = 16.dp
     val closeSwipe: Dp = 72.dp

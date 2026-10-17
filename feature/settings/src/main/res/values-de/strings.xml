@@ -152,7 +152,6 @@
     <string name="settings_style">Stil</string>
     <string name="settings_advanced">Erweitert</string>
     <string name="summary_style">Schrift, Stärke, Textgröße</string>
-    <string name="summary_home">Symbole, Uhr und Datum, Benachrichtigungszähler</string>
     <string name="summary_keyboard">Layouts, Vibration, Ziffernhinweise, Wischeingabe</string>
     <string name="summary_gestures">Wischgesten auf dem Startbildschirm</string>
     <string name="summary_apps">Ausgeblendete Apps, eigene Namen</string>
@@ -212,7 +211,7 @@
     <string name="tip_space_title">Richte deinen ersten Bereich ein</string>
     <string name="tip_space_text">Tippe unten auf dem Startbildschirm auf den Stift, wähle eine Palette und hake die Apps an, die du in diesem Bereich haben willst.</string>
     <string name="tip_style_title">Passe den Launcher an</string>
-    <string name="tip_style_text">Schrift, Textgröße und Symbole änderst du unter Stil und Startbildschirm. Um die Uhr zu verschieben, halte sie gedrückt und ziehe sie.</string>
+    <string name="tip_style_text">Schrift, Textgröße und Symbole änderst du unter Stil. Um die Uhr zu verschieben, halte sie gedrückt und ziehe sie.</string>
     <string name="tip_memory_title">Bring dem Launcher etwas bei</string>
     <string name="tip_memory_text">Zeichne unter System → Erweitert → Gedächtnis eine Form für eine App. Zeichne dieselbe Form auf dem Startbildschirm, und der Launcher schlägt diese App vor.</string>
     <string name="tips_more_title">Mehr findest du unter Tipps</string>

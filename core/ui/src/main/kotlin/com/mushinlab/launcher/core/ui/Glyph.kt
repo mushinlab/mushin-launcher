@@ -76,5 +76,5 @@ fun GlyphButton(
 /** Circle every glyph button sits on, so an icon keeps its contrast over any palette or background image. */
 object GlyphWrapper {
     val inset = 4.dp
-    val outline = 1.dp
+    val outline = 2.dp
 }
