@@ -14,6 +14,7 @@ class SearchPanels {
         private set
     var resizing by mutableStateOf(false)
         private set
+    val open: Boolean get() = menu != null || options != null
 
     fun openMenu(menu: SearchMenu) {
         this.menu = menu

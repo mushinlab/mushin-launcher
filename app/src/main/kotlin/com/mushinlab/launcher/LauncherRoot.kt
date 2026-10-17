@@ -35,6 +35,7 @@ import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinFont
 import com.mushinlab.launcher.core.ui.MushinStroke
 import com.mushinlab.launcher.core.ui.MushinTheme
+import com.mushinlab.launcher.core.ui.popupBackdrop
 import com.mushinlab.launcher.feature.home.HomeActions
 import com.mushinlab.launcher.feature.home.HomeRow
 import com.mushinlab.launcher.feature.home.HomeScreen
@@ -100,7 +101,10 @@ private fun HomeLayer(vm: LauncherViewModel) {
         minute = vm.minute,
         actions = actions,
         gesturesEnabled = { input.gesturesEnabled },
-        modifier = Modifier.zIndex(0f).graphicsLayer { slideOut(input.exit, shift.value) },
+        modifier = Modifier
+            .zIndex(0f)
+            .graphicsLayer { slideOut(input.exit, shift.value) }
+            .popupBackdrop(vm.navigator.overlay.let { it is Overlay.Popup || it is Overlay.Suggestion }),
     )
 }
 
