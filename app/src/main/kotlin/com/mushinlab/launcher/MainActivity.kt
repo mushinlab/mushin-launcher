@@ -127,10 +127,6 @@ class MainActivity : ComponentActivity() {
             LauncherEffect.OpenNotificationAccess -> systemScreens.openNotificationAccess(
                 container.notificationListener,
             )
-
-            LauncherEffect.OpenAssistantSettings -> systemScreens.openAssistantSettings()
-
-            LauncherEffect.RequestSearchTile -> systemScreens.requestSearchTile()
         }
     }
 

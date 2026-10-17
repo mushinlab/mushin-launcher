@@ -3,8 +3,6 @@ package com.mushinlab.launcher.feature.settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.mushinlab.launcher.core.model.GestureAction
-import com.mushinlab.launcher.core.model.GestureTuning
-import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.model.SwipeDirection
 
 @Composable
@@ -50,21 +48,6 @@ internal fun GesturesScreen(
             SwipeRow(direction, state.gestures[direction], actions.preferences, push)
         }
         NoteText(stringResource(R.string.gesture_shade_zone))
-        SectionHeader(stringResource(R.string.gestures_anywhere))
-        NavRow(
-            stringResource(R.string.gestures_assistant),
-            summary = stringResource(R.string.gestures_assistant_summary),
-            tag = "anywhere_assistant",
-            onClick = actions.system::openAssistantSettings,
-        )
-        NavRow(
-            stringResource(R.string.gestures_tile),
-            summary = stringResource(R.string.gestures_tile_summary),
-            tag = "anywhere_tile",
-            onClick = actions.system::requestSearchTile,
-        )
-        SectionHeader(stringResource(R.string.keyboard_gesture_tuning))
-        GestureTuningRows(state.settings, actions.preferences)
     }
 }
 
@@ -95,34 +78,6 @@ private fun SwipeRow(
         when (choice) {
             GestureChoice.APP -> push(SettingsRoute.PickGestureApp(direction))
             else -> preferences.setGesture(direction, choice.action)
-        }
-    }
-}
-
-@Composable
-private fun GestureTuningRows(s: LauncherSettings, preferences: PreferenceActions) {
-    SliderRow(
-        stringResource(R.string.keyboard_gesture_shift),
-        s.gestureShiftPenalty,
-        GestureTuning.SHIFT_PENALTY_MIN..GestureTuning.SHIFT_PENALTY_MAX,
-        GestureTuning.STEP,
-        tag = "kb_gesture_shift",
-    ) { v -> preferences.updateSettings { it.copy(gestureShiftPenalty = v) } }
-    NoteText(stringResource(R.string.keyboard_gesture_shift_note))
-    SliderRow(
-        stringResource(R.string.keyboard_gesture_margin),
-        s.gestureSuggestMargin,
-        GestureTuning.SUGGEST_MARGIN_MIN..GestureTuning.SUGGEST_MARGIN_MAX,
-        GestureTuning.STEP,
-        tag = "kb_gesture_margin",
-    ) { v -> preferences.updateSettings { it.copy(gestureSuggestMargin = v) } }
-    NoteText(stringResource(R.string.keyboard_gesture_margin_note))
-    NavRow(stringResource(R.string.keyboard_gesture_tuning_reset), tag = "kb_gesture_tuning_reset") {
-        preferences.updateSettings {
-            it.copy(
-                gestureShiftPenalty = GestureTuning.SHIFT_PENALTY,
-                gestureSuggestMargin = GestureTuning.SUGGEST_MARGIN,
-            )
         }
     }
 }

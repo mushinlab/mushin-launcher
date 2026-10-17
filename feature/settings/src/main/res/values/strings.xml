@@ -9,7 +9,6 @@
     <string name="settings_on">On</string>
     <string name="settings_off">Off</string>
 
-    <string name="settings_spaces">Spaces</string>
     <string name="settings_home">Home screen</string>
     <string name="settings_keyboard">Keyboard</string>
     <string name="settings_gestures">Gestures</string>
@@ -17,14 +16,11 @@
     <string name="settings_apps">Hidden &amp; renamed</string>
     <string name="settings_system">System</string>
 
-    <string name="space_create">+ New space</string>
     <string name="space_create_title">New space</string>
     <string name="space_work_default_name">Work</string>
-    <string name="space_create_work">+ Create “Work”</string>
     <string name="space_type_normal">normal</string>
     <string name="space_type_work">work</string>
     <string name="space_type_custom">custom</string>
-    <string name="space_current">current</string>
     <string name="space_name">Name</string>
     <string name="space_rename_title">Space name</string>
     <string name="space_palette">Palette</string>
@@ -155,11 +151,10 @@
     </plurals>
     <string name="settings_style">Style</string>
     <string name="settings_advanced">Advanced</string>
-    <string name="summary_spaces">Create spaces, names, themes and apps</string>
     <string name="summary_style">Font, weight, text size</string>
     <string name="summary_home">Icons, clock and date, notification counts</string>
-    <string name="summary_keyboard">Layouts, vibration, digit hints</string>
-    <string name="summary_gestures">Swipes, drawing input</string>
+    <string name="summary_keyboard">Layouts, vibration, digit hints, swipe typing</string>
+    <string name="summary_gestures">Swipes on the home screen</string>
     <string name="summary_apps">Hidden apps, custom names</string>
     <string name="summary_system">Default launcher, language, privacy, advanced</string>
     <string name="summary_advanced">Press animation, memory</string>
@@ -176,7 +171,6 @@
     <string name="memory_usefulness_note">A score from 1 to 100: how often and how recently you opened the app in this space. If an app that is not on the home screen scores clearly higher than one that is, a “?” with a suggestion appears in the bottom right corner.</string>
     <string name="home_clock_note">Tap the clock to open the Clock app. Hold the clock to move it left, centre or right.</string>
     <string name="settings_back">Back</string>
-    <string name="space_list_note">To change a space, make it current (the row at the top of settings) and tap ✎ on the home screen.</string>
     <string name="style_theme">Theme of “%1$s”</string>
     <string name="style_text">Text</string>
     <string name="keyboard_fit_note">Change the keyboard width and position with the button left of the space bar: drag the side anchors to resize, the bottom one to move. The whole input panel changes.</string>
@@ -213,11 +207,6 @@
     <string name="background_mock_app">App %1$d</string>
     <string name="style_stroke_dots">Dots on the line</string>
     <string name="memory_sheet_draft">This is the average of your last attempts. Add it or draw again.</string>
-    <string name="gestures_anywhere">Search over apps</string>
-    <string name="gestures_assistant">Default assistant</string>
-    <string name="gestures_assistant_summary">Choose Mushin Launcher as the digital assistant: search opens by holding the power button or the bottom bar, or by swiping from a bottom corner (depends on the phone).</string>
-    <string name="gestures_tile">Quick Settings tile</string>
-    <string name="gestures_tile_summary">The “Mushin search” tile in the shade opens search from any app.</string>
     <string name="settings_tips">Tips</string>
     <string name="summary_tips">Short animations about what the launcher can do</string>
     <string name="tip_space_title">Set up your first space</string>

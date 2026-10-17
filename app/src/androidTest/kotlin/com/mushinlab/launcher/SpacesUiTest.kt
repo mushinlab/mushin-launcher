@@ -1,5 +1,6 @@
 package com.mushinlab.launcher
 
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
@@ -10,9 +11,16 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.matcher.RootMatchers.isDialog
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import com.mushinlab.launcher.core.data.repo.SpaceOutcome
+import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.SpaceType
+import com.mushinlab.launcher.feature.settings.R as SettingsR
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 import kotlin.math.abs
 import kotlinx.coroutines.flow.first
@@ -72,6 +80,82 @@ class SpacesUiTest : LauncherUiTestBase() {
         rule.waitUntil(5_000) { container.settings.settings.value.currentSpaceId == work }
         rule.onNodeWithTag("space_chip_$work").assertIsSelected()
         rule.onNodeWithTag("nav_search").assertDoesNotExist()
+    }
+
+    @Test
+    fun plusButtonCreatesASpaceThatAppearsAsAChip() {
+        val name = "New ${System.currentTimeMillis() % 100_000}"
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
+        rule.onNodeWithTag("settings_add_space").assertIsDisplayed().performClick()
+        rule.onNodeWithTag("space_type_WORK").assertDoesNotExist()
+        rule.onNodeWithTag("text_input").performTextInput(name)
+        rule.onNodeWithTag("dialog_button_1").performClick()
+        rule.waitUntil(5_000) { container.spaces.spaces.value.any { it.name == name } }
+        val created = container.spaces.spaces.value.first { it.name == name }
+        try {
+            assertThat(created.type).isEqualTo(SpaceType.CUSTOM)
+            rule.onNodeWithTag("dialog").assertDoesNotExist()
+            rule.onNodeWithTag("space_chip_${created.id}").performScrollTo().assertIsDisplayed().assertIsNotSelected()
+            rule.onNodeWithTag("settings_add_space").assertIsDisplayed()
+        } finally {
+            runBlocking { container.spaces.delete(created.id) }
+        }
+    }
+
+    @Test
+    fun longPressOnASpaceChipDeletesItAfterTheSystemDialog() {
+        val id = createCustomSpace("Doomed ${System.currentTimeMillis() % 100_000}")
+        try {
+            rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
+            rule.onNodeWithTag("space_chip_$id").performScrollTo().performTouchInput { longClick() }
+            rule.onNodeWithTag("popup").assertIsDisplayed()
+            rule.onNodeWithTag("space_delete").assertIsDisplayed().performClick()
+            rule.onNodeWithTag("popup").assertDoesNotExist()
+            assertThat(container.spaces.spaces.value.any { it.id == id }).isTrue()
+            onView(withText(rule.activity.getString(SettingsR.string.settings_delete)))
+                .inRoot(isDialog())
+                .perform(click())
+            rule.waitUntil(5_000) { container.spaces.spaces.value.none { it.id == id } }
+            rule.onNodeWithTag("space_chip_$id").assertDoesNotExist()
+        } finally {
+            runBlocking { container.spaces.delete(id) }
+        }
+    }
+
+    @Test
+    fun cancelInTheSystemDialogKeepsTheSpace() {
+        val id = createCustomSpace("Kept ${System.currentTimeMillis() % 100_000}")
+        try {
+            rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
+            rule.onNodeWithTag("space_chip_$id").performScrollTo().performTouchInput { longClick() }
+            rule.onNodeWithTag("space_delete").performClick()
+            onView(withText(rule.activity.getString(SettingsR.string.settings_cancel)))
+                .inRoot(isDialog())
+                .perform(click())
+            rule.waitForIdle()
+            assertThat(container.spaces.spaces.value.any { it.id == id }).isTrue()
+            rule.onNodeWithTag("space_chip_$id").assertExists()
+        } finally {
+            runBlocking { container.spaces.delete(id) }
+        }
+    }
+
+    @Test
+    fun longPressOnTheNormalSpaceOpensNoPanel() {
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
+        rule.onNodeWithTag("space_chip_$normalId").performTouchInput { longClick() }
+        rule.waitForIdle()
+        rule.onNodeWithTag("popup").assertDoesNotExist()
+        rule.onNodeWithTag("space_delete").assertDoesNotExist()
+        rule.onNodeWithTag("space_chip_$normalId").assertIsSelected()
+        assertThat(container.spaces.spaces.value.any { it.id == normalId }).isTrue()
+    }
+
+    private fun createCustomSpace(name: String): Long {
+        val outcome = runBlocking { container.spaces.create(name, SpaceType.CUSTOM, PalettePreset.MOSS) }
+        val id = (outcome as SpaceOutcome.Ok).value
+        rule.waitUntil(5_000) { container.spaces.spaces.value.any { it.id == id } }
+        return id
     }
 
     @Test

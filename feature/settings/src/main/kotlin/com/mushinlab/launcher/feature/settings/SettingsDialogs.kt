@@ -66,6 +66,7 @@ fun TextInputDialog(
     error: String?,
     confirm: String,
     extra: Pair<String, () -> Unit>? = null,
+    options: (@Composable ColumnScope.() -> Unit)? = null,
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -89,6 +90,7 @@ fun TextInputDialog(
                 .focusRequester(focus)
                 .testTag("text_input"),
         )
+        options?.invoke(this)
         if (error != null) {
             Spacer(Modifier.height(6.dp))
             BasicText(error, style = MushinType.style(14.sp, colors.accent))

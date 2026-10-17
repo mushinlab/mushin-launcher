@@ -9,7 +9,6 @@
     <string name="settings_on">Вкл</string>
     <string name="settings_off">Выкл</string>
 
-    <string name="settings_spaces">Спейсы</string>
     <string name="settings_home">Главный экран</string>
     <string name="settings_keyboard">Клавиатура</string>
     <string name="settings_gestures">Жесты</string>
@@ -17,14 +16,11 @@
     <string name="settings_apps">Скрытые и переименованные</string>
     <string name="settings_system">Система</string>
 
-    <string name="space_create">+ Создать спейс</string>
     <string name="space_create_title">Новый спейс</string>
     <string name="space_work_default_name">Работа</string>
-    <string name="space_create_work">+ Создать «Работа»</string>
     <string name="space_type_normal">обычный</string>
     <string name="space_type_work">работа</string>
     <string name="space_type_custom">свой</string>
-    <string name="space_current">текущий</string>
     <string name="space_name">Название</string>
     <string name="space_rename_title">Название спейса</string>
     <string name="space_palette">Палитра</string>
@@ -93,7 +89,7 @@
     <string name="keyboard_layouts">Раскладки</string>
     <string name="keyboard_haptics">Отклик вибрацией</string>
     <string name="keyboard_digit_hints">Подсказки цифр</string>
-    <string name="keyboard_gesture_tuning">Ввод рисунком</string>
+    <string name="keyboard_gesture_tuning">Рисунок на клавиатуре</string>
     <string name="keyboard_gesture_shift">Штраф за сдвиг</string>
     <string name="keyboard_gesture_shift_note">Меньше — рисунок, нарисованный в стороне от букв, узнаётся легче, но чаще бывают случайные совпадения. Больше — нужно попадать точнее. По умолчанию 0,50.</string>
     <string name="keyboard_gesture_margin">Порог вариантов</string>
@@ -157,11 +153,10 @@
     </plurals>
     <string name="settings_style">Стиль</string>
     <string name="settings_advanced">Дополнительно</string>
-    <string name="summary_spaces">Создание, названия, темы и приложения спейсов</string>
     <string name="summary_style">Шрифт, насыщенность, размер текста</string>
     <string name="summary_home">Иконки, часы и дата, счётчик уведомлений</string>
-    <string name="summary_keyboard">Раскладки, вибрация, подсказки цифр</string>
-    <string name="summary_gestures">Свайпы, ввод рисунком</string>
+    <string name="summary_keyboard">Раскладки, вибрация, подсказки цифр, рисунок на клавиатуре</string>
+    <string name="summary_gestures">Свайпы на главном экране</string>
     <string name="summary_apps">Скрытые приложения, свои названия</string>
     <string name="summary_system">Лаунчер по умолчанию, язык, конфиденциальность, дополнительно</string>
     <string name="summary_advanced">Анимация нажатия, память</string>
@@ -178,7 +173,6 @@
     <string name="memory_usefulness_note">Оценка от 1 до 100: как часто и как недавно вы открывали приложение в этом спейсе. Если приложение не на главном экране оценено заметно выше, чем одно из приложений на нём, внизу справа появится «?» с предложением.</string>
     <string name="home_clock_note">Тап по часам открывает приложение «Часы». Удерживайте часы, чтобы передвинуть их влево, в центр или вправо.</string>
     <string name="settings_back">Назад</string>
-    <string name="space_list_note">Чтобы изменить спейс, сделайте его текущим (ряд сверху в настройках) и нажмите ✎ на главном экране.</string>
     <string name="style_theme">Тема спейса «%1$s»</string>
     <string name="style_text">Текст</string>
     <string name="keyboard_fit_note">Ширину и положение клавиатуры меняет кнопка слева от пробела: потяните боковые якоря, чтобы изменить ширину, нижний — чтобы сдвинуть. Меняется вся панель ввода.</string>
@@ -215,11 +209,6 @@
     <string name="background_mock_app">Приложение %1$d</string>
     <string name="style_stroke_dots">Точки на линии</string>
     <string name="memory_sheet_draft">Это усреднённый рисунок из ваших последних попыток. Добавьте его или нарисуйте заново.</string>
-    <string name="gestures_anywhere">Поиск поверх приложений</string>
-    <string name="gestures_assistant">Помощник по умолчанию</string>
-    <string name="gestures_assistant_summary">Выберите Mushin Launcher цифровым помощником — поиск откроется удержанием кнопки питания или нижней полоски, или свайпом из нижнего угла (зависит от телефона).</string>
-    <string name="gestures_tile">Плитка в быстрых настройках</string>
-    <string name="gestures_tile_summary">Плитка «Поиск Mushin» в шторке открывает поиск из любого приложения.</string>
     <string name="settings_tips">Советы</string>
     <string name="summary_tips">Короткие анимации о том, что умеет лаунчер</string>
     <string name="tip_space_title">Настройте первый спейс</string>

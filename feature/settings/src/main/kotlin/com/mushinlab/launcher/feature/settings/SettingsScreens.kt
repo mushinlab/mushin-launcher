@@ -1,39 +1,28 @@
 package com.mushinlab.launcher.feature.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ClockFormat
+import com.mushinlab.launcher.core.model.GestureTuning
 import com.mushinlab.launcher.core.model.IconMode
+import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.search.KeyboardLayout
 import com.mushinlab.launcher.core.search.KeyboardLayouts
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
-import com.mushinlab.launcher.core.ui.RadioMark
 import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.pressable
 
@@ -44,86 +33,53 @@ internal fun RootScreen(
     push: (SettingsRoute) -> Unit,
     back: () -> Unit,
 ) {
-    SettingsPage(stringResource(R.string.settings_title), back) {
-        SpaceChips(state.spaces, actions.spaces::switchSpace)
-        NavRow(
-            stringResource(R.string.settings_style),
-            summary = stringResource(R.string.summary_style),
-            tag = "nav_style",
-        ) { push(SettingsRoute.Style) }
-        NavRow(
-            stringResource(R.string.settings_home),
-            summary = stringResource(R.string.summary_home),
-            tag = "nav_home",
-        ) { push(SettingsRoute.Home) }
-        NavRow(
-            stringResource(R.string.settings_keyboard),
-            summary = stringResource(R.string.summary_keyboard),
-            tag = "nav_keyboard",
-        ) { push(SettingsRoute.Keyboard) }
-        NavRow(
-            stringResource(R.string.settings_gestures),
-            summary = stringResource(R.string.summary_gestures),
-            tag = "nav_gestures",
-        ) { push(SettingsRoute.Gestures) }
-        NavRow(
-            stringResource(R.string.settings_spaces),
-            summary = stringResource(R.string.summary_spaces),
-            tag = "nav_envs",
-        ) { push(SettingsRoute.Spaces) }
-        NavRow(
-            stringResource(R.string.settings_apps),
-            summary = stringResource(R.string.summary_apps),
-            tag = "nav_apps",
-        ) { push(SettingsRoute.Apps) }
-        NavRow(
-            stringResource(R.string.settings_system),
-            summary = stringResource(R.string.summary_system),
-            tag = "nav_system",
-        ) { push(SettingsRoute.System) }
-        NavRow(
-            stringResource(R.string.settings_tips),
-            summary = stringResource(R.string.summary_tips),
-            tag = "nav_tips",
-        ) { push(SettingsRoute.Tips) }
+    val bar = remember { SpaceBarState() }
+    Box {
+        SettingsPage(stringResource(R.string.settings_title), back) {
+            SpaceBar(state.spaces, actions.spaces, bar)
+            RootRows(push)
+        }
+        SpaceBarOverlays(state.spaces, actions.spaces, bar)
     }
 }
 
 @Composable
-private fun SpaceChips(spaces: List<SpaceSummary>, onSelect: (Long) -> Unit) {
-    val colors = LocalMushinColors.current
-    val scroll = rememberScrollState()
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .horizontalScroll(scroll)
-            .padding(horizontal = CARD_MARGIN, vertical = 8.dp)
-            .testTag("space_chips"),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        spaces.forEach { space ->
-            Row(
-                Modifier
-                    .clip(RoundedCornerShape(CARD_RADIUS))
-                    .background(if (space.current) colors.accent.copy(alpha = CHIP_ALPHA) else colors.surface)
-                    .border(
-                        1.dp,
-                        if (space.current) colors.accent else colors.surface,
-                        RoundedCornerShape(CARD_RADIUS),
-                    )
-                    .pressable(role = Role.RadioButton) { onSelect(space.id) }
-                    .semantics { selected = space.current }
-                    .testTag("space_chip_${space.id}")
-                    .heightIn(min = 48.dp)
-                    .padding(horizontal = 14.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                RadioMark(space.current)
-                Spacer(Modifier.width(8.dp))
-                SingleLineText(space.name, MushinType.style(16.sp, colors.textPrimary))
-            }
-        }
-    }
+private fun RootRows(push: (SettingsRoute) -> Unit) {
+    NavRow(
+        stringResource(R.string.settings_style),
+        summary = stringResource(R.string.summary_style),
+        tag = "nav_style",
+    ) { push(SettingsRoute.Style) }
+    NavRow(
+        stringResource(R.string.settings_home),
+        summary = stringResource(R.string.summary_home),
+        tag = "nav_home",
+    ) { push(SettingsRoute.Home) }
+    NavRow(
+        stringResource(R.string.settings_keyboard),
+        summary = stringResource(R.string.summary_keyboard),
+        tag = "nav_keyboard",
+    ) { push(SettingsRoute.Keyboard) }
+    NavRow(
+        stringResource(R.string.settings_gestures),
+        summary = stringResource(R.string.summary_gestures),
+        tag = "nav_gestures",
+    ) { push(SettingsRoute.Gestures) }
+    NavRow(
+        stringResource(R.string.settings_apps),
+        summary = stringResource(R.string.summary_apps),
+        tag = "nav_apps",
+    ) { push(SettingsRoute.Apps) }
+    NavRow(
+        stringResource(R.string.settings_tips),
+        summary = stringResource(R.string.summary_tips),
+        tag = "nav_tips",
+    ) { push(SettingsRoute.Tips) }
+    NavRow(
+        stringResource(R.string.settings_system),
+        summary = stringResource(R.string.summary_system),
+        tag = "nav_system",
+    ) { push(SettingsRoute.System) }
 }
 
 @Composable
@@ -221,6 +177,36 @@ internal fun KeyboardSettingsScreen(state: SettingsUiState, actions: SettingsAct
             preferences.updateSettings { it.copy(keyboardDigitHints = v) }
         }
         NoteText(stringResource(R.string.keyboard_fit_note))
+        SectionHeader(stringResource(R.string.keyboard_gesture_tuning))
+        GestureTuningRows(s, preferences)
+    }
+}
+
+@Composable
+private fun GestureTuningRows(s: LauncherSettings, preferences: PreferenceActions) {
+    SliderRow(
+        stringResource(R.string.keyboard_gesture_shift),
+        s.gestureShiftPenalty,
+        GestureTuning.SHIFT_PENALTY_MIN..GestureTuning.SHIFT_PENALTY_MAX,
+        GestureTuning.STEP,
+        tag = "kb_gesture_shift",
+    ) { v -> preferences.updateSettings { it.copy(gestureShiftPenalty = v) } }
+    NoteText(stringResource(R.string.keyboard_gesture_shift_note))
+    SliderRow(
+        stringResource(R.string.keyboard_gesture_margin),
+        s.gestureSuggestMargin,
+        GestureTuning.SUGGEST_MARGIN_MIN..GestureTuning.SUGGEST_MARGIN_MAX,
+        GestureTuning.STEP,
+        tag = "kb_gesture_margin",
+    ) { v -> preferences.updateSettings { it.copy(gestureSuggestMargin = v) } }
+    NoteText(stringResource(R.string.keyboard_gesture_margin_note))
+    NavRow(stringResource(R.string.keyboard_gesture_tuning_reset), tag = "kb_gesture_tuning_reset") {
+        preferences.updateSettings {
+            it.copy(
+                gestureShiftPenalty = GestureTuning.SHIFT_PENALTY,
+                gestureSuggestMargin = GestureTuning.SUGGEST_MARGIN,
+            )
+        }
     }
 }
 
@@ -313,5 +299,3 @@ internal fun SystemScreen(
         NoteText(stringResource(R.string.system_licenses_text))
     }
 }
-
-private const val CHIP_ALPHA = 0.16f

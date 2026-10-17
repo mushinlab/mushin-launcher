@@ -89,10 +89,6 @@ private fun systemActions(vm: LauncherViewModel) = object : SystemActions {
 
     override fun openNotificationAccess() = vm.request(LauncherEffect.OpenNotificationAccess)
 
-    override fun openAssistantSettings() = vm.request(LauncherEffect.OpenAssistantSettings)
-
-    override fun requestSearchTile() = vm.request(LauncherEffect.RequestSearchTile)
-
     override fun setAppLanguage(tag: String?) = vm.setAppLanguage(tag)
 }
 

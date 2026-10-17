@@ -8,7 +8,6 @@ import org.junit.Test
 class SettingsStackTest {
     private val routes = listOf(
         SettingsRoute.Root,
-        SettingsRoute.Spaces,
         SettingsRoute.SpaceEditor(7),
         SettingsRoute.PickApps(7),
         SettingsRoute.BackgroundEditor(7),
@@ -30,6 +29,7 @@ class SettingsStackTest {
     @Test
     fun unknownOrBrokenRoutesAreDropped() {
         assertThat(SettingsRouteCodec.decode("Nowhere")).isNull()
+        assertThat(SettingsRouteCodec.decode("Spaces")).isNull()
         assertThat(SettingsRouteCodec.decode("SpaceEditor|x")).isNull()
         assertThat(SettingsRouteCodec.decode("BackgroundEditor")).isNull()
         assertThat(SettingsRouteCodec.decode("BackgroundEditor|")).isNull()
@@ -45,7 +45,7 @@ class SettingsStackTest {
         stack.restore(routes.take(3))
         stack.pop()
 
-        assertThat(stack.routes).containsExactly(SettingsRoute.Root, SettingsRoute.Spaces).inOrder()
+        assertThat(stack.routes).containsExactly(SettingsRoute.Root, SettingsRoute.SpaceEditor(7)).inOrder()
     }
 
     @Test

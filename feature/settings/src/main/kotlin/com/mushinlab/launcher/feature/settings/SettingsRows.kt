@@ -86,23 +86,6 @@ fun NavRow(
 }
 
 @Composable
-fun InfoRow(title: String, value: String, tag: String) {
-    val colors = LocalMushinColors.current
-    Row(
-        Modifier
-            .settingsCard()
-            .heightIn(min = 56.dp)
-            .testTag(tag)
-            .padding(horizontal = CARD_PADDING, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        BasicText(title, style = MushinType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
-        Spacer(Modifier.width(16.dp))
-        SingleLineText(value, MushinType.style(15.sp, colors.textSecondary))
-    }
-}
-
-@Composable
 fun ToggleRow(title: String, checked: Boolean, tag: String? = null, onToggle: (Boolean) -> Unit) {
     val colors = LocalMushinColors.current
     Row(

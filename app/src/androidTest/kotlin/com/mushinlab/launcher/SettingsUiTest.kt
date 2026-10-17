@@ -1,5 +1,8 @@
 package com.mushinlab.launcher
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
@@ -9,6 +12,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
 import com.mushinlab.launcher.core.model.GestureTuning
@@ -39,11 +43,43 @@ class SettingsUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun gesturesSectionHoldsSwipesAndSwipeTypingSettings() {
+    fun rootEndsWithTipsThenSystemAndHasNoSpacesEntry() {
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
+        val order = listOf(
+            "nav_style",
+            "nav_home",
+            "nav_keyboard",
+            "nav_gestures",
+            "nav_apps",
+            "nav_tips",
+            "nav_system",
+        )
+        val tops = order.map { rule.onNodeWithTag(it).fetchSemanticsNode().boundsInRoot.top }
+        assertThat(tops).isInStrictOrder()
+        val navRow = SemanticsMatcher("nav row") {
+            it.config.getOrNull(SemanticsProperties.TestTag)?.startsWith("nav_") == true
+        }
+        val navTags = rule.onAllNodes(navRow).fetchSemanticsNodes().map { it.config[SemanticsProperties.TestTag] }
+        assertThat(navTags).containsExactlyElementsIn(order)
+        rule.onNodeWithTag("nav_envs").assertDoesNotExist()
+    }
+
+    @Test
+    fun gesturesSectionHoldsOnlySwipes() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         rule.onNodeWithTag("nav_gestures").performClick()
         rule.onNodeWithTag("gesture_UP_dropdown").assertIsDisplayed()
         rule.onNodeWithTag("kb_gesture_letters").assertDoesNotExist()
+        rule.onNodeWithTag("anywhere_assistant").assertDoesNotExist()
+        rule.onNodeWithTag("anywhere_tile").assertDoesNotExist()
+        rule.onNodeWithTag("kb_gesture_shift").assertDoesNotExist()
+        rule.onNodeWithTag("kb_gesture_margin").assertDoesNotExist()
+    }
+
+    @Test
+    fun keyboardSectionHoldsSwipeTypingSettings() {
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
+        rule.onNodeWithTag("nav_keyboard").performClick()
         rule.onNodeWithTag("kb_gesture_shift").performScrollTo().performTouchInput { click(centerLeft) }
         rule.waitUntil(5_000) {
             container.settings.settings.value.gestureShiftPenalty == GestureTuning.SHIFT_PENALTY_MIN

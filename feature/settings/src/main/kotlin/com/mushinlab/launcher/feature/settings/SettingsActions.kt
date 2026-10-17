@@ -58,10 +58,6 @@ interface SystemActions {
 
     fun openNotificationAccess()
 
-    fun openAssistantSettings()
-
-    fun requestSearchTile()
-
     fun setAppLanguage(tag: String?)
 }
 
