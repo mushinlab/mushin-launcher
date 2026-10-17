@@ -174,8 +174,9 @@ private fun searchActions(vm: LauncherViewModel) = object : SearchActions {
         }
     }
 
-    override fun onClearHistory() {
-        vm.model.currentSpace?.let { vm.preferences.clearHistory(it.id) }
+    override fun onOpenSettings() {
+        vm.navigator.closeOverlays()
+        vm.navigator.openSettings()
     }
 
     override fun onClose() {

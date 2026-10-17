@@ -14,12 +14,9 @@
     <string name="search_fuzzy">Fix typos</string>
     <string name="search_layout_swap">Fix keyboard layout</string>
     <string name="search_translit">Transliteration</string>
-    <string name="search_clear_history">Clear space history</string>
-    <string name="search_clear_confirm">Clear recent apps of this space?</string>
-    <string name="search_clear">Clear</string>
-    <string name="search_cancel">Cancel</string>
     <string name="search_colored_icons">Color icons</string>
     <string name="search_backspace">Delete</string>
     <string name="search_clear_drawing">Clear drawing</string>
     <string name="menu_rename">Rename</string>
+    <string name="search_all_settings">All settings</string>
 </resources>

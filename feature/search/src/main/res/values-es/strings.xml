@@ -14,12 +14,9 @@
     <string name="search_fuzzy">Corregir erratas</string>
     <string name="search_layout_swap">Corregir distribución del teclado</string>
     <string name="search_translit">Transliteración</string>
-    <string name="search_clear_history">Borrar historial del espacio</string>
-    <string name="search_clear_confirm">¿Borrar las apps recientes de este espacio?</string>
-    <string name="search_clear">Borrar</string>
-    <string name="search_cancel">Cancelar</string>
     <string name="search_colored_icons">Iconos en color</string>
     <string name="search_backspace">Borrar</string>
     <string name="search_clear_drawing">Borrar trazo</string>
     <string name="menu_rename">Cambiar nombre</string>
+    <string name="search_all_settings">Todos los ajustes</string>
 </resources>

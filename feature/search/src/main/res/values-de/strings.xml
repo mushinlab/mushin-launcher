@@ -14,12 +14,9 @@
     <string name="search_fuzzy">Tippfehler korrigieren</string>
     <string name="search_layout_swap">Tastaturlayout korrigieren</string>
     <string name="search_translit">Transliteration</string>
-    <string name="search_clear_history">Bereichsverlauf löschen</string>
-    <string name="search_clear_confirm">Zuletzt geöffnete Apps dieses Bereichs löschen?</string>
-    <string name="search_clear">Löschen</string>
-    <string name="search_cancel">Abbrechen</string>
     <string name="search_colored_icons">Farbige Symbole</string>
     <string name="search_backspace">Löschen</string>
     <string name="search_clear_drawing">Zeichnung löschen</string>
     <string name="menu_rename">Umbenennen</string>
+    <string name="search_all_settings">Alle Einstellungen</string>
 </resources>

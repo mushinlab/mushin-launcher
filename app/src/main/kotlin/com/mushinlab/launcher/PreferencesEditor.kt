@@ -15,8 +15,4 @@ class PreferencesEditor(private val container: AppContainer) {
     fun setGesture(direction: SwipeDirection, action: GestureAction) {
         container.scope.launch { container.gestures.set(direction, action) }
     }
-
-    fun clearHistory(spaceId: Long) {
-        container.scope.launch { container.history.clearRecents(spaceId) }
-    }
 }

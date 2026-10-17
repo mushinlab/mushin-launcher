@@ -14,12 +14,9 @@
     <string name="search_fuzzy">Исправлять опечатки</string>
     <string name="search_layout_swap">Исправлять раскладку</string>
     <string name="search_translit">Транслит</string>
-    <string name="search_clear_history">Очистить историю спейса</string>
-    <string name="search_clear_confirm">Очистить недавние этого спейса?</string>
-    <string name="search_clear">Очистить</string>
-    <string name="search_cancel">Отмена</string>
     <string name="search_colored_icons">Цветные иконки</string>
     <string name="search_backspace">Стереть символ</string>
     <string name="search_clear_drawing">Стереть нарисованное</string>
     <string name="menu_rename">Переименовать</string>
+    <string name="search_all_settings">Все настройки</string>
 </resources>

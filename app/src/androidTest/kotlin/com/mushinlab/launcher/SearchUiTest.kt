@@ -11,6 +11,7 @@ import androidx.compose.ui.test.swipeDown
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import com.mushinlab.launcher.feature.settings.SettingsRoute
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,9 +49,7 @@ class SearchUiTest : LauncherUiTestBase() {
             assertThat(recent.width).isWithin(2f).of(results.width)
             assertThat(divider.bottom).isAtMost(recent.top + 1f)
             assertThat(next.bottom).isAtMost(divider.top + 1f)
-            rule.onNodeWithTag("search_options").performClick()
-            rule.onNodeWithTag("search_clear_history").performClick()
-            rule.onNodeWithTag("search_clear_confirm").performClick()
+            runBlocking { container.history.clearRecents(normalId) }
             rule.waitUntil(5_000) { rule.activity.launcher.navigator.search.rows.none { it.recent } }
             rule.onNodeWithTag("recents_divider").assertDoesNotExist()
         } finally {
@@ -137,5 +136,15 @@ class SearchUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("search_options").performClick()
         rule.onNodeWithTag("search_option_COLORED_ICONS").performClick()
         rule.waitUntil(5_000) { container.settings.settings.value.searchColoredIcons }
+    }
+
+    @Test
+    fun allSettingsInSearchOptionsOpensSettingsAndClosesSearch() {
+        openSearch()
+        rule.onNodeWithTag("search_options").performClick()
+        rule.onNodeWithTag("search_all_settings").performClick()
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.Root }
+        assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None)
+        rule.onNodeWithTag("nav_style").assertIsDisplayed()
     }
 }

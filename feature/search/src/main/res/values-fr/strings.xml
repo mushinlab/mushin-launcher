@@ -14,12 +14,9 @@
     <string name="search_fuzzy">Corriger les fautes de frappe</string>
     <string name="search_layout_swap">Corriger la disposition du clavier</string>
     <string name="search_translit">Translittération</string>
-    <string name="search_clear_history">Effacer l’historique de l’espace</string>
-    <string name="search_clear_confirm">Effacer les applis récentes de cet espace ?</string>
-    <string name="search_clear">Effacer</string>
-    <string name="search_cancel">Annuler</string>
     <string name="search_colored_icons">Icônes en couleur</string>
     <string name="search_backspace">Effacer</string>
     <string name="search_clear_drawing">Effacer le tracé</string>
     <string name="menu_rename">Renommer</string>
+    <string name="search_all_settings">Tous les paramètres</string>
 </resources>

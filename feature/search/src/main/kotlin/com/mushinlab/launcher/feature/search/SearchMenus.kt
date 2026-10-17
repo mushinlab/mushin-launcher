@@ -34,7 +34,7 @@ interface SearchOptionsActions {
 
     fun onSearchOption(option: SearchOption, enabled: Boolean)
 
-    fun onClearHistory()
+    fun onOpenSettings()
 }
 
 @Composable
@@ -45,34 +45,27 @@ internal fun OptionsPanel(
     actions: SearchOptionsActions,
     onDismiss: () -> Unit,
 ) {
-    var confirm by remember { mutableStateOf(false) }
     AnchoredPanel(anchor = anchor, onDismiss = onDismiss) {
-        if (confirm) {
-            PanelHeader(stringResource(R.string.search_clear_confirm))
-            PanelItem(stringResource(R.string.search_clear), tag = "search_clear_confirm") {
-                actions.onClearHistory()
-                onDismiss()
-            }
-            PanelItem(stringResource(R.string.search_cancel), tag = "search_clear_cancel") { confirm = false }
-        } else {
-            PanelHeader(stringResource(R.string.search_options))
-            listOf(
-                Triple(SearchOption.FUZZY, R.string.search_fuzzy, chrome.fuzzy),
-                Triple(SearchOption.LAYOUT_SWAP, R.string.search_layout_swap, chrome.layoutSwap),
-                Triple(SearchOption.TRANSLIT, R.string.search_translit, chrome.translit),
-                Triple(SearchOption.COLORED_ICONS, R.string.search_colored_icons, chrome.coloredIcons),
-            ).forEach { (option, label, on) ->
-                PanelItem(
-                    (if (on) "✓  " else "     ") + stringResource(label),
-                    tag = "search_option_$option",
-                ) { actions.onSearchOption(option, !on) }
-            }
+        PanelHeader(stringResource(R.string.search_options))
+        listOf(
+            Triple(SearchOption.FUZZY, R.string.search_fuzzy, chrome.fuzzy),
+            Triple(SearchOption.LAYOUT_SWAP, R.string.search_layout_swap, chrome.layoutSwap),
+            Triple(SearchOption.TRANSLIT, R.string.search_translit, chrome.translit),
+            Triple(SearchOption.COLORED_ICONS, R.string.search_colored_icons, chrome.coloredIcons),
+        ).forEach { (option, label, on) ->
             PanelItem(
-                (if (showHidden) "✓  " else "     ") + stringResource(R.string.search_show_hidden),
-                tag = "search_option_show_hidden",
-            ) { actions.onToggleShowHidden() }
-            HorizontalDivider()
-            PanelItem(stringResource(R.string.search_clear_history), tag = "search_clear_history") { confirm = true }
+                (if (on) "✓  " else "     ") + stringResource(label),
+                tag = "search_option_$option",
+            ) { actions.onSearchOption(option, !on) }
+        }
+        PanelItem(
+            (if (showHidden) "✓  " else "     ") + stringResource(R.string.search_show_hidden),
+            tag = "search_option_show_hidden",
+        ) { actions.onToggleShowHidden() }
+        HorizontalDivider()
+        PanelItem(stringResource(R.string.search_all_settings), tag = "search_all_settings") {
+            onDismiss()
+            actions.onOpenSettings()
         }
     }
 }

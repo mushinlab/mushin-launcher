@@ -14,12 +14,9 @@
     <string name="search_fuzzy">Perbaiki salah ketik</string>
     <string name="search_layout_swap">Perbaiki tata letak keyboard</string>
     <string name="search_translit">Transliterasi</string>
-    <string name="search_clear_history">Hapus riwayat ruang</string>
-    <string name="search_clear_confirm">Hapus aplikasi terbaru di ruang ini?</string>
-    <string name="search_clear">Hapus</string>
-    <string name="search_cancel">Batal</string>
     <string name="search_colored_icons">Ikon berwarna</string>
     <string name="search_backspace">Hapus</string>
     <string name="search_clear_drawing">Hapus gambar</string>
     <string name="menu_rename">Ganti nama</string>
+    <string name="search_all_settings">Semua setelan</string>
 </resources>
