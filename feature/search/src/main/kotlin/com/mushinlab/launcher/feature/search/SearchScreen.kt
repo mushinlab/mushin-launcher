@@ -60,6 +60,7 @@ import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
+import com.mushinlab.launcher.core.ui.popupBackdrop
 import com.mushinlab.launcher.core.ui.pressable
 import kotlin.math.abs
 import kotlinx.collections.immutable.ImmutableList
@@ -96,7 +97,8 @@ fun SearchScreen(
                         lastDown = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial).position
                     }
                 }
-                .swipeDownToClose(closePx, actions::onClose),
+                .swipeDownToClose(closePx, actions::onClose)
+                .popupBackdrop(controller.panels.open),
         ) {
             Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
             SearchHeader(controller)

@@ -1,8 +1,9 @@
 package com.mushinlab.launcher.core.ui
 
 import android.view.HapticFeedbackConstants
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
@@ -24,12 +25,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
@@ -50,7 +53,9 @@ import kotlinx.coroutines.withTimeoutOrNull
  * Full-screen layer with a popup panel placed below [anchor] (window pixels), or above it when there is no room.
  *
  * The panel stays inside system bars and the display cutout and scrolls when taller than
- * [PanelDimens.MAX_HEIGHT_FRACTION] of the safe area. Any touch outside the panel calls [onDismiss].
+ * [PanelDimens.MAX_HEIGHT_FRACTION] of the safe area. It has the [popupSurface] shadow and outline over a
+ * [PopupStyle.scrim] that fades in within [Motion.TRANSITION_MS]; any touch on the scrim, outside the panel,
+ * calls [onDismiss]. Blurring the content under the layer is up to the caller ([popupBackdrop]).
  */
 @Composable
 fun AnchoredPanel(
@@ -69,25 +74,29 @@ fun AnchoredPanel(
         insets.getRight(density, direction),
         insets.getBottom(density),
     )
-    Box(
-        modifier
-            .fillMaxSize()
-            .pointerInput(onDismiss) {
-                awaitEachGesture {
-                    val down = awaitFirstDown()
-                    down.consume()
-                    onDismiss()
+    val scrimAlpha = remember { Animatable(0f) }
+    LaunchedEffect(Unit) { scrimAlpha.animateTo(1f, tween(Motion.TRANSITION_MS)) }
+    Box(modifier.fillMaxSize()) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .graphicsLayer { alpha = scrimAlpha.value }
+                .background(PopupStyle.scrim(colors))
+                .pointerInput(onDismiss) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown()
+                        down.consume()
+                        onDismiss()
+                    }
                 }
-            },
-    ) {
+                .testTag("popup_scrim"),
+        )
         Layout(
             content = {
                 Column(
                     Modifier
                         .widthIn(max = PanelDimens.width)
-                        .clip(RoundedCornerShape(PanelDimens.radius))
-                        .background(colors.surface)
-                        .border(1.dp, colors.divider, RoundedCornerShape(PanelDimens.radius))
+                        .popupSurface(colors, RoundedCornerShape(PanelDimens.radius))
                         .pointerInput(Unit) { awaitEachGesture { awaitFirstDown(requireUnconsumed = false).consume() } }
                         .verticalScroll(rememberScrollState())
                         .testTag("popup"),

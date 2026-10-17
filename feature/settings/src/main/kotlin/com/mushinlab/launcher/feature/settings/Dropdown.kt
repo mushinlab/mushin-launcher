@@ -1,7 +1,6 @@
 package com.mushinlab.launcher.feature.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import android.view.WindowManager
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -23,9 +23,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
@@ -40,7 +40,9 @@ import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
+import com.mushinlab.launcher.core.ui.PopupStyle
 import com.mushinlab.launcher.core.ui.SingleLineText
+import com.mushinlab.launcher.core.ui.popupSurface
 import com.mushinlab.launcher.core.ui.pressable
 
 @Composable
@@ -86,6 +88,7 @@ fun <T> DropdownRow(
                 onDismissRequest = { expanded = false },
                 properties = PopupProperties(focusable = true),
             ) {
+                DimBehindWindow(colors.isDark)
                 DropdownMenu(options, selected, tagPrefix, rowWidth, style, leading) {
                     expanded = false
                     onSelect(it)
@@ -111,9 +114,7 @@ private fun <T> DropdownMenu(
         Modifier
             .width(width)
             .heightIn(max = MENU_MAX_HEIGHT)
-            .clip(RoundedCornerShape(CARD_RADIUS))
-            .background(colors.surface)
-            .border(1.dp, colors.divider, RoundedCornerShape(CARD_RADIUS))
+            .popupSurface(colors, RoundedCornerShape(CARD_RADIUS))
             .verticalScroll(rememberScrollState())
             .testTag("${tagPrefix}_menu"),
     ) {
@@ -133,6 +134,23 @@ private fun <T> DropdownMenu(
                 SingleLineText(label, style?.invoke(value) ?: MushinType.style(16.sp, colors.textPrimary))
             }
         }
+    }
+}
+
+@Composable
+private fun DimBehindWindow(isDark: Boolean) {
+    val view = LocalView.current
+    val blurPx = with(LocalDensity.current) { PopupStyle.blurRadius.roundToPx() }
+    DisposableEffect(view, isDark, blurPx) {
+        val window = view.rootView
+        (window.layoutParams as? WindowManager.LayoutParams)?.let { params ->
+            params.flags = params.flags or WindowManager.LayoutParams.FLAG_DIM_BEHIND or
+                WindowManager.LayoutParams.FLAG_BLUR_BEHIND
+            params.dimAmount = PopupStyle.scrimAlpha(isDark)
+            params.blurBehindRadius = blurPx
+            view.context.getSystemService(WindowManager::class.java).updateViewLayout(window, params)
+        }
+        onDispose { }
     }
 }
 

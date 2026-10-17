@@ -6,6 +6,7 @@
 - The “+” button on the home screen is now a list row, “+ Add apps”, with the same height, font, text size and press feedback as app rows; with icons on, its label lines up with app names. It is shown when it fits under the list; in an empty space it is the only row, and the separate “Tap + to add apps” hint is gone (ADR-0018).
 - The home list starts lower by default: the drag handle sits at three times its old distance from the top of the screen, but never so low that fewer than four rows fit. A position you set by dragging the handle, including the very top, is kept as before (ADR-0018).
 - Updating from 0.2.0 or earlier also gets the new default: the old builds saved an untouched global list offset of 0, which a one-time settings migration clears. Positions set per space by dragging are kept.
+- Popups stand out from the screen under them (ADR-0019): menus opened by a long press on home and in search, the “?” suggestion panel, search options and settings dropdowns have a shadow and a thin contrasting outline, and the screen behind them is dimmed (40% black on dark palettes, 25% on light ones). On home and in search the content under the popup is also blurred. Tapping the dimmed area closes the popup as before.
 
 ## 0.2.0 — 2026-10-16
 
