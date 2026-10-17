@@ -48,7 +48,9 @@ internal fun ResultsPane(
     val colors = LocalMushinColors.current
     val rows = controller.rows
     val listState = rememberLazyListState()
-    LaunchedEffect(controller.query, controller.suggesting) { listState.scrollToItem(0) }
+    LaunchedEffect(controller.query, controller.suggesting, controller.session, rows.firstOrNull()?.key) {
+        listState.scrollToItem(0)
+    }
     if (rows.isEmpty() && controller.query.isNotEmpty()) {
         Box(modifier.padding(SearchDimens.padding).testTag("no_results"), contentAlignment = Alignment.BottomStart) {
             BasicText(

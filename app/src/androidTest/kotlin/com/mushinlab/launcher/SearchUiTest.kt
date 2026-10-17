@@ -3,6 +3,7 @@ package com.mushinlab.launcher
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
@@ -39,6 +40,7 @@ class SearchUiTest : LauncherUiTestBase() {
             val rows = rule.runOnIdle { rule.activity.launcher.navigator.search.rows }
             assertThat(rows.first().recent).isTrue()
             assertThat(rows.drop(1).none { it.recent || it.key == last }).isTrue()
+            rule.waitUntil(5_000) { rule.onAllNodesWithTag("recents_divider").fetchSemanticsNodes().isNotEmpty() }
             val recent = rule.onNodeWithTag("result_0").fetchSemanticsNode().boundsInRoot
             val divider = rule.onNodeWithTag("recents_divider").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
             val next = rule.onNodeWithTag("result_1").fetchSemanticsNode().boundsInRoot
