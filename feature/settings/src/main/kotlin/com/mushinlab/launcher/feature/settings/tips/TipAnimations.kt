@@ -46,7 +46,9 @@ private fun rememberTipTime(loopMs: Int, stillMs: Int): State<Float> {
     return rememberInfiniteTransition(label = "tip").animateFloat(
         initialValue = 0f,
         targetValue = loopMs.toFloat(),
-        animationSpec = infiniteRepeatable(tween(loopMs, easing = LinearEasing)),
+        animationSpec = infiniteRepeatable(tween((loopMs * TIP_SLOWDOWN).toInt(), easing = LinearEasing)),
         label = "tip_time",
     )
 }
+
+private const val TIP_SLOWDOWN = 1.5f
