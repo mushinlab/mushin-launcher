@@ -9,11 +9,8 @@
 - Each space has its own background (ADR-0020). Space settings → Background → “Change background” opens the system photo picker when the space has no image yet, then a full-screen editor: the image in a frame with the proportions of the screen, under a mock home screen of the space (clock, date, list handle and five rows in its palette, font and text size). Drag to move the image, pinch to zoom (it always fills the screen), double-tap to reset. “Brightness” (darker to the left, lighter to the right) and “Blur” apply live. “Other image” picks a new photo, “Save” keeps the visible part at screen resolution, “Cancel” changes nothing. The space settings show a small preview, and “Remove background” deletes the image and resets both sliders. Deleting a space deletes its image; a new space starts without one.
 
 ### Changed
-<<<<<<< HEAD
 - Tips and onboarding animations play 1.5 times slower; slide transitions are unchanged.
-=======
 - Settings → Keyboard → Layouts is a list of the enabled layouts in switching order, each with its native name, its two-letter code and “Remove” (unavailable for the last one), followed by “Add more” with the layouts not yet in the list; a new one goes to the end. The per-layout switches and the move-up buttons are gone. New installs start with the layout of the phone language followed by EN (only EN for English or an unsupported language), and the first one is active; a stored list such as EN, RU is kept (ADR-0023).
->>>>>>> worktree-agent-a702aa0a771893fea
 - With icons shown, the “Add apps” row has a “+” icon in the icon place and no “+” in its text; without icons the text starts with “+”.
 - New installs show app icons on the left and in colour by default (Home screen → Icons: Left; Style → Color icons: on for the built-in and new spaces). Existing settings are kept (ADR-0022).
 - Every icon button (edit, help, settings, back) sits on a circle with an outline, and the list drag handle on a small pill, so they keep their contrast over any background image (ADR-0021).
