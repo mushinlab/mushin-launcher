@@ -203,7 +203,7 @@ class HomeUiTest : LauncherUiTestBase() {
         assertThat(add.height).isWithin(1f).of(lastRow.height)
         assertThat(add.left).isWithin(1f).of(lastRow.left)
         assertThat(add.width).isWithin(1f).of(lastRow.width)
-        rule.onNodeWithTag("home_add").assertTextEquals(rule.activity.getString(HomeR.string.home_add_apps))
+        rule.onNodeWithTag("home_add").assertTextEquals(rule.activity.getString(HomeR.string.home_add_apps_inline))
         rule.onNodeWithTag("home_add").performClick()
         rule.waitUntil(5_000) {
             rule.activity.launcher.navigator.settings.top == SettingsRoute.PickApps(normalId)

@@ -10,7 +10,8 @@
     <string name="popup_uninstall">Uninstall</string>
     <string name="home_suggestion">Suggestion: an app you open more often</string>
     <string name="home_edit">Edit space</string>
-    <string name="home_add_apps">+ Add apps</string>
+    <string name="home_add_apps">Add apps</string>
+    <string name="home_add_apps_inline">+ Add apps</string>
     <string name="suggest_header">You open “%1$s” more often</string>
     <string name="suggest_replace">Put it instead of “%1$s”</string>
     <string name="suggest_add">Add to home screen</string>
