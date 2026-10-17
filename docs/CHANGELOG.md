@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 — 2026-10-18
 
 ### Added
 - Interface languages (ADR-0023): English is now the base language and Russian a translation; the app declares English, Russian, Spanish, Portuguese (Brazil), German, French and Indonesian through the Android 13 per-app language setting (`locales_config.xml`). Settings → System → Language (second item) offers “System default” and the seven languages, each named in itself; the choice applies at once, without a restart, and is also available in the system app-language settings. All texts are translated into Spanish, Portuguese (Brazil), German, French and Indonesian with one terminology per language (machine translation by the agent; review by native speakers is pending, Q-135 in ADR-0023).
