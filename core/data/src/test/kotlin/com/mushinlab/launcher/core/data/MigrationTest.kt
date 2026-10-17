@@ -180,6 +180,49 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun migrationTo9KeepsSpacesWithoutAHintAndAddsEmptyLaunchDays() {
+        helper.createDatabase(DB_NAME, 8).use { db ->
+            MushinDatabase.SeedCallback(MushinDatabase.SeedNames("Обычный", "Работа")).seed(db, createdAt = 42L)
+            db.execSQL("UPDATE environment SET bg_brightness = 0.5 WHERE type = 'WORK'")
+            db.execSQL(
+                "INSERT INTO space_usage (env_id, package_name, activity_name, user_serial, launch_count, " +
+                    "last_launched_at, decayed_score, dismissed_at) " +
+                    "SELECT id, 'p', 'a', 0, 3, 7, 2.5, NULL FROM environment WHERE type = 'NORMAL'",
+            )
+        }
+        helper.runMigrationsAndValidate(DB_NAME, 9, true).use { db ->
+            db.query("SELECT name, created_at, bg_brightness, hint_at FROM environment ORDER BY sort_order").use {
+                assertThat(it.count).isEqualTo(2)
+                it.moveToFirst()
+                assertThat(it.getString(0)).isEqualTo("Обычный")
+                assertThat(it.getLong(1)).isEqualTo(42L)
+                assertThat(it.isNull(3)).isTrue()
+                it.moveToNext()
+                assertThat(it.getString(0)).isEqualTo("Работа")
+                assertThat(it.getFloat(2)).isEqualTo(0.5f)
+                assertThat(it.isNull(3)).isTrue()
+            }
+            db.query("SELECT launch_count, decayed_score FROM space_usage").use {
+                assertThat(it.count).isEqualTo(1)
+                it.moveToFirst()
+                assertThat(it.getInt(0)).isEqualTo(3)
+                assertThat(it.getDouble(1)).isEqualTo(2.5)
+            }
+            db.query("SELECT COUNT(*) FROM space_launch_day").use {
+                it.moveToFirst()
+                assertThat(it.getInt(0)).isEqualTo(0)
+            }
+            db.execSQL("INSERT INTO space_launch_day SELECT id, 'p', 'a', 0, 20000 FROM environment")
+            db.execSQL("PRAGMA foreign_keys = ON")
+            db.execSQL("DELETE FROM environment WHERE type = 'WORK'")
+            db.query("SELECT COUNT(*) FROM space_launch_day").use {
+                it.moveToFirst()
+                assertThat(it.getInt(0)).isEqualTo(1)
+            }
+        }
+    }
+
     private companion object {
         const val DB_NAME = "migration-test"
     }

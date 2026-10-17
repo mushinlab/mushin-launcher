@@ -11,7 +11,9 @@ enum class SpaceType { NORMAL, WORK, CUSTOM }
  *
  * [palette] comes from [preset] unless the preset is [PalettePreset.CUSTOM]. [listOffset], when not null,
  * overrides the global home list offset in dp. [backgroundBrightness] and [backgroundBlur] adjust the space's
- * background image within [SpaceBackground] limits; the image itself is a file, not part of the model.
+ * background image within [SpaceBackground] limits; the image itself is a file, not part of the model. [createdAt]
+ * also starts the space's hint statistics, and [hintAt] is when a usefulness hint was last accepted or dismissed
+ * (ADR-0025).
  */
 data class Space(
     val id: Long,
@@ -25,6 +27,7 @@ data class Space(
     val listOffset: Int? = null,
     val backgroundBrightness: Float = 0f,
     val backgroundBlur: Float = 0f,
+    val hintAt: Long? = null,
 )
 
 /**

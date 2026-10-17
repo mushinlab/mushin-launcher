@@ -11,6 +11,7 @@ import com.mushinlab.launcher.core.model.ProfileType
 import com.mushinlab.launcher.core.model.Space
 import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SpaceUsage
+import com.mushinlab.launcher.core.model.Usefulness
 import org.junit.Test
 
 class SuggestionForTest {
@@ -38,9 +39,16 @@ class SuggestionForTest {
 
     private fun usage(key: AppKey, score: Double) = SpaceUsage(normal.id, key, 10, now, score)
 
+    private fun stats(vararg usage: SpaceUsage, days: Int = Usefulness.MIN_LAUNCH_DAYS) = SpaceStats(
+        usage = mapOf(normal.id to usage.toList()),
+        launchDays = mapOf(normal.id to usage.associate { it.key to days }),
+    )
+
+    private fun withSpace(space: Space) = data().copy(spaces = listOf(space, work), current = space)
+
     @Test
     fun appsBoundToASwipeOrPlacedInAnotherSpaceAreNeverSuggested() {
-        val usage = mapOf(normal.id to listOf(usage(swiped, 9.0), usage(elsewhere, 8.0), usage(frequent, 5.0)))
+        val usage = stats(usage(swiped, 9.0), usage(elsewhere, 8.0), usage(frequent, 5.0))
 
         val hint = suggestionFor(data(), usage, setOf(swiped), cap = 5, now = now)
 
@@ -51,18 +59,47 @@ class SuggestionForTest {
 
     @Test
     fun noSuggestionWhenOnlyExcludedAppsAreFrequent() {
-        val usage = mapOf(normal.id to listOf(usage(swiped, 9.0), usage(elsewhere, 8.0)))
+        val usage = stats(usage(swiped, 9.0), usage(elsewhere, 8.0))
 
         assertThat(suggestionFor(data(), usage, setOf(swiped), cap = 1, now = now)).isNull()
     }
 
     @Test
     fun hiddenAppsAreNeverSuggested() {
-        val usage = mapOf(normal.id to listOf(usage(frequent, 9.0)))
+        val usage = stats(usage(frequent, 9.0))
         val hidden = data().let { d ->
             d.copy(overrides = mapOf(frequent to AppOverride(frequent, null, true, null, 0)))
         }
 
         assertThat(suggestionFor(hidden, usage, emptySet(), cap = 5, now = now)).isNull()
+    }
+
+    @Test
+    fun aSpaceObservedForLessThanAWeekGetsNoSuggestionYet() {
+        val young = withSpace(normal.copy(createdAt = now - Usefulness.WEEK_MS + 1))
+        val weekOld = withSpace(normal.copy(createdAt = now - Usefulness.WEEK_MS))
+
+        assertThat(suggestionFor(young, stats(usage(frequent, 9.0)), emptySet(), cap = 5, now = now)).isNull()
+        assertThat(suggestionFor(weekOld, stats(usage(frequent, 9.0)), emptySet(), cap = 5, now = now)?.add)
+            .isEqualTo(frequent)
+    }
+
+    @Test
+    fun aRecentlyAnsweredHintPausesSuggestionsInThatSpaceForAWeek() {
+        val answered = withSpace(normal.copy(hintAt = now - Usefulness.WEEK_MS + 1))
+        val weekAgo = withSpace(normal.copy(hintAt = now - Usefulness.WEEK_MS))
+
+        assertThat(suggestionFor(answered, stats(usage(frequent, 9.0)), emptySet(), cap = 5, now = now)).isNull()
+        assertThat(suggestionFor(weekAgo, stats(usage(frequent, 9.0)), emptySet(), cap = 5, now = now)?.add)
+            .isEqualTo(frequent)
+    }
+
+    @Test
+    fun launchesOnFewerThanThreeDaysOfTheCurrentSpaceAreNotEnough() {
+        val twoDays = stats(usage(frequent, 9.0), days = Usefulness.MIN_LAUNCH_DAYS - 1)
+        val otherSpaceDays = stats(usage(frequent, 9.0)).copy(launchDays = mapOf(work.id to mapOf(frequent to 7)))
+
+        assertThat(suggestionFor(data(), twoDays, emptySet(), cap = 5, now = now)).isNull()
+        assertThat(suggestionFor(data(), otherSpaceDays, emptySet(), cap = 5, now = now)).isNull()
     }
 }

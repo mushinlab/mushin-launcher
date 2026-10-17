@@ -12,8 +12,8 @@ class PackageDataCleaner(
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
     /**
-     * Deletes home items, recents, usage and learned drawings of a removed package; its overrides are only marked
-     * orphaned so that a reinstall within the retention period restores them.
+     * Deletes home items, recents, usage, launch days and learned drawings of a removed package; its overrides are
+     * only marked orphaned so that a reinstall within the retention period restores them.
      */
     suspend fun onPackageRemoved(packageName: String, userSerial: Long) {
         db.withTransaction {
@@ -21,6 +21,7 @@ class PackageDataCleaner(
             db.searchRecentDao().deletePackage(packageName, userSerial)
             db.appUsageDao().deletePackage(packageName, userSerial)
             db.spaceUsageDao().deletePackage(packageName, userSerial)
+            db.spaceLaunchDayDao().deletePackage(packageName, userSerial)
             db.gestureSampleDao().deletePackage(packageName, userSerial)
             db.appOverrideDao().markOrphaned(packageName, userSerial, clock())
         }
@@ -52,12 +53,14 @@ class PackageDataCleaner(
                 dao.moveRecents(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveUsage(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveSpaceUsage(from.packageName, from.userSerial, from.activityName, to.activityName)
+                dao.moveLaunchDays(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveSamples(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.deleteSpaceItems(from.packageName, from.userSerial, from.activityName)
                 dao.deleteOverrides(from.packageName, from.userSerial, from.activityName)
                 dao.deleteRecents(from.packageName, from.userSerial, from.activityName)
                 dao.deleteUsage(from.packageName, from.userSerial, from.activityName)
                 dao.deleteSpaceUsage(from.packageName, from.userSerial, from.activityName)
+                dao.deleteLaunchDays(from.packageName, from.userSerial, from.activityName)
                 dao.deleteSamples(from.packageName, from.userSerial, from.activityName)
             }
         }

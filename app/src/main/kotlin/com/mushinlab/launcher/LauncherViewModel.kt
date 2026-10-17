@@ -132,11 +132,11 @@ class LauncherViewModel(
 
     private val suggestion: StateFlow<HomeSuggestion?> = combine(
         data,
-        container.history.spaceUsage,
+        combine(container.history.spaceUsage, container.history.launchDays, ::SpaceStats),
         container.gestures.bindings,
         capacity,
-    ) { d, usage, bindings, cap ->
-        d?.let { suggestionFor(it, usage, bindings.swipesByApp().keys, cap, System.currentTimeMillis()) }
+    ) { d, stats, bindings, cap ->
+        d?.let { suggestionFor(it, stats, bindings.swipesByApp().keys, cap, System.currentTimeMillis()) }
     }
         .distinctUntilChanged()
         .flowOn(Dispatchers.Default)

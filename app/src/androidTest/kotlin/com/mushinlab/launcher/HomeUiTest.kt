@@ -1,6 +1,7 @@
 package com.mushinlab.launcher
 
 import android.content.IntentFilter
+import android.database.sqlite.SQLiteDatabase
 import android.provider.AlarmClock
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -22,6 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.apps.NotificationSource
+import com.mushinlab.launcher.core.data.repo.HistoryRepository
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.IconMode
@@ -29,7 +31,12 @@ import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.Usefulness
 import com.mushinlab.launcher.feature.home.R as HomeR
 import com.mushinlab.launcher.feature.settings.SettingsRoute
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlin.math.abs
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -131,7 +138,20 @@ class HomeUiTest : LauncherUiTestBase() {
         val frequent = runBlocking { container.catalog.apps.first() }.first { it.key !in home }.key
         runBlocking {
             container.history.clearUsage()
-            repeat(Usefulness.MIN_LAUNCHES) { container.history.recordLaunch(frequent, normalId, fromSearch = false) }
+            SQLiteDatabase.openDatabase(
+                rule.activity.getDatabasePath("env.db").path,
+                null,
+                SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
+            ).use { it.execSQL("UPDATE environment SET created_at = 0 WHERE id = $normalId") }
+            val past = CoroutineScope(Job())
+            HistoryRepository(container.database, past, clock = { 0L }).recordHint(normalId)
+            (Usefulness.MIN_LAUNCH_DAYS - 1 downTo 1).forEach { daysAgo ->
+                val noon = LocalDate.now().minusDays(daysAgo.toLong()).atTime(12, 0).atZone(ZoneId.systemDefault())
+                HistoryRepository(container.database, past, clock = { noon.toInstant().toEpochMilli() })
+                    .recordLaunch(frequent, normalId, fromSearch = false)
+            }
+            past.cancel()
+            container.history.recordLaunch(frequent, normalId, fromSearch = false)
         }
         rule.waitUntil(5_000) {
             runCatching { rule.onNodeWithTag("home_suggestion").assertIsDisplayed() }.isSuccess

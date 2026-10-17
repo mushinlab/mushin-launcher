@@ -142,7 +142,7 @@ class SpaceRepository(
         }
     }
 
-    /** Deletes a space with its home list, recents and usage; the normal space cannot be deleted. */
+    /** Deletes a space with its home list, recents, usage and launch days; the normal space cannot be deleted. */
     suspend fun delete(id: Long): SpaceOutcome<Unit> = db.withTransaction {
         val space = spaceDao.get(id) ?: return@withTransaction SpaceOutcome.Failed(SpaceError.NotFound)
         if (space.type == SpaceType.NORMAL.name) {

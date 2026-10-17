@@ -33,6 +33,7 @@ data class SpaceEntity(
     @ColumnInfo(name = "list_offset") val listOffset: Int? = null,
     @ColumnInfo(name = "bg_brightness", defaultValue = "0") val backgroundBrightness: Float = 0f,
     @ColumnInfo(name = "bg_blur", defaultValue = "0") val backgroundBlur: Float = 0f,
+    @ColumnInfo(name = "hint_at") val hintAt: Long? = null,
 )
 
 @Entity(
@@ -126,6 +127,27 @@ data class SpaceUsageEntity(
     @ColumnInfo(name = "last_launched_at") val lastLaunchedAt: Long,
     @ColumnInfo(name = "decayed_score") val decayedScore: Double,
     @ColumnInfo(name = "dismissed_at") val dismissedAt: Long?,
+)
+
+@Entity(
+    tableName = "space_launch_day",
+    primaryKeys = ["space_id", "package_name", "activity_name", "user_serial", "day"],
+    foreignKeys = [
+        ForeignKey(
+            entity = SpaceEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["space_id"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index(value = ["space_id", "day"])],
+)
+data class SpaceLaunchDayEntity(
+    @ColumnInfo(name = "space_id") val spaceId: Long,
+    @ColumnInfo(name = "package_name") val packageName: String,
+    @ColumnInfo(name = "activity_name") val activityName: String,
+    @ColumnInfo(name = "user_serial") val userSerial: Long,
+    @ColumnInfo(name = "day") val day: Long,
 )
 
 @Entity(tableName = "gesture_binding")
