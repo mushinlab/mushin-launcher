@@ -101,6 +101,7 @@ abstract class MushinDatabase : RoomDatabase() {
         fun seed(db: SupportSQLiteDatabase, createdAt: Long) {
             insertSpace(db, SeedSpace(names.normal, SpaceType.NORMAL, 0, PalettePreset.GRAPHITE), createdAt)
             insertSpace(db, SeedSpace(names.work, SpaceType.WORK, 1, PalettePreset.NAVY), createdAt)
+            if (db.hasColumn("environment", "colored_icons")) db.execSQL("UPDATE environment SET colored_icons = 1")
             DefaultGestures.bindings.forEach { binding ->
                 val values = ContentValues().apply {
                     put("direction", binding.direction.name)
@@ -137,3 +138,9 @@ abstract class MushinDatabase : RoomDatabase() {
         private class SeedSpace(val name: String, val type: SpaceType, val sortOrder: Int, val preset: PalettePreset)
     }
 }
+
+private fun SupportSQLiteDatabase.hasColumn(table: String, column: String): Boolean =
+    query("PRAGMA table_info($table)").use { cursor ->
+        val name = cursor.getColumnIndexOrThrow("name")
+        generateSequence { if (cursor.moveToNext()) cursor.getString(name) else null }.any { it == column }
+    }

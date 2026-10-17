@@ -11,6 +11,7 @@ import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.GestureTuning
+import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.KeyboardFit
 import com.mushinlab.launcher.core.model.PressFeedback
 import com.mushinlab.launcher.core.model.SpaceType
@@ -34,8 +35,13 @@ abstract class LauncherUiTestBase {
     fun seedFavorites() = runBlocking {
         val normal = container.spaces.spaces.first { it.isNotEmpty() }.first { it.type == SpaceType.NORMAL }
         normalId = normal.id
-        container.settings.update { it.copy(currentSpaceId = normal.id, onboardingDone = true, homeListOffset = 0) }
-        container.spaces.spaces.value.forEach { container.spaces.setListOffset(it.id, null) }
+        container.settings.update {
+            it.copy(currentSpaceId = normal.id, onboardingDone = true, homeListOffset = 0, iconMode = IconMode.NONE)
+        }
+        container.spaces.spaces.value.forEach {
+            container.spaces.setListOffset(it.id, null)
+            container.spaces.setColoredIcons(it.id, false)
+        }
         val apps = container.catalog.apps.first { it.size >= 3 }.sortedBy { it.label }.take(3)
         container.spaces.setItems(normal.id, apps.map { it.key })
         rule.waitUntil(5_000) { rule.activity.launcher.navigator.overlay == Overlay.None }

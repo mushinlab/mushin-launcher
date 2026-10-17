@@ -40,7 +40,7 @@ class SettingsRepositoryTest {
         val settings = repo.settings.first()
         assertThat(settings).isEqualTo(LauncherSettings())
         assertThat(settings.currentSpaceId).isNull()
-        assertThat(settings.iconMode).isEqualTo(IconMode.NONE)
+        assertThat(settings.iconMode).isEqualTo(IconMode.LEFT)
         assertThat(settings.clockFormat).isEqualTo(ClockFormat.SYSTEM)
         assertThat(settings.showDate).isTrue()
         assertThat(settings.clockPosition).isEqualTo(ClockPosition.START)

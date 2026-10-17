@@ -191,10 +191,10 @@ class SpaceRepositoryTest {
         val repo = SpaceRepository(rule.db, backgroundScope, rule.clock)
         val spaces = repo.spaces.first { it.size >= 2 }
         val (normal, work) = spaces.first { it.type == SpaceType.NORMAL } to spaces.first { it.type == SpaceType.WORK }
-        assertThat(spaces.none { it.coloredIcons }).isTrue()
-        repo.setColoredIcons(work.id, true)
-        val updated = repo.spaces.first { list -> list.any { it.id == work.id && it.coloredIcons } }
-        assertThat(updated.first { it.id == normal.id }.coloredIcons).isFalse()
+        assertThat(spaces.all { it.coloredIcons }).isTrue()
+        repo.setColoredIcons(work.id, false)
+        val updated = repo.spaces.first { list -> list.any { it.id == work.id && !it.coloredIcons } }
+        assertThat(updated.first { it.id == normal.id }.coloredIcons).isTrue()
     }
 
     @Test

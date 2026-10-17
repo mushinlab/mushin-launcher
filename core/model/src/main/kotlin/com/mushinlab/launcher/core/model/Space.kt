@@ -21,7 +21,7 @@ data class Space(
     val preset: PalettePreset,
     val palette: Palette,
     val createdAt: Long,
-    val coloredIcons: Boolean = false,
+    val coloredIcons: Boolean = true,
     val listOffset: Int? = null,
     val backgroundBrightness: Float = 0f,
     val backgroundBlur: Float = 0f,

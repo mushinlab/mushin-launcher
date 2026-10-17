@@ -121,6 +121,7 @@ class SpaceRepository(
                         keyPressed = palette.keyPressed,
                         isDark = palette.isDark,
                         createdAt = clock(),
+                        coloredIcons = true,
                     ),
                 )
                 SpaceOutcome.Ok(id)
