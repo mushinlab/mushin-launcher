@@ -10,6 +10,9 @@
 
 ### Changed
 - The “?” hint to put a frequently used app on the home screen is based on a week of data (ADR-0025): a space shows its first hint no earlier than 7 days after it was created, the suggested app must have been launched in that space on at least 3 different days within the last 7 days (in addition to the 3 launches and the 10-point margin), and after a hint is accepted or dismissed the next one in that space waits 7 days. A dismissed app is still not suggested for 14 days. Database v9 adds the `space_launch_day` table (launch days per space and app, kept for 14 days, cleared with usage counters) and `environment.hint_at` by an automatic migration; existing data is kept.
+- Spaces are created and deleted from the top of Settings (ADR-0024). A “+” button to the right of the space chips opens the new-space dialog (name, and the type when both a custom and a work space can still be created). A long press on a space chip opens a panel with “Delete space”, which asks for confirmation in a system dialog (“Delete” / “Cancel”). The normal space cannot be deleted: a long press on it only gives a short rejection vibration.
+- Swipe typing settings (“Shift penalty”, “Suggestion margin”, “Restore defaults”) moved from Gestures to Settings → Keyboard → Swipe typing; values are kept (ADR-0024).
+- “System” is now the last item of the settings root, after “Tips” (ADR-0024).
 - Tips and onboarding animations play 1.5 times slower; slide transitions are unchanged.
 - Settings → Keyboard → Layouts is a list of the enabled layouts in switching order, each with its native name, its two-letter code and “Remove” (unavailable for the last one), followed by “Add more” with the layouts not yet in the list; a new one goes to the end. The per-layout switches and the move-up buttons are gone. New installs start with the layout of the phone language followed by EN (only EN for English or an unsupported language), and the first one is active; a stored list such as EN, RU is kept (ADR-0023).
 - With icons shown, the “Add apps” row has a “+” icon in the icon place and no “+” in its text; without icons the text starts with “+”.
@@ -27,6 +30,8 @@
 
 ### Removed
 - Style → Background and the global “Background visibility” slider: the background is chosen and tuned per space (ADR-0020).
+- Settings → Spaces: creating and deleting spaces moved to the space chips at the top of Settings, and the rest of a space's settings is opened with ✎ on the home screen (ADR-0024).
+- Gestures → Search over apps: Mushin no longer links to the default-assistant settings or offers to add the Quick Settings tile. Both still work when turned on in the system settings (ADR-0024).
 
 ### Fixed
 - The system back gesture from the screen edge closes settings again: the hidden search keyboard kept its area excluded from system gestures after search was closed; the exclusion now applies only while search is open.

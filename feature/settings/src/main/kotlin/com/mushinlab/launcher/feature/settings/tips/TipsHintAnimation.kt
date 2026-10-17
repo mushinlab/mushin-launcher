@@ -24,10 +24,9 @@ internal fun TipsHintAnimation(modifier: Modifier = Modifier) {
         stringResource(R.string.settings_home),
         stringResource(R.string.settings_keyboard),
         stringResource(R.string.settings_gestures),
-        stringResource(R.string.settings_spaces),
         stringResource(R.string.settings_apps),
-        stringResource(R.string.settings_system),
         stringResource(R.string.settings_tips),
+        stringResource(R.string.settings_system),
     )
     val labels = remember(text, strings) {
         listOf(text.of(strings.first(), Scene.TITLE_SIZE)) + strings.drop(1).map { text.of(it, Scene.LABEL_SIZE) }
@@ -37,7 +36,7 @@ internal fun TipsHintAnimation(modifier: Modifier = Modifier) {
 
 private fun DrawScope.drawTipsHint(time: Float, colors: MushinColors, labels: List<TextLayoutResult>) {
     val rows = labels.drop(1)
-    val tips = rows.lastIndex
+    val tips = TIPS_ROW
     val highlight = ease(time, TAP_TIPS, TAP_TIPS + HIGHLIGHT_MS)
     scene(colors, loopFade(time, LOOP_MS)) {
         page(colors, 0f, labels.first()) {
@@ -62,10 +61,11 @@ private val Finger = Track(
     listOf(
         Key(0, Scene.rest),
         Key(500, Scene.rest),
-        Key(1200, Scene.cardCenter(7)),
+        Key(1200, Scene.cardCenter(TIPS_ROW)),
     ),
 )
 
+private const val TIPS_ROW = 5
 private const val LOOP_MS = 4000
 private const val STILL_MS = 2600
 private const val TAP_TIPS = 1250

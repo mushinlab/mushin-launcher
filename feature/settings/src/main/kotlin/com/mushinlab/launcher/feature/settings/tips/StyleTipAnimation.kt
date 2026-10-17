@@ -29,7 +29,7 @@ internal fun StyleTipAnimation(modifier: Modifier = Modifier) {
         stringResource(R.string.settings_home),
         stringResource(R.string.settings_keyboard),
         stringResource(R.string.settings_gestures),
-        stringResource(R.string.settings_spaces),
+        stringResource(R.string.settings_apps),
     )
     val titles = listOf(stringResource(R.string.settings_title), stringResource(R.string.settings_style))
     val rows = listOf(

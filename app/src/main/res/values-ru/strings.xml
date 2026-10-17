@@ -18,5 +18,4 @@
     <string name="learn_hint_subtitle">Перейти к обучению</string>
     <string name="tile_search">Поиск Mushin</string>
     <string name="notice_background_failed">Не удалось открыть изображение</string>
-    <string name="notice_tile_added">Плитка уже в быстрых настройках</string>
 </resources>

@@ -35,9 +35,5 @@ sealed interface LauncherEffect {
 
     data object OpenNotificationAccess : LauncherEffect
 
-    data object OpenAssistantSettings : LauncherEffect
-
-    data object RequestSearchTile : LauncherEffect
-
     data class PickBackground(val spaceId: Long) : LauncherEffect
 }

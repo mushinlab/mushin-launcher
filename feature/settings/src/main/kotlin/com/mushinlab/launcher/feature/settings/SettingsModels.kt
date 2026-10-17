@@ -21,8 +21,6 @@ import kotlinx.collections.immutable.persistentMapOf
 sealed interface SettingsRoute {
     data object Root : SettingsRoute
 
-    data object Spaces : SettingsRoute
-
     data class SpaceEditor(val spaceId: Long) : SettingsRoute
 
     data class PickApps(val spaceId: Long) : SettingsRoute

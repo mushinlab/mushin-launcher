@@ -9,7 +9,6 @@ object SettingsRouteCodec {
 
     private val objects: Map<String, SettingsRoute> = listOf(
         SettingsRoute.Root,
-        SettingsRoute.Spaces,
         SettingsRoute.Home,
         SettingsRoute.Style,
         SettingsRoute.Advanced,

@@ -62,56 +62,6 @@ const val ERR_WORK = "work"
 const val ERR_CUSTOM = "custom"
 
 @Composable
-internal fun SpacesScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
-    var createType by remember { mutableStateOf<SpaceType?>(null) }
-    var error by remember { mutableStateOf<String?>(null) }
-    val scope = rememberCoroutineScope()
-    val hasWork = state.spaces.any { it.type == SpaceType.WORK }
-    val customCount = state.spaces.count { it.type == SpaceType.CUSTOM }
-    Box {
-        SettingsPage(stringResource(R.string.settings_spaces), back) {
-            state.spaces.forEach { space ->
-                val suffix = if (space.current) " · ${stringResource(R.string.space_current)}" else ""
-                InfoRow(space.name, spaceTypeLabel(space.type) + suffix, tag = "env_${space.id}")
-            }
-            NoteText(stringResource(R.string.space_list_note))
-            CardGap()
-            NavRow(
-                stringResource(R.string.space_create),
-                enabled = customCount < SpaceLimits.MAX_CUSTOM,
-                tag = "env_create",
-            ) {
-                error = null
-                createType = SpaceType.CUSTOM
-            }
-            if (!hasWork) {
-                NavRow(stringResource(R.string.space_create_work), tag = "env_create_work") {
-                    error = null
-                    createType = SpaceType.WORK
-                }
-            }
-        }
-        val type = createType
-        if (type != null) {
-            TextInputDialog(
-                title = stringResource(R.string.space_create_title),
-                initial = if (type == SpaceType.WORK) stringResource(R.string.space_work_default_name) else "",
-                maxLength = SpaceLimits.NAME_MAX_LENGTH + 8,
-                error = spaceErrorText(error),
-                confirm = stringResource(R.string.settings_save),
-                onConfirm = { name ->
-                    scope.launch {
-                        val result = actions.spaces.createSpace(name, type)
-                        if (result == null) createType = null else error = result
-                    }
-                },
-                onDismiss = { createType = null },
-            )
-        }
-    }
-}
-
-@Composable
 internal fun SpaceEditorScreen(
     spaceId: Long,
     state: SettingsUiState,
