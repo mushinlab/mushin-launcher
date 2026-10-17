@@ -29,7 +29,7 @@ internal fun StyleScreen(state: SettingsUiState, actions: SettingsActions, back:
     SettingsPage(stringResource(R.string.settings_style), back) {
         state.spaces.firstOrNull { it.current }?.let { space ->
             SectionHeader(stringResource(R.string.style_theme, space.name))
-            PaletteDropdown(space.preset) { actions.spaces.setPalette(space.id, it) }
+            PalettePicker(space.preset) { actions.spaces.setPalette(space.id, it) }
             ToggleRow(stringResource(R.string.space_colored_icons), space.coloredIcons, tag = "style_colored_icons") {
                 actions.spaces.setColoredIcons(space.id, it)
             }

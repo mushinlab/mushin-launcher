@@ -135,7 +135,7 @@ private fun SpaceEditorPage(
     SettingsPage(space.name, back) {
         NavRow(stringResource(R.string.space_name), value = space.name, tag = "env_rename", onClick = onRename)
         CardGap()
-        PaletteDropdown(space.preset) { actions.spaces.setPalette(space.id, it) }
+        PalettePicker(space.preset) { actions.spaces.setPalette(space.id, it) }
         ToggleRow(stringResource(R.string.space_colored_icons), space.coloredIcons, tag = "env_colored_icons") {
             actions.spaces.setColoredIcons(space.id, it)
         }
@@ -212,40 +212,5 @@ private fun SpaceItemsSection(
     NavRow(stringResource(R.string.space_add), tag = "env_add") { push(SettingsRoute.PickApps(spaceId)) }
 }
 
-@Composable
-internal fun PaletteDropdown(selected: PalettePreset, onSelect: (PalettePreset) -> Unit) {
-    val names = mapOf(
-        PalettePreset.GRAPHITE to stringResource(R.string.palette_graphite),
-        PalettePreset.NIGHT to stringResource(R.string.palette_night),
-        PalettePreset.NAVY to stringResource(R.string.palette_navy),
-        PalettePreset.MOSS to stringResource(R.string.palette_moss),
-        PalettePreset.PAPER to stringResource(R.string.palette_paper),
-        PalettePreset.SAND to stringResource(R.string.palette_sand),
-        PalettePreset.LAGOON to stringResource(R.string.palette_lagoon),
-        PalettePreset.PLUM to stringResource(R.string.palette_plum),
-        PalettePreset.EMBER to stringResource(R.string.palette_ember),
-        PalettePreset.MIST to stringResource(R.string.palette_mist),
-        PalettePreset.ROSE to stringResource(R.string.palette_rose),
-    )
-    DropdownRow(
-        stringResource(R.string.space_palette),
-        Palettes.presets.keys.map { it to names[it].orEmpty() },
-        selected,
-        "palette",
-        leading = { preset -> Palettes.presets[preset]?.let { Swatch(MushinColors.from(it)) } },
-        onSelect = onSelect,
-    )
-}
-
-@Composable
-private fun Swatch(swatch: MushinColors) {
-    Row(Modifier.clip(RoundedCornerShape(CARD_RADIUS))) {
-        listOf(swatch.background, swatch.zebraB, swatch.textPrimary, swatch.accent).forEach {
-            Box(Modifier.size(SWATCH).background(it))
-        }
-    }
-}
-
-private val SWATCH = 20.dp
 private val THUMBNAIL_HEIGHT = 160.dp
 private const val DEFAULT_RATIO = 0.45f

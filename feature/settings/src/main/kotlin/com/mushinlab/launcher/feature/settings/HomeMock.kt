@@ -42,7 +42,6 @@ import com.mushinlab.launcher.core.ui.SingleLineText
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.max
-import kotlin.math.min
 
 @Composable
 internal fun HomeMock(settings: LauncherSettings, overImage: Boolean) {
@@ -56,11 +55,11 @@ internal fun HomeMock(settings: LauncherSettings, overImage: Boolean) {
         val loose = constraints.copy(minWidth = 0, minHeight = 0)
         val header = measurables[0].measure(loose)
         val list = measurables[1].measure(loose)
-        val room = constraints.maxHeight - header.height - list.height
-        val offset = min(header.height * (AUTO_DEPTH - 1), room).coerceAtLeast(0)
+        val centered = (constraints.maxHeight - list.height) / 2
+        val top = centered.coerceAtLeast(header.height)
         layout(constraints.maxWidth, constraints.maxHeight) {
             header.place(0, 0)
-            list.place(0, header.height + offset)
+            list.place(0, top)
         }
     }
 }
@@ -147,7 +146,6 @@ private fun mockRowHeight(text: TextStyle): Dp {
 }
 
 private const val MOCK_ROWS = 5
-private const val AUTO_DEPTH = 3
 private const val HANDLE_ALPHA = 0.35f
 private val TOP_GAP = 40.dp
 private val LIST_GAP = 32.dp

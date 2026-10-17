@@ -98,7 +98,7 @@ class SettingsUiTest : LauncherUiTestBase() {
     fun styleChangesTheFontOfTheWholeApp() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         rule.onNodeWithTag("nav_style").performClick()
-        rule.onNodeWithTag("palette_dropdown").assertIsDisplayed()
+        rule.onNodeWithTag("palette_picker").assertIsDisplayed()
         rule.onNodeWithTag("style_colored_icons").assertIsDisplayed()
         rule.onNodeWithTag("font_dropdown").performScrollTo().performClick()
         rule.onNodeWithTag("font_MONTSERRAT").performClick()
@@ -115,12 +115,11 @@ class SettingsUiTest : LauncherUiTestBase() {
     fun styleOffersElevenThemesIncludingTheNewOnes() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         rule.onNodeWithTag("nav_style").performClick()
-        rule.onNodeWithTag("palette_dropdown").performClick()
         listOf("LAGOON", "PLUM", "EMBER", "MIST", "ROSE").forEach {
             rule.onNodeWithTag("palette_$it").performScrollTo().assertIsDisplayed()
         }
         val original = container.spaces.spaces.value.first { it.id == normalId }.preset
-        rule.onNodeWithTag("palette_ROSE").performClick()
+        rule.onNodeWithTag("palette_ROSE").performScrollTo().performClick()
         try {
             rule.waitUntil(5_000) {
                 container.spaces.spaces.value.first { it.id == normalId }.preset == PalettePreset.ROSE

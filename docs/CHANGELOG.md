@@ -9,6 +9,8 @@
 - Each space has its own background (ADR-0020). Space settings → Background → “Change background” opens the system photo picker when the space has no image yet, then a full-screen editor: the image in a frame with the proportions of the screen, under a mock home screen of the space (clock, date, list handle and five rows in its palette, font and text size). Drag to move the image, pinch to zoom (it always fills the screen), double-tap to reset. “Brightness” (darker to the left, lighter to the right) and “Blur” apply live. “Other image” picks a new photo, “Save” keeps the visible part at screen resolution, “Cancel” changes nothing. The space settings show a small preview, and “Remove background” deletes the image and resets both sliders. Deleting a space deletes its image; a new space starts without one.
 
 ### Changed
+- Palette choice is a row of round swatches (background colour with an accent dot, a ring around the chosen one) instead of a dropdown, in Style and in the space settings.
+- In the background editor the mock app list sits in the vertical middle of the preview.
 - Search settings panel: “Clear space history” is replaced with “All settings”, which closes search and opens the settings.
 - Settings → Home screen is now a section of Style; the separate page is gone.
 - Icon-button outlines are 2 dp instead of 1 dp, and the search settings button sits further from the result list.
