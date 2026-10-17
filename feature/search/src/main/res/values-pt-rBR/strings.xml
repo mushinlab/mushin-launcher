@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_nothing_found">Nada encontrado</string>
+    <string name="search_hidden_suffix">(oculto)</string>
+    <string name="search_suggestions">sugestões…</string>
+    <string name="menu_add_to_space">Adicionar ao espaço</string>
+    <string name="menu_remove_from_space">Remover do espaço</string>
+    <string name="menu_app_info">Informações do app</string>
+    <string name="menu_uninstall">Desinstalar</string>
+    <string name="menu_hide">Ocultar</string>
+    <string name="menu_unhide">Mostrar</string>
+    <string name="search_show_hidden">Mostrar ocultos</string>
+    <string name="search_options">Configurações da pesquisa</string>
+    <string name="search_fuzzy">Corrigir erros de digitação</string>
+    <string name="search_layout_swap">Corrigir layout do teclado</string>
+    <string name="search_translit">Transliteração</string>
+    <string name="search_clear_history">Limpar histórico do espaço</string>
+    <string name="search_clear_confirm">Limpar os apps recentes deste espaço?</string>
+    <string name="search_clear">Limpar</string>
+    <string name="search_cancel">Cancelar</string>
+    <string name="search_colored_icons">Ícones coloridos</string>
+    <string name="search_backspace">Apagar</string>
+    <string name="search_clear_drawing">Apagar desenho</string>
+    <string name="menu_rename">Renomear</string>
+</resources>

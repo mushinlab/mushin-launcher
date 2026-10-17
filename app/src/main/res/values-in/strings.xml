@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mushin Launcher</string>
+    <string name="notice_suspended">Aplikasi dijeda</string>
+    <string name="notice_launch_failed">Tidak dapat membuka aplikasi</string>
+    <string name="notice_remove_from_space">Keluarkan dari ruang</string>
+    <string name="notice_shade_unavailable">Panel notifikasi tidak tersedia di versi Android ini</string>
+    <string name="notice_added_to_space">Ditambahkan ke “%1$s”</string>
+    <string name="notice_removed_from_space">Dikeluarkan dari “%1$s”</string>
+    <string name="notice_space_full">“%1$s” sudah penuh</string>
+    <string name="rename_title">Ganti nama “%1$s”</string>
+    <string name="rename_save">Simpan</string>
+    <string name="rename_reset">Reset</string>
+    <string name="notice_hidden">“%1$s” disembunyikan. Untuk melihat aplikasi tersembunyi, ketuk ikon mata di pencarian</string>
+    <string name="notice_unhidden">“%1$s” terlihat lagi</string>
+    <string name="notice_no_clock">Aplikasi Jam tidak ditemukan</string>
+    <string name="learn_hint_title">Apa maksud Anda?</string>
+    <string name="learn_hint_subtitle">Lanjut ke pembelajaran</string>
+    <string name="tile_search">Pencarian Mushin</string>
+    <string name="notice_background_failed">Tidak dapat membuka gambar</string>
+</resources>

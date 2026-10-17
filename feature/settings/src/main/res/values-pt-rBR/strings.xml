@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Configurações</string>
+    <string name="settings_cancel">Cancelar</string>
+    <string name="settings_save">Salvar</string>
+    <string name="settings_reset">Redefinir</string>
+    <string name="settings_delete">Excluir</string>
+    <string name="settings_clear">Limpar</string>
+    <string name="settings_on">Ativado</string>
+    <string name="settings_off">Desativado</string>
+
+    <string name="settings_home">Tela inicial</string>
+    <string name="settings_keyboard">Teclado</string>
+    <string name="settings_gestures">Gestos</string>
+    <string name="settings_press">Animação ao tocar</string>
+    <string name="settings_apps">Ocultos e renomeados</string>
+    <string name="settings_system">Sistema</string>
+
+    <string name="space_create_title">Novo espaço</string>
+    <string name="space_work_default_name">Trabalho</string>
+    <string name="space_type_normal">normal</string>
+    <string name="space_type_work">trabalho</string>
+    <string name="space_type_custom">personalizado</string>
+    <string name="space_name">Nome</string>
+    <string name="space_rename_title">Nome do espaço</string>
+    <string name="space_palette">Paleta</string>
+    <string name="space_items">Apps</string>
+    <string name="space_add">+ Adicionar</string>
+    <string name="space_overflow">Cabem %1$d de %2$d — os demais não aparecem na tela inicial</string>
+    <string name="space_delete">Excluir espaço</string>
+    <string name="space_delete_confirm">Excluir o espaço “%1$s”? Os apps e o histórico dele serão excluídos</string>
+    <string name="space_item_hidden">oculto</string>
+    <string name="space_item_missing">desinstalado</string>
+    <string name="space_move_up">Mover para cima</string>
+    <string name="space_move_down">Mover para baixo</string>
+    <string name="space_remove_item">Remover</string>
+    <string name="space_empty">Vazio por enquanto. Toque em “Adicionar”.</string>
+
+    <string name="error_name_empty">Digite um nome</string>
+    <string name="error_name_long">No máximo 24 caracteres</string>
+    <string name="error_name_taken">Este nome já está em uso</string>
+    <string name="error_work_limit">Já existe um espaço “Trabalho”</string>
+    <string name="error_custom_limit">No máximo 20 espaços personalizados</string>
+    <string name="error_generic">Algo deu errado</string>
+
+    <string name="space_colored_icons">Ícones coloridos</string>
+    <string name="space_colored_icons_note">Ícones dos apps nas próprias cores, e não monocromáticos, enquanto este espaço estiver ativo: na tela inicial, na pesquisa e nas sugestões da digitação por gestos. Vale quando os ícones estão ativados em “Tela inicial”.</string>
+    <string name="palette_graphite">Graphite</string>
+    <string name="palette_navy">Navy</string>
+    <string name="palette_paper">Paper</string>
+    <string name="palette_moss">Moss</string>
+    <string name="palette_night">Night</string>
+    <string name="palette_sand">Sand</string>
+    <string name="palette_lagoon">Lagoon</string>
+    <string name="palette_plum">Plum</string>
+    <string name="palette_ember">Ember</string>
+    <string name="palette_mist">Mist</string>
+    <string name="palette_rose">Rose</string>
+
+    <string name="picker_title">Apps</string>
+    <string name="picker_filter">Pesquisar</string>
+    <string name="picker_selected">%1$d de %2$d selecionados</string>
+    <string name="picker_full">%1$d de %2$d selecionados — não cabe mais nada na tela inicial</string>
+
+    <string name="home_icons">Ícones</string>
+    <string name="home_icons_none">Sem ícones</string>
+    <string name="home_icons_left">Esquerda</string>
+    <string name="home_icons_right">Direita</string>
+    <string name="home_clock">Formato do relógio</string>
+    <string name="home_clock_system">Sistema</string>
+    <string name="home_clock_24">24 horas</string>
+    <string name="home_clock_12">12 horas</string>
+    <string name="home_show_date">Mostrar data</string>
+    <string name="home_text_size">Tamanho do texto</string>
+    <string name="home_text_s">Pequeno</string>
+    <string name="home_text_m">Médio</string>
+    <string name="home_text_l">Grande</string>
+    <string name="home_notifications">Contador de notificações</string>
+    <string name="home_notifications_note">Um número pequeno à direita do nome do app. As notificações nunca são armazenadas nem enviadas; só a quantidade delas é contada.</string>
+    <string name="home_notifications_no_access">O contador precisa de acesso às notificações.</string>
+    <string name="home_notifications_grant">Abrir acesso às notificações</string>
+    <string name="press_flash">Clarão</string>
+    <string name="press_hold">Realce</string>
+    <string name="press_accent">Destaque</string>
+    <string name="press_dim">Escurecer</string>
+    <string name="press_scale">Encolher</string>
+    <string name="press_note">Como linhas e botões reagem ao toque. Toque em uma opção para testar.</string>
+
+    <string name="keyboard_layouts">Layouts</string>
+    <string name="keyboard_haptics">Resposta tátil</string>
+    <string name="keyboard_digit_hints">Dicas de números</string>
+    <string name="keyboard_gesture_tuning">Digitação por gestos</string>
+    <string name="keyboard_gesture_shift">Penalidade de desvio</string>
+    <string name="keyboard_gesture_shift_note">Menor: um desenho feito longe das letras é reconhecido com mais facilidade, mas acertos acidentais ficam mais frequentes. Maior: é preciso mais precisão. Padrão: 0,50.</string>
+    <string name="keyboard_gesture_margin">Margem de sugestões</string>
+    <string name="keyboard_gesture_margin_note">Maior: vários apps aparecem com mais frequência no lugar de um só. 0: sugestões só para correspondências igualmente boas. Padrão: 0,30.</string>
+    <string name="keyboard_gesture_tuning_reset">Restaurar padrões</string>
+    <string name="keyboard_need_one">É necessário pelo menos um layout</string>
+    <string name="keyboard_remove_layout">Remover</string>
+    <string name="keyboard_add_layout">Adicionar mais</string>
+
+    <string name="gesture_up">Deslizar para cima</string>
+    <string name="gesture_down">Deslizar para baixo</string>
+    <string name="gesture_left">Deslizar para a esquerda</string>
+    <string name="gesture_right">Deslizar para a direita</string>
+    <string name="gestures_swipes">Gestos de deslizar na tela inicial</string>
+    <string name="gesture_shade_zone">Deslizar para baixo a partir do quinto superior da tela sempre abre a aba de notificações.</string>
+    <string name="action_none">Nada</string>
+    <string name="action_notifications">Aba de notificações</string>
+    <string name="action_search">Pesquisa</string>
+    <string name="action_all_apps">Todos os apps</string>
+    <string name="action_launch_app">App…</string>
+    <string name="action_app_missing">(app desinstalado)</string>
+
+    <string name="apps_hidden">Ocultos</string>
+    <string name="apps_renamed">Renomeados</string>
+    <string name="apps_show">Mostrar</string>
+    <string name="apps_none_hidden">Nenhum app oculto</string>
+    <string name="apps_none_renamed">Nenhum app renomeado</string>
+
+    <string name="system_default">Launcher padrão</string>
+    <string name="system_default_yes">Sim</string>
+    <string name="system_default_no">Não — toque para definir</string>
+    <string name="system_language">Idioma</string>
+    <string name="system_language_default">Padrão do sistema</string>
+    <string name="system_version">Versão</string>
+    <string name="system_privacy">Privacidade</string>
+    <string name="system_privacy_text">O Mushin não coleta nem compartilha dados: o app não tem acesso à internet, anúncios nem análises. Seus espaços, o histórico de aberturas, os gestos aprendidos e as configurações ficam só neste dispositivo, não entram em backups e são excluídos junto com o app. O Mushin lê do sistema a lista de apps instalados para mostrá-los na tela inicial e na pesquisa. Se você ativar o contador de notificações, o Mushin vê apenas quantas notificações cada app tem — o texto delas nunca é lido nem armazenado. Dúvidas: mushin-lab@proton.me</string>
+    <string name="system_licenses">Licenças</string>
+    <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, ícones Material Symbols — Apache License 2.0. Fontes Inter, Open Sans e Montserrat — SIL Open Font License 1.1 (os textos das licenças estão no app, assets/licenses).</string>
+    <string name="settings_memory">Memória</string>
+    <string name="memory_note">Tudo o que o Mushin aprendeu fica neste celular. Aqui você pode ver e apagar.</string>
+    <string name="memory_gestures">Gestos aprendidos</string>
+    <string name="memory_gestures_none">Nada ainda. Um gesto é memorizado quando você abre um app depois de corrigir um desenho ou escolher entre as sugestões.</string>
+    <string name="memory_forget_gestures">Esquecer todos os gestos</string>
+    <string name="memory_forget_gestures_confirm">Esquecer todos os gestos aprendidos? O reconhecimento volta ao estado inicial.</string>
+    <string name="memory_usage">Frequência de aberturas</string>
+    <string name="memory_usage_note">Os resultados da pesquisa são ordenados por ela.</string>
+    <string name="memory_usage_none">Vazio por enquanto.</string>
+    <string name="memory_clear_usage">Apagar contagem de aberturas</string>
+    <string name="memory_clear_usage_confirm">Apagar a contagem de aberturas de todos os apps? A pesquisa deixará de considerar com que frequência você os abre, e as notas de utilidade nos espaços serão zeradas até que as contagens se acumulem de novo.</string>
+    <string name="memory_erase">Apagar</string>
+    <string name="memory_app_note">Desenhos que levam a este app, mostrados como vetores. O ponto marca onde a linha começa; um anel marca onde o dedo parou: quanto maior a pausa, maior o anel. Quanto maior o peso, mais o desenho aponta para este app.</string>
+    <string name="memory_forget_app">Esquecer todos os desenhos deste app</string>
+    <string name="memory_forget_app_confirm">Esquecer todos os desenhos de “%1$s”?</string>
+    <string name="memory_weight">Peso %1$s</string>
+    <string name="memory_forget">Esquecer</string>
+    <plurals name="memory_drawings">
+        <item quantity="one">%d desenho</item>
+        <item quantity="many">%d de desenhos</item>
+        <item quantity="other">%d desenhos</item>
+    </plurals>
+    <string name="settings_style">Estilo</string>
+    <string name="settings_advanced">Avançado</string>
+    <string name="summary_style">Fonte, peso, tamanho do texto</string>
+    <string name="summary_home">Ícones, relógio e data, contador de notificações</string>
+    <string name="summary_keyboard">Layouts, vibração, dicas de números, digitação por gestos</string>
+    <string name="summary_gestures">Gestos de deslizar na tela inicial</string>
+    <string name="summary_apps">Apps ocultos, nomes personalizados</string>
+    <string name="summary_system">Launcher padrão, idioma, privacidade, avançado</string>
+    <string name="summary_advanced">Animação ao tocar, memória</string>
+    <string name="summary_press">Como as linhas reagem ao toque</string>
+    <string name="summary_memory">Gestos aprendidos, contagem de aberturas, utilidade</string>
+    <string name="style_font">Fonte</string>
+    <string name="style_weight">Peso</string>
+    <string name="style_note">A fonte e o peso valem para todo o app; o tamanho vale para a lista da tela inicial.</string>
+    <string name="font_system">Roboto (sistema)</string>
+    <string name="weight_light">Leve</string>
+    <string name="weight_regular">Normal</string>
+    <string name="weight_medium">Médio</string>
+    <string name="memory_usefulness">Utilidade em “%1$s”</string>
+    <string name="memory_usefulness_note">Uma nota de 1 a 100: com que frequência e quão recentemente você abriu o app neste espaço. Se um app que não está na tela inicial tiver nota bem maior que um que está, aparece um “?” com uma sugestão no canto inferior direito.</string>
+    <string name="home_clock_note">Toque no relógio para abrir o app Relógio. Mantenha o relógio pressionado para movê-lo para a esquerda, o centro ou a direita.</string>
+    <string name="settings_back">Voltar</string>
+    <string name="style_theme">Tema de “%1$s”</string>
+    <string name="style_text">Texto</string>
+    <string name="keyboard_fit_note">Mude a largura e a posição do teclado com o botão à esquerda da barra de espaço: arraste as âncoras laterais para redimensionar e a de baixo para mover. Todo o painel de entrada muda.</string>
+    <string name="style_stroke">Traço</string>
+    <string name="style_stroke_width">Espessura</string>
+    <string name="style_stroke_color">Cor</string>
+    <string name="stroke_accent">Destaque do tema</string>
+    <string name="stroke_text">Cor do texto</string>
+    <string name="stroke_coral">Coral</string>
+    <string name="stroke_orange">Laranja</string>
+    <string name="stroke_amber">Âmbar</string>
+    <string name="stroke_lime">Lima</string>
+    <string name="stroke_green">Verde</string>
+    <string name="stroke_teal">Turquesa</string>
+    <string name="stroke_sky">Céu</string>
+    <string name="stroke_blue">Azul</string>
+    <string name="stroke_violet">Violeta</string>
+    <string name="stroke_pink">Rosa</string>
+    <string name="memory_add_gesture">Adicionar gesto…</string>
+    <string name="memory_pick_title">Escolha um app</string>
+    <string name="memory_add">Adicionar</string>
+    <string name="memory_repeat">Repetir</string>
+    <string name="memory_sheet_hint">Desenhe qualquer figura em um só traço, sobre as letras ou não.</string>
+    <string name="memory_sheet_short">Curto demais: desenhe uma linha.</string>
+    <string name="memory_sheet_result">É assim que o gesto será memorizado. Adicionar, repetir ou cancelar?</string>
+    <string name="space_background">Plano de fundo</string>
+    <string name="space_background_change">Mudar plano de fundo</string>
+    <string name="space_background_remove">Remover plano de fundo</string>
+    <string name="space_background_preview">Plano de fundo do espaço</string>
+    <string name="space_background_note">Uma imagem da galeria (PNG, JPEG, WebP, AVIF) atrás da tela inicial deste espaço. A cópia fica dentro do launcher e nunca é enviada a lugar nenhum.</string>
+    <string name="background_brightness">Brilho</string>
+    <string name="background_blur">Desfoque</string>
+    <string name="background_other">Outra imagem</string>
+    <string name="background_mock_app">App %1$d</string>
+    <string name="style_stroke_dots">Pontos na linha</string>
+    <string name="memory_sheet_draft">Esta é a média das suas últimas tentativas. Adicione ou desenhe de novo.</string>
+    <string name="settings_tips">Dicas</string>
+    <string name="summary_tips">Animações curtas sobre o que o launcher sabe fazer</string>
+    <string name="tip_space_title">Configure seu primeiro espaço</string>
+    <string name="tip_space_text">Toque no lápis na parte de baixo da tela inicial, escolha uma paleta e marque os apps que você quer neste espaço.</string>
+    <string name="tip_style_title">Personalize o launcher</string>
+    <string name="tip_style_text">Mude a fonte, o tamanho do texto e os ícones em Estilo e Tela inicial. Para mover o relógio, mantenha-o pressionado e arraste.</string>
+    <string name="tip_memory_title">Ensine o launcher</string>
+    <string name="tip_memory_text">Em Sistema → Avançado → Memória, desenhe uma forma para um app. Desenhe a mesma forma na tela inicial e o launcher sugere esse app.</string>
+    <string name="tips_more_title">Para mais, explore as Dicas</string>
+    <string name="tips_more_text">Reveja estas dicas quando quiser em Configurações → Dicas.</string>
+    <string name="tip_space_name">Pessoal</string>
+    <string-array name="tip_apps">
+        <item>Telefone</item>
+        <item>Mensagens</item>
+        <item>Câmera</item>
+        <item>Mapas</item>
+        <item>Música</item>
+        <item>Notas</item>
+        <item>Agenda</item>
+    </string-array>
+    <string name="onboarding_skip">Pular</string>
+    <string name="onboarding_next">Próximo</string>
+    <string name="onboarding_done">Concluir</string>
+    <string name="onboarding_position">Slide %1$d de %2$d</string>
+</resources>

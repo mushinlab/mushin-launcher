@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_nothing_found">Nichts gefunden</string>
+    <string name="search_hidden_suffix">(ausgeblendet)</string>
+    <string name="search_suggestions">Vorschläge…</string>
+    <string name="menu_add_to_space">Zum Bereich hinzufügen</string>
+    <string name="menu_remove_from_space">Aus Bereich entfernen</string>
+    <string name="menu_app_info">App-Info</string>
+    <string name="menu_uninstall">Deinstallieren</string>
+    <string name="menu_hide">Ausblenden</string>
+    <string name="menu_unhide">Einblenden</string>
+    <string name="search_show_hidden">Ausgeblendete zeigen</string>
+    <string name="search_options">Sucheinstellungen</string>
+    <string name="search_fuzzy">Tippfehler korrigieren</string>
+    <string name="search_layout_swap">Tastaturlayout korrigieren</string>
+    <string name="search_translit">Transliteration</string>
+    <string name="search_clear_history">Bereichsverlauf löschen</string>
+    <string name="search_clear_confirm">Zuletzt geöffnete Apps dieses Bereichs löschen?</string>
+    <string name="search_clear">Löschen</string>
+    <string name="search_cancel">Abbrechen</string>
+    <string name="search_colored_icons">Farbige Symbole</string>
+    <string name="search_backspace">Löschen</string>
+    <string name="search_clear_drawing">Zeichnung löschen</string>
+    <string name="menu_rename">Umbenennen</string>
+</resources>

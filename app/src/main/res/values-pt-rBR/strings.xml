@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mushin Launcher</string>
+    <string name="notice_suspended">O app está pausado</string>
+    <string name="notice_launch_failed">Não foi possível abrir o app</string>
+    <string name="notice_remove_from_space">Remover do espaço</string>
+    <string name="notice_shade_unavailable">A aba de notificações não está disponível nesta versão do Android</string>
+    <string name="notice_added_to_space">Adicionado a “%1$s”</string>
+    <string name="notice_removed_from_space">Removido de “%1$s”</string>
+    <string name="notice_space_full">“%1$s” está cheio</string>
+    <string name="rename_title">Renomear “%1$s”</string>
+    <string name="rename_save">Salvar</string>
+    <string name="rename_reset">Redefinir</string>
+    <string name="notice_hidden">“%1$s” foi ocultado. Para ver apps ocultos, toque no olho na pesquisa</string>
+    <string name="notice_unhidden">“%1$s” está visível de novo</string>
+    <string name="notice_no_clock">Nenhum app de relógio encontrado</string>
+    <string name="learn_hint_title">O que você quis dizer?</string>
+    <string name="learn_hint_subtitle">Ir para o aprendizado</string>
+    <string name="tile_search">Pesquisa Mushin</string>
+    <string name="notice_background_failed">Não foi possível abrir a imagem</string>
+</resources>

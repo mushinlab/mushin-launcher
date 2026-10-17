@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_make_default">Definir como launcher padrão</string>
+    <string name="popup_settings">⚙  Configurações</string>
+    <string name="popup_about">Informações do app</string>
+    <string name="popup_rename">Renomear</string>
+    <string name="popup_hide">Ocultar</string>
+    <string name="popup_show">Mostrar</string>
+    <string name="popup_remove_from_space">Remover do espaço</string>
+    <string name="popup_uninstall">Desinstalar</string>
+    <string name="home_suggestion">Sugestão: um app que você abre com mais frequência</string>
+    <string name="home_edit">Editar espaço</string>
+    <string name="home_add_apps">Adicionar apps</string>
+    <string name="home_add_apps_inline">+ Adicionar apps</string>
+    <string name="suggest_header">Você abre “%1$s” com mais frequência</string>
+    <string name="suggest_replace">Colocar no lugar de “%1$s”</string>
+    <string name="suggest_add">Adicionar à tela inicial</string>
+    <string name="suggest_dismiss">Não sugerir</string>
+</resources>

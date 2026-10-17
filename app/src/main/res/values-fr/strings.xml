@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mushin Launcher</string>
+    <string name="notice_suspended">L’appli est suspendue</string>
+    <string name="notice_launch_failed">Impossible d’ouvrir l’appli</string>
+    <string name="notice_remove_from_space">Retirer de l’espace</string>
+    <string name="notice_shade_unavailable">Le volet des notifications n’est pas disponible sur cette version d’Android</string>
+    <string name="notice_added_to_space">Ajoutée à « %1$s »</string>
+    <string name="notice_removed_from_space">Retirée de « %1$s »</string>
+    <string name="notice_space_full">« %1$s » est plein</string>
+    <string name="rename_title">Renommer « %1$s »</string>
+    <string name="rename_save">Enregistrer</string>
+    <string name="rename_reset">Réinitialiser</string>
+    <string name="notice_hidden">« %1$s » masquée. Pour voir les applis masquées, touchez l’œil dans la recherche</string>
+    <string name="notice_unhidden">« %1$s » est de nouveau visible</string>
+    <string name="notice_no_clock">Aucune appli Horloge trouvée</string>
+    <string name="learn_hint_title">Que vouliez-vous dire ?</string>
+    <string name="learn_hint_subtitle">Passer à l’apprentissage</string>
+    <string name="tile_search">Recherche Mushin</string>
+    <string name="notice_background_failed">Impossible d’ouvrir l’image</string>
+</resources>

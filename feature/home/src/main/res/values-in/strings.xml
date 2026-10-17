@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_make_default">Jadikan launcher default</string>
+    <string name="popup_settings">⚙  Setelan</string>
+    <string name="popup_about">Info aplikasi</string>
+    <string name="popup_rename">Ganti nama</string>
+    <string name="popup_hide">Sembunyikan</string>
+    <string name="popup_show">Tampilkan</string>
+    <string name="popup_remove_from_space">Keluarkan dari ruang</string>
+    <string name="popup_uninstall">Uninstal</string>
+    <string name="home_suggestion">Saran: aplikasi yang lebih sering Anda buka</string>
+    <string name="home_edit">Ubah ruang</string>
+    <string name="home_add_apps">Tambah aplikasi</string>
+    <string name="home_add_apps_inline">+ Tambah aplikasi</string>
+    <string name="suggest_header">Anda lebih sering membuka “%1$s”</string>
+    <string name="suggest_replace">Pasang menggantikan “%1$s”</string>
+    <string name="suggest_add">Tambahkan ke layar utama</string>
+    <string name="suggest_dismiss">Jangan sarankan</string>
+</resources>

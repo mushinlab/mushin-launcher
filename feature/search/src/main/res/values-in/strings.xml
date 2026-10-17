@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_nothing_found">Tidak ada hasil</string>
+    <string name="search_hidden_suffix">(tersembunyi)</string>
+    <string name="search_suggestions">saran…</string>
+    <string name="menu_add_to_space">Tambahkan ke ruang</string>
+    <string name="menu_remove_from_space">Keluarkan dari ruang</string>
+    <string name="menu_app_info">Info aplikasi</string>
+    <string name="menu_uninstall">Uninstal</string>
+    <string name="menu_hide">Sembunyikan</string>
+    <string name="menu_unhide">Tampilkan</string>
+    <string name="search_show_hidden">Tampilkan yang tersembunyi</string>
+    <string name="search_options">Setelan pencarian</string>
+    <string name="search_fuzzy">Perbaiki salah ketik</string>
+    <string name="search_layout_swap">Perbaiki tata letak keyboard</string>
+    <string name="search_translit">Transliterasi</string>
+    <string name="search_clear_history">Hapus riwayat ruang</string>
+    <string name="search_clear_confirm">Hapus aplikasi terbaru di ruang ini?</string>
+    <string name="search_clear">Hapus</string>
+    <string name="search_cancel">Batal</string>
+    <string name="search_colored_icons">Ikon berwarna</string>
+    <string name="search_backspace">Hapus</string>
+    <string name="search_clear_drawing">Hapus gambar</string>
+    <string name="menu_rename">Ganti nama</string>
+</resources>

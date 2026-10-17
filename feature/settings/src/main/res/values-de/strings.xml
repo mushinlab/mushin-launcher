@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_cancel">Abbrechen</string>
+    <string name="settings_save">Speichern</string>
+    <string name="settings_reset">Zurücksetzen</string>
+    <string name="settings_delete">Löschen</string>
+    <string name="settings_clear">Leeren</string>
+    <string name="settings_on">An</string>
+    <string name="settings_off">Aus</string>
+
+    <string name="settings_home">Startbildschirm</string>
+    <string name="settings_keyboard">Tastatur</string>
+    <string name="settings_gestures">Gesten</string>
+    <string name="settings_press">Tippanimation</string>
+    <string name="settings_apps">Ausgeblendet &amp; umbenannt</string>
+    <string name="settings_system">System</string>
+
+    <string name="space_create_title">Neuer Bereich</string>
+    <string name="space_work_default_name">Arbeit</string>
+    <string name="space_type_normal">normal</string>
+    <string name="space_type_work">Arbeit</string>
+    <string name="space_type_custom">eigener</string>
+    <string name="space_name">Name</string>
+    <string name="space_rename_title">Name des Bereichs</string>
+    <string name="space_palette">Palette</string>
+    <string name="space_items">Apps</string>
+    <string name="space_add">+ Hinzufügen</string>
+    <string name="space_overflow">%1$d von %2$d passen — der Rest erscheint nicht auf dem Startbildschirm</string>
+    <string name="space_delete">Bereich löschen</string>
+    <string name="space_delete_confirm">Bereich „%1$s“ löschen? Seine Apps und sein Verlauf werden gelöscht</string>
+    <string name="space_item_hidden">ausgeblendet</string>
+    <string name="space_item_missing">deinstalliert</string>
+    <string name="space_move_up">Nach oben</string>
+    <string name="space_move_down">Nach unten</string>
+    <string name="space_remove_item">Entfernen</string>
+    <string name="space_empty">Noch leer. Tippe auf „Hinzufügen“.</string>
+
+    <string name="error_name_empty">Gib einen Namen ein</string>
+    <string name="error_name_long">Höchstens 24 Zeichen</string>
+    <string name="error_name_taken">Dieser Name ist schon vergeben</string>
+    <string name="error_work_limit">Es gibt schon einen Bereich „Arbeit“</string>
+    <string name="error_custom_limit">Höchstens 20 eigene Bereiche</string>
+    <string name="error_generic">Etwas ist schiefgelaufen</string>
+
+    <string name="space_colored_icons">Farbige Symbole</string>
+    <string name="space_colored_icons_note">App-Symbole in ihren eigenen Farben statt einfarbig, solange dieser Bereich aktiv ist — auf dem Startbildschirm, in der Suche und in den Vorschlägen der Wischeingabe. Gilt, wenn Symbole unter „Startbildschirm“ eingeschaltet sind.</string>
+    <string name="palette_graphite">Graphite</string>
+    <string name="palette_navy">Navy</string>
+    <string name="palette_paper">Paper</string>
+    <string name="palette_moss">Moss</string>
+    <string name="palette_night">Night</string>
+    <string name="palette_sand">Sand</string>
+    <string name="palette_lagoon">Lagoon</string>
+    <string name="palette_plum">Plum</string>
+    <string name="palette_ember">Ember</string>
+    <string name="palette_mist">Mist</string>
+    <string name="palette_rose">Rose</string>
+
+    <string name="picker_title">Apps</string>
+    <string name="picker_filter">Suchen</string>
+    <string name="picker_selected">%1$d von %2$d ausgewählt</string>
+    <string name="picker_full">%1$d von %2$d ausgewählt — kein Platz mehr auf dem Startbildschirm</string>
+
+    <string name="home_icons">Symbole</string>
+    <string name="home_icons_none">Keine Symbole</string>
+    <string name="home_icons_left">Links</string>
+    <string name="home_icons_right">Rechts</string>
+    <string name="home_clock">Uhrzeitformat</string>
+    <string name="home_clock_system">System</string>
+    <string name="home_clock_24">24 Stunden</string>
+    <string name="home_clock_12">12 Stunden</string>
+    <string name="home_show_date">Datum anzeigen</string>
+    <string name="home_text_size">Textgröße</string>
+    <string name="home_text_s">Klein</string>
+    <string name="home_text_m">Mittel</string>
+    <string name="home_text_l">Groß</string>
+    <string name="home_notifications">Benachrichtigungszähler</string>
+    <string name="home_notifications_note">Eine kleine Zahl rechts neben dem App-Namen. Benachrichtigungen werden nie gespeichert oder irgendwohin gesendet; nur ihre Anzahl wird gezählt.</string>
+    <string name="home_notifications_no_access">Für den Zähler ist Zugriff auf Benachrichtigungen nötig.</string>
+    <string name="home_notifications_grant">Benachrichtigungszugriff öffnen</string>
+    <string name="press_flash">Blitz</string>
+    <string name="press_hold">Hervorheben</string>
+    <string name="press_accent">Akzent</string>
+    <string name="press_dim">Abdunkeln</string>
+    <string name="press_scale">Schrumpfen</string>
+    <string name="press_note">Wie Zeilen und Tasten auf Berührung reagieren. Tippe auf eine Option, um sie auszuprobieren.</string>
+
+    <string name="keyboard_layouts">Layouts</string>
+    <string name="keyboard_haptics">Haptisches Feedback</string>
+    <string name="keyboard_digit_hints">Ziffernhinweise</string>
+    <string name="keyboard_gesture_tuning">Wischeingabe</string>
+    <string name="keyboard_gesture_shift">Versatzstrafe</string>
+    <string name="keyboard_gesture_shift_note">Niedriger: Eine Zeichnung neben den Buchstaben wird leichter erkannt, aber Zufallstreffer werden häufiger. Höher: Du musst genauer zeichnen. Standard 0,50.</string>
+    <string name="keyboard_gesture_margin">Vorschlagsspanne</string>
+    <string name="keyboard_gesture_margin_note">Höher: Öfter werden mehrere Apps statt einer angezeigt. 0: Vorschläge nur bei gleich guten Treffern. Standard 0,30.</string>
+    <string name="keyboard_gesture_tuning_reset">Standardwerte wiederherstellen</string>
+    <string name="keyboard_need_one">Mindestens ein Layout ist nötig</string>
+    <string name="keyboard_remove_layout">Entfernen</string>
+    <string name="keyboard_add_layout">Weitere hinzufügen</string>
+
+    <string name="gesture_up">Nach oben wischen</string>
+    <string name="gesture_down">Nach unten wischen</string>
+    <string name="gesture_left">Nach links wischen</string>
+    <string name="gesture_right">Nach rechts wischen</string>
+    <string name="gestures_swipes">Wischgesten auf dem Startbildschirm</string>
+    <string name="gesture_shade_zone">Nach unten wischen aus dem oberen Fünftel des Bildschirms öffnet immer die Benachrichtigungsleiste.</string>
+    <string name="action_none">Nichts</string>
+    <string name="action_notifications">Benachrichtigungsleiste</string>
+    <string name="action_search">Suche</string>
+    <string name="action_all_apps">Alle Apps</string>
+    <string name="action_launch_app">App…</string>
+    <string name="action_app_missing">(App deinstalliert)</string>
+
+    <string name="apps_hidden">Ausgeblendet</string>
+    <string name="apps_renamed">Umbenannt</string>
+    <string name="apps_show">Einblenden</string>
+    <string name="apps_none_hidden">Keine ausgeblendeten Apps</string>
+    <string name="apps_none_renamed">Keine umbenannten Apps</string>
+
+    <string name="system_default">Standard-Launcher</string>
+    <string name="system_default_yes">Ja</string>
+    <string name="system_default_no">Nein — zum Festlegen tippen</string>
+    <string name="system_language">Sprache</string>
+    <string name="system_language_default">Systemsprache</string>
+    <string name="system_version">Version</string>
+    <string name="system_privacy">Datenschutz</string>
+    <string name="system_privacy_text">Mushin erhebt und teilt keine Daten: Die App hat keinen Internetzugriff, keine Werbung und keine Analyse. Deine Bereiche, der Startverlauf, gelernte Gesten und Einstellungen werden nur auf diesem Gerät gespeichert, sind von Backups ausgeschlossen und werden mit der App gelöscht. Mushin liest die Liste der installierten Apps aus dem System, um sie auf dem Startbildschirm und in der Suche anzuzeigen. Wenn du den Benachrichtigungszähler einschaltest, sieht Mushin nur, wie viele Benachrichtigungen jede App hat — ihr Text wird nie gelesen oder gespeichert. Fragen: mushin-lab@proton.me</string>
+    <string name="system_licenses">Lizenzen</string>
+    <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, Symbole Material Symbols — Apache License 2.0. Schriftarten Inter, Open Sans und Montserrat — SIL Open Font License 1.1 (die Lizenztexte liegen in der App, assets/licenses).</string>
+    <string name="settings_memory">Gedächtnis</string>
+    <string name="memory_note">Alles, was Mushin gelernt hat, bleibt auf diesem Telefon. Hier kannst du es ansehen und löschen.</string>
+    <string name="memory_gestures">Gelernte Gesten</string>
+    <string name="memory_gestures_none">Noch nichts. Eine Geste wird gemerkt, wenn du eine App öffnest, nachdem du eine Zeichnung korrigiert oder aus den Vorschlägen gewählt hast.</string>
+    <string name="memory_forget_gestures">Alle Gesten vergessen</string>
+    <string name="memory_forget_gestures_confirm">Alle gelernten Gesten vergessen? Die Erkennung kehrt zum Ausgangszustand zurück.</string>
+    <string name="memory_usage">Starthäufigkeit</string>
+    <string name="memory_usage_note">Danach werden die Suchergebnisse sortiert.</string>
+    <string name="memory_usage_none">Noch leer.</string>
+    <string name="memory_clear_usage">Startzähler löschen</string>
+    <string name="memory_clear_usage_confirm">Startzähler aller Apps löschen? Die Suche berücksichtigt dann nicht mehr, wie oft du sie öffnest, und die Nützlichkeit in den Bereichen wird zurückgesetzt, bis sich die Zähler wieder aufbauen.</string>
+    <string name="memory_erase">Löschen</string>
+    <string name="memory_app_note">Zeichnungen, die zu dieser App führen, als Vektoren dargestellt. Der Punkt markiert den Anfang der Linie; ein Ring markiert, wo der Finger verweilt hat — je länger die Pause, desto größer der Ring. Je höher das Gewicht, desto stärker weist die Zeichnung auf diese App.</string>
+    <string name="memory_forget_app">Alle Zeichnungen dieser App vergessen</string>
+    <string name="memory_forget_app_confirm">Alle Zeichnungen für „%1$s“ vergessen?</string>
+    <string name="memory_weight">Gewicht %1$s</string>
+    <string name="memory_forget">Vergessen</string>
+    <plurals name="memory_drawings">
+        <item quantity="one">%d Zeichnung</item>
+        <item quantity="other">%d Zeichnungen</item>
+    </plurals>
+    <string name="settings_style">Stil</string>
+    <string name="settings_advanced">Erweitert</string>
+    <string name="summary_style">Schrift, Stärke, Textgröße</string>
+    <string name="summary_home">Symbole, Uhr und Datum, Benachrichtigungszähler</string>
+    <string name="summary_keyboard">Layouts, Vibration, Ziffernhinweise, Wischeingabe</string>
+    <string name="summary_gestures">Wischgesten auf dem Startbildschirm</string>
+    <string name="summary_apps">Ausgeblendete Apps, eigene Namen</string>
+    <string name="summary_system">Standard-Launcher, Sprache, Datenschutz, Erweitert</string>
+    <string name="summary_advanced">Tippanimation, Gedächtnis</string>
+    <string name="summary_press">Wie Zeilen auf Berührung reagieren</string>
+    <string name="summary_memory">Gelernte Gesten, Startzähler, Nützlichkeit</string>
+    <string name="style_font">Schrift</string>
+    <string name="style_weight">Stärke</string>
+    <string name="style_note">Schrift und Stärke gelten für die ganze App, die Größe für die Liste auf dem Startbildschirm.</string>
+    <string name="font_system">Roboto (System)</string>
+    <string name="weight_light">Leicht</string>
+    <string name="weight_regular">Normal</string>
+    <string name="weight_medium">Mittel</string>
+    <string name="memory_usefulness">Nützlichkeit in „%1$s“</string>
+    <string name="memory_usefulness_note">Ein Wert von 1 bis 100: wie oft und wie kürzlich du die App in diesem Bereich geöffnet hast. Hat eine App, die nicht auf dem Startbildschirm ist, einen deutlich höheren Wert als eine, die dort ist, erscheint unten rechts ein „?“ mit einem Vorschlag.</string>
+    <string name="home_clock_note">Tippe auf die Uhr, um die Uhr-App zu öffnen. Halte die Uhr gedrückt, um sie nach links, in die Mitte oder nach rechts zu verschieben.</string>
+    <string name="settings_back">Zurück</string>
+    <string name="style_theme">Design von „%1$s“</string>
+    <string name="style_text">Text</string>
+    <string name="keyboard_fit_note">Breite und Position der Tastatur änderst du mit der Taste links neben der Leertaste: Ziehe die seitlichen Anker, um die Größe zu ändern, den unteren, um sie zu verschieben. Das ganze Eingabefeld ändert sich mit.</string>
+    <string name="style_stroke">Linie</string>
+    <string name="style_stroke_width">Dicke</string>
+    <string name="style_stroke_color">Farbe</string>
+    <string name="stroke_accent">Designakzent</string>
+    <string name="stroke_text">Textfarbe</string>
+    <string name="stroke_coral">Koralle</string>
+    <string name="stroke_orange">Orange</string>
+    <string name="stroke_amber">Bernstein</string>
+    <string name="stroke_lime">Limette</string>
+    <string name="stroke_green">Grün</string>
+    <string name="stroke_teal">Petrol</string>
+    <string name="stroke_sky">Himmel</string>
+    <string name="stroke_blue">Blau</string>
+    <string name="stroke_violet">Violett</string>
+    <string name="stroke_pink">Rosa</string>
+    <string name="memory_add_gesture">Geste hinzufügen…</string>
+    <string name="memory_pick_title">App auswählen</string>
+    <string name="memory_add">Hinzufügen</string>
+    <string name="memory_repeat">Wiederholen</string>
+    <string name="memory_sheet_hint">Zeichne eine beliebige Form in einem Zug, über die Buchstaben oder daneben.</string>
+    <string name="memory_sheet_short">Zu kurz: Zeichne eine Linie.</string>
+    <string name="memory_sheet_result">So wird die Geste gespeichert. Hinzufügen, wiederholen oder abbrechen?</string>
+    <string name="space_background">Hintergrund</string>
+    <string name="space_background_change">Hintergrund ändern</string>
+    <string name="space_background_remove">Hintergrund entfernen</string>
+    <string name="space_background_preview">Hintergrund des Bereichs</string>
+    <string name="space_background_note">Ein Bild aus der Galerie (PNG, JPEG, WebP, AVIF) hinter dem Startbildschirm dieses Bereichs. Die Kopie bleibt im Launcher und wird nie irgendwohin gesendet.</string>
+    <string name="background_brightness">Helligkeit</string>
+    <string name="background_blur">Unschärfe</string>
+    <string name="background_other">Anderes Bild</string>
+    <string name="background_mock_app">App %1$d</string>
+    <string name="style_stroke_dots">Punkte auf der Linie</string>
+    <string name="memory_sheet_draft">Das ist der Durchschnitt deiner letzten Versuche. Füge ihn hinzu oder zeichne neu.</string>
+    <string name="settings_tips">Tipps</string>
+    <string name="summary_tips">Kurze Animationen dazu, was der Launcher kann</string>
+    <string name="tip_space_title">Richte deinen ersten Bereich ein</string>
+    <string name="tip_space_text">Tippe unten auf dem Startbildschirm auf den Stift, wähle eine Palette und hake die Apps an, die du in diesem Bereich haben willst.</string>
+    <string name="tip_style_title">Passe den Launcher an</string>
+    <string name="tip_style_text">Schrift, Textgröße und Symbole änderst du unter Stil und Startbildschirm. Um die Uhr zu verschieben, halte sie gedrückt und ziehe sie.</string>
+    <string name="tip_memory_title">Bring dem Launcher etwas bei</string>
+    <string name="tip_memory_text">Zeichne unter System → Erweitert → Gedächtnis eine Form für eine App. Zeichne dieselbe Form auf dem Startbildschirm, und der Launcher schlägt diese App vor.</string>
+    <string name="tips_more_title">Mehr findest du unter Tipps</string>
+    <string name="tips_more_text">Diese Tipps kannst du jederzeit unter Einstellungen → Tipps erneut ansehen.</string>
+    <string name="tip_space_name">Privat</string>
+    <string-array name="tip_apps">
+        <item>Telefon</item>
+        <item>Nachrichten</item>
+        <item>Kamera</item>
+        <item>Karten</item>
+        <item>Musik</item>
+        <item>Notizen</item>
+        <item>Kalender</item>
+    </string-array>
+    <string name="onboarding_skip">Überspringen</string>
+    <string name="onboarding_next">Weiter</string>
+    <string name="onboarding_done">Fertig</string>
+    <string name="onboarding_position">Folie %1$d von %2$d</string>
+</resources>

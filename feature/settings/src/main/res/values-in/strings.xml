@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Setelan</string>
+    <string name="settings_cancel">Batal</string>
+    <string name="settings_save">Simpan</string>
+    <string name="settings_reset">Reset</string>
+    <string name="settings_delete">Hapus</string>
+    <string name="settings_clear">Bersihkan</string>
+    <string name="settings_on">Aktif</string>
+    <string name="settings_off">Nonaktif</string>
+
+    <string name="settings_home">Layar utama</string>
+    <string name="settings_keyboard">Keyboard</string>
+    <string name="settings_gestures">Gestur</string>
+    <string name="settings_press">Animasi sentuh</string>
+    <string name="settings_apps">Tersembunyi &amp; diganti nama</string>
+    <string name="settings_system">Sistem</string>
+
+    <string name="space_create_title">Ruang baru</string>
+    <string name="space_work_default_name">Kerja</string>
+    <string name="space_type_normal">biasa</string>
+    <string name="space_type_work">kerja</string>
+    <string name="space_type_custom">kustom</string>
+    <string name="space_name">Nama</string>
+    <string name="space_rename_title">Nama ruang</string>
+    <string name="space_palette">Palet</string>
+    <string name="space_items">Aplikasi</string>
+    <string name="space_add">+ Tambah</string>
+    <string name="space_overflow">%1$d dari %2$d muat — sisanya tidak tampil di layar utama</string>
+    <string name="space_delete">Hapus ruang</string>
+    <string name="space_delete_confirm">Hapus ruang “%1$s”? Aplikasi dan riwayatnya akan dihapus</string>
+    <string name="space_item_hidden">tersembunyi</string>
+    <string name="space_item_missing">di-uninstal</string>
+    <string name="space_move_up">Naikkan</string>
+    <string name="space_move_down">Turunkan</string>
+    <string name="space_remove_item">Keluarkan</string>
+    <string name="space_empty">Masih kosong. Ketuk “Tambah”.</string>
+
+    <string name="error_name_empty">Masukkan nama</string>
+    <string name="error_name_long">Maksimal 24 karakter</string>
+    <string name="error_name_taken">Nama ini sudah dipakai</string>
+    <string name="error_work_limit">Ruang “Kerja” sudah ada</string>
+    <string name="error_custom_limit">Maksimal 20 ruang kustom</string>
+    <string name="error_generic">Terjadi kesalahan</string>
+
+    <string name="space_colored_icons">Ikon berwarna</string>
+    <string name="space_colored_icons_note">Ikon aplikasi dengan warna aslinya, bukan monokrom, selama ruang ini aktif — di layar utama, di pencarian, dan di saran ketik geser. Berlaku jika ikon diaktifkan di “Layar utama”.</string>
+    <string name="palette_graphite">Graphite</string>
+    <string name="palette_navy">Navy</string>
+    <string name="palette_paper">Paper</string>
+    <string name="palette_moss">Moss</string>
+    <string name="palette_night">Night</string>
+    <string name="palette_sand">Sand</string>
+    <string name="palette_lagoon">Lagoon</string>
+    <string name="palette_plum">Plum</string>
+    <string name="palette_ember">Ember</string>
+    <string name="palette_mist">Mist</string>
+    <string name="palette_rose">Rose</string>
+
+    <string name="picker_title">Aplikasi</string>
+    <string name="picker_filter">Cari</string>
+    <string name="picker_selected">%1$d dari %2$d dipilih</string>
+    <string name="picker_full">%1$d dari %2$d dipilih — layar utama sudah penuh</string>
+
+    <string name="home_icons">Ikon</string>
+    <string name="home_icons_none">Tanpa ikon</string>
+    <string name="home_icons_left">Kiri</string>
+    <string name="home_icons_right">Kanan</string>
+    <string name="home_clock">Format jam</string>
+    <string name="home_clock_system">Sistem</string>
+    <string name="home_clock_24">24 jam</string>
+    <string name="home_clock_12">12 jam</string>
+    <string name="home_show_date">Tampilkan tanggal</string>
+    <string name="home_text_size">Ukuran teks</string>
+    <string name="home_text_s">Kecil</string>
+    <string name="home_text_m">Sedang</string>
+    <string name="home_text_l">Besar</string>
+    <string name="home_notifications">Jumlah notifikasi</string>
+    <string name="home_notifications_note">Angka kecil di sebelah kanan nama aplikasi. Notifikasi tidak pernah disimpan atau dikirim ke mana pun; hanya jumlahnya yang dihitung.</string>
+    <string name="home_notifications_no_access">Penghitung memerlukan akses notifikasi.</string>
+    <string name="home_notifications_grant">Buka akses notifikasi</string>
+    <string name="press_flash">Kilat</string>
+    <string name="press_hold">Sorot</string>
+    <string name="press_accent">Aksen</string>
+    <string name="press_dim">Redup</string>
+    <string name="press_scale">Mengecil</string>
+    <string name="press_note">Cara baris dan tombol merespons sentuhan. Ketuk opsi untuk mencobanya.</string>
+
+    <string name="keyboard_layouts">Tata letak</string>
+    <string name="keyboard_haptics">Respons haptik</string>
+    <string name="keyboard_digit_hints">Petunjuk angka</string>
+    <string name="keyboard_gesture_tuning">Ketik geser</string>
+    <string name="keyboard_gesture_shift">Penalti pergeseran</string>
+    <string name="keyboard_gesture_shift_note">Lebih rendah: gambar yang dibuat jauh dari huruf lebih mudah dikenali, tetapi kecocokan tak sengaja lebih sering terjadi. Lebih tinggi: Anda perlu lebih tepat. Default 0,50.</string>
+    <string name="keyboard_gesture_margin">Margin saran</string>
+    <string name="keyboard_gesture_margin_note">Lebih tinggi: beberapa aplikasi lebih sering ditampilkan, bukan hanya satu. 0: saran hanya untuk kecocokan yang sama baiknya. Default 0,30.</string>
+    <string name="keyboard_gesture_tuning_reset">Pulihkan default</string>
+    <string name="keyboard_need_one">Minimal harus ada satu tata letak</string>
+    <string name="keyboard_remove_layout">Keluarkan</string>
+    <string name="keyboard_add_layout">Tambah lagi</string>
+
+    <string name="gesture_up">Geser ke atas</string>
+    <string name="gesture_down">Geser ke bawah</string>
+    <string name="gesture_left">Geser ke kiri</string>
+    <string name="gesture_right">Geser ke kanan</string>
+    <string name="gestures_swipes">Geser di layar utama</string>
+    <string name="gesture_shade_zone">Geser ke bawah dari seperlima bagian atas layar selalu membuka panel notifikasi.</string>
+    <string name="action_none">Tidak ada</string>
+    <string name="action_notifications">Panel notifikasi</string>
+    <string name="action_search">Pencarian</string>
+    <string name="action_all_apps">Semua aplikasi</string>
+    <string name="action_launch_app">Aplikasi…</string>
+    <string name="action_app_missing">(aplikasi di-uninstal)</string>
+
+    <string name="apps_hidden">Tersembunyi</string>
+    <string name="apps_renamed">Diganti nama</string>
+    <string name="apps_show">Tampilkan</string>
+    <string name="apps_none_hidden">Tidak ada aplikasi tersembunyi</string>
+    <string name="apps_none_renamed">Tidak ada aplikasi yang diganti nama</string>
+
+    <string name="system_default">Launcher default</string>
+    <string name="system_default_yes">Ya</string>
+    <string name="system_default_no">Tidak — ketuk untuk mengatur</string>
+    <string name="system_language">Bahasa</string>
+    <string name="system_language_default">Default sistem</string>
+    <string name="system_version">Versi</string>
+    <string name="system_privacy">Privasi</string>
+    <string name="system_privacy_text">Mushin tidak mengumpulkan atau membagikan data apa pun: aplikasi ini tidak punya akses internet, iklan, maupun analitik. Ruang, riwayat pembukaan, gestur yang dipelajari, dan setelan Anda hanya disimpan di perangkat ini, tidak ikut dicadangkan, dan terhapus bersama aplikasi. Mushin membaca daftar aplikasi terinstal dari sistem untuk menampilkannya di layar utama dan di pencarian. Jika Anda mengaktifkan jumlah notifikasi, Mushin hanya melihat berapa banyak notifikasi tiap aplikasi — teks notifikasi tidak pernah dibaca atau disimpan. Pertanyaan: mushin-lab@proton.me</string>
+    <string name="system_licenses">Lisensi</string>
+    <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, ikon Material Symbols — Apache License 2.0. Font Inter, Open Sans, dan Montserrat — SIL Open Font License 1.1 (teks lisensi ada di dalam aplikasi, assets/licenses).</string>
+    <string name="settings_memory">Memori</string>
+    <string name="memory_note">Semua yang dipelajari Mushin tetap ada di ponsel ini. Di sini Anda bisa melihat dan menghapusnya.</string>
+    <string name="memory_gestures">Gestur yang dipelajari</string>
+    <string name="memory_gestures_none">Belum ada. Gestur diingat saat Anda membuka aplikasi setelah memperbaiki gambar atau memilih dari saran.</string>
+    <string name="memory_forget_gestures">Lupakan semua gestur</string>
+    <string name="memory_forget_gestures_confirm">Lupakan semua gestur yang dipelajari? Pengenalan kembali ke keadaan awal.</string>
+    <string name="memory_usage">Frekuensi pembukaan</string>
+    <string name="memory_usage_note">Hasil pencarian diurutkan berdasarkan ini.</string>
+    <string name="memory_usage_none">Masih kosong.</string>
+    <string name="memory_clear_usage">Hapus jumlah pembukaan</string>
+    <string name="memory_clear_usage_confirm">Hapus jumlah pembukaan semua aplikasi? Pencarian tidak akan lagi memperhitungkan seberapa sering Anda membukanya, dan skor kegunaan di ruang akan direset sampai jumlahnya terkumpul lagi.</string>
+    <string name="memory_erase">Hapus</string>
+    <string name="memory_app_note">Gambar yang mengarah ke aplikasi ini, ditampilkan sebagai vektor. Titik menandai awal garis; cincin menandai tempat jari berhenti — makin lama jedanya, makin besar cincinnya. Makin tinggi bobotnya, makin kuat gambar itu mengarah ke aplikasi ini.</string>
+    <string name="memory_forget_app">Lupakan semua gambar aplikasi ini</string>
+    <string name="memory_forget_app_confirm">Lupakan semua gambar untuk “%1$s”?</string>
+    <string name="memory_weight">Bobot %1$s</string>
+    <string name="memory_forget">Lupakan</string>
+    <plurals name="memory_drawings">
+        <item quantity="other">%d gambar</item>
+    </plurals>
+    <string name="settings_style">Gaya</string>
+    <string name="settings_advanced">Lanjutan</string>
+    <string name="summary_style">Font, ketebalan, ukuran teks</string>
+    <string name="summary_home">Ikon, jam dan tanggal, jumlah notifikasi</string>
+    <string name="summary_keyboard">Tata letak, getaran, petunjuk angka, ketik geser</string>
+    <string name="summary_gestures">Geser di layar utama</string>
+    <string name="summary_apps">Aplikasi tersembunyi, nama kustom</string>
+    <string name="summary_system">Launcher default, bahasa, privasi, lanjutan</string>
+    <string name="summary_advanced">Animasi sentuh, memori</string>
+    <string name="summary_press">Cara baris merespons sentuhan</string>
+    <string name="summary_memory">Gestur yang dipelajari, jumlah pembukaan, kegunaan</string>
+    <string name="style_font">Font</string>
+    <string name="style_weight">Ketebalan</string>
+    <string name="style_note">Font dan ketebalan berlaku di seluruh aplikasi; ukuran berlaku untuk daftar di layar utama.</string>
+    <string name="font_system">Roboto (sistem)</string>
+    <string name="weight_light">Tipis</string>
+    <string name="weight_regular">Reguler</string>
+    <string name="weight_medium">Sedang</string>
+    <string name="memory_usefulness">Kegunaan di “%1$s”</string>
+    <string name="memory_usefulness_note">Skor 1 sampai 100: seberapa sering dan seberapa baru Anda membuka aplikasi di ruang ini. Jika aplikasi yang tidak ada di layar utama punya skor jauh lebih tinggi daripada yang ada, tanda “?” dengan saran muncul di pojok kanan bawah.</string>
+    <string name="home_clock_note">Ketuk jam untuk membuka aplikasi Jam. Tahan jam untuk memindahkannya ke kiri, tengah, atau kanan.</string>
+    <string name="settings_back">Kembali</string>
+    <string name="style_theme">Tema “%1$s”</string>
+    <string name="style_text">Teks</string>
+    <string name="keyboard_fit_note">Ubah lebar dan posisi keyboard dengan tombol di kiri spasi: seret jangkar samping untuk mengubah ukuran, jangkar bawah untuk memindahkan. Seluruh panel input ikut berubah.</string>
+    <string name="style_stroke">Garis</string>
+    <string name="style_stroke_width">Ketebalan</string>
+    <string name="style_stroke_color">Warna</string>
+    <string name="stroke_accent">Aksen tema</string>
+    <string name="stroke_text">Warna teks</string>
+    <string name="stroke_coral">Koral</string>
+    <string name="stroke_orange">Oranye</string>
+    <string name="stroke_amber">Amber</string>
+    <string name="stroke_lime">Limau</string>
+    <string name="stroke_green">Hijau</string>
+    <string name="stroke_teal">Toska</string>
+    <string name="stroke_sky">Langit</string>
+    <string name="stroke_blue">Biru</string>
+    <string name="stroke_violet">Ungu</string>
+    <string name="stroke_pink">Merah muda</string>
+    <string name="memory_add_gesture">Tambah gestur…</string>
+    <string name="memory_pick_title">Pilih aplikasi</string>
+    <string name="memory_add">Tambah</string>
+    <string name="memory_repeat">Ulangi</string>
+    <string name="memory_sheet_hint">Gambar bentuk apa saja dalam satu goresan, di atas huruf atau tidak.</string>
+    <string name="memory_sheet_short">Terlalu pendek: buat sebuah garis.</string>
+    <string name="memory_sheet_result">Beginilah gestur akan diingat. Tambah, ulangi, atau batal?</string>
+    <string name="space_background">Latar</string>
+    <string name="space_background_change">Ganti latar</string>
+    <string name="space_background_remove">Hapus latar</string>
+    <string name="space_background_preview">Latar ruang</string>
+    <string name="space_background_note">Gambar dari galeri (PNG, JPEG, WebP, AVIF) di belakang layar utama ruang ini. Salinannya tetap di dalam launcher dan tidak pernah dikirim ke mana pun.</string>
+    <string name="background_brightness">Kecerahan</string>
+    <string name="background_blur">Buram</string>
+    <string name="background_other">Gambar lain</string>
+    <string name="background_mock_app">Aplikasi %1$d</string>
+    <string name="style_stroke_dots">Titik pada garis</string>
+    <string name="memory_sheet_draft">Ini rata-rata dari percobaan terakhir Anda. Tambahkan atau gambar lagi.</string>
+    <string name="settings_tips">Tips</string>
+    <string name="summary_tips">Animasi singkat tentang kemampuan launcher</string>
+    <string name="tip_space_title">Atur ruang pertama Anda</string>
+    <string name="tip_space_text">Ketuk pensil di bagian bawah layar utama, pilih palet, dan centang aplikasi yang Anda inginkan di ruang ini.</string>
+    <string name="tip_style_title">Sesuaikan launcher</string>
+    <string name="tip_style_text">Ubah font, ukuran teks, dan ikon di Gaya dan Layar utama. Untuk memindahkan jam, tahan lalu seret.</string>
+    <string name="tip_memory_title">Ajari launcher</string>
+    <string name="tip_memory_text">Di Sistem → Lanjutan → Memori, gambar bentuk untuk sebuah aplikasi. Gambar bentuk yang sama di layar utama, dan launcher akan menyarankan aplikasi itu.</string>
+    <string name="tips_more_title">Selengkapnya, buka Tips</string>
+    <string name="tips_more_text">Putar ulang tips ini kapan saja di Setelan → Tips.</string>
+    <string name="tip_space_name">Pribadi</string>
+    <string-array name="tip_apps">
+        <item>Telepon</item>
+        <item>Pesan</item>
+        <item>Kamera</item>
+        <item>Peta</item>
+        <item>Musik</item>
+        <item>Catatan</item>
+        <item>Kalender</item>
+    </string-array>
+    <string name="onboarding_skip">Lewati</string>
+    <string name="onboarding_next">Berikutnya</string>
+    <string name="onboarding_done">Selesai</string>
+    <string name="onboarding_position">Slide %1$d dari %2$d</string>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mushin Launcher</string>
+    <string name="notice_suspended">App ist pausiert</string>
+    <string name="notice_launch_failed">App konnte nicht geöffnet werden</string>
+    <string name="notice_remove_from_space">Aus Bereich entfernen</string>
+    <string name="notice_shade_unavailable">Die Benachrichtigungsleiste ist in dieser Android-Version nicht verfügbar</string>
+    <string name="notice_added_to_space">Zu „%1$s“ hinzugefügt</string>
+    <string name="notice_removed_from_space">Aus „%1$s“ entfernt</string>
+    <string name="notice_space_full">„%1$s“ ist voll</string>
+    <string name="rename_title">„%1$s“ umbenennen</string>
+    <string name="rename_save">Speichern</string>
+    <string name="rename_reset">Zurücksetzen</string>
+    <string name="notice_hidden">„%1$s“ ausgeblendet. Ausgeblendete Apps zeigt das Auge in der Suche</string>
+    <string name="notice_unhidden">„%1$s“ ist wieder sichtbar</string>
+    <string name="notice_no_clock">Keine Uhr-App gefunden</string>
+    <string name="learn_hint_title">Was meintest du?</string>
+    <string name="learn_hint_subtitle">Weiter zum Lernen</string>
+    <string name="tile_search">Mushin-Suche</string>
+    <string name="notice_background_failed">Bild konnte nicht geöffnet werden</string>
+</resources>
