@@ -68,6 +68,7 @@ fun SearchScreen(
     chrome: SearchChrome,
     actions: SearchActions,
     modifier: Modifier = Modifier,
+    active: Boolean = true,
 ) {
     val colors = LocalMushinColors.current
     val closePx = with(LocalDensity.current) { SearchDimens.closeSwipe.toPx() }
@@ -105,7 +106,7 @@ fun SearchScreen(
             )
             Spacer(Modifier.height(gap))
             val typing = mode == SearchMode.TYPING
-            InputPane(controller, chrome, actions, typing, inputPane)
+            InputPane(controller, chrome, actions, typing, active, inputPane)
             Spacer(Modifier.height(if (typing) KeyboardDimens.bottomLift else gap))
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
@@ -183,6 +184,7 @@ private fun InputPane(
     chrome: SearchChrome,
     actions: SearchActions,
     typing: Boolean,
+    active: Boolean,
     pane: Modifier,
 ) {
     var total by remember { mutableFloatStateOf(0f) }
@@ -211,6 +213,7 @@ private fun InputPane(
                     actions,
                     glide,
                     clearTrail = controller.query.isEmpty() && !controller.suggesting,
+                    excludeSystemGestures = active,
                 )
             }
         }

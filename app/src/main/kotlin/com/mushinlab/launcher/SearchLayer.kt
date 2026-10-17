@@ -69,7 +69,7 @@ internal fun SearchLayer(vm: LauncherViewModel, settings: LauncherSettings, icon
             if (settings.searchColoredIcons) iconProvider.withColors(true) else provider
         }
         CompositionLocalProvider(LocalIconProvider provides searchIcons) {
-            SearchScreen(vm.navigator.search, vm.navigator.searchMode, chrome, actions)
+            SearchScreen(vm.navigator.search, vm.navigator.searchMode, chrome, actions, active = active)
         }
     }
 }

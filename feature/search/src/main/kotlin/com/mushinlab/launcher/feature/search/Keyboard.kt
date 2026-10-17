@@ -59,6 +59,7 @@ fun Keyboard(
     glide: Glide,
     clearTrail: Boolean,
     modifier: Modifier = Modifier,
+    excludeSystemGestures: Boolean = true,
 ) {
     val density = LocalDensity.current
     val view = LocalView.current
@@ -100,7 +101,7 @@ fun Keyboard(
             .fillMaxWidth()
             .height(totalHeight)
             .onSizeChanged { size = it }
-            .systemGestureExclusion()
+            .then(if (excludeSystemGestures) Modifier.systemGestureExclusion() else Modifier)
             .testTag("keyboard")
             .pointerInput(keys, decoder) {
                 handleKeys(keys, state, callbacks, rowHeightPx * VECTOR_TOLERANCE)

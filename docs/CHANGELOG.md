@@ -27,6 +27,9 @@
 ### Removed
 - Style → Background and the global “Background visibility” slider: the background is chosen and tuned per space (ADR-0020).
 
+### Fixed
+- The system back gesture from the screen edge closes settings again: the hidden search keyboard kept its area excluded from system gestures after search was closed; the exclusion now applies only while search is open.
+
 ## 0.2.0 — 2026-10-16
 
 ### Added
