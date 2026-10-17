@@ -72,9 +72,9 @@ fun Keyboard(
     val keys = remember(layout, size) {
         KeyboardGeometry.compute(layout, size.width.toFloat(), rowHeightPx, paddingPx, gapPx)
     }
-    val decoder = remember(size, glide.shiftPenalty, glide.suggestMargin) {
+    val decoder = remember(layout, size, glide.shiftPenalty, glide.suggestMargin) {
         GestureDecoder(
-            glideCenters(size.width.toFloat(), rowHeightPx, paddingPx, gapPx),
+            glideCenters(size.width.toFloat(), rowHeightPx, paddingPx, gapPx, layout),
             glide.shiftPenalty,
             glide.suggestMargin,
         )

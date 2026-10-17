@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,9 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -25,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.IconMode
+import com.mushinlab.launcher.core.search.KeyboardLayout
 import com.mushinlab.launcher.core.search.KeyboardLayouts
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
@@ -188,40 +193,23 @@ internal fun HomeSettingsScreen(state: SettingsUiState, actions: SettingsActions
 internal fun KeyboardSettingsScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
     val s = state.settings
     val preferences = actions.preferences
-    val enabled = s.keyboardLayouts
-    val ordered = enabled + KeyboardLayouts.all.map { it.id }.filterNot { it in enabled }
+    val enabled = s.keyboardLayouts.mapNotNull(KeyboardLayouts::byId)
+    val available = KeyboardLayouts.all.filterNot { it in enabled }
     SettingsPage(stringResource(R.string.settings_keyboard), back) {
         SectionHeader(stringResource(R.string.keyboard_layouts))
-        ordered.forEachIndexed { index, id ->
-            val layout = KeyboardLayouts.byId(id) ?: return@forEachIndexed
-            val on = id in enabled
-            ToggleRow(layout.label, on, tag = "layout_$id") { value ->
-                val next = if (value) enabled + id else enabled - id
-                if (next.isNotEmpty()) {
-                    preferences.updateSettings {
-                        it.copy(
-                            keyboardLayouts = next,
-                            activeKeyboardLayout = if (it.activeKeyboardLayout in
-                                next
-                            ) {
-                                it.activeKeyboardLayout
-                            } else {
-                                next.first()
-                            },
-                        )
-                    }
-                }
+        enabled.forEach { layout ->
+            LayoutRow(layout, removable = enabled.size > 1) {
+                preferences.updateSettings { it.withoutLayout(layout.id) }
             }
-            if (on && index > 0) {
-                NavRow("↑ ${layout.label}", tag = "layout_up_$id") {
-                    val list = enabled.toMutableList()
-                    val i = list.indexOf(id)
-                    if (i > 0) {
-                        list.removeAt(i)
-                        list.add(i - 1, id)
-                        preferences.updateSettings { it.copy(keyboardLayouts = list) }
-                    }
-                }
+        }
+        if (available.isNotEmpty()) {
+            DropdownRow<String?>(
+                stringResource(R.string.keyboard_add_layout),
+                available.map { it.id to "${it.nativeName} · ${it.label}" },
+                null,
+                "layout_add",
+            ) { id ->
+                if (id != null) preferences.updateSettings { it.withLayout(id) }
             }
         }
         NoteText(stringResource(R.string.keyboard_need_one))
@@ -233,6 +221,35 @@ internal fun KeyboardSettingsScreen(state: SettingsUiState, actions: SettingsAct
             preferences.updateSettings { it.copy(keyboardDigitHints = v) }
         }
         NoteText(stringResource(R.string.keyboard_fit_note))
+    }
+}
+
+@Composable
+private fun LayoutRow(layout: KeyboardLayout, removable: Boolean, onRemove: () -> Unit) {
+    val colors = LocalMushinColors.current
+    Row(
+        Modifier
+            .settingsCard()
+            .heightIn(min = 56.dp)
+            .testTag("layout_${layout.id}")
+            .padding(start = CARD_PADDING),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
+            BasicText(layout.nativeName, style = MushinType.style(17.sp, colors.textPrimary))
+            BasicText(layout.label, style = MushinType.style(14.sp, colors.textSecondary))
+        }
+        Box(
+            Modifier
+                .heightIn(min = 56.dp)
+                .pressable(enabled = removable, onClick = onRemove)
+                .testTag("layout_remove_${layout.id}")
+                .alpha(if (removable) 1f else DISABLED_ALPHA)
+                .padding(horizontal = CARD_PADDING),
+            contentAlignment = Alignment.Center,
+        ) {
+            SingleLineText(stringResource(R.string.keyboard_remove_layout), MushinType.style(15.sp, colors.accent))
+        }
     }
 }
 
@@ -277,6 +294,13 @@ internal fun SystemScreen(
             enabled = !state.isDefaultLauncher,
             tag = "system_default",
         ) { actions.system.requestDefaultLauncher() }
+        DropdownRow(
+            stringResource(R.string.system_language),
+            listOf<Pair<String?, String>>(null to stringResource(R.string.system_language_default)) +
+                AppLanguages.all,
+            state.appLanguage,
+            "system_language",
+        ) { actions.system.setAppLanguage(it) }
         NavRow(stringResource(R.string.system_version), value = state.versionName) {}
         NavRow(
             stringResource(R.string.settings_advanced),

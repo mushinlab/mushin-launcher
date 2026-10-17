@@ -4,6 +4,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.data.settings.SettingsRepository
 import com.mushinlab.launcher.core.model.AppFont
@@ -12,9 +13,11 @@ import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
+import com.mushinlab.launcher.core.model.KeyboardLanguages
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.model.PressFeedback
 import java.io.File
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -130,6 +133,32 @@ class SettingsRepositoryTest {
         store.edit { it[intPreferencesKey("home_list_offset")] = 120 }
         val repo = SettingsRepository(store, backgroundScope)
         assertThat(repo.settings.first { it.homeListOffset != null }.homeListOffset).isEqualTo(120)
+    }
+
+    @Test
+    fun absentLayoutsGetTheDeviceDefaultAndItsFirstLayoutIsActive() = runTest {
+        val file = File(tmp.root, "settings.preferences_pb")
+        val store = PreferenceDataStoreFactory.create(scope = backgroundScope) { file }
+        val repo = SettingsRepository(store, backgroundScope, KeyboardLanguages.defaultsFor("de"))
+        val settings = repo.loaded.filterNotNull().first()
+        assertThat(settings.keyboardLayouts).containsExactly("de", "en").inOrder()
+        assertThat(settings.activeKeyboardLayout).isEqualTo("de")
+        repo.update { it.copy(iconMode = IconMode.RIGHT) }
+        assertThat(store.data.first()[stringPreferencesKey("kb_layouts")]).isEqualTo("de,en")
+    }
+
+    @Test
+    fun storedLayoutsAreKeptWhateverTheDeviceLanguage() = runTest {
+        val file = File(tmp.root, "settings.preferences_pb")
+        val store = PreferenceDataStoreFactory.create(scope = backgroundScope) { file }
+        store.edit {
+            it[stringPreferencesKey("kb_layouts")] = "en,ru"
+            it[stringPreferencesKey("kb_active_layout")] = "ru"
+        }
+        val repo = SettingsRepository(store, backgroundScope, KeyboardLanguages.defaultsFor("fr"))
+        val settings = repo.loaded.filterNotNull().first()
+        assertThat(settings.keyboardLayouts).containsExactly("en", "ru").inOrder()
+        assertThat(settings.activeKeyboardLayout).isEqualTo("ru")
     }
 
     @Test

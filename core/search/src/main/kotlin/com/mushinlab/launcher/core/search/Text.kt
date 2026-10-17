@@ -11,7 +11,8 @@ object Text {
     fun isLatin(c: Char): Boolean = c in 'a'..'z' || c in 'A'..'Z'
 
     /**
-     * Lowercases, maps "ё" to "е", strips diacritics from other scripts and drops everything that is not a letter
+     * Lowercases, maps "ё" to "е", folds other letters to their base letters (strips diacritics, so "ñ" becomes
+     * "n" and "ç" becomes "c"; "ß" becomes "ss", "æ" becomes "ae") and drops everything that is not a letter
      * or digit.
      */
     fun normalize(raw: String): String {
@@ -60,6 +61,10 @@ object Text {
         previous != null && previous.isLetterOrDigit() && previous.isLowerCase() && c.isUpperCase()
 
     private fun stripMarks(c: Char, out: StringBuilder) {
+        UNDECOMPOSED_LETTERS[c]?.let {
+            out.append(it)
+            return
+        }
         Normalizer.normalize(c.toString(), Normalizer.Form.NFKD).forEach { d ->
             if (Character.getType(d) != Character.NON_SPACING_MARK.toInt() && d.isLetterOrDigit()) {
                 out.append(d.lowercaseChar())
@@ -68,4 +73,14 @@ object Text {
     }
 
     private const val ASCII_LIMIT = 128
+
+    private val UNDECOMPOSED_LETTERS: Map<Char, String> = mapOf(
+        'ß' to "ss",
+        'æ' to "ae",
+        'œ' to "oe",
+        'ø' to "o",
+        'ł' to "l",
+        'đ' to "d",
+        'ı' to "i",
+    )
 }

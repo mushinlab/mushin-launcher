@@ -14,6 +14,22 @@ class TextProcessingTest {
     }
 
     @Test
+    fun normalizeFoldsLettersWithDiacriticsToTheirBaseLetters() {
+        assertThat(Text.normalize("España")).isEqualTo("espana")
+        assertThat(Text.normalize("Ação")).isEqualTo("acao")
+        assertThat(Text.normalize("Über Öl Ärger")).isEqualTo("uberolarger")
+        assertThat(Text.normalize("Façade Élan Où")).isEqualTo("facadeelanou")
+        assertThat(Text.normalize("ñçüöäéèêëàâîïôûù")).isEqualTo("ncuoaeeeeaaiiouu")
+    }
+
+    @Test
+    fun normalizeSpellsOutLettersWithoutADecomposition() {
+        assertThat(Text.normalize("Straße")).isEqualTo("strasse")
+        assertThat(Text.normalize("STRAẞE")).isEqualTo("strasse")
+        assertThat(Text.normalize("Œuvre Æsir Søren Łódź")).isEqualTo("oeuvreaesirsorenlodz")
+    }
+
+    @Test
     fun splitWordsBySpacesDashesAndCamelCase() {
         assertThat(Text.splitWords("Google Maps")).containsExactly("google", "maps").inOrder()
         assertThat(Text.splitWords("WhatsApp")).containsExactly("whats", "app").inOrder()

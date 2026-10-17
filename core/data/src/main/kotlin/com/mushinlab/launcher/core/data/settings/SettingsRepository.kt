@@ -1,6 +1,7 @@
 package com.mushinlab.launcher.core.data.settings
 
 import android.content.Context
+import android.content.res.Resources
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.MutablePreferences
@@ -17,6 +18,7 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import com.mushinlab.launcher.core.model.GestureTuning
 import com.mushinlab.launcher.core.model.HomeListOffset
 import com.mushinlab.launcher.core.model.KeyboardFit
+import com.mushinlab.launcher.core.model.KeyboardLanguages
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.model.StrokeWidth
 import java.io.File
@@ -32,13 +34,15 @@ import kotlinx.coroutines.flow.stateIn
  *
  * Unknown enum values and out-of-range numbers fall back to defaults or are clamped on read; a corrupt file
  * is replaced with defaults. [loaded] is null until the first read; [settings] substitutes defaults meanwhile.
+ * [defaultLayouts] are the keyboard layouts while none are stored; the active layout then defaults to the first.
  */
 class SettingsRepository(
     private val dataStore: DataStore<Preferences>,
     scope: CoroutineScope,
+    private val defaultLayouts: List<String> = LauncherSettings().keyboardLayouts,
 ) {
     val loaded: StateFlow<LauncherSettings?> = dataStore.data
-        .map(::decode)
+        .map { decode(it, defaultLayouts) }
         .stateIn(scope, SharingStarted.Eagerly, null)
 
     val settings: StateFlow<LauncherSettings> = loaded
@@ -48,7 +52,7 @@ class SettingsRepository(
     /** Atomically applies [transform] to the current settings and stores the result. */
     suspend fun update(transform: (LauncherSettings) -> LauncherSettings) {
         dataStore.edit { prefs ->
-            val next = transform(decode(prefs))
+            val next = transform(decode(prefs, defaultLayouts))
             encode(next, prefs)
         }
     }
@@ -64,10 +68,14 @@ class SettingsRepository(
     companion object {
         const val FILE_NAME = "settings"
 
-        /** Creates the repository backed by the app's `settings` DataStore file. */
+        /**
+         * Creates the repository backed by the app's `settings` DataStore file. Keyboard layouts default to the
+         * layout of the device language plus English ([KeyboardLanguages.defaultsFor]).
+         */
         fun create(context: Context, scope: CoroutineScope): SettingsRepository = SettingsRepository(
             dataStore(scope) { context.preferencesDataStoreFile(FILE_NAME) },
             scope,
+            KeyboardLanguages.defaultsFor(Resources.getSystem().configuration.locales[0].language),
         )
 
         internal fun dataStore(scope: CoroutineScope, file: () -> File): DataStore<Preferences> =
@@ -107,8 +115,9 @@ class SettingsRepository(
         internal val SEARCH_TRANSLIT = booleanPreferencesKey("search_translit")
         internal val ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
 
-        internal fun decode(prefs: Preferences): LauncherSettings {
+        internal fun decode(prefs: Preferences, defaultLayouts: List<String>): LauncherSettings {
             val defaults = LauncherSettings()
+            val layouts = decodeLayouts(prefs[KB_LAYOUTS]) ?: defaultLayouts
             return LauncherSettings(
                 currentSpaceId = prefs[CURRENT_SPACE_ID],
                 iconMode = enumOr(prefs[ICON_MODE], defaults.iconMode),
@@ -124,8 +133,8 @@ class SettingsRepository(
                 strokeDots = prefs.valueOr(STROKE_DOTS, defaults.strokeDots),
                 notificationCounts = prefs.valueOr(NOTIFICATION_COUNTS, defaults.notificationCounts),
                 pressFeedback = enumOr(prefs[PRESS_FEEDBACK], defaults.pressFeedback),
-                keyboardLayouts = decodeLayouts(prefs[KB_LAYOUTS]) ?: defaults.keyboardLayouts,
-                activeKeyboardLayout = prefs.valueOr(KB_ACTIVE_LAYOUT, defaults.activeKeyboardLayout),
+                keyboardLayouts = layouts,
+                activeKeyboardLayout = prefs.valueOr(KB_ACTIVE_LAYOUT, layouts.first()),
                 keyboardHaptics = prefs.valueOr(KB_HAPTICS, defaults.keyboardHaptics),
                 keyboardDigitHints = prefs.valueOr(KB_DIGIT_HINTS, defaults.keyboardDigitHints),
                 keyboardWidth = prefs.valueOr(KB_WIDTH, defaults.keyboardWidth)

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mushin Launcher</string>
+    <string name="notice_suspended">Приложение приостановлено</string>
+    <string name="notice_launch_failed">Не удалось открыть</string>
+    <string name="notice_remove_from_space">Убрать из спейса</string>
+    <string name="notice_shade_unavailable">Шторка недоступна на этой версии Android</string>
+    <string name="notice_added_to_space">Добавлено в «%1$s»</string>
+    <string name="notice_removed_from_space">Убрано из «%1$s»</string>
+    <string name="notice_space_full">В «%1$s» больше не поместится</string>
+    <string name="rename_title">Переименовать «%1$s»</string>
+    <string name="rename_save">Сохранить</string>
+    <string name="rename_reset">Сбросить</string>
+    <string name="notice_hidden">«%1$s» скрыто. Показать скрытые — кнопка с глазом в поиске</string>
+    <string name="notice_unhidden">«%1$s» снова видно</string>
+    <string name="notice_no_clock">Не нашлось приложения «Часы»</string>
+    <string name="learn_hint_title">Что вы имели в виду?</string>
+    <string name="learn_hint_subtitle">Перейти к обучению</string>
+    <string name="tile_search">Поиск Mushin</string>
+    <string name="notice_background_failed">Не удалось открыть изображение</string>
+    <string name="notice_tile_added">Плитка уже в быстрых настройках</string>
+</resources>

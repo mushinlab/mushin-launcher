@@ -23,6 +23,10 @@ A minimalist text launcher for Android that gets you to the right app in one tou
 4. **Search on top of any app.** Set Mushin as the digital assistant to open search with the assistant gesture, or add the Quick Settings tile.
 5. **Offline by design.** The app has no internet permission, so it cannot send anything anywhere. The build fails if a dependency tries to add it. No analytics, no ads, no backups of your data.
 
+## Languages
+
+The interface is available in English, Español, Português (Brasil), Deutsch, Français, Bahasa Indonesia and Русский; it follows the phone language or the one chosen in Settings → System → Language. The keyboard has native layouts for the same languages (QWERTY, ЙЦУКЕН, QWERTZ, AZERTY), and search finds names with accents when you type the plain letters.
+
 ## Install
 
 Requires Android 13 or newer.

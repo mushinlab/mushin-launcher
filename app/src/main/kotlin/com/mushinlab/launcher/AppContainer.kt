@@ -56,6 +56,7 @@ class AppContainer(private val app: Application) {
     val cleaner by lazy { PackageDataCleaner(database) }
     val settings by lazy { SettingsRepository.create(app, scope) }
     val snapshots by lazy { HomeSnapshotStore(app.filesDir) }
+    val language by lazy { AppLanguage(app) }
     val backgrounds by lazy {
         val metrics = app.resources.displayMetrics
         SpaceBackgroundStore(
