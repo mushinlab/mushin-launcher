@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import com.mushinlab.launcher.core.data.db.AppUsageEntity
 import com.mushinlab.launcher.core.data.db.MushinDatabase
 import com.mushinlab.launcher.core.data.db.SearchRecentEntity
+import com.mushinlab.launcher.core.data.db.SpaceLaunchDayEntity
 import com.mushinlab.launcher.core.data.db.SpaceUsageEntity
 import com.mushinlab.launcher.core.data.db.toModel
 import com.mushinlab.launcher.core.model.AppKey
@@ -12,6 +13,9 @@ import com.mushinlab.launcher.core.model.SearchRecent
 import com.mushinlab.launcher.core.model.SpaceLimits
 import com.mushinlab.launcher.core.model.SpaceUsage
 import com.mushinlab.launcher.core.model.UsageDecay
+import com.mushinlab.launcher.core.model.Usefulness
+import java.time.Instant
+import java.time.ZoneId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
@@ -24,19 +28,22 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 /**
- * Launch history: global usage, usage per space and search recents per space.
+ * Launch history: global usage, usage per space, launch days per space, search recents per space and the time
+ * of the last hint per space.
  *
- * Flows are collected eagerly in the given scope and start empty. [clock] returns epoch ms and is injectable
- * for tests.
+ * Flows are collected eagerly in the given scope and start empty. [clock] returns epoch ms and [zone] the time zone
+ * that defines local calendar days; both are injectable for tests.
  */
 class HistoryRepository(
     private val db: MushinDatabase,
     scope: CoroutineScope,
     private val clock: () -> Long = System::currentTimeMillis,
+    private val zone: () -> ZoneId = ZoneId::systemDefault,
 ) {
     private val usageDao = db.appUsageDao()
     private val recentDao = db.searchRecentDao()
     private val spaceDao = db.spaceUsageDao()
+    private val dayDao = db.spaceLaunchDayDao()
 
     val usage: StateFlow<ImmutableMap<AppKey, AppUsage>> = usageDao.observeAll()
         .map { list -> list.map { it.toModel() }.associateBy { it.key }.toImmutableMap() }
@@ -61,8 +68,27 @@ class HistoryRepository(
         .stateIn(scope, SharingStarted.Eagerly, persistentMapOf())
 
     /**
-     * Records one launch in one transaction: global usage always, space usage when [spaceId] is set, and a search
-     * recent when the launch came from search; recents are trimmed to the per-space limit.
+     * Number of distinct local days per app on which it was launched in a space, over the last
+     * [Usefulness.WINDOW_DAYS] days including today (as of the latest change), keyed by space id.
+     */
+    val launchDays: StateFlow<ImmutableMap<Long, ImmutableMap<AppKey, Int>>> = dayDao.observeAll()
+        .map { list ->
+            val today = today()
+            list.filter { it.day in today - Usefulness.WINDOW_DAYS + 1..today }
+                .groupBy { it.spaceId }
+                .mapValues { (_, rows) ->
+                    rows.groupingBy { AppKey(it.packageName, it.activityName, it.userSerial) }
+                        .eachCount()
+                        .toImmutableMap()
+                }
+                .toImmutableMap()
+        }
+        .stateIn(scope, SharingStarted.Eagerly, persistentMapOf())
+
+    /**
+     * Records one launch in one transaction: global usage always; space usage and today's launch day when
+     * [spaceId] is set, dropping launch days older than [Usefulness.DAYS_KEPT] days; and a search recent when the
+     * launch came from search; recents are trimmed to the per-space limit.
      */
     suspend fun recordLaunch(key: AppKey, spaceId: Long?, fromSearch: Boolean) {
         val now = clock()
@@ -100,6 +126,9 @@ class HistoryRepository(
                         dismissedAt = space?.dismissedAt,
                     ),
                 )
+                val today = dayOf(now)
+                dayDao.insert(SpaceLaunchDayEntity(spaceId, key.packageName, key.activityName, key.userSerial, today))
+                dayDao.deleteBefore(today - Usefulness.DAYS_KEPT)
             }
             if (fromSearch && spaceId != null) {
                 val recent = recentDao.get(spaceId, key.packageName, key.activityName, key.userSerial)
@@ -126,11 +155,12 @@ class HistoryRepository(
         recentDao.clearAll()
     }
 
-    /** Deletes global and per-space usage; search recents are kept. */
+    /** Deletes global and per-space usage and launch days; search recents and hint times are kept. */
     suspend fun clearUsage() {
         db.withTransaction {
             usageDao.deleteAll()
             spaceDao.deleteAll()
+            dayDao.deleteAll()
         }
     }
 
@@ -138,4 +168,13 @@ class HistoryRepository(
     suspend fun dismissSuggestion(spaceId: Long, key: AppKey) {
         spaceDao.dismiss(spaceId, key.packageName, key.activityName, key.userSerial, clock())
     }
+
+    /** Remembers that a hint in [spaceId] was accepted or dismissed now; see [Usefulness.suggest]. */
+    suspend fun recordHint(spaceId: Long) {
+        db.spaceDao().setHintAt(spaceId, clock())
+    }
+
+    private fun today(): Long = dayOf(clock())
+
+    private fun dayOf(epochMs: Long): Long = Instant.ofEpochMilli(epochMs).atZone(zone()).toLocalDate().toEpochDay()
 }

@@ -63,8 +63,29 @@ class AppKeyRemapTest {
             rows[space].orEmpty().none { it.key == oldIcon }
         }[space].orEmpty()
         assertThat(spaceRows.map { it.key to it.launchCount }).containsExactly(newIcon to 4)
+        val days = history.launchDays.first { rows -> rows[space].orEmpty().keys.none { it == oldIcon } }
+        assertThat(days[space]).containsExactly(newIcon, 1)
         assertThat(learning.samples.first { s -> s.none { it.key == oldIcon } })
             .containsExactly(LearnedGesture("tgh", newIcon, 3.0), LearnedGesture("trf", newIcon, 1.0))
+    }
+
+    @Test
+    fun launchDaysOfARenamedActivityMoveToTheNewKey() = runTest {
+        val spaces = SpaceRepository(rule.db, backgroundScope, rule.clock)
+        val history = HistoryRepository(rule.db, backgroundScope, rule.clock)
+        val space = spaces.spaces.first { it.isNotEmpty() }.first { it.type == SpaceType.NORMAL }.id
+        repeat(3) {
+            if (it > 0) rule.now += DAY
+            history.recordLaunch(oldIcon, space, fromSearch = false)
+        }
+        history.recordLaunch(newIcon, space, fromSearch = false)
+        rule.now += DAY
+        history.recordLaunch(newIcon, space, fromSearch = false)
+
+        PackageDataCleaner(rule.db, rule.clock).reconcile(listOf(maps, newIcon))
+
+        val days = history.launchDays.first { rows -> rows[space].orEmpty().keys.none { it == oldIcon } }
+        assertThat(days[space]).containsExactly(newIcon, 4)
     }
 
     @Test
@@ -74,5 +95,9 @@ class AppKeyRemapTest {
         spaces.setItems(space, listOf(maps, oldIcon))
         PackageDataCleaner(rule.db, rule.clock).reconcile(listOf(maps, oldIcon, newIcon))
         assertThat(spaces.itemsOf(space)).containsExactly(maps, oldIcon).inOrder()
+    }
+
+    private companion object {
+        const val DAY = 24L * 60 * 60 * 1000
     }
 }

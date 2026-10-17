@@ -63,6 +63,9 @@ interface SpaceDao {
     @Query("UPDATE environment SET bg_brightness = :brightness, bg_blur = :blur WHERE id = :id")
     suspend fun setBackgroundLook(id: Long, brightness: Float, blur: Float)
 
+    @Query("UPDATE environment SET hint_at = :at WHERE id = :id")
+    suspend fun setHintAt(id: Long, at: Long?)
+
     @Query("DELETE FROM environment WHERE id = :id")
     suspend fun delete(id: Long)
 
@@ -214,6 +217,26 @@ interface SpaceUsageDao {
     suspend fun deleteAll()
 }
 
+/** Local calendar days (epoch days) on which an app was launched in a space. */
+@Dao
+interface SpaceLaunchDayDao {
+    @Query("SELECT * FROM space_launch_day")
+    fun observeAll(): Flow<List<SpaceLaunchDayEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(entity: SpaceLaunchDayEntity)
+
+    /** Deletes days before [day] in every space. */
+    @Query("DELETE FROM space_launch_day WHERE day < :day")
+    suspend fun deleteBefore(day: Long)
+
+    @Query("DELETE FROM space_launch_day WHERE package_name = :packageName AND user_serial = :userSerial")
+    suspend fun deletePackage(packageName: String, userSerial: Long)
+
+    @Query("DELETE FROM space_launch_day")
+    suspend fun deleteAll()
+}
+
 /** Home-screen swipe bindings, one row per direction. */
 @Dao
 interface GestureBindingDao {
@@ -276,6 +299,7 @@ interface AppKeyDao {
             "UNION SELECT package_name, activity_name, user_serial FROM search_recent " +
             "UNION SELECT package_name, activity_name, user_serial FROM app_usage " +
             "UNION SELECT package_name, activity_name, user_serial FROM space_usage " +
+            "UNION SELECT package_name, activity_name, user_serial FROM space_launch_day " +
             "UNION SELECT package_name, activity_name, user_serial FROM gesture_sample " +
             "UNION SELECT package_name, activity_name, user_serial FROM gesture_binding " +
             "WHERE package_name IS NOT NULL AND activity_name IS NOT NULL AND user_serial IS NOT NULL",
@@ -354,6 +378,12 @@ interface AppKeyDao {
 
     @Query("DELETE FROM space_usage " + FROM_KEY)
     suspend fun deleteSpaceUsage(packageName: String, userSerial: Long, from: String)
+
+    @Query("UPDATE OR IGNORE space_launch_day SET activity_name = :to " + FROM_KEY)
+    suspend fun moveLaunchDays(packageName: String, userSerial: Long, from: String, to: String)
+
+    @Query("DELETE FROM space_launch_day " + FROM_KEY)
+    suspend fun deleteLaunchDays(packageName: String, userSerial: Long, from: String)
 
     @Query("UPDATE OR IGNORE gesture_sample SET activity_name = :to " + FROM_KEY)
     suspend fun moveSamples(packageName: String, userSerial: Long, from: String, to: String)

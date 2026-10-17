@@ -22,7 +22,8 @@ import com.mushinlab.launcher.core.model.SpaceType
  * The file and several tables keep the working name "env" (ADR-0015). Schemas are exported and every version
  * step is an auto-migration: v2 gesture_sample, v3 environment.colored_icons, v4 space_usage,
  * v5 app_override.system_shortcut and gesture_sample.shape, v6 environment.list_offset,
- * v7 drops app_override.system_shortcut ([DropSystemShortcut]), v8 environment.bg_brightness and bg_blur.
+ * v7 drops app_override.system_shortcut ([DropSystemShortcut]), v8 environment.bg_brightness and bg_blur,
+ * v9 space_launch_day and environment.hint_at.
  * A new database is seeded with the normal and work spaces and the default gestures.
  */
 @Database(
@@ -35,8 +36,9 @@ import com.mushinlab.launcher.core.model.SpaceType
         GestureBindingEntity::class,
         GestureSampleEntity::class,
         SpaceUsageEntity::class,
+        SpaceLaunchDayEntity::class,
     ],
-    version = 8,
+    version = 9,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -46,6 +48,7 @@ import com.mushinlab.launcher.core.model.SpaceType
         AutoMigration(from = 5, to = 6),
         AutoMigration(from = 6, to = 7, spec = MushinDatabase.DropSystemShortcut::class),
         AutoMigration(from = 7, to = 8),
+        AutoMigration(from = 8, to = 9),
     ],
 )
 abstract class MushinDatabase : RoomDatabase() {
@@ -64,6 +67,8 @@ abstract class MushinDatabase : RoomDatabase() {
     abstract fun gestureSampleDao(): GestureSampleDao
 
     abstract fun spaceUsageDao(): SpaceUsageDao
+
+    abstract fun spaceLaunchDayDao(): SpaceLaunchDayDao
 
     abstract fun appKeyDao(): AppKeyDao
 
