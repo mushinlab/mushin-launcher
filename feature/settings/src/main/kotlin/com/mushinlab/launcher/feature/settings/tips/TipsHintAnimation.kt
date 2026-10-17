@@ -64,7 +64,7 @@ private val Finger = Track(
     ),
 )
 
-private const val TIPS_ROW = 5
+private const val TIPS_ROW = 4
 private const val LOOP_MS = 4000
 private const val STILL_MS = 2600
 private const val TAP_TIPS = 1250
