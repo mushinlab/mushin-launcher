@@ -19,7 +19,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private enum class PressMode { NORMAL, DIGIT, REPEATING, CLEAR, GLIDE, COMMITTED }
+private enum class PressMode { NORMAL, DIGIT, GLIDE, COMMITTED }
 
 private class ActivePress(val keyIndex: Int, val start: Offset, startMs: Long) {
     var mode = PressMode.NORMAL
@@ -42,7 +42,6 @@ internal suspend fun PointerInputScope.handleKeys(
         callbacks = callbacks,
         thresholds = Thresholds(
             digitSwipe = KeyboardDimens.digitSwipe.toPx(),
-            clearSwipe = KeyboardDimens.clearSwipe.toPx(),
             glideStart = KeyboardDimens.glideStart.toPx(),
             dwellRadius = viewConfiguration.touchSlop,
             vectorTolerance = vectorTolerance,
@@ -70,7 +69,6 @@ internal suspend fun PointerInputScope.handleKeys(
 
 private class Thresholds(
     val digitSwipe: Float,
-    val clearSwipe: Float,
     val glideStart: Float,
     val dwellRadius: Float,
     val vectorTolerance: Float,
@@ -101,11 +99,7 @@ private class KeyboardGestureHandler(
         state.pressed[index] = true
         callbacks.haptic(HapticFeedbackConstants.KEYBOARD_TAP)
         val spec = keys[index].spec
-        press.timer = when {
-            spec.digit != null -> scope.launch { holdForDigit(press) }
-            spec.action == KeyAction.BACKSPACE -> scope.launch { repeatBackspace(press) }
-            else -> null
-        }
+        press.timer = if (spec.digit != null) scope.launch { holdForDigit(press) } else null
     }
 
     fun onMove(id: PointerId, position: Offset, timeMs: Long) {
@@ -143,10 +137,6 @@ private class KeyboardGestureHandler(
             press.mode = PressMode.DIGIT
             state.bubbleKey = press.keyIndex
         }
-        if (spec.action == KeyAction.BACKSPACE && delta.x <= -thresholds.clearSwipe && press.mode != PressMode.CLEAR) {
-            press.timer?.cancel()
-            press.mode = PressMode.CLEAR
-        }
     }
 
     fun onUp(id: PointerId) {
@@ -178,22 +168,12 @@ private class KeyboardGestureHandler(
         }
     }
 
-    private suspend fun repeatBackspace(press: ActivePress) {
-        delay(KeyboardDimens.REPEAT_START_MS)
-        if (press.mode != PressMode.NORMAL) return
-        press.mode = PressMode.REPEATING
-        while (press.mode == PressMode.REPEATING) {
-            if (callbacks.actions().onBackspace()) callbacks.haptic(HapticFeedbackConstants.KEYBOARD_TAP)
-            delay(KeyboardDimens.REPEAT_STEP_MS)
-        }
-    }
-
     private fun commit(press: ActivePress) {
         press.timer?.cancel()
         val spec = keys[press.keyIndex].spec
         val target = callbacks.actions()
         when (press.mode) {
-            PressMode.COMMITTED, PressMode.REPEATING -> Unit
+            PressMode.COMMITTED -> Unit
 
             PressMode.GLIDE -> {
                 val vertices = Shapes.vectorize(press.timed, thresholds.vectorTolerance, thresholds.dwellRadius)
@@ -202,12 +182,9 @@ private class KeyboardGestureHandler(
                 if (!callbacks.glide(press.points, vertices)) callbacks.haptic(HapticFeedbackConstants.REJECT)
             }
 
-            PressMode.CLEAR -> target.onClear()
-
             PressMode.DIGIT -> spec.digit?.let(::type)
 
             PressMode.NORMAL -> when (spec.action) {
-                KeyAction.BACKSPACE -> target.onBackspace()
                 KeyAction.SWITCH_LAYOUT -> target.onSwitchLayout()
                 KeyAction.SPACE -> type(' ')
                 KeyAction.RESIZE -> target.onResize()

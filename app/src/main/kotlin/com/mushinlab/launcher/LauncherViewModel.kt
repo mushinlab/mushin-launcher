@@ -155,8 +155,9 @@ class LauncherViewModel(
         .map { SearchEngine(it) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, SearchEngine())
 
-    val recents = combine(data, container.history.recents, ::recentRows)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, recentRows(null, emptyMap()))
+    val recents = combine(data, container.history.recents, ::recentKeys)
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, recentKeys(null, emptyMap()))
 
     val settingsState: StateFlow<SettingsUiState> = combine(
         combine(data, container.gestures.bindings, roleHeld, capacity, notificationAccess) { d, g, role, cap, access ->

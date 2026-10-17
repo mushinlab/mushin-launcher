@@ -1,13 +1,10 @@
 package com.mushinlab.launcher.feature.search
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,7 +36,6 @@ import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.SwipeMarks
 import com.mushinlab.launcher.core.ui.pressable
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 internal fun ResultsPane(
@@ -65,50 +61,29 @@ internal fun ResultsPane(
     val selected = controller.selected
     LazyColumn(modifier.testTag("results"), state = listState, reverseLayout = true) {
         itemsIndexed(rows, key = { _, row -> row.key.id }) { index, row ->
-            AppRowItem(
-                label = row.label,
-                key = row.key,
-                index = index,
-                height = SearchDimens.resultHeight,
-                textSize = MushinType.resultSize.value,
-                iconMode = iconMode,
-                iconSize = SearchDimens.resultIcon,
-                hidden = row.hidden,
-                swipes = row.swipes,
-                highlighted = index == selected,
-                tag = "result_$index",
-                onLongClick = { onLongPress(row.key, row.label) },
-                onClick = { actions.onLaunch(row.key) },
-            )
-        }
-    }
-}
-
-@Composable
-internal fun RecentsPane(
-    recents: ImmutableList<RecentRow>,
-    iconMode: IconMode,
-    actions: SearchActions,
-    onLongPress: (AppKey, String) -> Unit,
-    modifier: Modifier,
-) {
-    BoxWithConstraints(modifier.testTag("recents")) {
-        val fit = (maxHeight / SearchDimens.recentHeight).toInt().coerceIn(0, SearchDimens.MAX_RECENTS)
-        Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
-            recents.take(fit).asReversed().forEachIndexed { reversedIndex, row ->
-                val index = recents.take(fit).size - 1 - reversedIndex
+            Column {
+                if (row.recent && rows.getOrNull(index + 1)?.recent == false) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = SearchDimens.padding)
+                            .height(SearchDimens.recentDivider)
+                            .background(colors.divider)
+                            .testTag("recents_divider"),
+                    )
+                }
                 AppRowItem(
                     label = row.label,
                     key = row.key,
                     index = index,
-                    height = SearchDimens.recentHeight,
-                    textSize = MushinType.recentSize.value,
+                    height = SearchDimens.resultHeight,
+                    textSize = MushinType.resultSize.value,
                     iconMode = iconMode,
-                    iconSize = SearchDimens.recentIcon,
-                    hidden = false,
-                    swipes = persistentListOf(),
-                    highlighted = false,
-                    tag = "recent_$index",
+                    iconSize = SearchDimens.resultIcon,
+                    hidden = row.hidden,
+                    swipes = row.swipes,
+                    highlighted = index == selected,
+                    tag = "result_$index",
                     onLongClick = { onLongPress(row.key, row.label) },
                     onClick = { actions.onLaunch(row.key) },
                 )

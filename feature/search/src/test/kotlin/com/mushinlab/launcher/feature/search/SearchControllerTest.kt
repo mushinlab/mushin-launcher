@@ -19,6 +19,8 @@ class SearchControllerTest {
         hidden: Boolean = false,
     ) = SearchItem(AppKey("p.$label", "A", 0), label, hidden = hidden)
 
+    private fun key(label: String) = AppKey("p.$label", "A", 0)
+
     private val index = SearchIndex.build(
         listOf(item("Slack"), item("Telegram"), item("Камера"), item("Secret", hidden = true)),
     )
@@ -28,6 +30,70 @@ class SearchControllerTest {
         val controller = SearchController(clock = { 0L })
         controller.sources.update(index, emptyMap())
         assertThat(controller.rows.map { it.label }).containsExactly("Камера", "Slack", "Telegram").inOrder()
+    }
+
+    @Test
+    fun emptyQueryListsRecentAppsFirstThenTheRestAlphabetically() {
+        val controller = SearchController(clock = { 0L })
+        controller.sources.update(index, emptyMap())
+        controller.sources.setRecents(listOf(key("Telegram"), key("Slack")))
+        assertThat(controller.rows.map { it.label }).containsExactly("Telegram", "Slack", "Камера").inOrder()
+        assertThat(controller.rows.map { it.recent }).containsExactly(true, true, false).inOrder()
+        assertThat(controller.target()?.label).isEqualTo("Telegram")
+    }
+
+    @Test
+    fun recentBlockHoldsAtMostSixDistinctInstalledApps() {
+        val labels = ('a'..'j').map { "App $it" }
+        val controller = SearchController(clock = { 0L })
+        controller.sources.update(SearchIndex.build(labels.map { item(it) }), emptyMap())
+        val recents = listOf("App j", "App i", "App j", "Gone", "App h", "App g", "App f", "App e", "App d")
+        controller.sources.setRecents(recents.map(::key))
+        assertThat(controller.rows.filter { it.recent }.map { it.label })
+            .containsExactly("App j", "App i", "App h", "App g", "App f", "App e").inOrder()
+        assertThat(controller.rows.filterNot { it.recent }.map { it.label })
+            .containsExactly("App a", "App b", "App c", "App d").inOrder()
+        assertThat(controller.rows.map { it.key }.toSet()).hasSize(labels.size)
+        assertThat(RECENT_ROWS).isEqualTo(6)
+    }
+
+    @Test
+    fun hiddenRecentAppsAppearOnlyWithShowHidden() {
+        val controller = SearchController(clock = { 0L })
+        controller.sources.update(index, emptyMap())
+        controller.sources.setRecents(listOf(key("Secret"), key("Slack")))
+        assertThat(controller.rows.map { it.label }).containsExactly("Slack", "Камера", "Telegram").inOrder()
+        controller.toggleShowHidden()
+        assertThat(controller.rows.map { it.label })
+            .containsExactly("Secret", "Slack", "Камера", "Telegram").inOrder()
+        assertThat(controller.rows.first().hidden).isTrue()
+        assertThat(controller.rows.first().recent).isTrue()
+    }
+
+    @Test
+    fun recentsDoNotChangeQueryRankingAndClearingThemRemovesTheBlock() {
+        val plain = SearchController(clock = { 0L })
+        plain.sources.update(index, emptyMap())
+        plain.type('a')
+        val controller = SearchController(clock = { 0L })
+        controller.sources.update(index, emptyMap())
+        controller.sources.setRecents(listOf(key("Telegram")))
+        controller.type('a')
+        assertThat(controller.rows).isEqualTo(plain.rows)
+        controller.clear()
+        assertThat(controller.rows.first().label).isEqualTo("Telegram")
+        controller.sources.setRecents(emptyList())
+        assertThat(controller.rows.map { it.label }).containsExactly("Камера", "Slack", "Telegram").inOrder()
+        assertThat(controller.rows.none { it.recent }).isTrue()
+    }
+
+    @Test
+    fun suggestionsAreNotMarkedRecent() {
+        val controller = SearchController(clock = { 0L })
+        controller.sources.update(index, emptyMap())
+        controller.sources.setRecents(listOf(key("Slack")))
+        controller.suggest(listOf(key("Slack"), key("Telegram")))
+        assertThat(controller.rows.none { it.recent }).isTrue()
     }
 
     @Test
@@ -115,7 +181,7 @@ class SearchControllerTest {
             topPadding = 10f,
             gap = 10f,
         )
-        assertThat(keys.size).isEqualTo(10 + 9 + 9 + 2)
+        assertThat(keys.size).isEqualTo(10 + 9 + 8 + 2)
         val space = keys.single { it.spec.action == KeyAction.SPACE }
         val resize = keys.single { it.spec.action == KeyAction.RESIZE }
         assertThat(resize.rect.right).isLessThan(space.rect.left)
@@ -127,8 +193,9 @@ class SearchControllerTest {
         assertThat(KeyboardGeometry.hit(keys, Offset(20f, 60f))).isEqualTo(q)
         val gapBetweenQandW = Offset(keys[q].rect.right + 2f, keys[q].rect.center.y)
         assertThat(KeyboardGeometry.hit(keys, gapBetweenQandW)).isNotNull()
-        val backspace = keys.first { it.spec.action == KeyAction.BACKSPACE }
-        assertThat(backspace.rect.right).isGreaterThan(1060f)
+        val m = keys.first { it.spec.char == 'm' }
+        assertThat(keys.none { it.spec.isGap }).isTrue()
+        assertThat(keys.filter { it.rect.left > m.rect.right && it.rect.top == m.rect.top }).isEmpty()
         val a = keys.first { it.spec.char == 'a' }
         assertThat(a.rect.left).isGreaterThan(54f)
     }

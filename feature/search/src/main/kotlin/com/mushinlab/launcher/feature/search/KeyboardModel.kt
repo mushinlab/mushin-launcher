@@ -44,13 +44,11 @@ object KeyboardDimens {
     val bubbleWidth = 48.dp
     val bubbleHeight = 56.dp
     val glideStart = 20.dp
-    val crossSize = 32.sp
+    val crossSize = 26.sp
     val resizeMark = 22.dp
     const val DWELL_MS = 1000L
     const val VERTICAL_RATIO = 0.5f
     const val DIGIT_HOLD_MS = 300L
-    const val REPEAT_START_MS = 400L
-    const val REPEAT_STEP_MS = 50L
 }
 
 data class KeyGeometry(val spec: KeySpec, val rect: Rect)
@@ -73,7 +71,9 @@ object KeyboardGeometry {
             var x = inset
             row.forEach { spec ->
                 val w = usable * spec.weight / totalWeight
-                keys += KeyGeometry(spec, Rect(x + gap / 2, top + gap / 2, x + w - gap / 2, top + height - gap / 2))
+                if (!spec.isGap) {
+                    keys += KeyGeometry(spec, Rect(x + gap / 2, top + gap / 2, x + w - gap / 2, top + height - gap / 2))
+                }
                 x += w
             }
             top += height

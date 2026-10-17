@@ -19,6 +19,7 @@ data class SearchRow(
     val label: String,
     val hidden: Boolean,
     val swipes: ImmutableList<SwipeDirection> = persistentListOf(),
+    val recent: Boolean = false,
 )
 
 enum class SearchMode { TYPING, BROWSING }

@@ -19,5 +19,7 @@
     <string name="search_clear">Очистить</string>
     <string name="search_cancel">Отмена</string>
     <string name="search_colored_icons">Цветные иконки</string>
+    <string name="search_backspace">Стереть символ</string>
+    <string name="search_clear_drawing">Стереть нарисованное</string>
     <string name="menu_rename">Переименовать</string>
 </resources>

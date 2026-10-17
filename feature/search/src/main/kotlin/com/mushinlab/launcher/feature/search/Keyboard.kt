@@ -58,7 +58,6 @@ fun Keyboard(
     actions: KeyboardActions,
     glide: Glide,
     clearTrail: Boolean,
-    drawn: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -108,7 +107,7 @@ fun Keyboard(
             },
     ) {
         keys.forEachIndexed { index, key ->
-            KeyView(index, key, state, nextLayoutLabel, digitHints, drawn)
+            KeyView(index, key, state, nextLayoutLabel, digitHints)
         }
         GlideTrail(state, Modifier.matchParentSize().clipToBounds().testTag("glide_trail"))
         state.bubbleKey?.let { index ->
@@ -143,13 +142,12 @@ private fun KeyView(
     state: KeyboardState,
     nextLayoutLabel: String,
     digitHints: Boolean,
-    drawn: Boolean,
 ) {
     val colors = LocalMushinColors.current
     val density = LocalDensity.current
     val pressed by remember(index) { derivedStateOf { state.pressed[index] == true } }
-    val label = keyLabel(key.spec, drawn, nextLayoutLabel)
-    val size = keyTextSize(key.spec, drawn)
+    val label = keyLabel(key.spec, nextLayoutLabel)
+    val size = keyTextSize(key.spec)
     val widthDp = with(density) { key.rect.width.toDp() }
     val heightDp = with(density) { key.rect.height.toDp() }
     Box(
@@ -174,16 +172,14 @@ private fun KeyView(
     }
 }
 
-private fun keyLabel(spec: KeySpec, drawn: Boolean, nextLayoutLabel: String): String = when (spec.action) {
-    KeyAction.BACKSPACE -> if (drawn) "×" else "⌫"
+private fun keyLabel(spec: KeySpec, nextLayoutLabel: String): String = when (spec.action) {
     KeyAction.SWITCH_LAYOUT -> nextLayoutLabel
     KeyAction.SPACE, KeyAction.RESIZE -> ""
     null -> spec.char?.toString().orEmpty()
 }
 
-private fun keyTextSize(spec: KeySpec, drawn: Boolean): TextUnit = when (spec.action) {
+private fun keyTextSize(spec: KeySpec): TextUnit = when (spec.action) {
     null -> MushinType.keySize
-    KeyAction.BACKSPACE -> if (drawn) KeyboardDimens.crossSize else MushinType.keySize
     else -> MushinType.secondarySize
 }
 

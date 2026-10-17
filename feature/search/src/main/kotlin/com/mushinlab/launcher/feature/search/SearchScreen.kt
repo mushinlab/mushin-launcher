@@ -6,19 +6,16 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.rememberScrollState
@@ -53,7 +50,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Velocity
-import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.Glyph
@@ -68,7 +64,6 @@ import kotlinx.collections.immutable.ImmutableList
 fun SearchScreen(
     controller: SearchController,
     mode: SearchMode,
-    recents: ImmutableList<RecentRow>,
     chrome: SearchChrome,
     actions: SearchActions,
     modifier: Modifier = Modifier,
@@ -77,14 +72,13 @@ fun SearchScreen(
     val closePx = with(LocalDensity.current) { SearchDimens.closeSwipe.toPx() }
     var lastDown by remember { mutableStateOf(Offset.Zero) }
     val onLongPress: (AppKey, String) -> Unit = { key, label -> actions.onLongPress(key, label, lastDown) }
-    BoxWithConstraints(
+    Box(
         modifier
             .fillMaxSize()
             .background(colors.background)
             .testTag("search"),
     ) {
         val gap = SearchDimens.paneGap
-        val recentsWidth = ((maxWidth - gap * 3).value / 3).toInt().dp
         val pane = Modifier.clip(RoundedCornerShape(SearchDimens.paneRadius)).background(colors.surface)
         val inputPane = Modifier.background(colors.surface, RoundedCornerShape(SearchDimens.paneRadius))
         Column(
@@ -100,22 +94,13 @@ fun SearchScreen(
         ) {
             Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
             SearchHeader(controller)
-            Row(Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(gap)) {
-                ResultsPane(
-                    controller,
-                    chrome.iconMode,
-                    actions,
-                    onLongPress,
-                    Modifier.weight(1f).fillMaxHeight().then(pane),
-                )
-                RecentsPane(
-                    recents,
-                    chrome.iconMode,
-                    actions,
-                    onLongPress,
-                    Modifier.width(recentsWidth).fillMaxHeight().then(pane),
-                )
-            }
+            ResultsPane(
+                controller,
+                chrome.iconMode,
+                actions,
+                onLongPress,
+                Modifier.weight(1f).fillMaxWidth().then(pane),
+            )
             Spacer(Modifier.height(gap))
             val typing = mode == SearchMode.TYPING
             InputPane(controller, chrome, actions, typing, inputPane)
@@ -211,7 +196,7 @@ private fun InputPane(
                 .testTag("input_pane")
                 .padding(top = SearchDimens.paneTop),
         ) {
-            QueryRow(controller, actions)
+            QueryRow(controller, chrome.haptics, actions)
             if (typing) {
                 val glide = remember(chrome.gestureShiftPenalty, chrome.gestureSuggestMargin, controller) {
                     Glide(chrome.gestureShiftPenalty, chrome.gestureSuggestMargin, controller.gestures::decode)
@@ -224,7 +209,6 @@ private fun InputPane(
                     actions,
                     glide,
                     clearTrail = controller.query.isEmpty() && !controller.suggesting,
-                    drawn = controller.fromGesture,
                 )
             }
         }
@@ -245,7 +229,7 @@ private fun InputPane(
 }
 
 @Composable
-private fun QueryRow(controller: SearchController, actions: SearchActions) {
+private fun QueryRow(controller: SearchController, haptics: Boolean, actions: SearchActions) {
     val colors = LocalMushinColors.current
     Row(
         Modifier
@@ -253,20 +237,24 @@ private fun QueryRow(controller: SearchController, actions: SearchActions) {
             .height(SearchDimens.queryHeight)
             .pressable(pressedColor = Color.Transparent, onClick = actions::onShowKeyboard)
             .testTag("query_row")
-            .padding(horizontal = SearchDimens.padding),
+            .padding(start = SearchDimens.padding, end = KeyboardDimens.gap / 2),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (controller.suggesting) {
             SuggestionIcons(controller.rows, actions, Modifier.weight(1f))
         } else {
-            BasicText(
-                text = controller.query,
-                style = MushinType.style(SearchDimens.queryTextSize, colors.textPrimary),
-                maxLines = 1,
-                modifier = Modifier.testTag("query"),
-            )
-            BasicText("▏", style = MushinType.style(SearchDimens.queryTextSize, colors.accent, FontWeight.Light))
-            Spacer(Modifier.weight(1f))
+            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                BasicText(
+                    text = controller.query,
+                    style = MushinType.style(SearchDimens.queryTextSize, colors.textPrimary),
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f, fill = false).testTag("query"),
+                )
+                BasicText("▏", style = MushinType.style(SearchDimens.queryTextSize, colors.accent, FontWeight.Light))
+            }
+        }
+        if (controller.query.isNotEmpty() || controller.suggesting) {
+            DeleteButton(controller.fromGesture, haptics, actions)
         }
     }
 }

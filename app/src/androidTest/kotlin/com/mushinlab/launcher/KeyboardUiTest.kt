@@ -135,9 +135,8 @@ class KeyboardUiTest : LauncherUiTestBase() {
         rule.waitForIdle()
         val pane = rule.onNodeWithTag("input_pane").fetchSemanticsNode().boundsInRoot
         val keyboard = rule.onNodeWithTag("keyboard").fetchSemanticsNode().boundsInRoot
-        val results = rule.onNodeWithTag("recents").fetchSemanticsNode().boundsInRoot
-        val full = results.right - rule.onNodeWithTag("results").fetchSemanticsNode().boundsInRoot.left
-        assertThat(pane.width).isWithin(3f).of(full * 0.6f)
+        val results = rule.onNodeWithTag("results").fetchSemanticsNode().boundsInRoot
+        assertThat(pane.width).isWithin(3f).of(results.width * 0.6f)
         assertThat(pane.right).isWithin(3f).of(results.right)
         assertThat(keyboard.width).isWithin(2f).of(pane.width)
     }
@@ -163,10 +162,49 @@ class KeyboardUiTest : LauncherUiTestBase() {
         openSearch()
         drawOnKeyboard("maps")
         rule.onNodeWithText("×", useUnmergedTree = true).assertIsDisplayed()
+        val row = rule.onNodeWithTag("query_row").fetchSemanticsNode().boundsInRoot
+        val cross = rule.onNodeWithText("×", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        assertThat(row.contains(cross.center)).isTrue()
         rule.onNodeWithTag("key_BACKSPACE").performClick()
         rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
         rule.onNodeWithTag("key_m").performClick()
         rule.onNodeWithText("⌫", useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun deleteButtonSitsAtTheRightEdgeOfTheQueryRowAndIsLowerThanAKey() {
+        openSearch()
+        rule.onNodeWithTag("key_BACKSPACE").assertDoesNotExist()
+        rule.onNodeWithTag("key_c").performClick()
+        val row = rule.onNodeWithTag("query_row").fetchSemanticsNode().boundsInRoot
+        val button = rule.onNodeWithTag("key_BACKSPACE").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        val q = rule.onNodeWithTag("key_q").fetchSemanticsNode().boundsInRoot
+        assertThat(button.left).isAtLeast(row.left)
+        assertThat(button.top).isAtLeast(row.top)
+        assertThat(button.bottom).isAtMost(row.bottom)
+        assertThat(button.right).isAtMost(row.right)
+        assertThat(button.left).isGreaterThan(row.center.x)
+        with(rule.density) { assertThat(row.right - button.right).isLessThan(KeyboardDimens.gap.toPx() + 1f) }
+        assertThat((button.top + button.bottom) / 2).isWithin(2f).of(row.center.y)
+        assertThat(button.height).isLessThan(q.height)
+        rule.onNodeWithTag("key_BACKSPACE").performClick()
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
+        rule.onNodeWithTag("key_BACKSPACE").assertDoesNotExist()
+    }
+
+    @Test
+    fun holdingTheDeleteButtonRepeatsAndSwipingItLeftClearsTheQuery() {
+        openSearch()
+        "abcdefgh".forEach { rule.onNodeWithTag("key_$it").performClick() }
+        rule.onNodeWithTag("key_BACKSPACE").performTouchInput { down(center) }
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.search.query.length <= 5 }
+        rule.onNodeWithTag("query_row").performTouchInput { up() }
+        val left = rule.runOnIdle { rule.activity.launcher.navigator.search.query.length }
+        assertThat(left).isAtMost(5)
+        rule.onNodeWithTag("key_a").performClick()
+        rule.onNodeWithTag("key_b").performClick()
+        clearQuery()
+        rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("")
     }
 
     @Test

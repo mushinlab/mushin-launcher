@@ -42,7 +42,6 @@ internal fun SearchLayer(vm: LauncherViewModel, settings: LauncherSettings, icon
         withFrameNanos { }
         composed = true
     }
-    val recents by vm.recents.collectAsStateWithLifecycle()
     SearchSourcesEffect(vm)
     val active = vm.navigator.overlay == Overlay.Search
     val progress = remember { Animatable(0f) }
@@ -70,7 +69,7 @@ internal fun SearchLayer(vm: LauncherViewModel, settings: LauncherSettings, icon
             if (settings.searchColoredIcons) iconProvider.withColors(true) else provider
         }
         CompositionLocalProvider(LocalIconProvider provides searchIcons) {
-            SearchScreen(vm.navigator.search, vm.navigator.searchMode, recents, chrome, actions)
+            SearchScreen(vm.navigator.search, vm.navigator.searchMode, chrome, actions)
         }
     }
 }
@@ -82,7 +81,9 @@ private fun SearchSourcesEffect(vm: LauncherViewModel) {
     val usage by vm.usage.collectAsStateWithLifecycle()
     val engine by vm.searchEngine.collectAsStateWithLifecycle()
     val learned by vm.learnedGestures.collectAsStateWithLifecycle()
+    val recents by vm.recents.collectAsStateWithLifecycle()
     LaunchedEffect(index, usage) { sources.update(index, usage) }
+    LaunchedEffect(recents) { sources.setRecents(recents) }
     LaunchedEffect(learned) { sources.setLearned(learned) }
     val bindings by vm.gestureBindings.collectAsStateWithLifecycle()
     LaunchedEffect(bindings) { sources.setSwipes(bindings.swipesByApp()) }

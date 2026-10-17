@@ -19,5 +19,7 @@
     <string name="search_clear">Clear</string>
     <string name="search_cancel">Cancel</string>
     <string name="search_colored_icons">Color icons</string>
+    <string name="search_backspace">Delete</string>
+    <string name="search_clear_drawing">Clear drawing</string>
     <string name="menu_rename">Rename</string>
 </resources>

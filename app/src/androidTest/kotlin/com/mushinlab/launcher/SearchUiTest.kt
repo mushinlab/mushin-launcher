@@ -17,12 +17,43 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SearchUiTest : LauncherUiTestBase() {
     @Test
-    fun swipeDownOnRecentsClosesSearch() {
+    fun swipeDownOnResultsAtTheEndOfTheListClosesSearch() {
         openSearch()
-        rule.onNodeWithTag("recents").performTouchInput {
+        val label = rule.runOnIdle { rule.activity.launcher.navigator.search.rows.first().label }
+        rule.runOnIdle { rule.activity.launcher.navigator.search.replaceQuery(label.lowercase()) }
+        rule.onNodeWithTag("results").performTouchInput {
             swipeDown(startY = top + height * 0.2f, endY = top + height * 0.7f, durationMillis = 200)
         }
         rule.runOnIdle { assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None) }
+    }
+
+    @Test
+    fun emptyQueryShowsARecentAppBeforeAlphabeticalOnesUntilHistoryIsCleared() {
+        runBlocking { container.history.clearRecents(normalId) }
+        openSearch()
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.search.rows.size >= 2 }
+        val last = rule.runOnIdle { rule.activity.launcher.navigator.search.rows.last().key }
+        try {
+            runBlocking { container.history.recordLaunch(last, normalId, fromSearch = true) }
+            rule.waitUntil(5_000) { rule.activity.launcher.navigator.search.rows.first().key == last }
+            val rows = rule.runOnIdle { rule.activity.launcher.navigator.search.rows }
+            assertThat(rows.first().recent).isTrue()
+            assertThat(rows.drop(1).none { it.recent || it.key == last }).isTrue()
+            val recent = rule.onNodeWithTag("result_0").fetchSemanticsNode().boundsInRoot
+            val divider = rule.onNodeWithTag("recents_divider").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+            val next = rule.onNodeWithTag("result_1").fetchSemanticsNode().boundsInRoot
+            val results = rule.onNodeWithTag("results").fetchSemanticsNode().boundsInRoot
+            assertThat(recent.width).isWithin(2f).of(results.width)
+            assertThat(divider.bottom).isAtMost(recent.top + 1f)
+            assertThat(next.bottom).isAtMost(divider.top + 1f)
+            rule.onNodeWithTag("search_options").performClick()
+            rule.onNodeWithTag("search_clear_history").performClick()
+            rule.onNodeWithTag("search_clear_confirm").performClick()
+            rule.waitUntil(5_000) { rule.activity.launcher.navigator.search.rows.none { it.recent } }
+            rule.onNodeWithTag("recents_divider").assertDoesNotExist()
+        } finally {
+            runBlocking { container.history.clearRecents(normalId) }
+        }
     }
 
     @Test
@@ -68,9 +99,9 @@ class SearchUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("toggle_hidden").assertDoesNotExist()
         val header = rule.onNodeWithTag("search_header").fetchSemanticsNode().boundsInRoot
         val options = rule.onNodeWithTag("search_options").fetchSemanticsNode().boundsInRoot
-        val recents = rule.onNodeWithTag("recents").fetchSemanticsNode().boundsInRoot
+        val results = rule.onNodeWithTag("results").fetchSemanticsNode().boundsInRoot
         assertThat(options.bottom).isAtMost(header.bottom + 1f)
-        assertThat(options.bottom).isAtMost(recents.top)
+        assertThat(options.bottom).isAtMost(results.top)
         rule.onNodeWithTag("search_options").performClick()
         rule.onNodeWithTag("search_option_FUZZY").performClick()
         rule.waitUntil(5_000) { !container.settings.settings.value.searchFuzzy }

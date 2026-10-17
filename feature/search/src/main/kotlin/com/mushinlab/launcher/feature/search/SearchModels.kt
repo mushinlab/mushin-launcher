@@ -15,9 +15,6 @@ import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.search.KeyboardLayout
 
 @Immutable
-data class RecentRow(val key: AppKey, val label: String)
-
-@Immutable
 data class SearchChrome(
     val iconMode: IconMode,
     val layout: KeyboardLayout,
@@ -46,12 +43,14 @@ interface SearchActions : KeyboardActions, SearchMenuActions, SearchOptionsActio
 
 object SearchDimens {
     val resultHeight: Dp = 56.dp
-    val recentHeight: Dp = 52.dp
     val queryHeight: Dp = 36.dp
     val queryTextSize: TextUnit = 18.sp
     val padding: Dp = 16.dp
     val resultIcon: Dp = 24.dp
-    val recentIcon: Dp = 20.dp
+    val recentDivider: Dp = 1.dp
+    val deleteWidth: Dp = 48.dp
+    val deleteHeight: Dp = 32.dp
+    val deleteTouchWidth: Dp = 56.dp
     val paneTop: Dp = KeyboardDimens.verticalPadding + KeyboardDimens.gap / 2
     val anchorLength: Dp = 48.dp
     val anchorThickness: Dp = 6.dp
@@ -63,5 +62,4 @@ object SearchDimens {
     val paneGap: Dp = 8.dp
     val paneRadius: Dp = 16.dp
     val closeSwipe: Dp = 72.dp
-    const val MAX_RECENTS = 10
 }

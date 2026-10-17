@@ -19,7 +19,6 @@ import com.mushinlab.launcher.core.search.SearchItem
 import com.mushinlab.launcher.feature.home.HomeRow
 import com.mushinlab.launcher.feature.home.HomeUiState
 import com.mushinlab.launcher.feature.home.PopupSpace
-import com.mushinlab.launcher.feature.search.RecentRow
 import com.mushinlab.launcher.feature.settings.ERR_CUSTOM
 import com.mushinlab.launcher.feature.settings.ERR_EMPTY
 import com.mushinlab.launcher.feature.settings.ERR_LONG
@@ -48,8 +47,6 @@ data class LauncherData(
 
     fun currentItems(): List<AppKey> = current?.let { items[it.id] }.orEmpty()
 }
-
-internal const val RECENTS_LIMIT = 10
 
 internal fun homeState(
     d: LauncherData,
@@ -125,16 +122,9 @@ internal fun searchIndex(d: LauncherData): SearchIndex = SearchIndex.build(
     },
 )
 
-internal fun recentRows(d: LauncherData?, recents: Map<Long, List<SearchRecent>>): ImmutableList<RecentRow> {
+internal fun recentKeys(d: LauncherData?, recents: Map<Long, List<SearchRecent>>): ImmutableList<AppKey> {
     val space = d?.current ?: return persistentListOf()
-    val favorites = d.items[space.id].orEmpty().toSet()
-    return recents[space.id].orEmpty()
-        .asSequence()
-        .filter { it.key !in favorites && d.overrides[it.key]?.hidden != true }
-        .mapNotNull { recent -> d.apps[recent.key]?.let { RecentRow(recent.key, d.label(recent.key) ?: it.label) } }
-        .take(RECENTS_LIMIT)
-        .toList()
-        .toImmutableList()
+    return recents[space.id].orEmpty().map { it.key }.toImmutableList()
 }
 
 internal fun SpaceError.code(): String = when (this) {

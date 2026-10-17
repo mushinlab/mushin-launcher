@@ -100,14 +100,15 @@ class LauncherDataTest {
     }
 
     @Test
-    fun recentsSkipHomeAppsHiddenAppsAndAreCapped() {
-        val extra = (1..20).map { key("app$it") }
-        val d = data().copy(apps = data().apps + extra.associateWith(::entry))
-        val recents = listOf(slack, camera).plus(extra).map { SearchRecent(it, 0, 1) }
+    fun recentKeysAreThoseOfTheCurrentSpaceInLaunchOrder() {
+        val recents = mapOf(
+            normal.id to listOf(slack, camera, maps).map { SearchRecent(it, 0, 1) },
+            work.id to listOf(SearchRecent(gone, 0, 1)),
+        )
 
-        val rows = recentRows(d, mapOf(normal.id to recents))
-
-        assertThat(rows.map { it.key }).containsExactlyElementsIn(extra.take(RECENTS_LIMIT)).inOrder()
+        assertThat(recentKeys(data(), recents)).containsExactly(slack, camera, maps).inOrder()
+        assertThat(recentKeys(data().copy(current = work), recents)).containsExactly(gone)
+        assertThat(recentKeys(null, recents)).isEmpty()
     }
 
     @Test

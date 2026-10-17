@@ -68,6 +68,17 @@ class TextProcessingTest {
     }
 
     @Test
+    fun bottomLetterRowEndsWithAGapInsteadOfBackspace() {
+        KeyboardLayouts.all.forEach { layout ->
+            val bottom = layout.rows[2]
+            assertThat(bottom.first().action).isEqualTo(KeyAction.SWITCH_LAYOUT)
+            assertThat(bottom.last().isGap).isTrue()
+            assertThat(bottom.last().weight).isEqualTo(bottom.first().weight)
+            assertThat(layout.rows.flatten().count { it.isGap }).isEqualTo(1)
+        }
+    }
+
+    @Test
     fun osaCountsTranspositionAsOneEdit() {
         assertThat(Osa.distance("slakc", "slack")).isEqualTo(1)
         assertThat(Osa.distance("kitten", "sitting")).isEqualTo(3)

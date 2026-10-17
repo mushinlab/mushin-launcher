@@ -1,18 +1,22 @@
 package com.mushinlab.launcher.core.search
 
 /** Special keys; [RESIZE] starts adjusting the keyboard width and position. */
-enum class KeyAction { SWITCH_LAYOUT, BACKSPACE, SPACE, RESIZE }
+enum class KeyAction { SWITCH_LAYOUT, SPACE, RESIZE }
 
 /**
  * A key: a letter [char] with an optional [digit] typed by holding or swiping up, or a special [action].
- * [weight] is the key width relative to other keys in its row.
+ * [weight] is the key width relative to other keys in its row. A spec with neither [char] nor [action] is an empty
+ * gap that only takes up space.
  */
 data class KeySpec(
     val char: Char? = null,
     val digit: Char? = null,
     val action: KeyAction? = null,
     val weight: Float = 1f,
-)
+) {
+    /** True for an empty gap: nothing is drawn or pressed there. */
+    val isGap: Boolean get() = char == null && action == null
+}
 
 /**
  * A keyboard layout. [rowInsets] is the indent on both sides of each row as a fraction of the keyboard width;
@@ -27,8 +31,9 @@ data class KeyboardLayout(
 )
 
 /**
- * The EN (QWERTY) and RU (ЙЦУКЕН) layouts: three letter rows (the bottom one with layout switch and backspace),
- * then a row with the resize and space keys. The top row carries digit hints.
+ * The EN (QWERTY) and RU (ЙЦУКЕН) layouts: three letter rows (the bottom one with the layout switch on the left and
+ * an empty gap on the right, where backspace used to be, so the letters keep their places), then a row with the
+ * resize and space keys. The top row carries digit hints.
  */
 object KeyboardLayouts {
     private const val DIGITS = "1234567890"
@@ -87,7 +92,7 @@ object KeyboardLayouts {
                 letters.middle.map { KeySpec(char = it) },
                 listOf(KeySpec(action = KeyAction.SWITCH_LAYOUT, weight = SIDE_KEY_WEIGHT)) +
                     letters.bottom.map { KeySpec(char = it) } +
-                    KeySpec(action = KeyAction.BACKSPACE, weight = SIDE_KEY_WEIGHT),
+                    KeySpec(weight = SIDE_KEY_WEIGHT),
                 listOf(
                     KeySpec(action = KeyAction.RESIZE, weight = SIDE_KEY_WEIGHT),
                     KeySpec(action = KeyAction.SPACE, weight = SPACE_WEIGHT),
