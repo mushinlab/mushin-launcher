@@ -41,6 +41,8 @@ internal fun SpaceEntity.toModel(): Space {
         createdAt = createdAt,
         coloredIcons = coloredIcons,
         listOffset = listOffset,
+        backgroundBrightness = backgroundBrightness,
+        backgroundBlur = backgroundBlur,
     )
 }
 

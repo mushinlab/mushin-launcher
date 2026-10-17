@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
-import com.mushinlab.launcher.core.model.BackgroundOpacity
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.model.PressFeedback
@@ -40,9 +39,6 @@ internal fun StyleScreen(state: SettingsUiState, actions: SettingsActions, back:
         NoteText(stringResource(R.string.style_note))
         SectionHeader(stringResource(R.string.style_stroke))
         StrokeRows(state.settings, actions.preferences)
-        SectionHeader(stringResource(R.string.style_background))
-        BackgroundRows(state, actions)
-        NoteText(stringResource(R.string.style_background_note))
     }
 }
 
@@ -108,32 +104,6 @@ private fun StrokeRows(s: LauncherSettings, preferences: PreferenceActions) {
 }
 
 @Composable
-private fun BackgroundRows(state: SettingsUiState, actions: SettingsActions) {
-    NavRow(
-        stringResource(
-            if (state.hasBackground) R.string.style_background_change else R.string.style_background_pick,
-        ),
-        tag = "background_pick",
-        onClick = actions.system::pickBackground,
-    )
-    if (state.hasBackground) {
-        SliderRow(
-            stringResource(R.string.style_background_opacity),
-            state.settings.backgroundOpacity,
-            0f..1f,
-            BackgroundOpacity.STEP,
-            tag = "background_opacity",
-            format = { "${(it * PERCENT).roundToInt()} %" },
-        ) { v -> actions.preferences.updateSettings { it.copy(backgroundOpacity = v) } }
-        NavRow(
-            stringResource(R.string.style_background_clear),
-            tag = "background_clear",
-            onClick = actions.system::clearBackground,
-        )
-    }
-}
-
-@Composable
 private fun StrokeColorDropdown(selected: StrokeColor, onSelect: (StrokeColor) -> Unit) {
     val colors = LocalMushinColors.current
     val names = mapOf(
@@ -191,5 +161,4 @@ internal fun PressSettingsScreen(state: SettingsUiState, actions: SettingsAction
     }
 }
 
-private const val PERCENT = 100
 private val STROKE_SWATCH = 18.dp

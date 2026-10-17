@@ -11,6 +11,7 @@ class SettingsStackTest {
         SettingsRoute.Spaces,
         SettingsRoute.SpaceEditor(7),
         SettingsRoute.PickApps(7),
+        SettingsRoute.BackgroundEditor(7),
         SettingsRoute.PickGestureApp(SwipeDirection.LEFT),
         SettingsRoute.Memory,
         SettingsRoute.MemoryApp(AppKey("org.telegram", "org.telegram.Main\$Alias", 10), sketch = true),
@@ -30,6 +31,8 @@ class SettingsStackTest {
     fun unknownOrBrokenRoutesAreDropped() {
         assertThat(SettingsRouteCodec.decode("Nowhere")).isNull()
         assertThat(SettingsRouteCodec.decode("SpaceEditor|x")).isNull()
+        assertThat(SettingsRouteCodec.decode("BackgroundEditor")).isNull()
+        assertThat(SettingsRouteCodec.decode("BackgroundEditor|")).isNull()
         assertThat(SettingsRouteCodec.decode("MemoryApp|only")).isNull()
         assertThat(SettingsRouteCodec.decode("Tip|nowhere")).isNull()
         assertThat(SettingsRouteCodec.decode("Tip")).isNull()

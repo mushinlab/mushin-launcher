@@ -2,7 +2,6 @@ package com.mushinlab.launcher.feature.home
 
 import androidx.compose.runtime.Immutable
 import com.mushinlab.launcher.core.model.AppKey
-import com.mushinlab.launcher.core.model.BackgroundOpacity
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.HomeTextSize
@@ -39,7 +38,8 @@ data class HomeUiState(
     val showDate: Boolean = true,
     val clockPosition: ClockPosition = ClockPosition.START,
     val homeListOffset: Int? = null,
-    val backgroundOpacity: Float = BackgroundOpacity.DEFAULT,
+    val backgroundBrightness: Float = 0f,
+    val backgroundBlur: Float = 0f,
     val roleMissing: Boolean = false,
     val suggestion: HomeSuggestion? = null,
 )

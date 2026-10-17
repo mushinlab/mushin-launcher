@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.GestureAction
@@ -14,6 +16,9 @@ import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.search.GestureSample
 import com.mushinlab.launcher.feature.settings.AppActions
+import com.mushinlab.launcher.feature.settings.BackgroundActions
+import com.mushinlab.launcher.feature.settings.BackgroundEdit
+import com.mushinlab.launcher.feature.settings.BackgroundSource
 import com.mushinlab.launcher.feature.settings.MemoryActions
 import com.mushinlab.launcher.feature.settings.PreferenceActions
 import com.mushinlab.launcher.feature.settings.SettingsActions
@@ -31,10 +36,12 @@ internal fun SettingsLayer(vm: LauncherViewModel) {
             apps = appActions(vm),
             system = systemActions(vm),
             memory = memoryActions(vm),
+            background = backgroundActions(vm),
         )
     }
-    val background by vm.background.collectAsStateWithLifecycle()
-    SettingsHost(vm.navigator.settings, state.copy(hasBackground = background != null), actions)
+    val editing by vm.backgrounds.source.collectAsStateWithLifecycle()
+    val source = remember(editing) { editing?.let { BackgroundSource(it.spaceId, it.bitmap.asImageBitmap()) } }
+    SettingsHost(vm.navigator.settings, state.copy(backgroundSource = source), actions)
 }
 
 private fun preferenceActions(vm: LauncherViewModel) = object : PreferenceActions {
@@ -82,10 +89,20 @@ private fun systemActions(vm: LauncherViewModel) = object : SystemActions {
     override fun openAssistantSettings() = vm.request(LauncherEffect.OpenAssistantSettings)
 
     override fun requestSearchTile() = vm.request(LauncherEffect.RequestSearchTile)
+}
 
-    override fun pickBackground() = vm.request(LauncherEffect.PickBackground)
+private fun backgroundActions(vm: LauncherViewModel) = object : BackgroundActions {
+    override fun pick(spaceId: Long) = vm.backgrounds.pick(spaceId)
 
-    override fun clearBackground() = vm.preferences.clearBackground()
+    override fun edit(spaceId: Long) = vm.backgrounds.edit(spaceId)
+
+    override fun close(spaceId: Long) = vm.backgrounds.close(spaceId)
+
+    override suspend fun thumbnail(spaceId: Long): ImageBitmap? = vm.backgrounds.thumbnail(spaceId)?.asImageBitmap()
+
+    override fun save(edit: BackgroundEdit) = vm.backgrounds.save(edit)
+
+    override fun remove(spaceId: Long) = vm.backgrounds.remove(spaceId)
 }
 
 private fun memoryActions(vm: LauncherViewModel) = object : MemoryActions {

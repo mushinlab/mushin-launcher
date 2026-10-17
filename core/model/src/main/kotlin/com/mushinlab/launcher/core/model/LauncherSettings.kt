@@ -27,15 +27,6 @@ object KeyboardFit {
     const val STEP = 0.05f
 }
 
-/**
- * Visibility of the custom background image: the palette background is drawn over it with alpha
- * `1 - opacity`.
- */
-object BackgroundOpacity {
-    const val DEFAULT = 0.5f
-    const val STEP = 0.05f
-}
-
 /** Upper bound of the vertical offset of the home app list, in dp. */
 object HomeListOffset {
     const val MAX_DP = 480
@@ -75,8 +66,8 @@ object StrokeWidth {
 /**
  * Global preferences, persisted by `SettingsRepository`.
  *
- * [currentSpaceId] null means the normal space. Per-space options (palette, colored icons, list offset) live
- * in [Space]. [homeListOffset] null means the home list position is computed automatically.
+ * [currentSpaceId] null means the normal space. Per-space options (palette, colored icons, list offset,
+ * background) live in [Space]. [homeListOffset] null means the home list position is computed automatically.
  */
 data class LauncherSettings(
     val currentSpaceId: Long? = null,
@@ -91,7 +82,6 @@ data class LauncherSettings(
     val strokeWidth: Int = StrokeWidth.DEFAULT_DP,
     val strokeColor: StrokeColor = StrokeColor.ACCENT,
     val strokeDots: Boolean = true,
-    val backgroundOpacity: Float = BackgroundOpacity.DEFAULT,
     val notificationCounts: Boolean = false,
     val pressFeedback: PressFeedback = PressFeedback.FLASH,
     val keyboardLayouts: List<String> = listOf("en", "ru"),

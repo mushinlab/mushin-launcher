@@ -2,13 +2,22 @@
 
 ## Unreleased
 
+### Added
+- Each space has its own background (ADR-0020). Space settings → Background → “Change background” opens the system photo picker when the space has no image yet, then a full-screen editor: the image in a frame with the proportions of the screen, under a mock home screen of the space (clock, date, list handle and five rows in its palette, font and text size). Drag to move the image, pinch to zoom (it always fills the screen), double-tap to reset. “Brightness” (darker to the left, lighter to the right) and “Blur” apply live. “Other image” picks a new photo, “Save” keeps the visible part at screen resolution, “Cancel” changes nothing. The space settings show a small preview, and “Remove background” deletes the image and resets both sliders. Deleting a space deletes its image; a new space starts without one.
+
 ### Changed
+- Home rows over a background image all have a background now: both zebra colours of the palette are drawn at 90% opacity, so the image only shows through faintly and labels always read. This includes the “+ Add apps” row. Without an image the rows look as before (ADR-0020).
+- On home the background image of the current space is blurred (up to 24 dp, the image only) and then darkened with black up to 70% or lightened with white up to 50%. Switching spaces switches the image; only the current space's image is kept in memory (ADR-0020).
+- Updating from an earlier version moves the single background into every existing space on first start. The old “Background visibility” o becomes the brightness of each space: −(1 − o) on dark palettes, +(1 − o) on light ones; blur starts at 0. Database v8 adds `environment.bg_brightness` and `environment.bg_blur` (default 0) by an automatic migration.
 - The “+” button on the home screen is now a list row, “+ Add apps”, with the same height, font, text size and press feedback as app rows; with icons on, its label lines up with app names. It is shown when it fits under the list; in an empty space it is the only row, and the separate “Tap + to add apps” hint is gone (ADR-0018).
 - The home list starts lower by default: the drag handle sits at three times its old distance from the top of the screen, but never so low that fewer than four rows fit. A position you set by dragging the handle, including the very top, is kept as before (ADR-0018).
 - Updating from 0.2.0 or earlier also gets the new default: the old builds saved an untouched global list offset of 0, which a one-time settings migration clears. Positions set per space by dragging are kept.
 - The delete key moved from the bottom letter row of the search keyboard to a compact button at the right edge of the query row. It works as before: “×” after a drawing clears it, “⌫” while typing deletes one character, holding repeats with the system key-repeat timings, and swiping it left clears the query. It is hidden when there is nothing to delete. The letter keys stay exactly where they were, so drawings and learned shapes are unaffected; the bottom row keeps an empty gap where the key used to be (ADR-0019).
 - Search recents moved into the main result list: the right-hand recents pane is gone and results use the full width. With an empty query the list starts with up to six recently launched apps of the current space, then all other apps alphabetically, separated by a thin line. Hidden apps are left out unless “Show hidden” is on. Ranking for a typed query is unchanged, and “Clear space history” removes the recent block (ADR-0019).
 - Popups stand out from the screen under them (ADR-0019): menus opened by a long press on home and in search, the “?” suggestion panel, search options and settings dropdowns have a shadow and a thin contrasting outline, and the screen behind them is dimmed (40% black on dark palettes, 25% on light ones). On home and in search the content under the popup is also blurred. Tapping the dimmed area closes the popup as before.
+
+### Removed
+- Style → Background and the global “Background visibility” slider: the background is chosen and tuned per space (ADR-0020).
 
 ## 0.2.0 — 2026-10-16
 

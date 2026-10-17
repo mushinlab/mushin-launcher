@@ -30,7 +30,17 @@ internal fun settingsState(
 ): SettingsUiState = SettingsUiState(
     settings = d.settings,
     spaces = d.spaces.map {
-        SpaceSummary(it.id, it.name, it.type, it.preset, it.id == d.current?.id, it.coloredIcons)
+        SpaceSummary(
+            id = it.id,
+            name = it.name,
+            type = it.type,
+            preset = it.preset,
+            current = it.id == d.current?.id,
+            coloredIcons = it.coloredIcons,
+            palette = it.palette,
+            backgroundBrightness = it.backgroundBrightness,
+            backgroundBlur = it.backgroundBlur,
+        )
     }.toImmutableList(),
     spaceItems = d.spaces.associate { space ->
         space.id to d.items[space.id].orEmpty().map { key ->
@@ -78,6 +88,9 @@ internal fun SettingsUiState.withMemory(samples: List<LearnedGesture>, usage: Ma
             .toImmutableList(),
     )
 }
+
+internal fun SettingsUiState.withBackgrounds(versions: Map<Long, Int>): SettingsUiState =
+    copy(spaces = spaces.map { it.copy(backgroundVersion = versions[it.id]) }.toImmutableList())
 
 internal fun SettingsUiState.withUsefulness(usage: List<SpaceUsage>, now: Long): SettingsUiState {
     val labels = apps.associate { it.key to it.label }

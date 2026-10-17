@@ -77,7 +77,8 @@ internal fun homeState(
         showDate = d.settings.showDate,
         clockPosition = d.settings.clockPosition,
         homeListOffset = d.current?.listOffset ?: d.settings.homeListOffset,
-        backgroundOpacity = d.settings.backgroundOpacity,
+        backgroundBrightness = d.current?.backgroundBrightness ?: 0f,
+        backgroundBlur = d.current?.backgroundBlur ?: 0f,
         roleMissing = !roleHeld,
     )
 }

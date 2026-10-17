@@ -155,6 +155,31 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun migrationTo8KeepsSpacesWithANeutralBackgroundLook() {
+        helper.createDatabase(DB_NAME, 7).use { db ->
+            MushinDatabase.SeedCallback(MushinDatabase.SeedNames("Обычный", "Работа")).seed(db, createdAt = 0L)
+            db.execSQL("UPDATE environment SET list_offset = 40, colored_icons = 1 WHERE type = 'WORK'")
+        }
+        helper.runMigrationsAndValidate(DB_NAME, 8, true).use { db ->
+            db.query(
+                "SELECT name, list_offset, colored_icons, bg_brightness, bg_blur FROM environment ORDER BY sort_order",
+            ).use { cursor ->
+                assertThat(cursor.count).isEqualTo(2)
+                cursor.moveToFirst()
+                assertThat(cursor.getString(0)).isEqualTo("Обычный")
+                assertThat(cursor.getFloat(3)).isEqualTo(0f)
+                assertThat(cursor.getFloat(4)).isEqualTo(0f)
+                cursor.moveToNext()
+                assertThat(cursor.getString(0)).isEqualTo("Работа")
+                assertThat(cursor.getInt(1)).isEqualTo(40)
+                assertThat(cursor.getInt(2)).isEqualTo(1)
+                assertThat(cursor.getFloat(3)).isEqualTo(0f)
+                assertThat(cursor.getFloat(4)).isEqualTo(0f)
+            }
+        }
+    }
+
     private companion object {
         const val DB_NAME = "migration-test"
     }

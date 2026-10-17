@@ -23,6 +23,7 @@ import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
@@ -50,6 +51,14 @@ class SettingsRepository(
             val next = transform(decode(prefs))
             encode(next, prefs)
         }
+    }
+
+    /** The global background visibility of versions before ADR-0020, or null when it is not stored. */
+    suspend fun legacyBackgroundOpacity(): Float? = dataStore.data.first()[LEGACY_BACKGROUND_OPACITY]
+
+    /** Removes the global background visibility of versions before ADR-0020. */
+    suspend fun dropLegacyBackgroundOpacity() {
+        dataStore.edit { it.remove(LEGACY_BACKGROUND_OPACITY) }
     }
 
     companion object {
@@ -80,7 +89,7 @@ class SettingsRepository(
         internal val STROKE_WIDTH = intPreferencesKey("stroke_width")
         internal val STROKE_COLOR = stringPreferencesKey("stroke_color")
         internal val STROKE_DOTS = booleanPreferencesKey("stroke_dots")
-        internal val BACKGROUND_OPACITY = floatPreferencesKey("background_opacity")
+        internal val LEGACY_BACKGROUND_OPACITY = floatPreferencesKey("background_opacity")
         internal val NOTIFICATION_COUNTS = booleanPreferencesKey("notification_counts")
         internal val PRESS_FEEDBACK = stringPreferencesKey("press_feedback")
         internal val KB_LAYOUTS = stringPreferencesKey("kb_layouts")
@@ -113,7 +122,6 @@ class SettingsRepository(
                     .coerceIn(StrokeWidth.MIN_DP, StrokeWidth.MAX_DP),
                 strokeColor = enumOr(prefs[STROKE_COLOR], defaults.strokeColor),
                 strokeDots = prefs.valueOr(STROKE_DOTS, defaults.strokeDots),
-                backgroundOpacity = prefs.valueOr(BACKGROUND_OPACITY, defaults.backgroundOpacity).coerceIn(0f, 1f),
                 notificationCounts = prefs.valueOr(NOTIFICATION_COUNTS, defaults.notificationCounts),
                 pressFeedback = enumOr(prefs[PRESS_FEEDBACK], defaults.pressFeedback),
                 keyboardLayouts = decodeLayouts(prefs[KB_LAYOUTS]) ?: defaults.keyboardLayouts,
@@ -150,7 +158,6 @@ class SettingsRepository(
             prefs[STROKE_WIDTH] = settings.strokeWidth
             prefs[STROKE_COLOR] = settings.strokeColor.name
             prefs[STROKE_DOTS] = settings.strokeDots
-            prefs[BACKGROUND_OPACITY] = settings.backgroundOpacity
             prefs[NOTIFICATION_COUNTS] = settings.notificationCounts
             prefs[PRESS_FEEDBACK] = settings.pressFeedback.name
             prefs[KB_LAYOUTS] = settings.keyboardLayouts.joinToString(",")

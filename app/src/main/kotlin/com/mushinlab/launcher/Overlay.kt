@@ -39,5 +39,5 @@ sealed interface LauncherEffect {
 
     data object RequestSearchTile : LauncherEffect
 
-    data object PickBackground : LauncherEffect
+    data class PickBackground(val spaceId: Long) : LauncherEffect
 }

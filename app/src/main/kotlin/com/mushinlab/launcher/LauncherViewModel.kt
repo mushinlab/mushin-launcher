@@ -1,6 +1,7 @@
 package com.mushinlab.launcher
 
 import android.content.ContentResolver
+import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.core.os.bundleOf
@@ -24,6 +25,7 @@ import com.mushinlab.launcher.feature.home.HomeUiState
 import com.mushinlab.launcher.feature.settings.SettingsRouteCodec
 import com.mushinlab.launcher.feature.settings.SettingsUiState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -40,13 +42,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@OptIn(FlowPreview::class)
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class LauncherViewModel(
     private val container: AppContainer,
     contentResolver: ContentResolver,
@@ -91,16 +94,18 @@ class LauncherViewModel(
     val usage = container.history.usage
     val gestureBindings = container.gestures.bindings
     val learnedGestures = container.gestureLearning.samples
-    val background = container.background.image
 
     val spaces = SpaceEditor(container, { id -> data.value?.items?.get(id).orEmpty() }, { capacity.value })
     val apps = AppEditor(container)
-    val preferences = PreferencesEditor(container, contentResolver)
+    val preferences = PreferencesEditor(container)
     val memory = MemoryEditor(container)
     val suggestions = SuggestionEditor(container) { id -> data.value?.items?.get(id).orEmpty() }
 
     val model: LauncherModel = RepositoryLauncherModel(container, data, spaces, apps, preferences)
     val navigator = LauncherNavigator()
+    val backgrounds = SpaceBackgroundEditor(container, contentResolver, viewModelScope, navigator) {
+        effectChannel.trySend(it)
+    }
     val launches = AppLaunches(model, navigator)
     val homeInput = HomeInteractions(model, navigator, launches) { effectChannel.trySend(it) }
     val searchInput = SearchInteractions(model, navigator, launches) { effectChannel.trySend(it) }
@@ -111,6 +116,15 @@ class LauncherViewModel(
     val palette: StateFlow<Palette> = data.map { it?.current?.palette ?: initial?.palette ?: Palettes.Graphite }
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, initial?.palette ?: Palettes.Graphite)
+
+    val background: StateFlow<Bitmap?> = combine(container.spaces.spaces, container.settings.loaded) { spaces, s ->
+        s?.let { resolveCurrentSpace(spaces, it.currentSpaceId)?.id }
+    }
+        .combine(container.backgrounds.versions) { id, versions -> id?.let { it to versions[it] } }
+        .distinctUntilChanged()
+        .mapLatest { current -> current?.takeIf { it.second != null }?.let { container.backgrounds.load(it.first) } }
+        .flowOn(Dispatchers.IO)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     val coloredIcons: StateFlow<Boolean> = data.map { it?.current?.coloredIcons == true }
         .distinctUntilChanged()
@@ -167,9 +181,11 @@ class LauncherViewModel(
         container.gestureLearning.samples,
         container.history.usage,
         container.history.spaceUsage,
-    ) { state, samples, usage, spaceUsage ->
+        container.backgrounds.versions,
+    ) { state, samples, usage, spaceUsage, backgrounds ->
         state.withMemory(samples, usage)
             .withUsefulness(spaceUsage[state.currentSpaceId].orEmpty(), System.currentTimeMillis())
+            .withBackgrounds(backgrounds)
     }
         .stateIn(viewModelScope, SharingStarted.Eagerly, SettingsUiState(versionName = versionName))
 

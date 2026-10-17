@@ -1,7 +1,9 @@
 package com.mushinlab.launcher.feature.settings
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.ImageBitmap
 import com.mushinlab.launcher.core.model.AppKey
+import com.mushinlab.launcher.core.model.BackgroundCrop
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.model.PalettePreset
@@ -16,6 +18,7 @@ class SettingsActions(
     val apps: AppActions,
     val system: SystemActions,
     val memory: MemoryActions,
+    val background: BackgroundActions,
 )
 
 interface PreferenceActions {
@@ -58,11 +61,31 @@ interface SystemActions {
     fun openAssistantSettings()
 
     fun requestSearchTile()
-
-    fun pickBackground()
-
-    fun clearBackground()
 }
+
+interface BackgroundActions {
+    fun pick(spaceId: Long)
+
+    fun edit(spaceId: Long)
+
+    fun close(spaceId: Long)
+
+    suspend fun thumbnail(spaceId: Long): ImageBitmap?
+
+    fun save(edit: BackgroundEdit)
+
+    fun remove(spaceId: Long)
+}
+
+@Immutable
+data class BackgroundEdit(
+    val spaceId: Long,
+    val crop: BackgroundCrop,
+    val frameWidth: Int,
+    val frameHeight: Int,
+    val brightness: Float,
+    val blur: Float,
+)
 
 interface MemoryActions {
     fun forgetDrawing(key: AppKey, path: String)

@@ -31,6 +31,8 @@ data class SpaceEntity(
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "colored_icons", defaultValue = "0") val coloredIcons: Boolean = false,
     @ColumnInfo(name = "list_offset") val listOffset: Int? = null,
+    @ColumnInfo(name = "bg_brightness", defaultValue = "0") val backgroundBrightness: Float = 0f,
+    @ColumnInfo(name = "bg_blur", defaultValue = "0") val backgroundBlur: Float = 0f,
 )
 
 @Entity(

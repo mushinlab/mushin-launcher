@@ -60,6 +60,9 @@ interface SpaceDao {
     @Query("UPDATE environment SET list_offset = :dp WHERE id = :id")
     suspend fun setListOffset(id: Long, dp: Int?)
 
+    @Query("UPDATE environment SET bg_brightness = :brightness, bg_blur = :blur WHERE id = :id")
+    suspend fun setBackgroundLook(id: Long, brightness: Float, blur: Float)
+
     @Query("DELETE FROM environment WHERE id = :id")
     suspend fun delete(id: Long)
 
