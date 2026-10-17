@@ -3,17 +3,28 @@ package com.mushinlab.launcher.feature.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.Palettes
@@ -21,6 +32,7 @@ import com.mushinlab.launcher.core.model.SpaceLimits
 import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinColors
+import com.mushinlab.launcher.core.ui.SpaceBackdrop
 import kotlinx.coroutines.launch
 
 @Composable
@@ -178,6 +190,8 @@ private fun SpaceEditorPage(
             actions.spaces.setColoredIcons(space.id, it)
         }
         NoteText(stringResource(R.string.space_colored_icons_note))
+        SectionHeader(stringResource(R.string.space_background))
+        SpaceBackgroundSection(space, actions.background, push)
         SectionHeader(stringResource(R.string.space_items))
         SpaceItemsSection(space.id, state, actions, push)
         CardGap()
@@ -187,6 +201,45 @@ private fun SpaceEditorPage(
             tag = "env_delete",
             onClick = onDelete,
         )
+    }
+}
+
+@Composable
+private fun SpaceBackgroundSection(space: SpaceSummary, actions: BackgroundActions, push: (SettingsRoute) -> Unit) {
+    if (space.hasBackground) BackgroundThumbnail(space, actions)
+    NavRow(stringResource(R.string.space_background_change), tag = "space_background_change") {
+        if (space.hasBackground) push(SettingsRoute.BackgroundEditor(space.id)) else actions.pick(space.id)
+    }
+    if (space.hasBackground) {
+        NavRow(stringResource(R.string.space_background_remove), tag = "space_background_remove") {
+            actions.remove(space.id)
+        }
+    }
+    NoteText(stringResource(R.string.space_background_note))
+}
+
+@Composable
+private fun BackgroundThumbnail(space: SpaceSummary, actions: BackgroundActions) {
+    val image by produceState<ImageBitmap?>(null, space.id, space.backgroundVersion) {
+        value = actions.thumbnail(space.id)
+    }
+    val window = LocalWindowInfo.current.containerSize
+    val screenHeight = with(LocalDensity.current) { window.height.toDp() }
+    val description = stringResource(R.string.space_background_preview)
+    Box(
+        Modifier
+            .padding(horizontal = CARD_MARGIN, vertical = CARD_GAP)
+            .height(THUMBNAIL_HEIGHT)
+            .aspectRatio(if (window.height > 0) window.width.toFloat() / window.height else DEFAULT_RATIO)
+            .clip(RoundedCornerShape(CARD_RADIUS))
+            .background(MushinColors.from(space.palette).background)
+            .semantics { contentDescription = description }
+            .testTag("space_background_preview"),
+    ) {
+        image?.let {
+            val blur = if (screenHeight > 0.dp) space.backgroundBlur * (THUMBNAIL_HEIGHT / screenHeight) else 0f
+            SpaceBackdrop(it, space.backgroundBrightness, blur, Modifier.fillMaxSize())
+        }
     }
 }
 
@@ -244,3 +297,5 @@ private fun Swatch(swatch: MushinColors) {
 }
 
 private val SWATCH = 20.dp
+private val THUMBNAIL_HEIGHT = 160.dp
+private const val DEFAULT_RATIO = 0.45f

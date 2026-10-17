@@ -1,8 +1,5 @@
 package com.mushinlab.launcher
 
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
@@ -10,20 +7,15 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
-import com.mushinlab.launcher.core.model.BackgroundOpacity
 import com.mushinlab.launcher.core.model.GestureTuning
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.PressFeedback
 import com.mushinlab.launcher.core.model.StrokeColor
 import com.mushinlab.launcher.feature.settings.SettingsRoute
-import java.io.File
-import kotlin.math.abs
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -117,35 +109,5 @@ class SettingsUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("stroke_dots").performScrollTo().performClick()
         rule.waitUntil(5_000) { !container.settings.settings.value.strokeDots }
         runBlocking { container.settings.update { it.copy(strokeDots = true) } }
-    }
-
-    @Test
-    fun backgroundImageShowsOnHomeWithAVisibilitySliderUntilRemoved() {
-        rule.onNodeWithTag("home_background").assertDoesNotExist()
-        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Style) }
-        rule.onNodeWithTag("background_pick").performScrollTo().assertIsDisplayed()
-        rule.onNodeWithTag("background_opacity").assertDoesNotExist()
-        val bitmap = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888).apply {
-            eraseColor(android.graphics.Color.RED)
-        }
-        val file = File(rule.activity.cacheDir, "picked.png").apply {
-            outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
-        }
-        try {
-            assertThat(container.background.save(ImageDecoder.createSource(file))).isTrue()
-            rule.onNodeWithTag("background_opacity").performScrollTo()
-                .performSemanticsAction(SemanticsActions.SetProgress) { it(0.8f) }
-            rule.waitUntil(5_000) { abs(container.settings.settings.value.backgroundOpacity - 0.8f) < 0.01f }
-            rule.runOnIdle { rule.activity.launcher.navigator.settings.close() }
-            rule.onNodeWithTag("home_background").assertIsDisplayed()
-            rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Style) }
-            rule.onNodeWithTag("background_clear").performScrollTo().performClick()
-            rule.waitUntil(5_000) { container.background.image.value == null }
-            rule.onNodeWithTag("background_opacity").assertDoesNotExist()
-        } finally {
-            container.background.clear()
-            file.delete()
-            runBlocking { container.settings.update { it.copy(backgroundOpacity = BackgroundOpacity.DEFAULT) } }
-        }
     }
 }

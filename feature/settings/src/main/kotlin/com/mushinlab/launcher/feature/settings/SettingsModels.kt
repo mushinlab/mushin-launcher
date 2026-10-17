@@ -3,10 +3,13 @@ package com.mushinlab.launcher.feature.settings
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.graphics.ImageBitmap
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.LauncherSettings
+import com.mushinlab.launcher.core.model.Palette
 import com.mushinlab.launcher.core.model.PalettePreset
+import com.mushinlab.launcher.core.model.Palettes
 import com.mushinlab.launcher.core.model.ShapeVertex
 import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
@@ -23,6 +26,8 @@ sealed interface SettingsRoute {
     data class SpaceEditor(val spaceId: Long) : SettingsRoute
 
     data class PickApps(val spaceId: Long) : SettingsRoute
+
+    data class BackgroundEditor(val spaceId: Long) : SettingsRoute
 
     data class PickGestureApp(val direction: SwipeDirection) : SettingsRoute
 
@@ -109,7 +114,16 @@ data class SpaceSummary(
     val preset: PalettePreset,
     val current: Boolean,
     val coloredIcons: Boolean = false,
-)
+    val palette: Palette = Palettes.Graphite,
+    val backgroundBrightness: Float = 0f,
+    val backgroundBlur: Float = 0f,
+    val backgroundVersion: Int? = null,
+) {
+    val hasBackground: Boolean get() = backgroundVersion != null
+}
+
+@Immutable
+data class BackgroundSource(val spaceId: Long, val image: ImageBitmap)
 
 @Immutable
 data class EditorItem(
@@ -171,7 +185,7 @@ data class SettingsUiState(
     val learned: ImmutableList<LearnedApp> = persistentListOf(),
     val usage: ImmutableList<UsageRow> = persistentListOf(),
     val usefulness: ImmutableList<ScoreRow> = persistentListOf(),
-    val hasBackground: Boolean = false,
+    val backgroundSource: BackgroundSource? = null,
 ) {
     val currentSpaceId: Long? get() = spaces.firstOrNull { it.current }?.id
 }

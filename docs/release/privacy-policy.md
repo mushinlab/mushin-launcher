@@ -13,7 +13,7 @@
 - Настройки.
 - История запусков из поиска: время и число запусков. Используется только для сортировки результатов.
 - Выученные жесты: последовательности букв и форма нарисованных путей и приложение, к которому они относятся.
-- Изображение фона, если вы его выбрали: уменьшенная копия одного снимка из галереи. Лаунчер получает только этот снимок через системный выбор фото, доступа к остальной галерее у него нет.
+- Изображения фона, если вы их выбрали: для каждого спейса — уменьшенная копия выбранной части одного снимка из галереи. Лаунчер получает только выбранные снимки через системный выбор фото, доступа к остальной галерее у него нет.
 
 Эти данные хранятся только в личной папке приложения и не включаются в резервные копии и перенос на другое устройство. Они удаляются при удалении Mushin Launcher. Данные приложения можно удалить вручную: «Настройки → Приложения → Mushin Launcher → Хранилище → Очистить хранилище».
 
@@ -34,7 +34,7 @@
 - Settings.
 - Search launch history: the time and number of launches. It is used only to rank search results.
 - Learned gestures: the letter sequences and shapes of drawn paths and the app each one belongs to.
-- A background image, if you choose one: a reduced copy of a single photo from your gallery. The launcher receives only that photo through the system photo picker and has no access to the rest of your gallery.
+- Background images, if you choose them: for each space, a reduced copy of the chosen part of one photo from your gallery. The launcher receives only the photos you pick through the system photo picker and has no access to the rest of your gallery.
 
 This data is kept only in the app's private storage. It is excluded from backups and device-to-device transfer, and it is deleted when you uninstall Mushin Launcher. You can also delete it manually in Settings → Apps → Mushin Launcher → Storage → Clear storage.
 

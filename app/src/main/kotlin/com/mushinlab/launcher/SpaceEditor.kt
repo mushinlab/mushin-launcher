@@ -4,7 +4,9 @@ import com.mushinlab.launcher.core.data.repo.SpaceOutcome
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.SpaceType
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SpaceEditor(
     private val container: AppContainer,
@@ -20,7 +22,9 @@ class SpaceEditor(
 
     suspend fun rename(id: Long, name: String): String? = repository.rename(id, name).errorCode()
 
-    fun delete(id: Long) = container.inBackground { repository.delete(id) }
+    fun delete(id: Long) = container.inBackground {
+        if (repository.delete(id) is SpaceOutcome.Ok) withContext(Dispatchers.IO) { container.backgrounds.delete(id) }
+    }
 
     fun switchTo(id: Long) {
         container.scope.launch { container.settings.update { it.copy(currentSpaceId = id) } }

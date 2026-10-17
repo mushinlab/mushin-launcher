@@ -14,16 +14,19 @@ import com.mushinlab.launcher.core.apps.PackageEvent
 import com.mushinlab.launcher.core.apps.ReflectionNotificationShade
 import com.mushinlab.launcher.core.apps.icons.IconLoader
 import com.mushinlab.launcher.core.apps.icons.LauncherIconSource
-import com.mushinlab.launcher.core.data.background.BackgroundStore
+import com.mushinlab.launcher.core.data.background.LegacyBackgroundTransition
+import com.mushinlab.launcher.core.data.background.SpaceBackgroundStore
 import com.mushinlab.launcher.core.data.db.MushinDatabase
 import com.mushinlab.launcher.core.data.repo.GestureLearningRepository
 import com.mushinlab.launcher.core.data.repo.GestureRepository
 import com.mushinlab.launcher.core.data.repo.HistoryRepository
 import com.mushinlab.launcher.core.data.repo.OverrideRepository
 import com.mushinlab.launcher.core.data.repo.PackageDataCleaner
+import com.mushinlab.launcher.core.data.repo.SpaceLookRepository
 import com.mushinlab.launcher.core.data.repo.SpaceRepository
 import com.mushinlab.launcher.core.data.settings.SettingsRepository
 import com.mushinlab.launcher.core.data.snapshot.HomeSnapshotStore
+import java.io.File
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +48,7 @@ class AppContainer(private val app: Application) {
 
     val database by lazy { MushinDatabase.build(app) }
     val spaces by lazy { SpaceRepository(database, scope) }
+    val looks by lazy { SpaceLookRepository(database) }
     val overrides by lazy { OverrideRepository(database, scope) }
     val history by lazy { HistoryRepository(database, scope) }
     val gestures by lazy { GestureRepository(database, scope) }
@@ -52,10 +56,10 @@ class AppContainer(private val app: Application) {
     val cleaner by lazy { PackageDataCleaner(database) }
     val settings by lazy { SettingsRepository.create(app, scope) }
     val snapshots by lazy { HomeSnapshotStore(app.filesDir) }
-    val background by lazy {
+    val backgrounds by lazy {
         val metrics = app.resources.displayMetrics
-        BackgroundStore(
-            app.filesDir,
+        SpaceBackgroundStore(
+            File(app.filesDir, BACKGROUNDS_DIR),
             minOf(metrics.widthPixels, metrics.heightPixels),
             maxOf(metrics.widthPixels, metrics.heightPixels),
         )
@@ -98,10 +102,15 @@ class AppContainer(private val app: Application) {
             }
         }
         scope.launch(Dispatchers.IO) { ExitLog(app).recordNewExits() }
-        scope.launch(Dispatchers.IO) { background.load() }
+        scope.launch(Dispatchers.IO) {
+            backgrounds.scan()
+            val legacy = File(app.filesDir, LegacyBackgroundTransition.LEGACY_FILE_NAME)
+            LegacyBackgroundTransition(legacy, backgrounds, database, settings).run()
+        }
     }
 
     private companion object {
         const val TAG = "AppContainer"
+        const val BACKGROUNDS_DIR = "backgrounds"
     }
 }

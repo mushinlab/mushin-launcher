@@ -28,6 +28,8 @@ object SettingsRouteCodec {
 
         is SettingsRoute.PickApps -> join("PickApps", route.spaceId)
 
+        is SettingsRoute.BackgroundEditor -> join("BackgroundEditor", route.spaceId)
+
         is SettingsRoute.PickGestureApp -> join("PickGestureApp", route.direction.name)
 
         is SettingsRoute.MemoryApp -> with(route.key) {
@@ -48,6 +50,8 @@ object SettingsRouteCodec {
         "SpaceEditor" -> SettingsRoute.SpaceEditor(parts[1].toLong())
 
         "PickApps" -> SettingsRoute.PickApps(parts[1].toLong())
+
+        "BackgroundEditor" -> SettingsRoute.BackgroundEditor(parts[1].toLong())
 
         "PickGestureApp" -> SettingsRoute.PickGestureApp(SwipeDirection.valueOf(parts[1]))
 

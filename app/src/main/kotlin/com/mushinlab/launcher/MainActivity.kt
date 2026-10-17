@@ -49,11 +49,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private val backgroundPicker = registerForActivityResult(PickVisualMedia()) { uri ->
-        if (uri != null) {
-            launcher.preferences.setBackground(uri) {
-                launcher.navigator.notice = Notice(R.string.notice_background_failed)
-            }
-        }
+        launcher.backgrounds.onPicked(uri)
     }
 
     private val timeReceiver = object : BroadcastReceiver() {
@@ -123,7 +119,8 @@ class MainActivity : ComponentActivity() {
 
             LauncherEffect.RequestHomeRole -> requestHomeRole()
 
-            LauncherEffect.PickBackground -> backgroundPicker.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
+            is LauncherEffect.PickBackground ->
+                backgroundPicker.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
 
             LauncherEffect.OpenClock -> systemScreens.openClock()
 

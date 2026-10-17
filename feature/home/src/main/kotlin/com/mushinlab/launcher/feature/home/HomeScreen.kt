@@ -1,6 +1,5 @@
 package com.mushinlab.launcher.feature.home
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,7 +37,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -69,6 +67,7 @@ import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
+import com.mushinlab.launcher.core.ui.SpaceBackdrop
 import com.mushinlab.launcher.core.ui.SwipeMarks
 import com.mushinlab.launcher.core.ui.pressFeedback
 import com.mushinlab.launcher.core.ui.pressable
@@ -150,13 +149,12 @@ fun HomeScreen(
             },
     ) {
         if (background != null) {
-            Image(
+            SpaceBackdrop(
                 background,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize().testTag("home_background"),
-                contentScale = ContentScale.Crop,
+                state.backgroundBrightness,
+                state.backgroundBlur,
+                Modifier.fillMaxSize().testTag("home_background"),
             )
-            Box(Modifier.fillMaxSize().background(colors.background.copy(alpha = 1f - state.backgroundOpacity)))
         }
         HomeColumn(state, minute, registry, gestures, currentActions, hasBackground = background != null)
         TraceLayer(trace)
@@ -176,18 +174,8 @@ private fun HomeColumn(
     val density = LocalDensity.current
     val textStyle = MushinType.style(state.textSize.sp.sp, colors.textPrimary)
     val rowHeight = rememberRowHeight(textStyle)
-    val rowColor: (Int) -> Color = if (!hasBackground) {
-        colors::zebra
-    } else {
-        { index ->
-            if (index % 2 ==
-                0
-            ) {
-                Color.Transparent
-            } else {
-                colors.zebraB.copy(alpha = 1f - state.backgroundOpacity)
-            }
-        }
+    val rowColor: (Int) -> Color = remember(colors, hasBackground) {
+        { index -> colors.row(index, overImage = hasBackground) }
     }
     val placement = with(density) {
         ListPlacement(

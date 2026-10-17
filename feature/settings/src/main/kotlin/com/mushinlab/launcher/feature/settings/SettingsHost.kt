@@ -68,7 +68,11 @@ private fun SettingsRouteScreen(
     when (route) {
         SettingsRoute.Root -> RootScreen(state, actions, push, back)
 
-        SettingsRoute.Spaces, is SettingsRoute.SpaceEditor, is SettingsRoute.PickApps ->
+        SettingsRoute.Spaces,
+        is SettingsRoute.SpaceEditor,
+        is SettingsRoute.PickApps,
+        is SettingsRoute.BackgroundEditor,
+        ->
             SpaceRouteScreen(route, state, actions, push, back)
 
         SettingsRoute.Style, SettingsRoute.Home, SettingsRoute.Press ->
@@ -98,6 +102,7 @@ private fun SpaceRouteScreen(
     when (route) {
         is SettingsRoute.SpaceEditor -> SpaceEditorScreen(route.spaceId, state, actions, push, back)
         is SettingsRoute.PickApps -> SpaceAppPicker(route.spaceId, state, actions, back)
+        is SettingsRoute.BackgroundEditor -> BackgroundEditorScreen(route.spaceId, state, actions, back)
         else -> SpacesScreen(state, actions, back)
     }
 }
