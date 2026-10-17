@@ -2,11 +2,15 @@ package com.mushinlab.launcher.core.ui
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.testTag
@@ -40,19 +44,36 @@ fun GlyphButton(
     pressedColor: Color = Color.Transparent,
     onClick: () -> Unit,
 ) {
+    val colors = LocalMushinColors.current
     Box(
         modifier
             .size(size)
-            .pressable(pressedColor = pressedColor, onClick = onClick)
             .semantics { contentDescription = description }
             .testTag(tag),
         contentAlignment = Alignment.Center,
     ) {
-        Image(
-            painterResource(glyph.res),
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(tint),
-            modifier = Modifier.size(glyphSize),
-        )
+        Box(
+            Modifier
+                .size(size - GlyphWrapper.inset * 2)
+                .clip(CircleShape)
+                .background(colors.surface)
+                .border(GlyphWrapper.outline, PopupStyle.outline(colors), CircleShape)
+                .pressable(pressedColor = pressedColor, onClick = onClick)
+                .testTag("${tag}_wrapper"),
+            contentAlignment = Alignment.Center,
+        ) {
+            Image(
+                painterResource(glyph.res),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(tint),
+                modifier = Modifier.size(glyphSize),
+            )
+        }
     }
+}
+
+/** Circle every glyph button sits on, so an icon keeps its contrast over any palette or background image. */
+object GlyphWrapper {
+    val inset = 4.dp
+    val outline = 1.dp
 }

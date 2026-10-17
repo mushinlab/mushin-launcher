@@ -3,11 +3,13 @@ package com.mushinlab.launcher.feature.home
 import android.os.SystemClock
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -29,9 +31,11 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.mushinlab.launcher.core.ui.GlyphWrapper
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.LocalMushinStroke
 import com.mushinlab.launcher.core.ui.Motion
+import com.mushinlab.launcher.core.ui.PopupStyle
 import kotlinx.coroutines.flow.first
 
 @Immutable
@@ -89,12 +93,21 @@ fun ListHandle(active: Boolean, onBounds: (Rect) -> Unit) {
     ) {
         Box(
             Modifier
-                .size(HANDLE_WIDTH, HANDLE_THICKNESS)
-                .background(
-                    if (active) colors.accent else colors.textSecondary.copy(alpha = HANDLE_ALPHA),
-                    RoundedCornerShape(HANDLE_THICKNESS),
-                ),
-        )
+                .size(HANDLE_WIDTH + HANDLE_PADDING * 2, HANDLE_THICKNESS + HANDLE_PADDING * 2)
+                .background(colors.surface, CircleShape)
+                .border(GlyphWrapper.outline, PopupStyle.outline(colors), CircleShape)
+                .testTag("list_handle_wrapper"),
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(
+                Modifier
+                    .size(HANDLE_WIDTH, HANDLE_THICKNESS)
+                    .background(
+                        if (active) colors.accent else colors.textSecondary.copy(alpha = HANDLE_ALPHA),
+                        RoundedCornerShape(HANDLE_THICKNESS),
+                    ),
+            )
+        }
     }
 }
 
@@ -102,4 +115,5 @@ private const val TRACE_ALPHA = 0.6f
 val HANDLE_HEIGHT = 24.dp
 private val HANDLE_WIDTH = 36.dp
 private val HANDLE_THICKNESS = 4.dp
+private val HANDLE_PADDING = 6.dp
 private const val HANDLE_ALPHA = 0.35f
