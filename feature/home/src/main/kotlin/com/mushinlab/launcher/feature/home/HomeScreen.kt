@@ -184,7 +184,7 @@ private fun HomeColumn(
             clockGapPx = HomeDimens.listGap.toPx(),
             rowHeightPx = rowHeight.toPx(),
             maxOffsetPx = HomeListOffset.MAX_DP.dp.toPx(),
-            handleHeightPx = HANDLE_HEIGHT.roundToPx(),
+            handleHeightPx = (HANDLE_HEIGHT + HANDLE_LIST_GAP).roundToPx(),
         )
     }
     Layout(

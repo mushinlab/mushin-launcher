@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -86,9 +87,10 @@ fun ListHandle(active: Boolean, onBounds: (Rect) -> Unit) {
     Box(
         Modifier
             .fillMaxWidth()
-            .height(HANDLE_HEIGHT)
+            .height(HANDLE_HEIGHT + HANDLE_LIST_GAP)
             .onGloballyPositioned { onBounds(it.boundsInRoot()) }
-            .testTag("list_handle"),
+            .testTag("list_handle")
+            .padding(bottom = HANDLE_LIST_GAP),
         contentAlignment = Alignment.Center,
     ) {
         Box(
@@ -113,6 +115,7 @@ fun ListHandle(active: Boolean, onBounds: (Rect) -> Unit) {
 
 private const val TRACE_ALPHA = 0.6f
 val HANDLE_HEIGHT = 24.dp
+internal val HANDLE_LIST_GAP = 8.dp
 private val HANDLE_WIDTH = 36.dp
 private val HANDLE_THICKNESS = 4.dp
 private val HANDLE_PADDING = 6.dp
