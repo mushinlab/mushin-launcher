@@ -22,7 +22,11 @@ class SystemScreens(private val activity: Activity, private val notify: (Notice)
         try {
             activity.startActivity(detail)
         } catch (_: ActivityNotFoundException) {
-            activity.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+            try {
+                activity.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+            } catch (_: ActivityNotFoundException) {
+                notify(Notice(R.string.notice_no_notification_settings))
+            }
         }
     }
 }

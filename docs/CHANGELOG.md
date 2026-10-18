@@ -5,6 +5,16 @@
 ### Added
 - Background editor: a third slider, “Row background” (ADR-0026), after “Brightness” and “Blur”, sets how opaque the home rows (including “Add apps”) are over the space's image, from 20 % to 100 % in 5 % steps; the default 90 % keeps the previous look. The mock home screen shows it live, “Save” stores it with the other values, “Cancel” discards it, and “Remove background” resets it to 90 %. Spaces without an image keep opaque rows. Database v10 adds `environment.bg_row_alpha` (default 0.9) by an automatic migration; existing spaces keep 90 %.
 
+### Fixed
+- Memory → “Erase launch history” (was “Clear usage”) also erases the recent apps of every space; since 0.3.0 removed “Clear space history” from search, recents could only be removed by clearing the app's storage. The confirmation lists what is erased.
+- If the system has neither the per-app nor the general notification access screen, the notification-count switch shows a notice instead of crashing.
+- The home snapshot ignores a file with an implausible row count instead of allocating for it.
+- Settings dropdowns remove the dim and blur flags from their window when they close.
+
+### Security
+- Incremental security and code-quality audit of v0.1.0..0.3.0 with an independent review by Muse: `docs/release/security-audit-2026-10-18.md`. No critical or high findings.
+- The privacy policy (effective 2026-10-18) and the in-app privacy text list everything stored on the device: launch history now covers launch days per space, recents and the last hint time and drives search, recents and hints; background images, the home snapshot and the process exit log are named.
+
 ## 0.3.0 — 2026-10-18
 
 ### Added

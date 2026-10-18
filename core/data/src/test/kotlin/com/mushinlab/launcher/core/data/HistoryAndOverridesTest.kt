@@ -62,6 +62,20 @@ class HistoryAndOverridesTest {
     }
 
     @Test
+    fun erasingUsageAlsoErasesRecentsOfEverySpace() = runTest {
+        val spaces = SpaceRepository(rule.db, backgroundScope, rule.clock)
+        val history = HistoryRepository(rule.db, backgroundScope, rule.clock)
+        val normal = normalId(spaces)
+        val work = spaces.spaces.first { it.isNotEmpty() }.first { it.type != SpaceType.NORMAL }.id
+        history.recordLaunch(slack, normal, fromSearch = true)
+        history.recordLaunch(maps, work, fromSearch = true)
+        history.recents.first { it.size == 2 }
+        history.clearUsage()
+        assertThat(history.recents.first { it.isEmpty() }).isEmpty()
+        assertThat(history.usage.first { it.isEmpty() }).isEmpty()
+    }
+
+    @Test
     fun everyLaunchIsCountedPerSpaceAndDismissalIsKept() = runTest {
         val spaces = SpaceRepository(rule.db, backgroundScope, rule.clock)
         val history = HistoryRepository(rule.db, backgroundScope, rule.clock)

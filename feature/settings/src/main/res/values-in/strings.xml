@@ -125,7 +125,7 @@
     <string name="system_language_default">Default sistem</string>
     <string name="system_version">Versi</string>
     <string name="system_privacy">Privasi</string>
-    <string name="system_privacy_text">Mushin tidak mengumpulkan atau membagikan data apa pun: aplikasi ini tidak punya akses internet, iklan, maupun analitik. Ruang, riwayat pembukaan, gestur yang dipelajari, dan setelan Anda hanya disimpan di perangkat ini, tidak ikut dicadangkan, dan terhapus bersama aplikasi. Mushin membaca daftar aplikasi terinstal dari sistem untuk menampilkannya di layar utama dan di pencarian. Jika Anda mengaktifkan jumlah notifikasi, Mushin hanya melihat berapa banyak notifikasi tiap aplikasi — teks notifikasi tidak pernah dibaca atau disimpan. Pertanyaan: mushin-lab@proton.me</string>
+    <string name="system_privacy_text">Mushin tidak mengumpulkan atau membagikan data apa pun: aplikasi ini tidak punya akses internet, iklan, maupun analitik. Ruang beserta gambar latarnya, riwayat pembukaan, gestur yang dipelajari, dan setelan Anda hanya disimpan di perangkat ini, tidak ikut dicadangkan, dan terhapus bersama aplikasi. Mushin membaca daftar aplikasi terinstal dari sistem untuk menampilkannya di layar utama dan di pencarian. Jika Anda mengaktifkan jumlah notifikasi, Mushin hanya melihat berapa banyak notifikasi tiap aplikasi — teks notifikasi tidak pernah dibaca atau disimpan. Pertanyaan: mushin-lab@proton.me</string>
     <string name="system_licenses">Lisensi</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, ikon Material Symbols — Apache License 2.0. Font Inter, Open Sans, dan Montserrat — SIL Open Font License 1.1 (teks lisensi ada di dalam aplikasi, assets/licenses).</string>
     <string name="settings_memory">Memori</string>
@@ -137,8 +137,8 @@
     <string name="memory_usage">Frekuensi pembukaan</string>
     <string name="memory_usage_note">Hasil pencarian diurutkan berdasarkan ini.</string>
     <string name="memory_usage_none">Masih kosong.</string>
-    <string name="memory_clear_usage">Hapus jumlah pembukaan</string>
-    <string name="memory_clear_usage_confirm">Hapus jumlah pembukaan semua aplikasi? Pencarian tidak akan lagi memperhitungkan seberapa sering Anda membukanya, dan skor kegunaan di ruang akan direset sampai jumlahnya terkumpul lagi.</string>
+    <string name="memory_clear_usage">Hapus riwayat pembukaan</string>
+    <string name="memory_clear_usage_confirm">Hapus riwayat pembukaan semua aplikasi? Jumlah pembukaan, aplikasi terbaru di pencarian, dan hari yang dipakai untuk saran akan dihapus. Pencarian dan saran akan belajar lagi.</string>
     <string name="memory_erase">Hapus</string>
     <string name="memory_app_note">Gambar yang mengarah ke aplikasi ini, ditampilkan sebagai vektor. Titik menandai awal garis; cincin menandai tempat jari berhenti — makin lama jedanya, makin besar cincinnya. Makin tinggi bobotnya, makin kuat gambar itu mengarah ke aplikasi ini.</string>
     <string name="memory_forget_app">Lupakan semua gambar aplikasi ini</string>

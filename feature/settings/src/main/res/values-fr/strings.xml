@@ -125,7 +125,7 @@
     <string name="system_language_default">Langue du système</string>
     <string name="system_version">Version</string>
     <string name="system_privacy">Confidentialité</string>
-    <string name="system_privacy_text">Mushin ne collecte ni ne partage aucune donnée : l’appli n’a pas accès à Internet, ni publicité, ni statistiques. Vos espaces, l’historique des lancements, les gestes appris et les paramètres sont stockés uniquement sur cet appareil, exclus des sauvegardes et supprimés avec l’appli. Mushin lit la liste des applis installées auprès du système pour les afficher sur l’écran d’accueil et dans la recherche. Si vous activez le compteur de notifications, Mushin voit seulement combien de notifications a chaque appli — leur texte n’est jamais lu ni stocké. Questions : mushin-lab@proton.me</string>
+    <string name="system_privacy_text">Mushin ne collecte ni ne partage aucune donnée : l’appli n’a pas accès à Internet, ni publicité, ni statistiques. Vos espaces et leurs images de fond, l’historique des lancements, les gestes appris et les paramètres sont stockés uniquement sur cet appareil, exclus des sauvegardes et supprimés avec l’appli. Mushin lit la liste des applis installées auprès du système pour les afficher sur l’écran d’accueil et dans la recherche. Si vous activez le compteur de notifications, Mushin voit seulement combien de notifications a chaque appli — leur texte n’est jamais lu ni stocké. Questions : mushin-lab@proton.me</string>
     <string name="system_licenses">Licences</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, icônes Material Symbols — Apache License 2.0. Polices Inter, Open Sans et Montserrat — SIL Open Font License 1.1 (les textes des licences sont dans l’appli, assets/licenses).</string>
     <string name="settings_memory">Mémoire</string>
@@ -137,8 +137,8 @@
     <string name="memory_usage">Fréquence de lancement</string>
     <string name="memory_usage_note">Les résultats de recherche sont triés selon elle.</string>
     <string name="memory_usage_none">Vide pour l’instant.</string>
-    <string name="memory_clear_usage">Effacer les compteurs de lancement</string>
-    <string name="memory_clear_usage_confirm">Effacer les compteurs de lancement de toutes les applis ? La recherche ne tiendra plus compte de la fréquence à laquelle vous les ouvrez, et l’utilité dans les espaces repartira de zéro jusqu’à ce que les compteurs se reconstituent.</string>
+    <string name="memory_clear_usage">Effacer l’historique des lancements</string>
+    <string name="memory_clear_usage_confirm">Effacer l’historique des lancements de toutes les applis ? Les compteurs, les applis récentes de la recherche et les jours utilisés pour les suggestions sont supprimés. La recherche et les suggestions réapprendront.</string>
     <string name="memory_erase">Effacer</string>
     <string name="memory_app_note">Les tracés qui mènent à cette appli, affichés sous forme de vecteurs. Le point marque le début de la ligne ; un anneau marque l’endroit où le doigt s’est arrêté — plus la pause est longue, plus l’anneau est grand. Plus le poids est élevé, plus le tracé désigne cette appli.</string>
     <string name="memory_forget_app">Oublier tous les tracés de cette appli</string>

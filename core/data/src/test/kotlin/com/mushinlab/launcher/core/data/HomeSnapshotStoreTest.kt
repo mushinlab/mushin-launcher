@@ -79,7 +79,15 @@ class HomeSnapshotStoreTest {
         assertThat(HomeSnapshotStore(tmp.root).read()?.listOffset).isNull()
     }
 
-    private fun writeVersion3(listOffset: Int) {
+    @Test
+    fun implausibleRowCountIsIgnored() {
+        writeVersion3(listOffset = 0, rowCount = Int.MAX_VALUE)
+        assertThat(HomeSnapshotStore(tmp.root).read()).isNull()
+        writeVersion3(listOffset = 0, rowCount = -1)
+        assertThat(HomeSnapshotStore(tmp.root).read()).isNull()
+    }
+
+    private fun writeVersion3(listOffset: Int, rowCount: Int = 1) {
         DataOutputStream(tmp.root.resolve("home_snapshot.bin").outputStream()).use { out ->
             out.writeInt(3)
             out.writeLong(5)
@@ -91,7 +99,7 @@ class HomeSnapshotStoreTest {
             out.writeBoolean(true)
             out.writeUTF("START")
             out.writeInt(listOffset)
-            out.writeInt(1)
+            out.writeInt(rowCount)
             out.writeUTF("com.maps")
             out.writeUTF("Main")
             out.writeLong(0)

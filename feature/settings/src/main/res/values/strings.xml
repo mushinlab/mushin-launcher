@@ -125,7 +125,7 @@
     <string name="system_language_default">System default</string>
     <string name="system_version">Version</string>
     <string name="system_privacy">Privacy</string>
-    <string name="system_privacy_text">Mushin collects and shares no data: the app has no internet access, no ads and no analytics. Your spaces, launch history, learned gestures and settings are stored only on this device, are excluded from backups and are deleted together with the app. Mushin reads the list of installed apps from the system to show them on the home screen and in search. If you turn on notification counts, Mushin sees only how many notifications each app has — notification text is never read or stored. Questions: mushin-lab@proton.me</string>
+    <string name="system_privacy_text">Mushin collects and shares no data: the app has no internet access, no ads and no analytics. Your spaces and their background images, launch history, learned gestures and settings are stored only on this device, are excluded from backups and are deleted together with the app. Mushin reads the list of installed apps from the system to show them on the home screen and in search. If you turn on notification counts, Mushin sees only how many notifications each app has — notification text is never read or stored. Questions: mushin-lab@proton.me</string>
     <string name="system_licenses">Licenses</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, Material Symbols icons — Apache License 2.0. Inter, Open Sans and Montserrat fonts — SIL Open Font License 1.1 (licence texts are inside the app, assets/licenses).</string>
     <string name="settings_memory">Memory</string>
@@ -137,8 +137,8 @@
     <string name="memory_usage">Launch frequency</string>
     <string name="memory_usage_note">Search results are ranked by it.</string>
     <string name="memory_usage_none">Empty so far.</string>
-    <string name="memory_clear_usage">Erase launch counts</string>
-    <string name="memory_clear_usage_confirm">Erase launch counts for all apps? Search will stop taking into account how often you open them, and usefulness scores in spaces will reset until the counts build up again.</string>
+    <string name="memory_clear_usage">Erase launch history</string>
+    <string name="memory_clear_usage_confirm">Erase the launch history of all apps? Launch counts, recent apps in search and the days used for hints are deleted. Search and hints start learning again.</string>
     <string name="memory_erase">Erase</string>
     <string name="memory_app_note">Drawings that point to this app, shown as vectors. The dot marks where the line starts; a ring marks where the finger paused, the longer the pause, the bigger the ring. The higher the weight, the more strongly the drawing points to this app.</string>
     <string name="memory_forget_app">Forget all drawings for this app</string>

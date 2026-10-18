@@ -155,12 +155,13 @@ class HistoryRepository(
         recentDao.clearAll()
     }
 
-    /** Deletes global and per-space usage and launch days; search recents and hint times are kept. */
+    /** Erases the launch history: launch counts, usage per space, recent apps of every space and launch days. */
     suspend fun clearUsage() {
         db.withTransaction {
             usageDao.deleteAll()
             spaceDao.deleteAll()
             dayDao.deleteAll()
+            recentDao.clearAll()
         }
     }
 

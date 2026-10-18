@@ -125,7 +125,7 @@
     <string name="system_language_default">Systemsprache</string>
     <string name="system_version">Version</string>
     <string name="system_privacy">Datenschutz</string>
-    <string name="system_privacy_text">Mushin erhebt und teilt keine Daten: Die App hat keinen Internetzugriff, keine Werbung und keine Analyse. Deine Bereiche, der Startverlauf, gelernte Gesten und Einstellungen werden nur auf diesem Gerät gespeichert, sind von Backups ausgeschlossen und werden mit der App gelöscht. Mushin liest die Liste der installierten Apps aus dem System, um sie auf dem Startbildschirm und in der Suche anzuzeigen. Wenn du den Benachrichtigungszähler einschaltest, sieht Mushin nur, wie viele Benachrichtigungen jede App hat — ihr Text wird nie gelesen oder gespeichert. Fragen: mushin-lab@proton.me</string>
+    <string name="system_privacy_text">Mushin erhebt und teilt keine Daten: Die App hat keinen Internetzugriff, keine Werbung und keine Analyse. Deine Bereiche und ihre Hintergrundbilder, der Startverlauf, gelernte Gesten und Einstellungen werden nur auf diesem Gerät gespeichert, sind von Backups ausgeschlossen und werden mit der App gelöscht. Mushin liest die Liste der installierten Apps aus dem System, um sie auf dem Startbildschirm und in der Suche anzuzeigen. Wenn du den Benachrichtigungszähler einschaltest, sieht Mushin nur, wie viele Benachrichtigungen jede App hat — ihr Text wird nie gelesen oder gespeichert. Fragen: mushin-lab@proton.me</string>
     <string name="system_licenses">Lizenzen</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, Symbole Material Symbols — Apache License 2.0. Schriftarten Inter, Open Sans und Montserrat — SIL Open Font License 1.1 (die Lizenztexte liegen in der App, assets/licenses).</string>
     <string name="settings_memory">Gedächtnis</string>
@@ -137,8 +137,8 @@
     <string name="memory_usage">Starthäufigkeit</string>
     <string name="memory_usage_note">Danach werden die Suchergebnisse sortiert.</string>
     <string name="memory_usage_none">Noch leer.</string>
-    <string name="memory_clear_usage">Startzähler löschen</string>
-    <string name="memory_clear_usage_confirm">Startzähler aller Apps löschen? Die Suche berücksichtigt dann nicht mehr, wie oft du sie öffnest, und die Nützlichkeit in den Bereichen wird zurückgesetzt, bis sich die Zähler wieder aufbauen.</string>
+    <string name="memory_clear_usage">Startverlauf löschen</string>
+    <string name="memory_clear_usage_confirm">Startverlauf aller Apps löschen? Startzähler, zuletzt verwendete Apps in der Suche und die Tage für Vorschläge werden gelöscht. Suche und Vorschläge lernen dann neu.</string>
     <string name="memory_erase">Löschen</string>
     <string name="memory_app_note">Zeichnungen, die zu dieser App führen, als Vektoren dargestellt. Der Punkt markiert den Anfang der Linie; ein Ring markiert, wo der Finger verweilt hat — je länger die Pause, desto größer der Ring. Je höher das Gewicht, desto stärker weist die Zeichnung auf diese App.</string>
     <string name="memory_forget_app">Alle Zeichnungen dieser App vergessen</string>

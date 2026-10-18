@@ -18,4 +18,5 @@
     <string name="learn_hint_subtitle">Ir para o aprendizado</string>
     <string name="tile_search">Pesquisa Mushin</string>
     <string name="notice_background_failed">Não foi possível abrir a imagem</string>
+    <string name="notice_no_notification_settings">As configurações de acesso a notificações não estão disponíveis neste dispositivo</string>
 </resources>

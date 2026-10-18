@@ -125,7 +125,7 @@
     <string name="system_language_default">Как в системе</string>
     <string name="system_version">Версия</string>
     <string name="system_privacy">Конфиденциальность</string>
-    <string name="system_privacy_text">Mushin не собирает и не передаёт никаких данных: у приложения нет доступа к интернету, в нём нет рекламы и аналитики. Спейсы, история запусков, выученные жесты и настройки хранятся только на этом устройстве, не попадают в резервные копии и удаляются вместе с приложением. Список установленных приложений Mushin получает от системы, чтобы показать их на главном экране и в поиске. Если включить счётчик уведомлений, Mushin видит только количество уведомлений у каждого приложения — текст уведомлений не читается и не сохраняется. Вопросы: mushin-lab@proton.me</string>
+    <string name="system_privacy_text">Mushin не собирает и не передаёт никаких данных: у приложения нет доступа к интернету, в нём нет рекламы и аналитики. Спейсы и их фоновые изображения, история запусков, выученные жесты и настройки хранятся только на этом устройстве, не попадают в резервные копии и удаляются вместе с приложением. Список установленных приложений Mushin получает от системы, чтобы показать их на главном экране и в поиске. Если включить счётчик уведомлений, Mushin видит только количество уведомлений у каждого приложения — текст уведомлений не читается и не сохраняется. Вопросы: mushin-lab@proton.me</string>
     <string name="system_licenses">Лицензии</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, значки Material Symbols — Apache License 2.0. Шрифты Inter, Open Sans, Montserrat — SIL Open Font License 1.1 (тексты лицензий внутри приложения, assets/licenses).</string>
     <string name="settings_memory">Память</string>
@@ -137,8 +137,8 @@
     <string name="memory_usage">Частота запусков</string>
     <string name="memory_usage_note">По ней сортируются результаты поиска.</string>
     <string name="memory_usage_none">Пока пусто.</string>
-    <string name="memory_clear_usage">Стереть счётчики запусков</string>
-    <string name="memory_clear_usage_confirm">Стереть счётчики запусков всех приложений? Поиск перестанет учитывать, как часто вы их открываете, а оценки полезности в спейсах обнулятся, пока счётчики не накопятся снова.</string>
+    <string name="memory_clear_usage">Стереть историю запусков</string>
+    <string name="memory_clear_usage_confirm">Стереть историю запусков всех приложений? Удалятся счётчики запусков, недавние в поиске и дни, по которым строятся подсказки. Поиск и подсказки начнут учиться заново.</string>
     <string name="memory_erase">Стереть</string>
     <string name="memory_app_note">Рисунки, по которым узнаётся это приложение, — в виде векторов. Точка — начало линии, кольцо — место, где палец задержался: чем дольше, тем больше кольцо. Чем больше вес, тем сильнее рисунок тянет к этому приложению.</string>
     <string name="memory_forget_app">Забыть все рисунки приложения</string>

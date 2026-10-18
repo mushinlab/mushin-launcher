@@ -70,7 +70,9 @@ class HomeSnapshotStore(directory: File) {
             val showDate = input.readBoolean()
             val clockPosition = ClockPosition.valueOf(input.readUTF())
             val listOffset = input.readInt().takeIf { it in 0..HomeListOffset.MAX_DP }
-            val rows = List(input.readInt()) {
+            val count = input.readInt()
+            require(count in 0..MAX_ROWS)
+            val rows = List(count) {
                 SnapshotRow(
                     key = AppKey(input.readUTF(), input.readUTF(), input.readLong()),
                     label = input.readUTF(),
@@ -115,6 +117,7 @@ class HomeSnapshotStore(directory: File) {
     }
 
     private companion object {
+        const val MAX_ROWS = 512
         const val FILE_NAME = "home_snapshot.bin"
         const val VERSION = 3
         const val AUTO_LIST_OFFSET = -1

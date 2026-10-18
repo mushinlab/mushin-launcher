@@ -150,7 +150,13 @@ private fun DimBehindWindow(isDark: Boolean) {
             params.blurBehindRadius = blurPx
             view.context.getSystemService(WindowManager::class.java).updateViewLayout(window, params)
         }
-        onDispose { }
+        onDispose {
+            (window.layoutParams as? WindowManager.LayoutParams)?.takeIf { window.isAttachedToWindow }?.let { params ->
+                params.flags = params.flags and
+                    (WindowManager.LayoutParams.FLAG_DIM_BEHIND or WindowManager.LayoutParams.FLAG_BLUR_BEHIND).inv()
+                view.context.getSystemService(WindowManager::class.java).updateViewLayout(window, params)
+            }
+        }
     }
 }
 

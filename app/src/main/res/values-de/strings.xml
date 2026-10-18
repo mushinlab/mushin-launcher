@@ -18,4 +18,5 @@
     <string name="learn_hint_subtitle">Weiter zum Lernen</string>
     <string name="tile_search">Mushin-Suche</string>
     <string name="notice_background_failed">Bild konnte nicht geöffnet werden</string>
+    <string name="notice_no_notification_settings">Die Einstellungen für den Benachrichtigungszugriff sind auf diesem Gerät nicht verfügbar</string>
 </resources>

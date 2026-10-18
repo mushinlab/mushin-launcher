@@ -125,7 +125,7 @@
     <string name="system_language_default">Idioma del sistema</string>
     <string name="system_version">Versión</string>
     <string name="system_privacy">Privacidad</string>
-    <string name="system_privacy_text">Mushin no recopila ni comparte datos: la app no tiene acceso a internet, ni anuncios, ni analíticas. Tus espacios, el historial de aperturas, los gestos aprendidos y los ajustes se guardan solo en este dispositivo, no se incluyen en las copias de seguridad y se eliminan junto con la app. Mushin obtiene del sistema la lista de apps instaladas para mostrarlas en la pantalla de inicio y en la búsqueda. Si activas el contador de notificaciones, Mushin solo ve cuántas notificaciones tiene cada app; su texto nunca se lee ni se guarda. Preguntas: mushin-lab@proton.me</string>
+    <string name="system_privacy_text">Mushin no recopila ni comparte datos: la app no tiene acceso a internet, ni anuncios, ni analíticas. Tus espacios y sus imágenes de fondo, el historial de aperturas, los gestos aprendidos y los ajustes se guardan solo en este dispositivo, no se incluyen en las copias de seguridad y se eliminan junto con la app. Mushin obtiene del sistema la lista de apps instaladas para mostrarlas en la pantalla de inicio y en la búsqueda. Si activas el contador de notificaciones, Mushin solo ve cuántas notificaciones tiene cada app; su texto nunca se lee ni se guarda. Preguntas: mushin-lab@proton.me</string>
     <string name="system_licenses">Licencias</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, iconos Material Symbols — Apache License 2.0. Fuentes Inter, Open Sans y Montserrat — SIL Open Font License 1.1 (los textos de las licencias están dentro de la app, assets/licenses).</string>
     <string name="settings_memory">Memoria</string>
@@ -137,8 +137,8 @@
     <string name="memory_usage">Frecuencia de uso</string>
     <string name="memory_usage_note">Los resultados de búsqueda se ordenan según ella.</string>
     <string name="memory_usage_none">Vacío por ahora.</string>
-    <string name="memory_clear_usage">Borrar recuentos de aperturas</string>
-    <string name="memory_clear_usage_confirm">¿Borrar los recuentos de aperturas de todas las apps? La búsqueda dejará de tener en cuenta con qué frecuencia las abres, y la utilidad en los espacios se reiniciará hasta que los recuentos vuelvan a acumularse.</string>
+    <string name="memory_clear_usage">Borrar historial de aperturas</string>
+    <string name="memory_clear_usage_confirm">¿Borrar el historial de aperturas de todas las apps? Se eliminan los recuentos, las apps recientes de la búsqueda y los días usados para las sugerencias. La búsqueda y las sugerencias volverán a aprender.</string>
     <string name="memory_erase">Borrar</string>
     <string name="memory_app_note">Trazos que llevan a esta app, mostrados como vectores. El punto marca dónde empieza la línea; un anillo marca dónde se detuvo el dedo: cuanto más larga la pausa, más grande el anillo. Cuanto mayor es el peso, más apunta el trazo a esta app.</string>
     <string name="memory_forget_app">Olvidar todos los trazos de esta app</string>

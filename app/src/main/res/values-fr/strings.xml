@@ -18,4 +18,5 @@
     <string name="learn_hint_subtitle">Passer à l’apprentissage</string>
     <string name="tile_search">Recherche Mushin</string>
     <string name="notice_background_failed">Impossible d’ouvrir l’image</string>
+    <string name="notice_no_notification_settings">Les paramètres d’accès aux notifications ne sont pas disponibles sur cet appareil</string>
 </resources>
