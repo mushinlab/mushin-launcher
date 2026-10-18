@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- The background of a space is now set in Settings → Style, right after the palette and colour icons of the current space (ADR-0027). A short hint under “Background” says it applies only to the current space and that each space has its own. The section is no longer in the space settings; the editor and stored backgrounds are unchanged.
+
 ## 0.3.1 — 2026-10-18
 
 ### Added

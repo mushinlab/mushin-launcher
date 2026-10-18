@@ -2,12 +2,25 @@ package com.mushinlab.launcher.feature.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -20,12 +33,19 @@ import com.mushinlab.launcher.core.model.PressFeedback
 import com.mushinlab.launcher.core.model.StrokeColor
 import com.mushinlab.launcher.core.model.StrokeWidth
 import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.MushinColors
 import com.mushinlab.launcher.core.ui.MushinFonts
 import com.mushinlab.launcher.core.ui.MushinStroke
+import com.mushinlab.launcher.core.ui.SpaceBackdrop
 import kotlin.math.roundToInt
 
 @Composable
-internal fun StyleScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+internal fun StyleScreen(
+    state: SettingsUiState,
+    actions: SettingsActions,
+    push: (SettingsRoute) -> Unit,
+    back: () -> Unit,
+) {
     SettingsPage(stringResource(R.string.settings_style), back) {
         state.spaces.firstOrNull { it.current }?.let { space ->
             SectionHeader(stringResource(R.string.style_theme, space.name))
@@ -33,6 +53,8 @@ internal fun StyleScreen(state: SettingsUiState, actions: SettingsActions, back:
             ToggleRow(stringResource(R.string.space_colored_icons), space.coloredIcons, tag = "style_colored_icons") {
                 actions.spaces.setColoredIcons(space.id, it)
             }
+            SectionHeader(stringResource(R.string.space_background))
+            SpaceBackgroundSection(space, actions.background, push)
             SectionHeader(stringResource(R.string.style_text))
         }
         TextStyleRows(state.settings, actions.preferences)
@@ -41,6 +63,46 @@ internal fun StyleScreen(state: SettingsUiState, actions: SettingsActions, back:
         HomeSettingsSection(state, actions)
         SectionHeader(stringResource(R.string.style_stroke))
         StrokeRows(state.settings, actions.preferences)
+    }
+}
+
+@Composable
+private fun SpaceBackgroundSection(space: SpaceSummary, actions: BackgroundActions, push: (SettingsRoute) -> Unit) {
+    NoteText(stringResource(R.string.style_background_hint, space.name))
+    if (space.hasBackground) BackgroundThumbnail(space, actions)
+    NavRow(stringResource(R.string.space_background_change), tag = "space_background_change") {
+        if (space.hasBackground) push(SettingsRoute.BackgroundEditor(space.id)) else actions.pick(space.id)
+    }
+    if (space.hasBackground) {
+        NavRow(stringResource(R.string.space_background_remove), tag = "space_background_remove") {
+            actions.remove(space.id)
+        }
+    }
+    NoteText(stringResource(R.string.space_background_note))
+}
+
+@Composable
+private fun BackgroundThumbnail(space: SpaceSummary, actions: BackgroundActions) {
+    val image by produceState<ImageBitmap?>(null, space.id, space.backgroundVersion) {
+        value = actions.thumbnail(space.id)
+    }
+    val window = LocalWindowInfo.current.containerSize
+    val screenHeight = with(LocalDensity.current) { window.height.toDp() }
+    val description = stringResource(R.string.space_background_preview)
+    Box(
+        Modifier
+            .padding(horizontal = CARD_MARGIN, vertical = CARD_GAP)
+            .height(THUMBNAIL_HEIGHT)
+            .aspectRatio(if (window.height > 0) window.width.toFloat() / window.height else DEFAULT_RATIO)
+            .clip(RoundedCornerShape(CARD_RADIUS))
+            .background(MushinColors.from(space.palette).background)
+            .semantics { contentDescription = description }
+            .testTag("space_background_preview"),
+    ) {
+        image?.let {
+            val blur = if (screenHeight > 0.dp) space.backgroundBlur * (THUMBNAIL_HEIGHT / screenHeight) else 0f
+            SpaceBackdrop(it, space.backgroundBrightness, blur, Modifier.fillMaxSize())
+        }
     }
 }
 
@@ -164,3 +226,6 @@ internal fun PressSettingsScreen(state: SettingsUiState, actions: SettingsAction
 }
 
 private val STROKE_SWATCH = 18.dp
+
+private val THUMBNAIL_HEIGHT = 160.dp
+private const val DEFAULT_RATIO = 0.45f

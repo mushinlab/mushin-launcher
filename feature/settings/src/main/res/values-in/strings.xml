@@ -199,6 +199,7 @@
     <string name="space_background_remove">Hapus latar</string>
     <string name="space_background_preview">Latar ruang</string>
     <string name="space_background_note">Gambar dari galeri (PNG, JPEG, WebP, AVIF) di belakang layar utama ruang ini. Salinannya tetap di dalam launcher dan tidak pernah dikirim ke mana pun.</string>
+    <string name="style_background_hint">Hanya untuk ruang saat ini “%1$s”. Setiap ruang punya latarnya sendiri.</string>
     <string name="background_brightness">Kecerahan</string>
     <string name="background_blur">Buram</string>
     <string name="background_row_alpha">Latar baris</string>

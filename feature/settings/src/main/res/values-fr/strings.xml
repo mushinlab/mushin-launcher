@@ -201,6 +201,7 @@
     <string name="space_background_remove">Retirer l’arrière-plan</string>
     <string name="space_background_preview">Arrière-plan de l’espace</string>
     <string name="space_background_note">Une image de la galerie (PNG, JPEG, WebP, AVIF) derrière l’écran d’accueil de cet espace. La copie reste dans le launcher et n’est jamais envoyée nulle part.</string>
+    <string name="style_background_hint">Uniquement pour l’espace actuel « %1$s ». Chaque espace a son propre fond.</string>
     <string name="background_brightness">Luminosité</string>
     <string name="background_blur">Flou</string>
     <string name="background_row_alpha">Fond des lignes</string>

@@ -200,6 +200,7 @@
     <string name="space_background_remove">Remove background</string>
     <string name="space_background_preview">Space background</string>
     <string name="space_background_note">A gallery image (PNG, JPEG, WebP, AVIF) behind the home screen of this space. The copy stays inside the launcher and is never sent anywhere.</string>
+    <string name="style_background_hint">Only for the current space “%1$s”. Each space has its own background.</string>
     <string name="background_brightness">Brightness</string>
     <string name="background_blur">Blur</string>
     <string name="background_row_alpha">Row background</string>

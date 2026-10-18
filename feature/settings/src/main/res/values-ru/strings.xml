@@ -202,6 +202,7 @@
     <string name="space_background_remove">Убрать фон</string>
     <string name="space_background_preview">Фон спейса</string>
     <string name="space_background_note">Изображение из галереи (PNG, JPEG, WebP, AVIF) под главным экраном этого спейса. Копия хранится только в лаунчере и никуда не отправляется.</string>
+    <string name="style_background_hint">Только для текущего спейса «%1$s». У каждого спейса свой фон.</string>
     <string name="background_brightness">Яркость</string>
     <string name="background_blur">Размытие</string>
     <string name="background_row_alpha">Подложка строк</string>
