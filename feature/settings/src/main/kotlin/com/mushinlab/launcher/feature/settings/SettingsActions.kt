@@ -83,6 +83,7 @@ data class BackgroundEdit(
     val frameHeight: Int,
     val brightness: Float,
     val blur: Float,
+    val rowAlpha: Float,
 )
 
 interface MemoryActions {

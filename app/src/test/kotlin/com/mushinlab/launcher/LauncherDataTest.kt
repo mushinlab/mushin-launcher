@@ -86,23 +86,26 @@ class LauncherDataTest {
 
     @Test
     fun homeTakesTheBackgroundLookOfTheCurrentSpace() {
-        val looks = data().copy(
-            spaces = listOf(normal.copy(backgroundBrightness = -0.3f, backgroundBlur = 0.5f), work),
-            current = normal.copy(backgroundBrightness = -0.3f, backgroundBlur = 0.5f),
-        )
+        val styled = normal.copy(backgroundBrightness = -0.3f, backgroundBlur = 0.5f, backgroundRowAlpha = 0.4f)
+        val looks = data().copy(spaces = listOf(styled, work), current = styled)
 
         val state = homeState(looks, true, emptyMap(), emptyMap())
         val other = homeState(looks.copy(current = work), true, emptyMap(), emptyMap())
+        val none = homeState(looks.copy(current = null), true, emptyMap(), emptyMap())
 
         assertThat(state.backgroundBrightness).isEqualTo(-0.3f)
         assertThat(state.backgroundBlur).isEqualTo(0.5f)
+        assertThat(state.backgroundRowAlpha).isEqualTo(0.4f)
         assertThat(other.backgroundBrightness).isEqualTo(0f)
         assertThat(other.backgroundBlur).isEqualTo(0f)
+        assertThat(other.backgroundRowAlpha).isEqualTo(0.9f)
+        assertThat(none.backgroundRowAlpha).isEqualTo(0.9f)
     }
 
     @Test
     fun settingsShowWhichSpacesHaveABackgroundAndTheirLook() {
-        val looks = data().copy(spaces = listOf(normal, work.copy(backgroundBrightness = 0.4f, backgroundBlur = 0.2f)))
+        val styled = work.copy(backgroundBrightness = 0.4f, backgroundBlur = 0.2f, backgroundRowAlpha = 0.65f)
+        val looks = data().copy(spaces = listOf(normal, styled))
 
         val state = settingsState(looks, emptyMap(), true, 8, "1.0").withBackgrounds(mapOf(work.id to 3))
 
@@ -112,6 +115,8 @@ class LauncherDataTest {
         assertThat(summary.backgroundVersion).isEqualTo(3)
         assertThat(summary.backgroundBrightness).isEqualTo(0.4f)
         assertThat(summary.backgroundBlur).isEqualTo(0.2f)
+        assertThat(summary.backgroundRowAlpha).isEqualTo(0.65f)
+        assertThat(state.spaces.single { it.id == normal.id }.backgroundRowAlpha).isEqualTo(0.9f)
         assertThat(summary.palette).isEqualTo(work.palette)
     }
 

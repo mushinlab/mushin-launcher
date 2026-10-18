@@ -40,6 +40,7 @@ internal fun settingsState(
             palette = it.palette,
             backgroundBrightness = it.backgroundBrightness,
             backgroundBlur = it.backgroundBlur,
+            backgroundRowAlpha = it.backgroundRowAlpha,
         )
     }.toImmutableList(),
     spaceItems = d.spaces.associate { space ->

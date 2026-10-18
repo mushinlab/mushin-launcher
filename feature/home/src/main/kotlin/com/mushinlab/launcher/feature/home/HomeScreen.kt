@@ -174,8 +174,9 @@ private fun HomeColumn(
     val density = LocalDensity.current
     val textStyle = MushinType.style(state.textSize.sp.sp, colors.textPrimary)
     val rowHeight = rememberRowHeight(textStyle)
-    val rowColor: (Int) -> Color = remember(colors, hasBackground) {
-        { index -> colors.row(index, overImage = hasBackground) }
+    val rowAlpha = state.backgroundRowAlpha
+    val rowColor: (Int) -> Color = remember(colors, hasBackground, rowAlpha) {
+        { index -> colors.row(index, overImage = hasBackground, alpha = rowAlpha) }
     }
     val placement = with(density) {
         ListPlacement(

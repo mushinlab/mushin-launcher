@@ -202,6 +202,7 @@
     <string name="space_background_note">A gallery image (PNG, JPEG, WebP, AVIF) behind the home screen of this space. The copy stays inside the launcher and is never sent anywhere.</string>
     <string name="background_brightness">Brightness</string>
     <string name="background_blur">Blur</string>
+    <string name="background_row_alpha">Row background</string>
     <string name="background_other">Other image</string>
     <string name="background_mock_app">App %1$d</string>
     <string name="style_stroke_dots">Dots on the line</string>

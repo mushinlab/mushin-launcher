@@ -44,11 +44,11 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.max
 
 @Composable
-internal fun HomeMock(settings: LauncherSettings, overImage: Boolean) {
+internal fun HomeMock(settings: LauncherSettings, overImage: Boolean, rowAlpha: Float) {
     Layout(
         content = {
             MockHeader(settings)
-            MockList(settings, overImage)
+            MockList(settings, overImage, rowAlpha)
         },
         modifier = Modifier.fillMaxSize().testTag("background_mock"),
     ) { measurables, constraints ->
@@ -107,7 +107,7 @@ private fun MockHeader(settings: LauncherSettings) {
 }
 
 @Composable
-private fun MockList(settings: LauncherSettings, overImage: Boolean) {
+private fun MockList(settings: LauncherSettings, overImage: Boolean, rowAlpha: Float) {
     val colors = LocalMushinColors.current
     val text = MushinType.style(settings.homeTextSize.sp.sp, colors.textPrimary)
     val rowHeight = mockRowHeight(text)
@@ -124,7 +124,7 @@ private fun MockList(settings: LauncherSettings, overImage: Boolean) {
                 Modifier
                     .fillMaxWidth()
                     .height(rowHeight)
-                    .background(colors.row(index, overImage))
+                    .background(colors.row(index, overImage, rowAlpha))
                     .testTag("background_mock_row_$index")
                     .padding(horizontal = ROW_PADDING),
                 verticalAlignment = Alignment.CenterVertically,

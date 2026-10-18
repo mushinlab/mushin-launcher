@@ -203,6 +203,7 @@
     <string name="space_background_note">Une image de la galerie (PNG, JPEG, WebP, AVIF) derrière l’écran d’accueil de cet espace. La copie reste dans le launcher et n’est jamais envoyée nulle part.</string>
     <string name="background_brightness">Luminosité</string>
     <string name="background_blur">Flou</string>
+    <string name="background_row_alpha">Fond des lignes</string>
     <string name="background_other">Autre image</string>
     <string name="background_mock_app">Appli %1$d</string>
     <string name="style_stroke_dots">Points sur la ligne</string>

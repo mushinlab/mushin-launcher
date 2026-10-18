@@ -60,10 +60,14 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 @Stable
-internal class BackgroundEditor(brightness: Float, blur: Float) {
+internal class BackgroundEditor(brightness: Float, blur: Float, rowAlpha: Float) {
     var crop by mutableStateOf(BackgroundCrop())
     var brightness by mutableFloatStateOf(brightness)
     var blur by mutableFloatStateOf(blur)
+    var rowAlpha by mutableFloatStateOf(rowAlpha)
+
+    fun edit(spaceId: Long, frame: IntSize) =
+        BackgroundEdit(spaceId, crop, frame.width, frame.height, brightness, blur, rowAlpha)
 }
 
 @Composable
@@ -77,7 +81,9 @@ internal fun BackgroundEditorScreen(spaceId: Long, state: SettingsUiState, actio
     LaunchedEffect(spaceId) { background.edit(spaceId) }
     DisposableEffect(spaceId) { onDispose { background.close(spaceId) } }
     val image = state.backgroundSource?.takeIf { it.spaceId == spaceId }?.image
-    val editor = remember(spaceId) { BackgroundEditor(space.backgroundBrightness, space.backgroundBlur) }
+    val editor = remember(spaceId) {
+        BackgroundEditor(space.backgroundBrightness, space.backgroundBlur, space.backgroundRowAlpha)
+    }
     LaunchedEffect(image) { editor.crop = BackgroundCrop() }
     val window = LocalWindowInfo.current.containerSize
     Column(
@@ -113,9 +119,7 @@ internal fun BackgroundEditorScreen(spaceId: Long, state: SettingsUiState, actio
                 "background_save",
                 enabled = image != null && window.width > 0,
             ) {
-                background.save(
-                    BackgroundEdit(spaceId, editor.crop, window.width, window.height, editor.brightness, editor.blur),
-                )
+                background.save(editor.edit(spaceId, window))
                 back()
             }
         }
@@ -153,7 +157,7 @@ private fun PreviewFrame(
                     editor.crop,
                 )
             }
-            HomeMock(settings, overImage = image != null)
+            HomeMock(settings, overImage = image != null, rowAlpha = editor.rowAlpha)
         }
     }
 }
@@ -192,6 +196,14 @@ private fun EditorControls(editor: BackgroundEditor, buttons: @Composable () -> 
         tag = "background_blur",
         format = ::percent,
     ) { editor.blur = it }
+    SliderRow(
+        stringResource(R.string.background_row_alpha),
+        editor.rowAlpha,
+        SpaceBackground.ROW_ALPHA_MIN..SpaceBackground.ROW_ALPHA_MAX,
+        SpaceBackground.STEP,
+        tag = "background_row_alpha",
+        format = ::percent,
+    ) { editor.rowAlpha = it }
     Row(
         Modifier.fillMaxWidth().padding(horizontal = CARD_MARGIN, vertical = CARD_GAP),
         horizontalArrangement = Arrangement.spacedBy(CARD_GAP),

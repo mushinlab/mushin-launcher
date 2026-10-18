@@ -11,6 +11,7 @@ import com.mushinlab.launcher.core.model.Palette
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.Palettes
 import com.mushinlab.launcher.core.model.ShapeVertex
+import com.mushinlab.launcher.core.model.SpaceBackground
 import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
 import kotlinx.collections.immutable.ImmutableList
@@ -113,6 +114,7 @@ data class SpaceSummary(
     val palette: Palette = Palettes.Graphite,
     val backgroundBrightness: Float = 0f,
     val backgroundBlur: Float = 0f,
+    val backgroundRowAlpha: Float = SpaceBackground.ROW_ALPHA_DEFAULT,
     val backgroundVersion: Int? = null,
 ) {
     val hasBackground: Boolean get() = backgroundVersion != null

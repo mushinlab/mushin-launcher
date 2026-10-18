@@ -15,10 +15,11 @@ import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
 import com.mushinlab.launcher.core.model.Palette
 import com.mushinlab.launcher.core.model.Palettes
+import com.mushinlab.launcher.core.model.SpaceBackground
 
 /**
  * Compose colors of a [Palette]; [zebra] returns the alternating background of the list row at an index and
- * [row] the same color as drawn on the home screen, slightly see-through over a background image.
+ * [row] the same color as drawn on the home screen, see-through at the space's row opacity over a background image.
  */
 @Immutable
 data class MushinColors(
@@ -37,9 +38,12 @@ data class MushinColors(
 ) {
     fun zebra(index: Int): Color = if (index % 2 == 0) zebraA else zebraB
 
-    /** Background of the home row at [index]: [zebra], at [BackgroundLook.ROW_ALPHA] over an image. */
-    fun row(index: Int, overImage: Boolean): Color =
-        if (overImage) zebra(index).copy(alpha = BackgroundLook.ROW_ALPHA) else zebra(index)
+    /**
+     * Background of the home row at [index]: [zebra], over an image at opacity [alpha] limited by
+     * [SpaceBackground.rowAlpha].
+     */
+    fun row(index: Int, overImage: Boolean, alpha: Float): Color =
+        if (overImage) zebra(index).copy(alpha = SpaceBackground.rowAlpha(alpha)) else zebra(index)
 
     companion object {
         fun from(p: Palette) = MushinColors(

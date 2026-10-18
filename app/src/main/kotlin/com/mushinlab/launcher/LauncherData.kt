@@ -12,6 +12,7 @@ import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.model.ProfileType
 import com.mushinlab.launcher.core.model.SearchRecent
 import com.mushinlab.launcher.core.model.Space
+import com.mushinlab.launcher.core.model.SpaceBackground
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.search.Alphabet
 import com.mushinlab.launcher.core.search.SearchIndex
@@ -79,6 +80,7 @@ internal fun homeState(
         homeListOffset = d.current?.listOffset ?: d.settings.homeListOffset,
         backgroundBrightness = d.current?.backgroundBrightness ?: 0f,
         backgroundBlur = d.current?.backgroundBlur ?: 0f,
+        backgroundRowAlpha = d.current?.backgroundRowAlpha ?: SpaceBackground.ROW_ALPHA_DEFAULT,
         roleMissing = !roleHeld,
     )
 }

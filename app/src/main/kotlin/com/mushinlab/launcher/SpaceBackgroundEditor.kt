@@ -6,6 +6,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import com.mushinlab.launcher.core.model.BackgroundCrop
 import com.mushinlab.launcher.core.model.CropFrame
+import com.mushinlab.launcher.core.model.SpaceBackground
 import com.mushinlab.launcher.feature.settings.BackgroundEdit
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 import kotlinx.coroutines.CoroutineScope
@@ -79,7 +80,7 @@ class SpaceBackgroundEditor(
                     edit.frameHeight,
                 )
             if (saved) {
-                container.looks.setBackgroundLook(edit.spaceId, edit.brightness, edit.blur)
+                container.looks.setBackgroundLook(edit.spaceId, edit.brightness, edit.blur, edit.rowAlpha)
             } else {
                 withContext(Dispatchers.Main) { navigator.notice = Notice(R.string.notice_background_failed) }
             }
@@ -89,7 +90,12 @@ class SpaceBackgroundEditor(
     fun remove(spaceId: Long) {
         container.scope.launch(Dispatchers.IO) {
             container.backgrounds.delete(spaceId)
-            container.looks.setBackgroundLook(spaceId, brightness = 0f, blur = 0f)
+            container.looks.setBackgroundLook(
+                spaceId,
+                brightness = 0f,
+                blur = 0f,
+                rowAlpha = SpaceBackground.ROW_ALPHA_DEFAULT,
+            )
         }
     }
 

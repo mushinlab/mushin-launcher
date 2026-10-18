@@ -223,6 +223,31 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun migrationTo10KeepsTheBackgroundLookAndGivesRowsTheDefaultOpacity() {
+        helper.createDatabase(DB_NAME, 9).use { db ->
+            MushinDatabase.SeedCallback(MushinDatabase.SeedNames("Обычный", "Работа")).seed(db, createdAt = 42L)
+            db.execSQL("UPDATE environment SET bg_brightness = -0.5, bg_blur = 0.25, hint_at = 7 WHERE type = 'WORK'")
+        }
+        helper.runMigrationsAndValidate(DB_NAME, 10, true).use { db ->
+            db.query(
+                "SELECT name, bg_brightness, bg_blur, hint_at, bg_row_alpha FROM environment ORDER BY sort_order",
+            ).use {
+                assertThat(it.count).isEqualTo(2)
+                it.moveToFirst()
+                assertThat(it.getString(0)).isEqualTo("Обычный")
+                assertThat(it.getFloat(1)).isEqualTo(0f)
+                assertThat(it.getFloat(4)).isEqualTo(0.9f)
+                it.moveToNext()
+                assertThat(it.getString(0)).isEqualTo("Работа")
+                assertThat(it.getFloat(1)).isEqualTo(-0.5f)
+                assertThat(it.getFloat(2)).isEqualTo(0.25f)
+                assertThat(it.getLong(3)).isEqualTo(7L)
+                assertThat(it.getFloat(4)).isEqualTo(0.9f)
+            }
+        }
+    }
+
     private companion object {
         const val DB_NAME = "migration-test"
     }

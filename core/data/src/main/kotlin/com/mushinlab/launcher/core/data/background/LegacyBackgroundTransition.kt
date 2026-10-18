@@ -3,13 +3,15 @@ package com.mushinlab.launcher.core.data.background
 import com.mushinlab.launcher.core.data.db.MushinDatabase
 import com.mushinlab.launcher.core.data.db.toModel
 import com.mushinlab.launcher.core.data.settings.SettingsRepository
+import com.mushinlab.launcher.core.model.SpaceBackground
 import java.io.File
 
 /**
  * One-time move of the single home background of versions before ADR-0020 into every space.
  *
  * When [legacyFile] exists it is copied to each space, and each space gets a brightness from the old global
- * visibility o (1 when it was never stored): -(1 - o) on a dark palette, +(1 - o) on a light one, blur 0. Only
+ * visibility o (1 when it was never stored): -(1 - o) on a dark palette, +(1 - o) on a light one, blur 0 and
+ * the default row opacity. Only
  * then are the legacy file and the old setting deleted, so an interrupted run is repeated in full on the next
  * start. Without a legacy file nothing changes except removing a leftover old setting. Blocks on file I/O.
  */
@@ -34,7 +36,12 @@ class LegacyBackgroundTransition(
         val copied = spaces.all { store.copy(it.id, legacyFile) }
         if (copied) {
             spaces.forEach { space ->
-                spaceDao.setBackgroundLook(space.id, legacyBrightness(opacity, space.palette.isDark), blur = 0f)
+                spaceDao.setBackgroundLook(
+                    space.id,
+                    legacyBrightness(opacity, space.palette.isDark),
+                    blur = 0f,
+                    rowAlpha = SpaceBackground.ROW_ALPHA_DEFAULT,
+                )
             }
             legacyFile.delete()
         }

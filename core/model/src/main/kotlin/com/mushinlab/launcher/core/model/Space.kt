@@ -11,7 +11,8 @@ enum class SpaceType { NORMAL, WORK, CUSTOM }
  *
  * [palette] comes from [preset] unless the preset is [PalettePreset.CUSTOM]. [listOffset], when not null,
  * overrides the global home list offset in dp. [backgroundBrightness] and [backgroundBlur] adjust the space's
- * background image within [SpaceBackground] limits; the image itself is a file, not part of the model. [createdAt]
+ * background image and [backgroundRowAlpha] is the opacity of home rows over it, within [SpaceBackground] limits;
+ * the image itself is a file, not part of the model. [createdAt]
  * also starts the space's hint statistics, and [hintAt] is when a usefulness hint was last accepted or dismissed
  * (ADR-0025).
  */
@@ -27,17 +28,22 @@ data class Space(
     val listOffset: Int? = null,
     val backgroundBrightness: Float = 0f,
     val backgroundBlur: Float = 0f,
+    val backgroundRowAlpha: Float = SpaceBackground.ROW_ALPHA_DEFAULT,
     val hintAt: Long? = null,
 )
 
 /**
- * Limits of the background look of a space (ADR-0020): brightness from [BRIGHTNESS_MIN] (darkest) through 0
- * (unchanged) to [BRIGHTNESS_MAX] (lightest), blur from 0 to [BLUR_MAX]. Sliders move in [STEP].
+ * Limits of the background look of a space (ADR-0020, ADR-0026): brightness from [BRIGHTNESS_MIN] (darkest)
+ * through 0 (unchanged) to [BRIGHTNESS_MAX] (lightest), blur from 0 to [BLUR_MAX], opacity of home rows over the
+ * image from [ROW_ALPHA_MIN] to [ROW_ALPHA_MAX] with [ROW_ALPHA_DEFAULT] by default. Sliders move in [STEP].
  */
 object SpaceBackground {
     const val BRIGHTNESS_MIN = -1f
     const val BRIGHTNESS_MAX = 1f
     const val BLUR_MAX = 1f
+    const val ROW_ALPHA_MIN = 0.2f
+    const val ROW_ALPHA_MAX = 1f
+    const val ROW_ALPHA_DEFAULT = 0.9f
     const val STEP = 0.05f
 
     /** [value] limited to the brightness range; NaN becomes 0. */
@@ -45,6 +51,10 @@ object SpaceBackground {
 
     /** [value] limited to the blur range; NaN becomes 0. */
     fun blur(value: Float): Float = if (value.isNaN()) 0f else value.coerceIn(0f, BLUR_MAX)
+
+    /** [value] limited to the row opacity range; NaN becomes [ROW_ALPHA_DEFAULT]. */
+    fun rowAlpha(value: Float): Float =
+        if (value.isNaN()) ROW_ALPHA_DEFAULT else value.coerceIn(ROW_ALPHA_MIN, ROW_ALPHA_MAX)
 }
 
 /** Limits on spaces: count per type, name length in characters and search recents kept per space. */

@@ -24,12 +24,11 @@ import com.mushinlab.launcher.core.model.SpaceBackground
 /**
  * How a space background is drawn (ADR-0020): negative brightness lays black up to [DARKEN_MAX] opacity over the
  * image, positive brightness white up to [LIGHTEN_MAX]; blur 1 is a [BLUR_MAX] radius. Home rows over an image
- * are drawn at [ROW_ALPHA].
+ * are drawn at the space's row opacity (ADR-0026, [MushinColors.row]).
  */
 object BackgroundLook {
     const val DARKEN_MAX = 0.7f
     const val LIGHTEN_MAX = 0.5f
-    const val ROW_ALPHA = 0.9f
     val BLUR_MAX: Dp = 24.dp
 
     /** The layer drawn over the image for [brightness]; transparent at 0. */

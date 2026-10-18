@@ -43,6 +43,7 @@ internal fun SpaceEntity.toModel(): Space {
         listOffset = listOffset,
         backgroundBrightness = backgroundBrightness,
         backgroundBlur = backgroundBlur,
+        backgroundRowAlpha = backgroundRowAlpha,
         hintAt = hintAt,
     )
 }

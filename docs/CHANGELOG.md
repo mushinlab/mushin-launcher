@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Background editor: a third slider, “Row background” (ADR-0026), after “Brightness” and “Blur”, sets how opaque the home rows (including “Add apps”) are over the space's image, from 20 % to 100 % in 5 % steps; the default 90 % keeps the previous look. The mock home screen shows it live, “Save” stores it with the other values, “Cancel” discards it, and “Remove background” resets it to 90 %. Spaces without an image keep opaque rows. Database v10 adds `environment.bg_row_alpha` (default 0.9) by an automatic migration; existing spaces keep 90 %.
+
 ## 0.3.0 — 2026-10-18
 
 ### Added

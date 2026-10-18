@@ -34,6 +34,7 @@ data class SpaceEntity(
     @ColumnInfo(name = "bg_brightness", defaultValue = "0") val backgroundBrightness: Float = 0f,
     @ColumnInfo(name = "bg_blur", defaultValue = "0") val backgroundBlur: Float = 0f,
     @ColumnInfo(name = "hint_at") val hintAt: Long? = null,
+    @ColumnInfo(name = "bg_row_alpha", defaultValue = "0.9") val backgroundRowAlpha: Float = 0.9f,
 )
 
 @Entity(

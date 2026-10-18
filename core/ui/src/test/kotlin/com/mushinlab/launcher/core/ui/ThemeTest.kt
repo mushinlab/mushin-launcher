@@ -18,11 +18,18 @@ class ThemeTest {
     }
 
     @Test
-    fun homeRowsAreSlightlySeeThroughOnlyOverAnImage() {
-        assertThat(colors.row(0, overImage = false)).isEqualTo(colors.zebraA)
-        assertThat(colors.row(1, overImage = false)).isEqualTo(colors.zebraB)
-        assertThat(colors.row(0, overImage = true)).isEqualTo(colors.zebraA.copy(alpha = 0.9f))
-        assertThat(colors.row(1, overImage = true)).isEqualTo(colors.zebraB.copy(alpha = 0.9f))
+    fun homeRowsAreSeeThroughOnlyOverAnImage() {
+        assertThat(colors.row(0, overImage = false, alpha = 0.5f)).isEqualTo(colors.zebraA)
+        assertThat(colors.row(1, overImage = false, alpha = 0.5f)).isEqualTo(colors.zebraB)
+        assertThat(colors.row(0, overImage = true, alpha = 0.9f)).isEqualTo(colors.zebraA.copy(alpha = 0.9f))
+        assertThat(colors.row(1, overImage = true, alpha = 0.5f)).isEqualTo(colors.zebraB.copy(alpha = 0.5f))
+    }
+
+    @Test
+    fun rowOpacityOverAnImageIsLimitedTo20To100Percent() {
+        assertThat(colors.row(0, overImage = true, alpha = 0.05f)).isEqualTo(colors.zebraA.copy(alpha = 0.2f))
+        assertThat(colors.row(0, overImage = true, alpha = 2f)).isEqualTo(colors.zebraA.copy(alpha = 1f))
+        assertThat(colors.row(0, overImage = true, alpha = Float.NaN)).isEqualTo(colors.zebraA.copy(alpha = 0.9f))
     }
 
     @Test
