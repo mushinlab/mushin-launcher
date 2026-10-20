@@ -2,8 +2,28 @@
 
 ## Unreleased
 
+### Added
+- Home edit mode (ADR-0028). The pencil at the bottom of the home screen now switches edit mode on and off (it turns into a check mark).
+  - In edit mode the clock shows its three positions and can be dragged right away, and the line above the list appears and moves the list.
+  - Three buttons appear at the bottom left:
+    - **Background** opens the photo picker or, if the space already has an image, the background editor;
+    - **Text** opens a sheet with font, weight, text size and the new text alignment (left, centre, right);
+    - **Theme** opens a sheet with the palette, “Icons” and “Color icons”.
+  - The sheets look like the drawing sheet in Memory and dim the home screen only slightly, so changes are visible behind them.
+  - In edit mode apps do not start from the list and home gestures are off. The check mark, Back or Home leave edit mode.
+- Search: the top of the result list fades out when more results are above it.
+
 ### Changed
-- The background of a space is now set in Settings → Style, right after the palette and colour icons of the current space (ADR-0027). A short hint under “Background” says it applies only to the current space and that each space has its own. The section is no longer in the space settings; the editor and stored backgrounds are unchanged.
+- Outside edit mode the clock and the list stay in place. Holding the clock opens the home menu, and the line above the list is hidden; its space is kept.
+- App icons on the home screen and in search always sit at the right end of the row; the left/right choice is gone, and icons saved on the left move to the right. Labels follow the new text alignment within the rest of the row.
+- Background editor (ADR-0028):
+  - “Cancel” and “Other image” are in a row above the preview.
+  - The three sliders take one line each, with the name next to the slider.
+  - “Remove background” (left) and “Save” (right) are at the bottom. Removing closes the editor.
+  - The mock home screen follows the text alignment.
+- The background of a space is no longer in the space settings; it is set from the home edit mode for the current space.
+- Settings → Style keeps only the clock, date and notification counts and the gesture trail. A note points to the home edit mode for font, alignment, palette, icons and background.
+- Every icon button (pencil, “?”, the edit buttons, Back in settings, “+” next to the spaces, search options) and the clock now show the press feedback chosen in Settings → System → Advanced → Press animation.
 - The gap between the list handle and the first home row is three times larger (12 dp instead of 4 dp); the handle stays in place and the list starts 8 dp lower.
 
 ## 0.3.1 — 2026-10-18
