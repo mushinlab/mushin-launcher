@@ -48,6 +48,8 @@ internal fun GesturesScreen(
             SwipeRow(direction, state.gestures[direction], actions.preferences, push)
         }
         NoteText(stringResource(R.string.gesture_shade_zone))
+        SectionHeader(stringResource(R.string.style_stroke))
+        StrokeRows(state.settings, actions.preferences)
     }
 }
 

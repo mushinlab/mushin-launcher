@@ -19,18 +19,7 @@ import com.mushinlab.launcher.core.ui.MushinStroke
 import kotlin.math.roundToInt
 
 @Composable
-internal fun StyleScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
-    SettingsPage(stringResource(R.string.settings_style), back) {
-        NoteText(stringResource(R.string.style_home_note))
-        SectionHeader(stringResource(R.string.settings_home))
-        HomeSettingsSection(state, actions)
-        SectionHeader(stringResource(R.string.style_stroke))
-        StrokeRows(state.settings, actions.preferences)
-    }
-}
-
-@Composable
-private fun StrokeRows(s: LauncherSettings, preferences: PreferenceActions) {
+internal fun StrokeRows(s: LauncherSettings, preferences: PreferenceActions) {
     SliderRow(
         stringResource(R.string.style_stroke_width),
         s.strokeWidth.toFloat(),

@@ -8,8 +8,6 @@
     <string name="settings_clear">Leeren</string>
     <string name="settings_on">An</string>
     <string name="settings_off">Aus</string>
-
-    <string name="settings_home">Startbildschirm</string>
     <string name="settings_keyboard">Tastatur</string>
     <string name="settings_gestures">Gesten</string>
     <string name="settings_press">Tippanimation</string>
@@ -63,6 +61,7 @@
     <string name="picker_full">%1$d von %2$d ausgewählt — kein Platz mehr auf dem Startbildschirm</string>
 
     <string name="home_icons">Symbole</string>
+    <string name="clock_sheet">Uhr</string>
     <string name="home_clock">Uhrzeitformat</string>
     <string name="home_clock_system">System</string>
     <string name="home_clock_24">24 Stunden</string>
@@ -150,11 +149,9 @@
         <item quantity="one">%d Zeichnung</item>
         <item quantity="other">%d Zeichnungen</item>
     </plurals>
-    <string name="settings_style">Stil</string>
     <string name="settings_advanced">Erweitert</string>
-    <string name="summary_style">Schrift, Stärke, Textgröße</string>
     <string name="summary_keyboard">Layouts, Vibration, Ziffernhinweise, Wischeingabe</string>
-    <string name="summary_gestures">Wischgesten auf dem Startbildschirm</string>
+    <string name="summary_gestures">Wischgesten auf dem Startbildschirm und Linie</string>
     <string name="summary_apps">Ausgeblendete Apps, eigene Namen</string>
     <string name="summary_system">Standard-Launcher, Sprache, Datenschutz, Erweitert</string>
     <string name="summary_advanced">Tippanimation, Gedächtnis</string>
@@ -163,14 +160,13 @@
     <string name="style_font">Schrift</string>
     <string name="style_weight">Stärke</string>
     <string name="style_note">Schrift und Stärke gelten für die ganze App, die Größe für die Liste auf dem Startbildschirm.</string>
-    <string name="style_home_note">Schrift, Textausrichtung, Palette, Symbole und Hintergrund stellst du jetzt direkt auf dem Startbildschirm ein: Tippe unten auf ✎.</string>
     <string name="font_system">Roboto (System)</string>
     <string name="weight_light">Leicht</string>
     <string name="weight_regular">Normal</string>
     <string name="weight_medium">Mittel</string>
     <string name="memory_usefulness">Nützlichkeit in „%1$s“</string>
     <string name="memory_usefulness_note">Ein Wert von 1 bis 100: wie oft und wie kürzlich du die App in diesem Bereich geöffnet hast. Hat eine App, die nicht auf dem Startbildschirm ist, einen deutlich höheren Wert als eine, die dort ist, erscheint unten rechts ein „?“ mit einem Vorschlag.</string>
-    <string name="home_clock_note">Tippe auf die Uhr, um die Uhr-App zu öffnen. Halte die Uhr gedrückt, um sie nach links, in die Mitte oder nach rechts zu verschieben.</string>
+    <string name="home_clock_note">Tippe auf die Uhr, um die Uhr-App zu öffnen. Zum Verschieben tippe unten auf dem Startbildschirm auf den Stift und ziehe die Uhr nach links, in die Mitte oder nach rechts.</string>
     <string name="settings_back">Zurück</string>
     <string name="style_theme">Design von „%1$s“</string>
     <string name="style_text">Text</string>

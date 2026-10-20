@@ -8,8 +8,6 @@
     <string name="settings_clear">Limpar</string>
     <string name="settings_on">Ativado</string>
     <string name="settings_off">Desativado</string>
-
-    <string name="settings_home">Tela inicial</string>
     <string name="settings_keyboard">Teclado</string>
     <string name="settings_gestures">Gestos</string>
     <string name="settings_press">Animação ao tocar</string>
@@ -63,6 +61,7 @@
     <string name="picker_full">%1$d de %2$d selecionados — não cabe mais nada na tela inicial</string>
 
     <string name="home_icons">Ícones</string>
+    <string name="clock_sheet">Relógio</string>
     <string name="home_clock">Formato do relógio</string>
     <string name="home_clock_system">Sistema</string>
     <string name="home_clock_24">24 horas</string>
@@ -151,11 +150,9 @@
         <item quantity="many">%d de desenhos</item>
         <item quantity="other">%d desenhos</item>
     </plurals>
-    <string name="settings_style">Estilo</string>
     <string name="settings_advanced">Avançado</string>
-    <string name="summary_style">Fonte, peso, tamanho do texto</string>
     <string name="summary_keyboard">Layouts, vibração, dicas de números, digitação por gestos</string>
-    <string name="summary_gestures">Gestos de deslizar na tela inicial</string>
+    <string name="summary_gestures">Gestos de deslizar na tela inicial e traço</string>
     <string name="summary_apps">Apps ocultos, nomes personalizados</string>
     <string name="summary_system">Launcher padrão, idioma, privacidade, avançado</string>
     <string name="summary_advanced">Animação ao tocar, memória</string>
@@ -164,14 +161,13 @@
     <string name="style_font">Fonte</string>
     <string name="style_weight">Peso</string>
     <string name="style_note">A fonte e o peso valem para todo o app; o tamanho vale para a lista da tela inicial.</string>
-    <string name="style_home_note">Fonte, alinhamento do texto, paleta, ícones e plano de fundo agora são ajustados na tela inicial: toque em ✎ na parte de baixo.</string>
     <string name="font_system">Roboto (sistema)</string>
     <string name="weight_light">Leve</string>
     <string name="weight_regular">Normal</string>
     <string name="weight_medium">Médio</string>
     <string name="memory_usefulness">Utilidade em “%1$s”</string>
     <string name="memory_usefulness_note">Uma nota de 1 a 100: com que frequência e quão recentemente você abriu o app neste espaço. Se um app que não está na tela inicial tiver nota bem maior que um que está, aparece um “?” com uma sugestão no canto inferior direito.</string>
-    <string name="home_clock_note">Toque no relógio para abrir o app Relógio. Mantenha o relógio pressionado para movê-lo para a esquerda, o centro ou a direita.</string>
+    <string name="home_clock_note">Toque no relógio para abrir o app Relógio. Para movê-lo, toque no lápis na parte de baixo da tela inicial e arraste o relógio para a esquerda, o centro ou a direita.</string>
     <string name="settings_back">Voltar</string>
     <string name="style_theme">Tema de “%1$s”</string>
     <string name="style_text">Texto</string>

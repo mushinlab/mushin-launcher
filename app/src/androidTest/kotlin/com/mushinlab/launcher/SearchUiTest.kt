@@ -145,6 +145,6 @@ class SearchUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("search_all_settings").performClick()
         rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.Root }
         assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None)
-        rule.onNodeWithTag("nav_style").assertIsDisplayed()
+        rule.onNodeWithTag("nav_keyboard").assertIsDisplayed()
     }
 }

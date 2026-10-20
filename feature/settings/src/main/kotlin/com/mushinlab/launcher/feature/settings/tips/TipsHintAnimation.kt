@@ -20,7 +20,6 @@ internal fun TipsHintAnimation(modifier: Modifier = Modifier) {
     val text = rememberMiniText()
     val strings = listOf(
         stringResource(R.string.settings_title),
-        stringResource(R.string.settings_style),
         stringResource(R.string.settings_keyboard),
         stringResource(R.string.settings_gestures),
         stringResource(R.string.settings_apps),
@@ -64,7 +63,7 @@ private val Finger = Track(
     ),
 )
 
-private const val TIPS_ROW = 4
+private const val TIPS_ROW = 3
 private const val LOOP_MS = 4000
 private const val STILL_MS = 2600
 private const val TAP_TIPS = 1250

@@ -87,14 +87,6 @@ class BackgroundUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun styleNoLongerHasAGlobalBackgroundSection() {
-        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Style) }
-        rule.onNodeWithTag("stroke_dots").performScrollTo().assertIsDisplayed()
-        rule.onNodeWithTag("background_pick").assertDoesNotExist()
-        rule.onNodeWithTag("background_opacity").assertDoesNotExist()
-    }
-
-    @Test
     fun spaceEditorNoLongerHasTheBackgroundSection() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.SpaceEditor(normalId)) }
         rule.onNodeWithTag("env_delete").performScrollTo().assertIsDisplayed()

@@ -8,8 +8,6 @@
     <string name="settings_clear">Bersihkan</string>
     <string name="settings_on">Aktif</string>
     <string name="settings_off">Nonaktif</string>
-
-    <string name="settings_home">Layar utama</string>
     <string name="settings_keyboard">Keyboard</string>
     <string name="settings_gestures">Gestur</string>
     <string name="settings_press">Animasi sentuh</string>
@@ -63,6 +61,7 @@
     <string name="picker_full">%1$d dari %2$d dipilih — layar utama sudah penuh</string>
 
     <string name="home_icons">Ikon</string>
+    <string name="clock_sheet">Jam</string>
     <string name="home_clock">Format jam</string>
     <string name="home_clock_system">Sistem</string>
     <string name="home_clock_24">24 jam</string>
@@ -149,11 +148,9 @@
     <plurals name="memory_drawings">
         <item quantity="other">%d gambar</item>
     </plurals>
-    <string name="settings_style">Gaya</string>
     <string name="settings_advanced">Lanjutan</string>
-    <string name="summary_style">Font, ketebalan, ukuran teks</string>
     <string name="summary_keyboard">Tata letak, getaran, petunjuk angka, ketik geser</string>
-    <string name="summary_gestures">Geser di layar utama</string>
+    <string name="summary_gestures">Geser di layar utama dan garis</string>
     <string name="summary_apps">Aplikasi tersembunyi, nama kustom</string>
     <string name="summary_system">Launcher default, bahasa, privasi, lanjutan</string>
     <string name="summary_advanced">Animasi sentuh, memori</string>
@@ -162,14 +159,13 @@
     <string name="style_font">Font</string>
     <string name="style_weight">Ketebalan</string>
     <string name="style_note">Font dan ketebalan berlaku di seluruh aplikasi; ukuran berlaku untuk daftar di layar utama.</string>
-    <string name="style_home_note">Font, perataan teks, palet, ikon, dan latar kini diatur langsung di layar utama: ketuk ✎ di bagian bawah.</string>
     <string name="font_system">Roboto (sistem)</string>
     <string name="weight_light">Tipis</string>
     <string name="weight_regular">Reguler</string>
     <string name="weight_medium">Sedang</string>
     <string name="memory_usefulness">Kegunaan di “%1$s”</string>
     <string name="memory_usefulness_note">Skor 1 sampai 100: seberapa sering dan seberapa baru Anda membuka aplikasi di ruang ini. Jika aplikasi yang tidak ada di layar utama punya skor jauh lebih tinggi daripada yang ada, tanda “?” dengan saran muncul di pojok kanan bawah.</string>
-    <string name="home_clock_note">Ketuk jam untuk membuka aplikasi Jam. Tahan jam untuk memindahkannya ke kiri, tengah, atau kanan.</string>
+    <string name="home_clock_note">Ketuk jam untuk membuka aplikasi Jam. Untuk memindahkannya, ketuk pensil di bagian bawah layar utama dan seret jam ke kiri, tengah, atau kanan.</string>
     <string name="settings_back">Kembali</string>
     <string name="style_theme">Tema “%1$s”</string>
     <string name="style_text">Teks</string>

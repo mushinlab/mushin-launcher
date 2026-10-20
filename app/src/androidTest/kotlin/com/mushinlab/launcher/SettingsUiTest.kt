@@ -15,6 +15,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
+import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.GestureTuning
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.PalettePreset
@@ -46,8 +47,8 @@ class SettingsUiTest : LauncherUiTestBase() {
     @Test
     fun rootEndsWithTipsThenSystemAndHasNoSpacesEntry() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
+        rule.onNodeWithTag("nav_style").assertDoesNotExist()
         val order = listOf(
-            "nav_style",
             "nav_keyboard",
             "nav_gestures",
             "nav_apps",
@@ -96,13 +97,36 @@ class SettingsUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun styleKeepsOnlyWhatIsNotOnTheHomeScreen() {
+    fun gesturesHoldTheStrokeSettings() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
-        rule.onNodeWithTag("nav_style").performClick()
+        rule.onNodeWithTag("nav_gestures").performClick()
+        rule.onNodeWithTag("stroke_width").performScrollTo().assertIsDisplayed()
         rule.onNodeWithTag("stroke_dots").performScrollTo().assertIsDisplayed()
-        listOf("palette_picker", "style_colored_icons", "font_dropdown", "icon_mode_dropdown").forEach {
-            rule.onNodeWithTag(it).assertDoesNotExist()
+    }
+
+    @Test
+    fun clockSheetChangesTheFormatAndHidesTheDate() {
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.ClockSheet) }
+        rule.onNodeWithTag("clock_dropdown").performScrollTo().performClick()
+        rule.onNodeWithTag("clock_H24").performClick()
+        rule.onNodeWithTag("show_date").performScrollTo().performClick()
+        try {
+            rule.waitUntil(5_000) {
+                container.settings.settings.value.let { it.clockFormat == ClockFormat.H24 && !it.showDate }
+            }
+            rule.runOnIdle { rule.activity.launcher.navigator.settings.close() }
+            rule.onNodeWithTag("date").assertDoesNotExist()
+        } finally {
+            runBlocking {
+                container.settings.update { it.copy(clockFormat = ClockFormat.SYSTEM, showDate = true) }
+            }
         }
+    }
+
+    @Test
+    fun themeSheetHoldsTheNotificationCount() {
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.ThemeSheet) }
+        rule.onNodeWithTag("notification_counts").performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -141,16 +165,16 @@ class SettingsUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun styleChangesStrokeColour() {
-        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Style) }
+    fun gesturesChangeStrokeColour() {
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Gestures) }
         rule.onNodeWithTag("stroke_color_dropdown").performScrollTo().performClick()
         rule.onNodeWithTag("stroke_color_PINK").performScrollTo().performClick()
         rule.waitUntil(5_000) { container.settings.settings.value.strokeColor == StrokeColor.PINK }
     }
 
     @Test
-    fun styleTurnsOffDotsOnTheLine() {
-        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Style) }
+    fun gesturesTurnOffDotsOnTheLine() {
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Gestures) }
         rule.onNodeWithTag("stroke_dots").performScrollTo().performClick()
         rule.waitUntil(5_000) { !container.settings.settings.value.strokeDots }
         runBlocking { container.settings.update { it.copy(strokeDots = true) } }

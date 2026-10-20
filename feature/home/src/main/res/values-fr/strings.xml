@@ -11,6 +11,7 @@
     <string name="home_suggestion">Suggestion : une appli que vous ouvrez plus souvent</string>
     <string name="home_edit">Modifier l’écran d’accueil</string>
     <string name="home_edit_done">Terminé</string>
+    <string name="home_edit_clock">Réglages de l’horloge</string>
     <string name="home_edit_background">Arrière-plan</string>
     <string name="home_edit_text">Texte</string>
     <string name="home_edit_theme">Thème</string>

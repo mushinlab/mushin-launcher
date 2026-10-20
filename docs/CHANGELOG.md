@@ -12,6 +12,7 @@
   - The sheets look like the drawing sheet in Memory and dim the home screen only slightly, so changes are visible behind them.
   - In edit mode apps do not start from the list and home gestures are off. The check mark, Back or Home leave edit mode.
 - Search: the top of the result list fades out when more results are above it.
+- Clock settings on the home screen (ADR-0029): in edit mode a pencil button next to the clock opens a “Clock” sheet with the clock format and “Show date”.
 
 ### Changed
 - Outside edit mode the clock and the list stay in place. Holding the clock opens the home menu, and the line above the list is hidden; its space is kept.
@@ -22,7 +23,7 @@
   - “Remove background” (left) and “Save” (right) are at the bottom. Removing closes the editor.
   - The mock home screen follows the text alignment.
 - The background of a space is no longer in the space settings; it is set from the home edit mode for the current space.
-- Settings → Style keeps only the clock, date and notification counts and the gesture trail. A note points to the home edit mode for font, alignment, palette, icons and background.
+- Settings → Style is gone (ADR-0029). The clock format and date are in the clock sheet, “Notification count” is in the Theme sheet, and the drawing line (thickness, colour, dots) is in Settings → Gestures.
 - Every icon button (pencil, “?”, the edit buttons, Back in settings, “+” next to the spaces, search options) and the clock now show the press feedback chosen in Settings → System → Advanced → Press animation.
 - The gap between the list handle and the first home row is three times larger (12 dp instead of 4 dp); the handle stays in place and the list starts 8 dp lower.
 - The tips “Set up your first space” and “Customize the launcher” (also onboarding slides 1 and 2) show the new home edit mode: the pencil turns into a check, the palette and text buttons open their sheets, “Add apps” opens the app picker, and the clock and the list handle are dragged directly. Their texts are updated in all seven languages.

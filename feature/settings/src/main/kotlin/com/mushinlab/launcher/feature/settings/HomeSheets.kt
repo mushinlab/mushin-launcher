@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
+import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
@@ -29,6 +30,28 @@ import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinFonts
 import com.mushinlab.launcher.core.ui.MushinType
+
+@Composable
+internal fun ClockSheet(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+    val s = state.settings
+    val preferences = actions.preferences
+    HomeSheet(stringResource(R.string.clock_sheet), "clock_sheet", back) {
+        DropdownRow(
+            stringResource(R.string.home_clock),
+            listOf(
+                ClockFormat.SYSTEM to stringResource(R.string.home_clock_system),
+                ClockFormat.H24 to stringResource(R.string.home_clock_24),
+                ClockFormat.H12 to stringResource(R.string.home_clock_12),
+            ),
+            s.clockFormat,
+            "clock",
+        ) { format -> preferences.updateSettings { it.copy(clockFormat = format) } }
+        ToggleRow(stringResource(R.string.home_show_date), s.showDate, tag = "show_date") { value ->
+            preferences.updateSettings { it.copy(showDate = value) }
+        }
+        NoteText(stringResource(R.string.home_clock_note))
+    }
+}
 
 @Composable
 internal fun TextSheet(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
@@ -57,6 +80,24 @@ internal fun ThemeSheet(state: SettingsUiState, actions: SettingsActions, back: 
             actions.spaces.setColoredIcons(space.id, it)
         }
         NoteText(stringResource(R.string.space_colored_icons_note))
+        NotificationRows(state, actions)
+    }
+}
+
+@Composable
+private fun NotificationRows(state: SettingsUiState, actions: SettingsActions) {
+    val counts = state.settings.notificationCounts
+    ToggleRow(stringResource(R.string.home_notifications), counts, tag = "notification_counts") { on ->
+        actions.preferences.updateSettings { it.copy(notificationCounts = on) }
+        if (on && !state.notificationAccess) actions.system.openNotificationAccess()
+    }
+    if (counts && !state.notificationAccess) {
+        NoteText(stringResource(R.string.home_notifications_no_access), LocalMushinColors.current.accent)
+        NavRow(stringResource(R.string.home_notifications_grant), tag = "notification_access") {
+            actions.system.openNotificationAccess()
+        }
+    } else {
+        NoteText(stringResource(R.string.home_notifications_note))
     }
 }
 

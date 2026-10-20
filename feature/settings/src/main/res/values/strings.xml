@@ -8,8 +8,6 @@
     <string name="settings_clear">Clear</string>
     <string name="settings_on">On</string>
     <string name="settings_off">Off</string>
-
-    <string name="settings_home">Home screen</string>
     <string name="settings_keyboard">Keyboard</string>
     <string name="settings_gestures">Gestures</string>
     <string name="settings_press">Press animation</string>
@@ -63,6 +61,7 @@
     <string name="picker_full">%1$d of %2$d selected — no more room on Home</string>
 
     <string name="home_icons">Icons</string>
+    <string name="clock_sheet">Clock</string>
     <string name="home_clock">Clock format</string>
     <string name="home_clock_system">System</string>
     <string name="home_clock_24">24-hour</string>
@@ -150,11 +149,9 @@
         <item quantity="one">%d drawing</item>
         <item quantity="other">%d drawings</item>
     </plurals>
-    <string name="settings_style">Style</string>
     <string name="settings_advanced">Advanced</string>
-    <string name="summary_style">Font, weight, text size</string>
     <string name="summary_keyboard">Layouts, vibration, digit hints, swipe typing</string>
-    <string name="summary_gestures">Swipes on the home screen</string>
+    <string name="summary_gestures">Swipes on the home screen and the stroke</string>
     <string name="summary_apps">Hidden apps, custom names</string>
     <string name="summary_system">Default launcher, language, privacy, advanced</string>
     <string name="summary_advanced">Press animation, memory</string>
@@ -163,14 +160,13 @@
     <string name="style_font">Font</string>
     <string name="style_weight">Weight</string>
     <string name="style_note">Font and weight apply to the whole app; the size applies to the home screen list.</string>
-    <string name="style_home_note">Font, text alignment, palette, icons and background are now set on the home screen: tap ✎ at the bottom of it.</string>
     <string name="font_system">Roboto (system)</string>
     <string name="weight_light">Light</string>
     <string name="weight_regular">Regular</string>
     <string name="weight_medium">Medium</string>
     <string name="memory_usefulness">Usefulness in “%1$s”</string>
     <string name="memory_usefulness_note">A score from 1 to 100: how often and how recently you opened the app in this space. If an app that is not on the home screen scores clearly higher than one that is, a “?” with a suggestion appears in the bottom right corner.</string>
-    <string name="home_clock_note">Tap the clock to open the Clock app. Hold the clock to move it left, centre or right.</string>
+    <string name="home_clock_note">Tap the clock to open the Clock app. To move it, tap the pencil at the bottom of the home screen and drag the clock left, centre or right.</string>
     <string name="settings_back">Back</string>
     <string name="style_theme">Theme of “%1$s”</string>
     <string name="style_text">Text</string>

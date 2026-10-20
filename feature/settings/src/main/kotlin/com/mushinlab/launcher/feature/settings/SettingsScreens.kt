@@ -15,7 +15,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.GestureTuning
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.search.KeyboardLayout
@@ -44,11 +43,6 @@ internal fun RootScreen(
 
 @Composable
 private fun RootRows(push: (SettingsRoute) -> Unit) {
-    NavRow(
-        stringResource(R.string.settings_style),
-        summary = stringResource(R.string.summary_style),
-        tag = "nav_style",
-    ) { push(SettingsRoute.Style) }
     NavRow(
         stringResource(R.string.settings_keyboard),
         summary = stringResource(R.string.summary_keyboard),
@@ -90,40 +84,6 @@ internal fun AdvancedScreen(state: SettingsUiState, push: (SettingsRoute) -> Uni
             summary = stringResource(R.string.summary_memory),
             tag = "nav_memory",
         ) { push(SettingsRoute.Memory) }
-    }
-}
-
-@Composable
-internal fun HomeSettingsSection(state: SettingsUiState, actions: SettingsActions) {
-    val s = state.settings
-    val preferences = actions.preferences
-    DropdownRow(
-        stringResource(R.string.home_clock),
-        listOf(
-            ClockFormat.SYSTEM to stringResource(R.string.home_clock_system),
-            ClockFormat.H24 to stringResource(R.string.home_clock_24),
-            ClockFormat.H12 to stringResource(R.string.home_clock_12),
-        ),
-        s.clockFormat,
-        "clock",
-    ) { format -> preferences.updateSettings { it.copy(clockFormat = format) } }
-    CardGap()
-    ToggleRow(stringResource(R.string.home_show_date), s.showDate, tag = "show_date") { value ->
-        preferences.updateSettings { it.copy(showDate = value) }
-    }
-    NoteText(stringResource(R.string.home_clock_note))
-    CardGap()
-    ToggleRow(stringResource(R.string.home_notifications), s.notificationCounts, tag = "notification_counts") {
-        preferences.updateSettings { settings -> settings.copy(notificationCounts = it) }
-        if (it && !state.notificationAccess) actions.system.openNotificationAccess()
-    }
-    if (s.notificationCounts && !state.notificationAccess) {
-        NoteText(stringResource(R.string.home_notifications_no_access), LocalMushinColors.current.accent)
-        NavRow(stringResource(R.string.home_notifications_grant), tag = "notification_access") {
-            actions.system.openNotificationAccess()
-        }
-    } else {
-        NoteText(stringResource(R.string.home_notifications_note))
     }
 }
 

@@ -8,8 +8,6 @@
     <string name="settings_clear">Effacer</string>
     <string name="settings_on">Activé</string>
     <string name="settings_off">Désactivé</string>
-
-    <string name="settings_home">Écran d’accueil</string>
     <string name="settings_keyboard">Clavier</string>
     <string name="settings_gestures">Gestes</string>
     <string name="settings_press">Animation au toucher</string>
@@ -63,6 +61,7 @@
     <string name="picker_full">%1$d sur %2$d sélectionnées — plus de place sur l’accueil</string>
 
     <string name="home_icons">Icônes</string>
+    <string name="clock_sheet">Horloge</string>
     <string name="home_clock">Format de l’heure</string>
     <string name="home_clock_system">Système</string>
     <string name="home_clock_24">24 heures</string>
@@ -151,11 +150,9 @@
         <item quantity="many">%d de tracés</item>
         <item quantity="other">%d tracés</item>
     </plurals>
-    <string name="settings_style">Style</string>
     <string name="settings_advanced">Avancé</string>
-    <string name="summary_style">Police, graisse, taille du texte</string>
     <string name="summary_keyboard">Dispositions, vibration, indications de chiffres, saisie gestuelle</string>
-    <string name="summary_gestures">Balayages sur l’écran d’accueil</string>
+    <string name="summary_gestures">Balayages sur l’écran d’accueil et tracé</string>
     <string name="summary_apps">Applis masquées, noms personnalisés</string>
     <string name="summary_system">Launcher par défaut, langue, confidentialité, avancé</string>
     <string name="summary_advanced">Animation au toucher, mémoire</string>
@@ -164,14 +161,13 @@
     <string name="style_font">Police</string>
     <string name="style_weight">Graisse</string>
     <string name="style_note">La police et la graisse s’appliquent à toute l’appli ; la taille, à la liste de l’écran d’accueil.</string>
-    <string name="style_home_note">La police, l’alignement du texte, la palette, les icônes et l’arrière-plan se règlent désormais sur l’écran d’accueil : touchez ✎ en bas.</string>
     <string name="font_system">Roboto (système)</string>
     <string name="weight_light">Fine</string>
     <string name="weight_regular">Normale</string>
     <string name="weight_medium">Moyenne</string>
     <string name="memory_usefulness">Utilité dans « %1$s »</string>
     <string name="memory_usefulness_note">Un score de 1 à 100 selon la fréquence et la date de vos ouvertures de l’appli dans cet espace. Si une appli absente de l’écran d’accueil a un score nettement supérieur à une appli qui y figure, un « ? » avec une suggestion apparaît en bas à droite.</string>
-    <string name="home_clock_note">Touchez l’horloge pour ouvrir l’appli Horloge. Maintenez l’horloge appuyée pour la déplacer à gauche, au centre ou à droite.</string>
+    <string name="home_clock_note">Touchez l’horloge pour ouvrir l’appli Horloge. Pour la déplacer, touchez le crayon en bas de l’écran d’accueil et faites glisser l’horloge à gauche, au centre ou à droite.</string>
     <string name="settings_back">Retour</string>
     <string name="style_theme">Thème de « %1$s »</string>
     <string name="style_text">Texte</string>

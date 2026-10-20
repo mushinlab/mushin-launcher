@@ -11,6 +11,7 @@
     <string name="home_suggestion">Saran: aplikasi yang lebih sering Anda buka</string>
     <string name="home_edit">Ubah layar utama</string>
     <string name="home_edit_done">Selesai</string>
+    <string name="home_edit_clock">Setelan jam</string>
     <string name="home_edit_background">Latar</string>
     <string name="home_edit_text">Teks</string>
     <string name="home_edit_theme">Tema</string>

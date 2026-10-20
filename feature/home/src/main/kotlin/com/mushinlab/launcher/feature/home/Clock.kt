@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -30,6 +31,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
@@ -40,6 +42,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
+import com.mushinlab.launcher.core.ui.Glyph
+import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.pressFeedback
@@ -94,6 +98,7 @@ fun ClockArea(
     onBounds: (Rect) -> Unit,
     onTap: () -> Unit,
     onMeasured: (area: Int, block: Int) -> Unit,
+    onEdit: ClockEdit? = null,
 ) {
     val density = LocalDensity.current
     val inset = with(density) { HomeDimens.rowPadding.roundToPx() }
@@ -116,6 +121,9 @@ fun ClockArea(
     ) {
         if ((editing || drag != null) && block > 0) {
             ClockSlotMarks(ClockSlots.nearest(left, area, block, inset), area, block, height, inset)
+        }
+        if (editing && onEdit != null && block > 0) {
+            ClockEditButton(onEdit, left, block, height, besideStart = position == ClockPosition.END)
         }
         Column(
             Modifier
@@ -145,6 +153,30 @@ fun ClockArea(
             }
         }
     }
+}
+
+@Immutable
+class ClockEdit(val onClick: () -> Unit, val onBounds: (Rect?) -> Unit)
+
+@Composable
+private fun ClockEditButton(edit: ClockEdit, left: Int, block: Int, height: Int, besideStart: Boolean) {
+    val density = LocalDensity.current
+    val size = with(density) { CLOCK_EDIT_SIZE.roundToPx() }
+    val gap = with(density) { CLOCK_EDIT_GAP.roundToPx() }
+    val x = if (besideStart) left - gap - size else left + block + gap
+    DisposableEffect(Unit) { onDispose { edit.onBounds(null) } }
+    GlyphButton(
+        Glyph.EDIT,
+        stringResource(R.string.home_edit_clock),
+        LocalMushinColors.current.textPrimary,
+        tag = "clock_edit",
+        size = CLOCK_EDIT_SIZE,
+        glyphSize = CLOCK_EDIT_GLYPH,
+        modifier = Modifier
+            .offset { IntOffset(x, (height - size) / 2) }
+            .onGloballyPositioned { edit.onBounds(it.boundsInRoot()) },
+        onClick = edit.onClick,
+    )
 }
 
 @Composable
@@ -219,6 +251,9 @@ private fun ClockDate(minute: State<Long>, position: ClockPosition) {
 }
 
 private val SLOT_RADIUS = 12.dp
+private val CLOCK_EDIT_SIZE = 44.dp
+private val CLOCK_EDIT_GLYPH = 20.dp
+private val CLOCK_EDIT_GAP = 8.dp
 private val SLOT_MARK_WIDTH = 40.dp
 private val SLOT_MARK_HEIGHT = 4.dp
 private val SLOT_MARK_GAP = 6.dp

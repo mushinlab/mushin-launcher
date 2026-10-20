@@ -8,8 +8,6 @@
     <string name="settings_clear">Очистить</string>
     <string name="settings_on">Вкл</string>
     <string name="settings_off">Выкл</string>
-
-    <string name="settings_home">Главный экран</string>
     <string name="settings_keyboard">Клавиатура</string>
     <string name="settings_gestures">Жесты</string>
     <string name="settings_press">Анимация нажатия</string>
@@ -63,6 +61,7 @@
     <string name="picker_full">Выбрано %1$d из %2$d — больше не поместится на главном экране</string>
 
     <string name="home_icons">Иконки</string>
+    <string name="clock_sheet">Часы</string>
     <string name="home_clock">Формат часов</string>
     <string name="home_clock_system">Как в системе</string>
     <string name="home_clock_24">24 часа</string>
@@ -152,11 +151,9 @@
         <item quantity="many">%d рисунков</item>
         <item quantity="other">%d рисунка</item>
     </plurals>
-    <string name="settings_style">Стиль</string>
     <string name="settings_advanced">Дополнительно</string>
-    <string name="summary_style">Шрифт, насыщенность, размер текста</string>
     <string name="summary_keyboard">Раскладки, вибрация, подсказки цифр, рисунок на клавиатуре</string>
-    <string name="summary_gestures">Свайпы на главном экране</string>
+    <string name="summary_gestures">Свайпы на главном экране и линия</string>
     <string name="summary_apps">Скрытые приложения, свои названия</string>
     <string name="summary_system">Лаунчер по умолчанию, язык, конфиденциальность, дополнительно</string>
     <string name="summary_advanced">Анимация нажатия, память</string>
@@ -165,14 +162,13 @@
     <string name="style_font">Шрифт</string>
     <string name="style_weight">Насыщенность</string>
     <string name="style_note">Шрифт и насыщенность действуют во всём приложении, размер — для списка на главном экране.</string>
-    <string name="style_home_note">Шрифт, выравнивание текста, палитра, иконки и фон теперь настраиваются прямо на главном экране: нажмите ✎ внизу.</string>
     <string name="font_system">Roboto (системный)</string>
     <string name="weight_light">Тонкий</string>
     <string name="weight_regular">Обычный</string>
     <string name="weight_medium">Средний</string>
     <string name="memory_usefulness">Полезность в спейсе «%1$s»</string>
     <string name="memory_usefulness_note">Оценка от 1 до 100: как часто и как недавно вы открывали приложение в этом спейсе. Если приложение не на главном экране оценено заметно выше, чем одно из приложений на нём, внизу справа появится «?» с предложением.</string>
-    <string name="home_clock_note">Тап по часам открывает приложение «Часы». Удерживайте часы, чтобы передвинуть их влево, в центр или вправо.</string>
+    <string name="home_clock_note">Тап по часам открывает приложение «Часы». Чтобы передвинуть их, нажмите на карандаш внизу главного экрана и перетащите часы влево, в центр или вправо.</string>
     <string name="settings_back">Назад</string>
     <string name="style_theme">Тема спейса «%1$s»</string>
     <string name="style_text">Текст</string>

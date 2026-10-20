@@ -30,7 +30,7 @@ sealed interface SettingsRoute {
 
     data class PickGestureApp(val direction: SwipeDirection) : SettingsRoute
 
-    data object Style : SettingsRoute
+    data object ClockSheet : SettingsRoute
 
     data object TextSheet : SettingsRoute
 

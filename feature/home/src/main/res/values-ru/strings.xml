@@ -11,6 +11,7 @@
     <string name="home_suggestion">Подсказка: приложение, которое вы открываете чаще</string>
     <string name="home_edit">Изменить главный экран</string>
     <string name="home_edit_done">Готово</string>
+    <string name="home_edit_clock">Настроить часы</string>
     <string name="home_edit_background">Фон</string>
     <string name="home_edit_text">Текст</string>
     <string name="home_edit_theme">Тема</string>

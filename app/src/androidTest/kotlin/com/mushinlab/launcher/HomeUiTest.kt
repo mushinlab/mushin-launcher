@@ -133,6 +133,19 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
+    fun clockEditButtonAppearsOnlyInEditModeAndOpensTheClockSheet() {
+        rule.onNodeWithTag("clock_edit").assertDoesNotExist()
+        rule.onNodeWithTag("home_edit").performClick()
+        val clock = rule.onNodeWithTag("clock_block").fetchSemanticsNode().boundsInRoot
+        val button = rule.onNodeWithTag("clock_edit").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        assertThat(button.left).isAtLeast(clock.right)
+        rule.onNodeWithTag("clock_edit").performClick()
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.ClockSheet }
+        rule.onNodeWithTag("clock_sheet").assertIsDisplayed()
+        assertThat(container.settings.settings.value.clockPosition).isEqualTo(ClockPosition.START)
+    }
+
+    @Test
     fun outsideEditModeHoldingTheClockOpensThePopupAndKeepsItInPlace() {
         val width = rule.onNodeWithTag("home").fetchSemanticsNode().boundsInRoot.width
         rule.onNodeWithTag("clock_block").performTouchInput {

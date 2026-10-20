@@ -102,6 +102,8 @@ interface HomeControlActions {
 interface HomeEditActions {
     fun onEdit()
 
+    fun onEditClock()
+
     fun onEditBackground()
 
     fun onEditText()
@@ -243,6 +245,9 @@ private fun HomeHeader(
             onBounds = registry.clock::set,
             onTap = { actions.value.onClockTap() },
             onMeasured = gestures.clock::measured,
+            onEdit = remember(registry, actions) {
+                ClockEdit(onClick = { actions.value.onEditClock() }, onBounds = { registry.block(CLOCK_EDIT, it) })
+            },
         )
         Spacer(Modifier.height(HomeDimens.listGap - HANDLE_HEIGHT))
     }
@@ -429,5 +434,6 @@ private fun BadgedIcon(row: HomeRow, index: Int, badge: Boolean, modifier: Modif
 }
 
 private const val ROLE_CARD = "role_card"
+private const val CLOCK_EDIT = "clock_edit"
 private const val SHADE_ZONE = 0.2f
 private const val DIMMED_ALPHA = 0.5f

@@ -22,7 +22,7 @@ class LauncherNavigatorTest {
 
     @Test
     fun backClosesTheTopmostLayerFirst() {
-        navigator.openSettings(SettingsRoute.Style)
+        navigator.openSettings(SettingsRoute.Keyboard)
         navigator.overlay = Overlay.Popup(Offset.Zero, null)
         navigator.renameTarget = key("slack")
 

@@ -12,6 +12,7 @@ class SettingsStackTest {
         SettingsRoute.PickApps(7),
         SettingsRoute.BackgroundEditor(7),
         SettingsRoute.PickGestureApp(SwipeDirection.LEFT),
+        SettingsRoute.ClockSheet,
         SettingsRoute.TextSheet,
         SettingsRoute.ThemeSheet,
         SettingsRoute.Memory,
@@ -54,12 +55,12 @@ class SettingsStackTest {
     fun backClosesAnOpenSheetBeforeLeavingThePage() {
         val stack = SettingsStack()
         var sheetClosed = false
-        stack.open(SettingsRoute.Style)
+        stack.open(SettingsRoute.Keyboard)
         stack.sheet = { sheetClosed = true }
 
         assertThat(stack.pop()).isTrue()
         assertThat(sheetClosed).isTrue()
-        assertThat(stack.top).isEqualTo(SettingsRoute.Style)
+        assertThat(stack.top).isEqualTo(SettingsRoute.Keyboard)
     }
 
     @Test

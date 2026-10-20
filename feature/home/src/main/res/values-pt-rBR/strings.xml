@@ -11,6 +11,7 @@
     <string name="home_suggestion">Sugestão: um app que você abre com mais frequência</string>
     <string name="home_edit">Editar tela inicial</string>
     <string name="home_edit_done">Concluir</string>
+    <string name="home_edit_clock">Configurações do relógio</string>
     <string name="home_edit_background">Plano de fundo</string>
     <string name="home_edit_text">Texto</string>
     <string name="home_edit_theme">Tema</string>

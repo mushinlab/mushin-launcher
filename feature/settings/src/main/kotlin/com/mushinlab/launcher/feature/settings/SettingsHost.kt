@@ -74,8 +74,9 @@ private fun SettingsRouteScreen(
         ->
             SpaceRouteScreen(route, state, actions, push, back)
 
-        SettingsRoute.Style, SettingsRoute.Press ->
-            AppearanceRouteScreen(route, state, actions, back)
+        SettingsRoute.Press -> PressSettingsScreen(state, actions, back)
+
+        SettingsRoute.ClockSheet -> ClockSheet(state, actions, back)
 
         SettingsRoute.TextSheet -> TextSheet(state, actions, back)
 
@@ -107,19 +108,6 @@ private fun SpaceRouteScreen(
         is SettingsRoute.BackgroundEditor -> BackgroundEditorScreen(route.spaceId, state, actions, back)
         is SettingsRoute.SpaceEditor -> SpaceEditorScreen(route.spaceId, state, actions, push, back)
         else -> Unit
-    }
-}
-
-@Composable
-private fun AppearanceRouteScreen(
-    route: SettingsRoute,
-    state: SettingsUiState,
-    actions: SettingsActions,
-    back: () -> Unit,
-) {
-    when (route) {
-        SettingsRoute.Press -> PressSettingsScreen(state, actions, back)
-        else -> StyleScreen(state, actions, back)
     }
 }
 
