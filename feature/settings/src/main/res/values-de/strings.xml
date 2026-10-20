@@ -208,14 +208,15 @@
     <string name="settings_tips">Tipps</string>
     <string name="summary_tips">Kurze Animationen dazu, was der Launcher kann</string>
     <string name="tip_space_title">Richte deinen ersten Bereich ein</string>
-    <string name="tip_space_text">Tippe unten auf dem Startbildschirm auf den Stift, wähle eine Palette und hake die Apps an, die du in diesem Bereich haben willst.</string>
+    <string name="tip_space_text">Tippe unten auf dem Startbildschirm auf den Stift und dann auf die Palette, um Farben zu wählen. Tippe auf „Apps hinzufügen“, um die Apps dieses Bereichs auszuwählen.</string>
     <string name="tip_style_title">Passe den Launcher an</string>
-    <string name="tip_style_text">Schrift, Textgröße und Symbole änderst du unter Stil. Um die Uhr zu verschieben, halte sie gedrückt und ziehe sie.</string>
+    <string name="tip_style_text">Tippe auf den Stift und dann auf Tt, um Schrift, Größe und Ausrichtung zu ändern. Beim Bearbeiten kannst du die Uhr oder die Linie über der Liste verschieben.</string>
     <string name="tip_memory_title">Bring dem Launcher etwas bei</string>
     <string name="tip_memory_text">Zeichne unter System → Erweitert → Gedächtnis eine Form für eine App. Zeichne dieselbe Form auf dem Startbildschirm, und der Launcher schlägt diese App vor.</string>
     <string name="tips_more_title">Mehr findest du unter Tipps</string>
     <string name="tips_more_text">Diese Tipps kannst du jederzeit unter Einstellungen → Tipps erneut ansehen.</string>
     <string name="tip_space_name">Privat</string>
+    <string name="tip_add_apps">Apps hinzufügen</string>
     <string-array name="tip_apps">
         <item>Telefon</item>
         <item>Nachrichten</item>

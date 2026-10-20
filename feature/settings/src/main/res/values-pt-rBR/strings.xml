@@ -209,14 +209,15 @@
     <string name="settings_tips">Dicas</string>
     <string name="summary_tips">Animações curtas sobre o que o launcher sabe fazer</string>
     <string name="tip_space_title">Configure seu primeiro espaço</string>
-    <string name="tip_space_text">Toque no lápis na parte de baixo da tela inicial, escolha uma paleta e marque os apps que você quer neste espaço.</string>
+    <string name="tip_space_text">Toque no lápis na parte de baixo da tela inicial e depois na paleta para escolher as cores. Toque em “Adicionar apps” para escolher os apps deste espaço.</string>
     <string name="tip_style_title">Personalize o launcher</string>
-    <string name="tip_style_text">Mude a fonte, o tamanho do texto e os ícones em Estilo. Para mover o relógio, mantenha-o pressionado e arraste.</string>
+    <string name="tip_style_text">Toque no lápis e depois em Tt para mudar a fonte, o tamanho e o alinhamento. Durante a edição, arraste o relógio ou a linha acima da lista para movê-los.</string>
     <string name="tip_memory_title">Ensine o launcher</string>
     <string name="tip_memory_text">Em Sistema → Avançado → Memória, desenhe uma forma para um app. Desenhe a mesma forma na tela inicial e o launcher sugere esse app.</string>
     <string name="tips_more_title">Para mais, explore as Dicas</string>
     <string name="tips_more_text">Reveja estas dicas quando quiser em Configurações → Dicas.</string>
     <string name="tip_space_name">Pessoal</string>
+    <string name="tip_add_apps">Adicionar apps</string>
     <string-array name="tip_apps">
         <item>Telefone</item>
         <item>Mensagens</item>

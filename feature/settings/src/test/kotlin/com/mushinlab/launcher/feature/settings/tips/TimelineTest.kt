@@ -53,6 +53,17 @@ class TimelineTest {
         assertThat(line.moved(Offset(100f, 100f)).first.y).isWithin(TOLERANCE).of(90f)
     }
 
+    @Test
+    fun sheetRisesFollowsTheDragAndHidesWhenClosed() {
+        val top = Scene.HEIGHT - 100f
+
+        assertThat(sheetOffset(top, open = 0f, dragged = 0f, closed = 0f)).isEqualTo(100f)
+        assertThat(sheetOffset(top, open = 1f, dragged = 0f, closed = 0f)).isEqualTo(0f)
+        assertThat(sheetOffset(top, open = 1f, dragged = 30f, closed = 0f)).isEqualTo(30f)
+        assertThat(sheetOffset(top, open = 1f, dragged = 30f, closed = 0.5f)).isWithin(TOLERANCE).of(65f)
+        assertThat(sheetOffset(top, open = 1f, dragged = 30f, closed = 1f)).isEqualTo(100f)
+    }
+
     private companion object {
         const val TOLERANCE = 0.001f
     }

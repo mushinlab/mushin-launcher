@@ -25,6 +25,7 @@
 - Settings → Style keeps only the clock, date and notification counts and the gesture trail. A note points to the home edit mode for font, alignment, palette, icons and background.
 - Every icon button (pencil, “?”, the edit buttons, Back in settings, “+” next to the spaces, search options) and the clock now show the press feedback chosen in Settings → System → Advanced → Press animation.
 - The gap between the list handle and the first home row is three times larger (12 dp instead of 4 dp); the handle stays in place and the list starts 8 dp lower.
+- The tips “Set up your first space” and “Customize the launcher” (also onboarding slides 1 and 2) show the new home edit mode: the pencil turns into a check, the palette and text buttons open their sheets, “Add apps” opens the app picker, and the clock and the list handle are dragged directly. Their texts are updated in all seven languages.
 
 ## 0.3.1 — 2026-10-18
 
