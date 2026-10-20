@@ -21,15 +21,11 @@ import androidx.compose.foundation.layout.systemGestures
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -58,13 +54,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.HomeListOffset
+import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.ui.AppIcon
-import com.mushinlab.launcher.core.ui.Glyph
-import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.LocalMushinColors
-import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.SpaceBackdrop
@@ -75,7 +69,7 @@ import com.mushinlab.launcher.feature.home.gesture.HomeGestureDetector
 import com.mushinlab.launcher.feature.home.gesture.RowRegistry
 import com.mushinlab.launcher.feature.home.gesture.StartZone
 
-interface HomeActions : HomeGestureActions, HomeControlActions
+interface HomeActions : HomeGestureActions, HomeControlActions, HomeEditActions
 
 interface HomeGestureActions {
     fun onRowTap(row: HomeRow, index: Int)
@@ -98,13 +92,21 @@ interface HomeControlActions {
 
     fun onClockMoved(position: ClockPosition)
 
-    fun onEdit()
-
     fun onAddApps()
 
     fun onSuggestion(anchor: Offset)
 
     fun onListOffset(dp: Int)
+}
+
+interface HomeEditActions {
+    fun onEdit()
+
+    fun onEditBackground()
+
+    fun onEditText()
+
+    fun onEditTheme()
 }
 
 object HomeDimens {
@@ -127,6 +129,7 @@ fun HomeScreen(
     actions: HomeActions,
     gesturesEnabled: () -> Boolean,
     modifier: Modifier = Modifier,
+    editing: Boolean = false,
     background: ImageBitmap? = null,
 ) {
     val colors = LocalMushinColors.current
@@ -137,6 +140,7 @@ fun HomeScreen(
     val zone = rememberStartZone()
     val trace = remember { Trace() }
     val gestures = rememberHomeGestures(currentState, currentActions, trace)
+    val currentEditing = rememberUpdatedState(editing)
     Box(
         modifier
             .fillMaxSize()
@@ -144,7 +148,7 @@ fun HomeScreen(
             .onSizeChanged { gestures.width = it.width.toFloat() }
             .testTag("home")
             .pointerInput(arbiter) {
-                HomeGestureDetector(arbiter, registry, { zone.value }, gesturesEnabled, Motion.CLOCK_HOLD_MS)
+                HomeGestureDetector(arbiter, registry, { zone.value }, gesturesEnabled, { currentEditing.value })
                     .detect(this, gestures)
             },
     ) {
@@ -156,7 +160,7 @@ fun HomeScreen(
                 Modifier.fillMaxSize().testTag("home_background"),
             )
         }
-        HomeColumn(state, minute, registry, gestures, currentActions, hasBackground = background != null)
+        HomeColumn(state, minute, registry, gestures, currentActions, editing, hasBackground = background != null)
         TraceLayer(trace)
     }
 }
@@ -168,6 +172,7 @@ private fun HomeColumn(
     registry: RowRegistry,
     gestures: HomeGestureHandler,
     actions: State<HomeActions>,
+    editing: Boolean,
     hasBackground: Boolean,
 ) {
     val colors = LocalMushinColors.current
@@ -189,9 +194,9 @@ private fun HomeColumn(
     }
     Layout(
         content = {
-            HomeHeader(state, minute, registry, gestures, actions)
+            HomeHeader(state, minute, registry, gestures, actions, editing)
             Column(Modifier.fillMaxWidth()) {
-                ListHandle(active = gestures.handle.active, onBounds = registry.handle::set)
+                ListHandle(active = gestures.handle.active, visible = editing, onBounds = registry.handle::set)
                 FavoritesList(
                     state = state,
                     registry = registry,
@@ -204,7 +209,7 @@ private fun HomeColumn(
                 }
             }
             Column(Modifier.fillMaxWidth()) {
-                HomeBar(state.suggestion, registry, actions.value)
+                HomeBar(state.suggestion, editing, registry, actions.value)
                 Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
             }
         },
@@ -220,6 +225,7 @@ private fun HomeHeader(
     registry: RowRegistry,
     gestures: HomeGestureHandler,
     actions: State<HomeActions>,
+    editing: Boolean,
 ) {
     Column(Modifier.fillMaxWidth()) {
         Spacer(Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + HomeDimens.topGap))
@@ -232,46 +238,13 @@ private fun HomeHeader(
             showDate = state.showDate,
             position = gestures.clock.shown,
             drag = gestures.clock.drag,
+            editing = editing,
+            pressed = gestures.pressedClock,
             onBounds = registry.clock::set,
             onTap = { actions.value.onClockTap() },
             onMeasured = gestures.clock::measured,
         )
         Spacer(Modifier.height(HomeDimens.listGap - HANDLE_HEIGHT))
-    }
-}
-
-@Composable
-private fun HomeBar(suggestion: HomeSuggestion?, registry: RowRegistry, actions: HomeActions) {
-    val colors = LocalMushinColors.current
-    val tint = colors.textSecondary.copy(alpha = BAR_ALPHA)
-    Row(
-        Modifier.fillMaxWidth().height(HomeDimens.barHeight).padding(end = 8.dp),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (suggestion != null) {
-            var anchor by remember { mutableStateOf(Offset.Zero) }
-            DisposableEffect(Unit) { onDispose { registry.block(BAR_SUGGEST, null) } }
-            GlyphButton(
-                Glyph.HELP,
-                stringResource(R.string.home_suggestion),
-                colors.accent,
-                tag = "home_suggestion",
-                modifier = Modifier.onGloballyPositioned {
-                    val bounds = it.boundsInRoot()
-                    anchor = bounds.topLeft
-                    registry.block(BAR_SUGGEST, bounds)
-                },
-            ) { actions.onSuggestion(anchor) }
-        }
-        GlyphButton(
-            Glyph.EDIT,
-            stringResource(R.string.home_edit),
-            tint,
-            tag = "home_edit",
-            modifier = Modifier.onGloballyPositioned { registry.block(BAR_EDIT, it.boundsInRoot()) },
-            onClick = actions::onEdit,
-        )
     }
 }
 
@@ -325,6 +298,18 @@ private fun stringResourceRoleCard(): String = androidx.compose.ui.res.stringRes
 @Immutable
 internal class RowStyle(val text: TextStyle, val height: Dp, val color: (Int) -> Color)
 
+@Immutable
+internal data class RowLayout(val iconMode: IconMode, val align: HomeTextAlign) {
+    val icons: Boolean get() = iconMode != IconMode.NONE
+
+    val arrangement: Arrangement.Horizontal
+        get() = when (align) {
+            HomeTextAlign.START -> Arrangement.Start
+            HomeTextAlign.CENTER -> Arrangement.Center
+            HomeTextAlign.END -> Arrangement.End
+        }
+}
+
 @Composable
 private fun FavoritesList(
     state: HomeUiState,
@@ -346,7 +331,7 @@ private fun FavoritesList(
                 FavoriteRow(
                     index,
                     row,
-                    state.iconMode,
+                    RowLayout(state.iconMode, state.textAlign),
                     rowStyle.text,
                     rowStyle.height,
                     registry,
@@ -355,7 +340,13 @@ private fun FavoritesList(
                 )
             }
             if (state.rows.size < capacity) {
-                AddAppsRow(state.iconMode, rowStyle, rowStyle.color(visible.size), registry, onAddApps)
+                AddAppsRow(
+                    RowLayout(state.iconMode, state.textAlign),
+                    rowStyle,
+                    rowStyle.color(visible.size),
+                    registry,
+                    onAddApps,
+                )
             }
         }
     }
@@ -365,7 +356,7 @@ private fun FavoritesList(
 private fun FavoriteRow(
     index: Int,
     row: HomeRow,
-    iconMode: IconMode,
+    layout: RowLayout,
     textStyle: TextStyle,
     height: Dp,
     registry: RowRegistry,
@@ -391,12 +382,12 @@ private fun FavoriteRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val rowAlpha = if (row.dimmed) DIMMED_ALPHA else 1f
-        val badgeOnIcon = iconMode != IconMode.NONE && row.notifications > 0
-        if (iconMode == IconMode.LEFT) {
-            BadgedIcon(row, index, badgeOnIcon, Modifier.alpha(rowAlpha))
-            Spacer(Modifier.width(HomeDimens.iconGap))
-        }
-        Row(Modifier.weight(1f).alpha(rowAlpha), verticalAlignment = Alignment.CenterVertically) {
+        val badgeOnIcon = layout.icons && row.notifications > 0
+        Row(
+            Modifier.weight(1f).alpha(rowAlpha),
+            horizontalArrangement = layout.arrangement,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             SingleLineText(row.label, textStyle, Modifier.weight(1f, fill = false))
             if (row.work) {
                 Spacer(Modifier.width(6.dp))
@@ -412,7 +403,7 @@ private fun FavoriteRow(
                 SwipeMarks(row.swipes, textStyle.fontSize, colors.textSecondary, Modifier.testTag("swipe_$index"))
             }
         }
-        if (iconMode == IconMode.RIGHT) {
+        if (layout.icons) {
             Spacer(Modifier.width(HomeDimens.iconGap))
             BadgedIcon(row, index, badgeOnIcon, Modifier.alpha(rowAlpha))
         }
@@ -438,8 +429,5 @@ private fun BadgedIcon(row: HomeRow, index: Int, badge: Boolean, modifier: Modif
 }
 
 private const val ROLE_CARD = "role_card"
-private const val BAR_EDIT = "bar_edit"
-private const val BAR_SUGGEST = "bar_suggest"
-private const val BAR_ALPHA = 0.7f
 private const val SHADE_ZONE = 0.2f
 private const val DIMMED_ALPHA = 0.5f

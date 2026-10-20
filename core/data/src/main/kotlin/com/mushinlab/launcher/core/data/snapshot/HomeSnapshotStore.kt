@@ -4,6 +4,7 @@ import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.HomeListOffset
+import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.Palette
@@ -33,13 +34,15 @@ data class HomeSnapshot(
     val rows: List<SnapshotRow>,
     val clockPosition: ClockPosition = ClockPosition.START,
     val listOffset: Int? = null,
+    val textAlign: HomeTextAlign = HomeTextAlign.START,
 )
 
 /**
  * Stores one [HomeSnapshot] as a small versioned binary file for an instant first frame after process start.
  *
- * Writes go to a temporary file and are renamed into place. [read] returns null for a missing, corrupt or
- * older-version file. Both methods block on file I/O.
+ * Writes go to a temporary file and are renamed into place. [read] returns null for a missing or corrupt file
+ * and for versions before 3; a version 3 file has no text alignment and reads as [HomeTextAlign.START]. Both
+ * methods block on file I/O.
  */
 class HomeSnapshotStore(directory: File) {
     private val file = File(directory, FILE_NAME)
@@ -48,7 +51,8 @@ class HomeSnapshotStore(directory: File) {
     fun read(): HomeSnapshot? = runCatching {
         if (!file.exists()) return null
         DataInputStream(file.inputStream().buffered()).use { input ->
-            if (input.readInt() != VERSION) return null
+            val version = input.readInt()
+            if (version != VERSION && version != NO_ALIGN_VERSION) return null
             val spaceId = input.readLong()
             val palette = Palette(
                 background = input.readInt(),
@@ -70,6 +74,7 @@ class HomeSnapshotStore(directory: File) {
             val showDate = input.readBoolean()
             val clockPosition = ClockPosition.valueOf(input.readUTF())
             val listOffset = input.readInt().takeIf { it in 0..HomeListOffset.MAX_DP }
+            val textAlign = if (version == VERSION) HomeTextAlign.valueOf(input.readUTF()) else HomeTextAlign.START
             val count = input.readInt()
             require(count in 0..MAX_ROWS)
             val rows = List(count) {
@@ -80,7 +85,18 @@ class HomeSnapshotStore(directory: File) {
                     work = input.readBoolean(),
                 )
             }
-            HomeSnapshot(spaceId, palette, iconMode, textSize, clockFormat, showDate, rows, clockPosition, listOffset)
+            HomeSnapshot(
+                spaceId,
+                palette,
+                iconMode,
+                textSize,
+                clockFormat,
+                showDate,
+                rows,
+                clockPosition,
+                listOffset,
+                textAlign,
+            )
         }
     }.getOrNull()
 
@@ -102,6 +118,7 @@ class HomeSnapshotStore(directory: File) {
                 out.writeBoolean(snapshot.showDate)
                 out.writeUTF(snapshot.clockPosition.name)
                 out.writeInt(snapshot.listOffset ?: AUTO_LIST_OFFSET)
+                out.writeUTF(snapshot.textAlign.name)
                 out.writeInt(snapshot.rows.size)
                 snapshot.rows.forEach { row ->
                     out.writeUTF(row.key.packageName)
@@ -119,7 +136,8 @@ class HomeSnapshotStore(directory: File) {
     private companion object {
         const val MAX_ROWS = 512
         const val FILE_NAME = "home_snapshot.bin"
-        const val VERSION = 3
+        const val VERSION = 4
+        const val NO_ALIGN_VERSION = 3
         const val AUTO_LIST_OFFSET = -1
     }
 }

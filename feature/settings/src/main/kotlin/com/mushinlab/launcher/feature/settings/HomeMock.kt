@@ -2,7 +2,7 @@ package com.mushinlab.launcher.feature.settings
 
 import android.text.format.DateFormat
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -35,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
+import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
@@ -112,13 +112,7 @@ private fun MockList(settings: LauncherSettings, overImage: Boolean, rowAlpha: F
     val text = MushinType.style(settings.homeTextSize.sp.sp, colors.textPrimary)
     val rowHeight = mockRowHeight(text)
     Column(Modifier.fillMaxWidth()) {
-        Box(Modifier.fillMaxWidth().height(HANDLE_HEIGHT), contentAlignment = Alignment.Center) {
-            Box(
-                Modifier
-                    .size(HANDLE_WIDTH, HANDLE_THICKNESS)
-                    .background(colors.textSecondary.copy(alpha = HANDLE_ALPHA), RoundedCornerShape(HANDLE_THICKNESS)),
-            )
-        }
+        Spacer(Modifier.height(HANDLE_HEIGHT))
         repeat(MOCK_ROWS) { index ->
             Row(
                 Modifier
@@ -127,6 +121,11 @@ private fun MockList(settings: LauncherSettings, overImage: Boolean, rowAlpha: F
                     .background(colors.row(index, overImage, rowAlpha))
                     .testTag("background_mock_row_$index")
                     .padding(horizontal = ROW_PADDING),
+                horizontalArrangement = when (settings.homeTextAlign) {
+                    HomeTextAlign.START -> Arrangement.Start
+                    HomeTextAlign.CENTER -> Arrangement.Center
+                    HomeTextAlign.END -> Arrangement.End
+                },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 SingleLineText(stringResource(R.string.background_mock_app, index + 1), text)
@@ -146,12 +145,9 @@ private fun mockRowHeight(text: TextStyle): Dp {
 }
 
 private const val MOCK_ROWS = 5
-private const val HANDLE_ALPHA = 0.35f
 private val TOP_GAP = 40.dp
 private val LIST_GAP = 32.dp
 private val ROW_HEIGHT = 64.dp
 private val ROW_TEXT_MARGIN = 16.dp
 private val ROW_PADDING = 24.dp
 private val HANDLE_HEIGHT = 24.dp
-private val HANDLE_WIDTH = 36.dp
-private val HANDLE_THICKNESS = 4.dp

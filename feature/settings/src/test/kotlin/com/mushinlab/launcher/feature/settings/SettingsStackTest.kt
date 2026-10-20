@@ -12,6 +12,8 @@ class SettingsStackTest {
         SettingsRoute.PickApps(7),
         SettingsRoute.BackgroundEditor(7),
         SettingsRoute.PickGestureApp(SwipeDirection.LEFT),
+        SettingsRoute.TextSheet,
+        SettingsRoute.ThemeSheet,
         SettingsRoute.Memory,
         SettingsRoute.MemoryApp(AppKey("org.telegram", "org.telegram.Main\$Alias", 10), sketch = true),
         SettingsRoute.MemoryPickApp,

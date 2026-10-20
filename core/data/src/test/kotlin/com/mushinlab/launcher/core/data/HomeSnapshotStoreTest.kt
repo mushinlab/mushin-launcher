@@ -7,6 +7,7 @@ import com.mushinlab.launcher.core.data.snapshot.SnapshotRow
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
+import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.Palettes
@@ -26,13 +27,14 @@ class HomeSnapshotStoreTest {
         val snapshot = HomeSnapshot(
             spaceId = 3,
             palette = Palettes.Paper,
-            iconMode = IconMode.LEFT,
+            iconMode = IconMode.RIGHT,
             textSize = HomeTextSize.L,
             clockFormat = ClockFormat.H12,
             showDate = false,
             rows = listOf(SnapshotRow(AppKey("com.slack", "Main", 10), "Слак", dimmed = true, work = true)),
             clockPosition = ClockPosition.END,
             listOffset = 64,
+            textAlign = HomeTextAlign.CENTER,
         )
         store.write(snapshot)
         assertThat(store.read()).isEqualTo(snapshot)
@@ -69,6 +71,13 @@ class HomeSnapshotStoreTest {
         val snapshot = HomeSnapshotStore(tmp.root).read()
         assertThat(snapshot?.listOffset).isEqualTo(120)
         assertThat(snapshot?.rows?.single()?.label).isEqualTo("Maps")
+        assertThat(snapshot?.textAlign).isEqualTo(HomeTextAlign.START)
+    }
+
+    @Test
+    fun fileWithIconsOnTheLeftFromAnOlderReleaseIsIgnored() {
+        writeVersion3(listOffset = 0, iconMode = "LEFT")
+        assertThat(HomeSnapshotStore(tmp.root).read()).isNull()
     }
 
     @Test
@@ -87,13 +96,13 @@ class HomeSnapshotStoreTest {
         assertThat(HomeSnapshotStore(tmp.root).read()).isNull()
     }
 
-    private fun writeVersion3(listOffset: Int, rowCount: Int = 1) {
+    private fun writeVersion3(listOffset: Int, rowCount: Int = 1, iconMode: String = "NONE") {
         DataOutputStream(tmp.root.resolve("home_snapshot.bin").outputStream()).use { out ->
             out.writeInt(3)
             out.writeLong(5)
             repeat(11) { out.writeInt(0xFF000000.toInt()) }
             out.writeBoolean(true)
-            out.writeUTF("NONE")
+            out.writeUTF(iconMode)
             out.writeUTF("M")
             out.writeUTF("SYSTEM")
             out.writeBoolean(true)

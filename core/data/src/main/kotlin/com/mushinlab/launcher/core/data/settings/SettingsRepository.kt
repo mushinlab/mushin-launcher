@@ -94,6 +94,7 @@ class SettingsRepository(
         internal val FONT = stringPreferencesKey("font")
         internal val FONT_WEIGHT = stringPreferencesKey("font_weight")
         internal val HOME_TEXT_SIZE = stringPreferencesKey("home_text_size")
+        internal val HOME_TEXT_ALIGN = stringPreferencesKey("home_text_align")
         internal val STROKE_WIDTH = intPreferencesKey("stroke_width")
         internal val STROKE_COLOR = stringPreferencesKey("stroke_color")
         internal val STROKE_DOTS = booleanPreferencesKey("stroke_dots")
@@ -127,6 +128,7 @@ class SettingsRepository(
                 font = enumOr(prefs[FONT], defaults.font),
                 fontWeight = enumOr(prefs[FONT_WEIGHT], defaults.fontWeight),
                 homeTextSize = enumOr(prefs[HOME_TEXT_SIZE], defaults.homeTextSize),
+                homeTextAlign = enumOr(prefs[HOME_TEXT_ALIGN], defaults.homeTextAlign),
                 strokeWidth = prefs.valueOr(STROKE_WIDTH, defaults.strokeWidth)
                     .coerceIn(StrokeWidth.MIN_DP, StrokeWidth.MAX_DP),
                 strokeColor = enumOr(prefs[STROKE_COLOR], defaults.strokeColor),
@@ -164,6 +166,7 @@ class SettingsRepository(
             prefs[FONT] = settings.font.name
             prefs[FONT_WEIGHT] = settings.fontWeight.name
             prefs[HOME_TEXT_SIZE] = settings.homeTextSize.name
+            prefs[HOME_TEXT_ALIGN] = settings.homeTextAlign.name
             prefs[STROKE_WIDTH] = settings.strokeWidth
             prefs[STROKE_COLOR] = settings.strokeColor.name
             prefs[STROKE_DOTS] = settings.strokeDots

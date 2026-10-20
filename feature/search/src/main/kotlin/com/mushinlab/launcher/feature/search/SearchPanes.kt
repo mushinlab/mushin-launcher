@@ -20,7 +20,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -61,7 +67,11 @@ internal fun ResultsPane(
         return
     }
     val selected = controller.selected
-    LazyColumn(modifier.testTag("results"), state = listState, reverseLayout = true) {
+    LazyColumn(
+        modifier.fadingTopEdge { listState.canScrollForward }.testTag("results"),
+        state = listState,
+        reverseLayout = true,
+    ) {
         itemsIndexed(rows, key = { _, row -> row.key.id }) { index, row ->
             Column {
                 if (row.recent && rows.getOrNull(index + 1)?.recent == false) {
@@ -127,10 +137,6 @@ private fun AppRowItem(
             .padding(horizontal = SearchDimens.padding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (iconMode == IconMode.LEFT) {
-            AppIcon(key, label, iconSize)
-            Spacer(Modifier.width(12.dp))
-        }
         Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
             SingleLineText(label, textStyle, Modifier.weight(1f, fill = false))
             if (swipes.isNotEmpty()) {
@@ -151,3 +157,19 @@ private fun AppRowItem(
         }
     }
 }
+
+private fun Modifier.fadingTopEdge(overflowing: () -> Boolean): Modifier = this
+    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+    .drawWithContent {
+        drawContent()
+        if (overflowing()) {
+            val height = TOP_FADE.toPx()
+            drawRect(
+                Brush.verticalGradient(0f to Color.Transparent, 1f to Color.Black, endY = height),
+                size = Size(size.width, height),
+                blendMode = BlendMode.DstIn,
+            )
+        }
+    }
+
+private val TOP_FADE = 48.dp

@@ -9,7 +9,11 @@
     <string name="popup_remove_from_space">Убрать из спейса</string>
     <string name="popup_uninstall">Удалить</string>
     <string name="home_suggestion">Подсказка: приложение, которое вы открываете чаще</string>
-    <string name="home_edit">Изменить спейс</string>
+    <string name="home_edit">Изменить главный экран</string>
+    <string name="home_edit_done">Готово</string>
+    <string name="home_edit_background">Фон</string>
+    <string name="home_edit_text">Текст</string>
+    <string name="home_edit_theme">Тема</string>
     <string name="home_add_apps">Добавить приложения</string>
     <string name="home_add_apps_inline">+ Добавить приложения</string>
     <string name="suggest_header">Чаще открываете «%1$s»</string>

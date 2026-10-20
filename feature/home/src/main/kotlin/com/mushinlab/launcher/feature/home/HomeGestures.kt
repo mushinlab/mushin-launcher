@@ -116,9 +116,12 @@ internal class HomeGestureHandler(
     var width by mutableFloatStateOf(0f)
     var pressedRow by mutableStateOf<Int?>(null)
         private set
+    var pressedClock by mutableStateOf(false)
+        private set
 
-    override fun onRowPressed(index: Int?) {
-        pressedRow = index
+    override fun onPressed(rowIndex: Int?, clock: Boolean) {
+        pressedRow = rowIndex
+        pressedClock = clock
     }
 
     override fun onRowTap(index: Int) {

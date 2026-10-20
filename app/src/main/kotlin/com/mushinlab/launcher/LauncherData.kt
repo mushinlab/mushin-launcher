@@ -74,6 +74,7 @@ internal fun homeState(
         rows = rows.toImmutableList(),
         iconMode = d.settings.iconMode,
         textSize = d.settings.homeTextSize,
+        textAlign = d.settings.homeTextAlign,
         clockFormat = d.settings.clockFormat,
         showDate = d.settings.showDate,
         clockPosition = d.settings.clockPosition,
@@ -92,6 +93,7 @@ internal fun snapshotState(snapshot: HomeSnapshot?, roleHeld: Boolean): HomeUiSt
         rows = snapshot.rows.map { HomeRow(it.key, it.label, it.dimmed, it.work) }.toImmutableList(),
         iconMode = snapshot.iconMode,
         textSize = snapshot.textSize,
+        textAlign = snapshot.textAlign,
         clockFormat = snapshot.clockFormat,
         showDate = snapshot.showDate,
         clockPosition = snapshot.clockPosition,
@@ -112,6 +114,7 @@ internal fun homeSnapshot(d: LauncherData, state: HomeUiState): HomeSnapshot? {
         rows = state.rows.map { SnapshotRow(it.key, it.label, it.dimmed, it.work) },
         clockPosition = state.clockPosition,
         listOffset = state.homeListOffset,
+        textAlign = state.textAlign,
     )
 }
 

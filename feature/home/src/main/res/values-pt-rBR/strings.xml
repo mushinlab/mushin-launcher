@@ -9,7 +9,11 @@
     <string name="popup_remove_from_space">Remover do espaço</string>
     <string name="popup_uninstall">Desinstalar</string>
     <string name="home_suggestion">Sugestão: um app que você abre com mais frequência</string>
-    <string name="home_edit">Editar espaço</string>
+    <string name="home_edit">Editar tela inicial</string>
+    <string name="home_edit_done">Concluir</string>
+    <string name="home_edit_background">Plano de fundo</string>
+    <string name="home_edit_text">Texto</string>
+    <string name="home_edit_theme">Tema</string>
     <string name="home_add_apps">Adicionar apps</string>
     <string name="home_add_apps_inline">+ Adicionar apps</string>
     <string name="suggest_header">Você abre “%1$s” com mais frequência</string>

@@ -21,7 +21,6 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.ui.GlyphWrapper
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.PopupStyle
@@ -31,7 +30,7 @@ import com.mushinlab.launcher.feature.home.gesture.RowRegistry
 
 @Composable
 internal fun AddAppsRow(
-    iconMode: IconMode,
+    layout: RowLayout,
     rowStyle: RowStyle,
     background: Color,
     registry: RowRegistry,
@@ -49,16 +48,14 @@ internal fun AddAppsRow(
             .padding(horizontal = HomeDimens.rowPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (iconMode == IconMode.LEFT) {
-            PlusIcon()
-            Spacer(Modifier.width(HomeDimens.iconGap))
+        Row(Modifier.weight(1f), horizontalArrangement = layout.arrangement) {
+            SingleLineText(
+                stringResource(if (layout.icons) R.string.home_add_apps else R.string.home_add_apps_inline),
+                rowStyle.text,
+                Modifier.testTag("home_add_label"),
+            )
         }
-        SingleLineText(
-            stringResource(if (iconMode == IconMode.NONE) R.string.home_add_apps_inline else R.string.home_add_apps),
-            rowStyle.text,
-            Modifier.weight(1f).testTag("home_add_label"),
-        )
-        if (iconMode == IconMode.RIGHT) {
+        if (layout.icons) {
             Spacer(Modifier.width(HomeDimens.iconGap))
             PlusIcon()
         }

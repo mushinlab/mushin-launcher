@@ -11,6 +11,7 @@ import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
+import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.KeyboardLanguages
@@ -43,13 +44,14 @@ class SettingsRepositoryTest {
         val settings = repo.settings.first()
         assertThat(settings).isEqualTo(LauncherSettings())
         assertThat(settings.currentSpaceId).isNull()
-        assertThat(settings.iconMode).isEqualTo(IconMode.LEFT)
+        assertThat(settings.iconMode).isEqualTo(IconMode.RIGHT)
         assertThat(settings.clockFormat).isEqualTo(ClockFormat.SYSTEM)
         assertThat(settings.showDate).isTrue()
         assertThat(settings.clockPosition).isEqualTo(ClockPosition.START)
         assertThat(settings.font).isEqualTo(AppFont.SYSTEM)
         assertThat(settings.fontWeight).isEqualTo(AppFontWeight.REGULAR)
         assertThat(settings.homeTextSize).isEqualTo(HomeTextSize.M)
+        assertThat(settings.homeTextAlign).isEqualTo(HomeTextAlign.START)
         assertThat(settings.notificationCounts).isFalse()
         assertThat(settings.pressFeedback).isEqualTo(PressFeedback.FLASH)
         assertThat(settings.keyboardLayouts).containsExactly("en", "ru").inOrder()
@@ -76,7 +78,8 @@ class SettingsRepositoryTest {
         repo.update {
             it.copy(
                 currentSpaceId = 7,
-                iconMode = IconMode.RIGHT,
+                iconMode = IconMode.NONE,
+                homeTextAlign = HomeTextAlign.CENTER,
                 keyboardLayouts = listOf("ru", "en"),
                 keyboardWidth = 0.1f,
                 keyboardShift = -0.5f,
@@ -92,7 +95,8 @@ class SettingsRepositoryTest {
             )
         }
         val settings = repo.settings.first { it.currentSpaceId == 7L }
-        assertThat(settings.iconMode).isEqualTo(IconMode.RIGHT)
+        assertThat(settings.iconMode).isEqualTo(IconMode.NONE)
+        assertThat(settings.homeTextAlign).isEqualTo(HomeTextAlign.CENTER)
         assertThat(settings.keyboardWidth).isEqualTo(0.6f)
         assertThat(settings.keyboardShift).isEqualTo(-0.5f)
         assertThat(settings.homeListOffset).isEqualTo(480)
@@ -106,7 +110,7 @@ class SettingsRepositoryTest {
         assertThat(settings.font).isEqualTo(AppFont.MONTSERRAT)
         assertThat(settings.fontWeight).isEqualTo(AppFontWeight.LIGHT)
         repo.update { it.copy(currentSpaceId = null) }
-        assertThat(repo.settings.first { it.currentSpaceId == null }.iconMode).isEqualTo(IconMode.RIGHT)
+        assertThat(repo.settings.first { it.currentSpaceId == null }.iconMode).isEqualTo(IconMode.NONE)
     }
 
     @Test
@@ -115,15 +119,24 @@ class SettingsRepositoryTest {
         val store = PreferenceDataStoreFactory.create(scope = backgroundScope) { file }
         val repo = SettingsRepository(store, backgroundScope)
         val key = intPreferencesKey("home_list_offset")
-        repo.update { it.copy(iconMode = IconMode.LEFT) }
-        assertThat(repo.settings.first { it.iconMode == IconMode.LEFT }.homeListOffset).isNull()
+        repo.update { it.copy(iconMode = IconMode.NONE) }
+        assertThat(repo.settings.first { it.iconMode == IconMode.NONE }.homeListOffset).isNull()
         assertThat(store.data.first().contains(key)).isFalse()
         repo.update { it.copy(homeListOffset = 0) }
         assertThat(repo.settings.first { it.homeListOffset != null }.homeListOffset).isEqualTo(0)
         assertThat(store.data.first()[key]).isEqualTo(0)
         repo.update { it.copy(homeListOffset = null) }
-        assertThat(repo.settings.first { it.homeListOffset == null }.iconMode).isEqualTo(IconMode.LEFT)
+        assertThat(repo.settings.first { it.homeListOffset == null }.iconMode).isEqualTo(IconMode.NONE)
         assertThat(store.data.first().contains(key)).isFalse()
+    }
+
+    @Test
+    fun iconsSavedOnTheLeftAreShownOnTheRight() = runTest {
+        val file = File(tmp.root, "settings.preferences_pb")
+        val store = PreferenceDataStoreFactory.create(scope = backgroundScope) { file }
+        store.edit { it[stringPreferencesKey("icon_mode")] = "LEFT" }
+        val repo = SettingsRepository(store, backgroundScope)
+        assertThat(repo.loaded.filterNotNull().first().iconMode).isEqualTo(IconMode.RIGHT)
     }
 
     @Test
@@ -167,7 +180,7 @@ class SettingsRepositoryTest {
         val store = PreferenceDataStoreFactory.create(scope = backgroundScope) { file }
         val key = floatPreferencesKey("background_opacity")
         val repo = SettingsRepository(store, backgroundScope)
-        repo.update { it.copy(iconMode = IconMode.LEFT) }
+        repo.update { it.copy(iconMode = IconMode.NONE) }
         assertThat(store.data.first().contains(key)).isFalse()
         assertThat(repo.legacyBackgroundOpacity()).isNull()
         store.edit { it[key] = 0.3f }

@@ -159,14 +159,13 @@ private const val ACCENT_ALPHA = 0.35f
 
 /**
  * Animation and hold durations in ms. [TRANSITION_MS] is the upper bound for any transition (ADR-0003);
- * [HOLD_MS] and [CLOCK_HOLD_MS] are hold durations for deliberate actions.
+ * [HOLD_MS] is the hold duration for deliberate actions.
  */
 object Motion {
     const val TRANSITION_MS = 200
     const val PRESS_FADE_MS = 200
     const val PRESS_HOLD_MS = 100L
     const val HOLD_MS = 1000L
-    const val CLOCK_HOLD_MS = 700L
 }
 
 /** Full width with a fixed [height]. */

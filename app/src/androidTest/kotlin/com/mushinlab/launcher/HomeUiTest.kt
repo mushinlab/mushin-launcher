@@ -26,6 +26,7 @@ import com.mushinlab.launcher.core.apps.NotificationSource
 import com.mushinlab.launcher.core.data.repo.HistoryRepository
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.GestureAction
+import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.Usefulness
@@ -114,21 +115,34 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun holdingTheClockShowsThreeSlotsAndDropsItIntoTheNearest() {
-        rule.onNodeWithTag("clock_block").performTouchInput {
-            down(center)
-            advanceEventTime(900)
-            moveBy(Offset(1f, 0f))
-        }
+    fun editModeShowsTheClockSlotsAndDraggingDropsItIntoTheNearest() {
+        rule.onNodeWithTag("clock_slot_END").assertDoesNotExist()
+        rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("clock_slot_START").assertExists()
         rule.onNodeWithTag("clock_slot_CENTER").assertExists()
         rule.onNodeWithTag("clock_slot_END").assertExists()
         val width = rule.onNodeWithTag("home").fetchSemanticsNode().boundsInRoot.width
         rule.onNodeWithTag("clock_block").performTouchInput {
+            down(center)
             moveBy(Offset(width, 0f))
             up()
         }
         rule.waitUntil(5_000) { container.settings.settings.value.clockPosition == ClockPosition.END }
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("clock_slot_END").assertDoesNotExist()
+    }
+
+    @Test
+    fun outsideEditModeHoldingTheClockOpensThePopupAndKeepsItInPlace() {
+        val width = rule.onNodeWithTag("home").fetchSemanticsNode().boundsInRoot.width
+        rule.onNodeWithTag("clock_block").performTouchInput {
+            down(center)
+            advanceEventTime(900)
+            moveBy(Offset(width, 0f))
+            up()
+        }
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.overlay is Overlay.Popup }
+        assertThat(container.settings.settings.value.clockPosition).isEqualTo(ClockPosition.START)
         rule.onNodeWithTag("clock_slot_END").assertDoesNotExist()
     }
 
@@ -165,14 +179,11 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun holdingTheHandleAndDraggingMovesTheListTogetherWithTheHandle() {
+    fun inEditModeDraggingTheHandleMovesTheListTogetherWithTheHandle() {
         val before = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.top
+        rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("list_handle").performTouchInput {
             down(center)
-            advanceEventTime(viewConfiguration.longPressTimeoutMillis + 200)
-            moveBy(Offset(0f, 1f))
-        }
-        rule.onNodeWithTag("list_handle").performTouchInput {
             moveBy(Offset(0f, 200f))
             up()
         }
@@ -198,12 +209,9 @@ class HomeUiTest : LauncherUiTestBase() {
         val rowHeight = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.height
         val bar = rule.onNodeWithTag("home_edit").fetchSemanticsNode().boundsInRoot
         assertThat(bar.top - auto.bottom).isAtLeast(rowHeight * 4 - 1f)
+        rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("list_handle").performTouchInput {
             down(center)
-            advanceEventTime(viewConfiguration.longPressTimeoutMillis + 200)
-            moveBy(Offset(0f, -1f))
-        }
-        rule.onNodeWithTag("list_handle").performTouchInput {
             moveBy(Offset(0f, -150f))
             up()
         }
@@ -232,31 +240,42 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun addAppsLabelLinesUpWithAppNamesWhenIconsAreShown() {
+    fun iconsSitAtTheRowEndAndLabelsFollowTheTextAlignment() {
         val label = rule.onNodeWithTag("row_0").fetchSemanticsNode()
             .config[SemanticsProperties.ContentDescription]
             .first()
-        val nameLeft = {
+        val name = {
             rule.onAllNodes(hasText(label) and hasAnyAncestor(hasTestTag("row_0")), useUnmergedTree = true)
                 .onFirst()
                 .fetchSemanticsNode()
                 .boundsInRoot
-                .left
         }
-        val addLeft = {
-            rule.onNodeWithTag("home_add_label", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.left
+        val add = { rule.onNodeWithTag("home_add_label", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot }
+        val gap = with(rule.density) { 40.dp.toPx() }
+        fun show(align: HomeTextAlign) {
+            runBlocking { container.settings.update { it.copy(iconMode = IconMode.RIGHT, homeTextAlign = align) } }
+            rule.waitUntil(5_000) {
+                rule.activity.launcher.home.value.let { it.iconMode == IconMode.RIGHT && it.textAlign == align }
+            }
+            rule.waitForIdle()
         }
         try {
-            listOf(IconMode.LEFT, IconMode.RIGHT).forEach { mode ->
-                runBlocking { container.settings.update { it.copy(iconMode = mode) } }
-                rule.waitUntil(5_000) { rule.activity.launcher.home.value.iconMode == mode }
-                rule.waitForIdle()
-                assertThat(addLeft()).isWithin(1f).of(nameLeft())
-            }
+            show(HomeTextAlign.START)
             val row = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot
-            assertThat(addLeft() - row.left).isLessThan(with(rule.density) { 40.dp.toPx() })
+            val icon = rule.onNodeWithTag("home_add_icon", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+            assertThat(row.right - icon.right).isLessThan(gap)
+            assertThat(name().left - row.left).isLessThan(gap)
+            assertThat(add().left).isWithin(1f).of(name().left)
+            show(HomeTextAlign.END)
+            assertThat(icon.left - add().right).isLessThan(gap)
+            assertThat(add().right).isWithin(1f).of(name().right)
+            show(HomeTextAlign.CENTER)
+            assertThat(add().center.x).isWithin(1f).of(name().center.x)
+            assertThat(name().center.x).isWithin(gap).of((row.left + icon.left) / 2)
         } finally {
-            runBlocking { container.settings.update { it.copy(iconMode = IconMode.NONE) } }
+            runBlocking {
+                container.settings.update { it.copy(iconMode = IconMode.NONE, homeTextAlign = HomeTextAlign.START) }
+            }
         }
     }
 

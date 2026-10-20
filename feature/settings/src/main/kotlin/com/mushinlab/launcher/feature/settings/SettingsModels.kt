@@ -32,6 +32,10 @@ sealed interface SettingsRoute {
 
     data object Style : SettingsRoute
 
+    data object TextSheet : SettingsRoute
+
+    data object ThemeSheet : SettingsRoute
+
     data object Advanced : SettingsRoute
 
     data object Keyboard : SettingsRoute

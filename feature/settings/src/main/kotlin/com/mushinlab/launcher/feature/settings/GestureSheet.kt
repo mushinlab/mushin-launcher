@@ -1,22 +1,14 @@
 package com.mushinlab.launcher.feature.settings
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
@@ -32,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -42,15 +33,12 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.drawText
@@ -67,12 +55,9 @@ import com.mushinlab.launcher.core.search.Shapes
 import com.mushinlab.launcher.core.search.TimedPoint
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.LocalMushinStroke
-import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.drawVectors
 import com.mushinlab.launcher.core.ui.pressable
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun GestureSheet(
@@ -83,89 +68,26 @@ internal fun GestureSheet(
     onClose: () -> Unit,
 ) {
     val colors = LocalMushinColors.current
-    val density = LocalDensity.current
-    val scope = rememberCoroutineScope()
-    val drag = remember { Animatable(0f) }
     val currentClose by rememberUpdatedState(onClose)
     DisposableEffect(stack) {
         stack.sheet = { currentClose() }
         onDispose { stack.sheet = null }
     }
     val pad = remember { PadState(draft) }
-    BoxWithConstraints(
-        Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = SHEET_SCRIM))
-            .pointerInput(Unit) { detectTapGestures { currentClose() } }
-            .testTag("gesture_sheet_scrim"),
-    ) {
-        val sheetHeight = maxHeight * SHEET_FRACTION
-        val sheetPx = with(density) { sheetHeight.toPx() }
-        Column(
-            Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(sheetHeight)
-                .graphicsLayer { translationY = drag.value }
-                .clip(RoundedCornerShape(topStart = SHEET_RADIUS, topEnd = SHEET_RADIUS))
-                .background(colors.surface)
-                .pointerInput(Unit) { detectTapGestures { } }
-                .testTag("gesture_sheet"),
-        ) {
-            SheetHandle(drag, sheetPx, scope) { currentClose() }
-            BasicText(
-                label,
-                style = MushinType.style(20.sp, colors.textPrimary, FontWeight.Medium),
-                modifier = Modifier.padding(horizontal = CARD_PADDING),
-            )
-            Spacer(Modifier.height(4.dp))
-            SheetHint(pad)
-            Spacer(Modifier.weight(1f))
-            DrawPad(pad)
-            Spacer(Modifier.height(16.dp))
-            SheetButtons(pad, onAdd) { currentClose() }
-            Spacer(Modifier.height(16.dp))
-            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
-        }
-    }
-}
-
-@Composable
-private fun SheetHandle(
-    drag: Animatable<Float, AnimationVector1D>,
-    sheetPx: Float,
-    scope: CoroutineScope,
-    onClose: () -> Unit,
-) {
-    val colors = LocalMushinColors.current
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .height(HANDLE_AREA)
-            .pointerInput(sheetPx) {
-                detectVerticalDragGestures(
-                    onDragEnd = {
-                        scope.launch {
-                            if (drag.value > sheetPx * CLOSE_FRACTION) {
-                                onClose()
-                            } else {
-                                drag.animateTo(0f, tween(Motion.TRANSITION_MS))
-                            }
-                        }
-                    },
-                ) { change, amount ->
-                    change.consume()
-                    scope.launch { drag.snapTo((drag.value + amount).coerceAtLeast(0f)) }
-                }
-            }
-            .testTag("gesture_sheet_handle"),
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(
-            Modifier
-                .size(36.dp, 4.dp)
-                .background(colors.textSecondary.copy(alpha = HANDLE_ALPHA), RoundedCornerShape(2.dp)),
+    SettingsSheet(tag = "gesture_sheet", onClose = { currentClose() }, heightFraction = SHEET_FRACTION) {
+        BasicText(
+            label,
+            style = MushinType.style(20.sp, colors.textPrimary, FontWeight.Medium),
+            modifier = Modifier.padding(horizontal = CARD_PADDING),
         )
+        Spacer(Modifier.height(4.dp))
+        SheetHint(pad)
+        Spacer(Modifier.weight(1f))
+        DrawPad(pad)
+        Spacer(Modifier.height(16.dp))
+        SheetButtons(pad, onAdd) { currentClose() }
+        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
 }
 
@@ -329,12 +251,7 @@ private fun SheetButton(
 }
 
 private const val SHEET_FRACTION = 0.7f
-private const val CLOSE_FRACTION = 0.25f
-private const val SHEET_SCRIM = 0.5f
-private const val HANDLE_ALPHA = 0.5f
 private const val RAW_ALPHA = 0.3f
-private val SHEET_RADIUS = 16.dp
-private val HANDLE_AREA = 32.dp
 private val PAD_ROW = 66.dp
 private val PAD_GAP = 4.dp
 private const val VECTOR_TOLERANCE = 0.2f

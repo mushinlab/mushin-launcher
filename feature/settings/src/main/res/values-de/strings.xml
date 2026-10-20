@@ -44,7 +44,7 @@
     <string name="error_generic">Etwas ist schiefgelaufen</string>
 
     <string name="space_colored_icons">Farbige Symbole</string>
-    <string name="space_colored_icons_note">App-Symbole in ihren eigenen Farben statt einfarbig, solange dieser Bereich aktiv ist — auf dem Startbildschirm, in der Suche und in den Vorschlägen der Wischeingabe. Gilt, wenn Symbole unter „Startbildschirm“ eingeschaltet sind.</string>
+    <string name="space_colored_icons_note">App-Symbole in ihren eigenen Farben statt einfarbig, solange dieser Bereich aktiv ist — auf dem Startbildschirm, in der Suche und in den Vorschlägen der Wischeingabe. Gilt, wenn „Symbole“ eingeschaltet ist.</string>
     <string name="palette_graphite">Graphite</string>
     <string name="palette_navy">Navy</string>
     <string name="palette_paper">Paper</string>
@@ -63,15 +63,16 @@
     <string name="picker_full">%1$d von %2$d ausgewählt — kein Platz mehr auf dem Startbildschirm</string>
 
     <string name="home_icons">Symbole</string>
-    <string name="home_icons_none">Keine Symbole</string>
-    <string name="home_icons_left">Links</string>
-    <string name="home_icons_right">Rechts</string>
     <string name="home_clock">Uhrzeitformat</string>
     <string name="home_clock_system">System</string>
     <string name="home_clock_24">24 Stunden</string>
     <string name="home_clock_12">12 Stunden</string>
     <string name="home_show_date">Datum anzeigen</string>
     <string name="home_text_size">Textgröße</string>
+    <string name="home_text_align">Textausrichtung</string>
+    <string name="home_text_align_start">Links</string>
+    <string name="home_text_align_center">Mitte</string>
+    <string name="home_text_align_end">Rechts</string>
     <string name="home_text_s">Klein</string>
     <string name="home_text_m">Mittel</string>
     <string name="home_text_l">Groß</string>
@@ -162,6 +163,7 @@
     <string name="style_font">Schrift</string>
     <string name="style_weight">Stärke</string>
     <string name="style_note">Schrift und Stärke gelten für die ganze App, die Größe für die Liste auf dem Startbildschirm.</string>
+    <string name="style_home_note">Schrift, Textausrichtung, Palette, Symbole und Hintergrund stellst du jetzt direkt auf dem Startbildschirm ein: Tippe unten auf ✎.</string>
     <string name="font_system">Roboto (System)</string>
     <string name="weight_light">Leicht</string>
     <string name="weight_regular">Normal</string>
@@ -195,12 +197,7 @@
     <string name="memory_sheet_hint">Zeichne eine beliebige Form in einem Zug, über die Buchstaben oder daneben.</string>
     <string name="memory_sheet_short">Zu kurz: Zeichne eine Linie.</string>
     <string name="memory_sheet_result">So wird die Geste gespeichert. Hinzufügen, wiederholen oder abbrechen?</string>
-    <string name="space_background">Hintergrund</string>
-    <string name="space_background_change">Hintergrund ändern</string>
     <string name="space_background_remove">Hintergrund entfernen</string>
-    <string name="space_background_preview">Hintergrund des Bereichs</string>
-    <string name="space_background_note">Ein Bild aus der Galerie (PNG, JPEG, WebP, AVIF) hinter dem Startbildschirm dieses Bereichs. Die Kopie bleibt im Launcher und wird nie irgendwohin gesendet.</string>
-    <string name="style_background_hint">Nur für den aktuellen Bereich „%1$s“. Jeder Bereich hat seinen eigenen Hintergrund.</string>
     <string name="background_brightness">Helligkeit</string>
     <string name="background_blur">Unschärfe</string>
     <string name="background_row_alpha">Zeilenhintergrund</string>

@@ -50,6 +50,37 @@ class LauncherNavigatorTest {
     }
 
     @Test
+    fun editButtonTogglesHomeEditing() {
+        navigator.toggleHomeEditing()
+        assertThat(navigator.homeEditing).isTrue()
+
+        navigator.toggleHomeEditing()
+        assertThat(navigator.homeEditing).isFalse()
+    }
+
+    @Test
+    fun backClosesAnEditSheetBeforeLeavingHomeEditing() {
+        navigator.toggleHomeEditing()
+        navigator.openSettings(SettingsRoute.TextSheet)
+
+        navigator.handleBack()
+        assertThat(navigator.settings.isOpen).isFalse()
+        assertThat(navigator.homeEditing).isTrue()
+
+        navigator.handleBack()
+        assertThat(navigator.homeEditing).isFalse()
+    }
+
+    @Test
+    fun homeIntentLeavesHomeEditing() {
+        navigator.toggleHomeEditing()
+
+        navigator.onHomeIntent(assist = false)
+
+        assertThat(navigator.homeEditing).isFalse()
+    }
+
+    @Test
     fun homeIntentClosesEverythingAndAssistOpensSearch() {
         navigator.openSettings()
         navigator.renameTarget = key("slack")

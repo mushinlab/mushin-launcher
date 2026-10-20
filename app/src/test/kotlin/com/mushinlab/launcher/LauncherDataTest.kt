@@ -5,6 +5,7 @@ import com.mushinlab.launcher.core.apps.NotificationSource
 import com.mushinlab.launcher.core.data.repo.SpaceError
 import com.mushinlab.launcher.core.model.AppUsage
 import com.mushinlab.launcher.core.model.GestureAction
+import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.model.LearnedGesture
 import com.mushinlab.launcher.core.model.SearchRecent
@@ -65,6 +66,16 @@ class LauncherDataTest {
         val restored = snapshotState(homeSnapshot(data(), state), roleHeld = true)
 
         assertThat(restored.rows.map { it.key to it.label }).isEqualTo(state.rows.map { it.key to it.label })
+    }
+
+    @Test
+    fun textAlignmentReachesHomeAndSurvivesTheSnapshot() {
+        val centered = data(LauncherSettings(homeTextAlign = HomeTextAlign.CENTER))
+        val state = homeState(centered, true, emptyMap(), emptyMap())
+
+        assertThat(state.textAlign).isEqualTo(HomeTextAlign.CENTER)
+        assertThat(snapshotState(homeSnapshot(centered, state), roleHeld = true).textAlign)
+            .isEqualTo(HomeTextAlign.CENTER)
     }
 
     @Test

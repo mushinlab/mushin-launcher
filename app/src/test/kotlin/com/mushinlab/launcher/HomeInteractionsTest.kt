@@ -108,13 +108,6 @@ class HomeInteractionsTest {
     }
 
     @Test
-    fun editOpensTheCurrentSpaceSettings() {
-        home.editCurrentSpace()
-
-        assertThat(navigator.settings.top).isEqualTo(SettingsRoute.SpaceEditor(1))
-    }
-
-    @Test
     fun addAppsOpensTheAppPickerOfTheCurrentSpace() {
         navigator.openSearch(SearchMode.TYPING)
 

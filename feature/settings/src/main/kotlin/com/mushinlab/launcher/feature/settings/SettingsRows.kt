@@ -19,6 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +43,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.ui.LocalMushinColors
@@ -135,67 +140,137 @@ fun SliderRow(
 ) {
     val colors = LocalMushinColors.current
     val locale = LocalConfiguration.current.locales[0]
-    val steps = ((range.endInclusive - range.start) / step).roundToInt()
-    var shown by remember(value) { mutableFloatStateOf(value) }
-    val currentOnChange by rememberUpdatedState(onChange)
-    fun select(fraction: Float) {
-        val next = range.start + (fraction.coerceIn(0f, 1f) * steps).roundToInt() * step
-        if (next != shown) {
-            shown = next
-            currentOnChange(next)
-        }
-    }
+    val slider = rememberSlider(value, range, step, onChange)
     Column(Modifier.settingsCard().padding(horizontal = CARD_PADDING, vertical = 10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             BasicText(title, style = MushinType.style(17.sp, colors.textPrimary), modifier = Modifier.weight(1f))
             Spacer(Modifier.width(16.dp))
             SingleLineText(
-                format?.invoke(shown) ?: String.format(locale, "%.2f", shown),
+                format?.invoke(slider.shown) ?: String.format(locale, "%.2f", slider.shown),
                 MushinType.style(15.sp, colors.textSecondary),
             )
         }
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(40.dp)
-                .testTag(tag)
-                .semantics {
-                    progressBarRangeInfo = ProgressBarRangeInfo(shown, range, steps - 1)
-                    setProgress { target ->
-                        select((target - range.start) / (range.endInclusive - range.start))
-                        true
-                    }
-                }
-                .pointerInput(range, step) {
-                    awaitEachGesture {
-                        val down = awaitFirstDown()
-                        select(down.position.x / size.width)
-                        horizontalDrag(down.id) { change ->
-                            change.consume()
-                            select(change.position.x / size.width)
-                        }
-                    }
-                }
-                .drawBehind {
-                    val fraction = (shown - range.start) / (range.endInclusive - range.start)
-                    val track = SLIDER_TRACK.toPx()
-                    val y = size.height / 2
-                    drawRoundRect(
-                        colors.textSecondary.copy(alpha = SLIDER_REST_ALPHA),
-                        topLeft = Offset(0f, y - track / 2),
-                        size = Size(size.width, track),
-                        cornerRadius = CornerRadius(track / 2),
-                    )
-                    drawRoundRect(
-                        colors.accent,
-                        topLeft = Offset(0f, y - track / 2),
-                        size = Size(size.width * fraction, track),
-                        cornerRadius = CornerRadius(track / 2),
-                    )
-                    drawCircle(colors.accent, radius = SLIDER_THUMB.toPx(), center = Offset(size.width * fraction, y))
-                },
+        SliderTrack(slider, tag, Modifier.fillMaxWidth())
+    }
+}
+
+/** A slider in one line: [title] in a column of [titleWidth], the track, then the [format]ted value. */
+@Composable
+internal fun InlineSliderRow(
+    title: String,
+    titleWidth: Dp,
+    value: Float,
+    range: ClosedFloatingPointRange<Float>,
+    step: Float,
+    tag: String,
+    format: (Float) -> String,
+    onChange: (Float) -> Unit,
+) {
+    val colors = LocalMushinColors.current
+    val slider = rememberSlider(value, range, step, onChange)
+    Row(
+        Modifier.settingsCard().padding(horizontal = CARD_PADDING, vertical = INLINE_SLIDER_PADDING),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        SingleLineText(title, MushinType.style(15.sp, colors.textPrimary), Modifier.width(titleWidth))
+        Spacer(Modifier.width(12.dp))
+        SliderTrack(slider, tag, Modifier.weight(1f))
+        Spacer(Modifier.width(12.dp))
+        BasicText(
+            format(slider.shown),
+            style = MushinType.style(14.sp, colors.textSecondary).copy(textAlign = TextAlign.End),
+            maxLines = 1,
+            modifier = Modifier.width(INLINE_VALUE_WIDTH),
         )
     }
+}
+
+@Stable
+private class SliderModel(
+    initial: Float,
+    val range: ClosedFloatingPointRange<Float>,
+    private val step: Float,
+    private val onChange: State<(Float) -> Unit>,
+) {
+    val steps = ((range.endInclusive - range.start) / step).roundToInt()
+    var shown by mutableFloatStateOf(initial)
+        private set
+    private var external = initial
+
+    fun sync(value: Float) {
+        if (value != external) {
+            external = value
+            shown = value
+        }
+    }
+
+    fun select(fraction: Float) {
+        val next = range.start + (fraction.coerceIn(0f, 1f) * steps).roundToInt() * step
+        if (next != shown) {
+            shown = next
+            onChange.value(next)
+        }
+    }
+
+    fun fraction(): Float = (shown - range.start) / (range.endInclusive - range.start)
+}
+
+@Composable
+private fun rememberSlider(
+    value: Float,
+    range: ClosedFloatingPointRange<Float>,
+    step: Float,
+    onChange: (Float) -> Unit,
+): SliderModel {
+    val currentOnChange = rememberUpdatedState(onChange)
+    val slider = remember(range, step) { SliderModel(value, range, step, currentOnChange) }
+    SideEffect { slider.sync(value) }
+    return slider
+}
+
+@Composable
+private fun SliderTrack(slider: SliderModel, tag: String, modifier: Modifier) {
+    val colors = LocalMushinColors.current
+    Box(
+        modifier
+            .height(SLIDER_HEIGHT)
+            .testTag(tag)
+            .semantics {
+                progressBarRangeInfo = ProgressBarRangeInfo(slider.shown, slider.range, slider.steps - 1)
+                setProgress { target ->
+                    slider.select((target - slider.range.start) / (slider.range.endInclusive - slider.range.start))
+                    true
+                }
+            }
+            .pointerInput(slider) {
+                awaitEachGesture {
+                    val down = awaitFirstDown()
+                    slider.select(down.position.x / size.width)
+                    horizontalDrag(down.id) { change ->
+                        change.consume()
+                        slider.select(change.position.x / size.width)
+                    }
+                }
+            }
+            .drawBehind {
+                val fraction = slider.fraction()
+                val track = SLIDER_TRACK.toPx()
+                val y = size.height / 2
+                drawRoundRect(
+                    colors.textSecondary.copy(alpha = SLIDER_REST_ALPHA),
+                    topLeft = Offset(0f, y - track / 2),
+                    size = Size(size.width, track),
+                    cornerRadius = CornerRadius(track / 2),
+                )
+                drawRoundRect(
+                    colors.accent,
+                    topLeft = Offset(0f, y - track / 2),
+                    size = Size(size.width * fraction, track),
+                    cornerRadius = CornerRadius(track / 2),
+                )
+                drawCircle(colors.accent, radius = SLIDER_THUMB.toPx(), center = Offset(size.width * fraction, y))
+            },
+    )
 }
 
 @Composable
@@ -210,6 +285,9 @@ fun <T> ChoiceRows(options: List<Pair<T, String>>, selected: T, tagPrefix: Strin
     }
 }
 
+private val SLIDER_HEIGHT = 40.dp
 private val SLIDER_TRACK = 4.dp
+private val INLINE_SLIDER_PADDING = 6.dp
+private val INLINE_VALUE_WIDTH = 48.dp
 private val SLIDER_THUMB = 10.dp
 private const val SLIDER_REST_ALPHA = 0.35f

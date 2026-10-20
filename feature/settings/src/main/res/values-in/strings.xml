@@ -44,7 +44,7 @@
     <string name="error_generic">Terjadi kesalahan</string>
 
     <string name="space_colored_icons">Ikon berwarna</string>
-    <string name="space_colored_icons_note">Ikon aplikasi dengan warna aslinya, bukan monokrom, selama ruang ini aktif — di layar utama, di pencarian, dan di saran ketik geser. Berlaku jika ikon diaktifkan di “Layar utama”.</string>
+    <string name="space_colored_icons_note">Ikon aplikasi dengan warna aslinya, bukan monokrom, selama ruang ini aktif — di layar utama, di pencarian, dan di saran ketik geser. Berlaku jika “Ikon” diaktifkan.</string>
     <string name="palette_graphite">Graphite</string>
     <string name="palette_navy">Navy</string>
     <string name="palette_paper">Paper</string>
@@ -63,15 +63,16 @@
     <string name="picker_full">%1$d dari %2$d dipilih — layar utama sudah penuh</string>
 
     <string name="home_icons">Ikon</string>
-    <string name="home_icons_none">Tanpa ikon</string>
-    <string name="home_icons_left">Kiri</string>
-    <string name="home_icons_right">Kanan</string>
     <string name="home_clock">Format jam</string>
     <string name="home_clock_system">Sistem</string>
     <string name="home_clock_24">24 jam</string>
     <string name="home_clock_12">12 jam</string>
     <string name="home_show_date">Tampilkan tanggal</string>
     <string name="home_text_size">Ukuran teks</string>
+    <string name="home_text_align">Perataan teks</string>
+    <string name="home_text_align_start">Kiri</string>
+    <string name="home_text_align_center">Tengah</string>
+    <string name="home_text_align_end">Kanan</string>
     <string name="home_text_s">Kecil</string>
     <string name="home_text_m">Sedang</string>
     <string name="home_text_l">Besar</string>
@@ -161,6 +162,7 @@
     <string name="style_font">Font</string>
     <string name="style_weight">Ketebalan</string>
     <string name="style_note">Font dan ketebalan berlaku di seluruh aplikasi; ukuran berlaku untuk daftar di layar utama.</string>
+    <string name="style_home_note">Font, perataan teks, palet, ikon, dan latar kini diatur langsung di layar utama: ketuk ✎ di bagian bawah.</string>
     <string name="font_system">Roboto (sistem)</string>
     <string name="weight_light">Tipis</string>
     <string name="weight_regular">Reguler</string>
@@ -194,12 +196,7 @@
     <string name="memory_sheet_hint">Gambar bentuk apa saja dalam satu goresan, di atas huruf atau tidak.</string>
     <string name="memory_sheet_short">Terlalu pendek: buat sebuah garis.</string>
     <string name="memory_sheet_result">Beginilah gestur akan diingat. Tambah, ulangi, atau batal?</string>
-    <string name="space_background">Latar</string>
-    <string name="space_background_change">Ganti latar</string>
     <string name="space_background_remove">Hapus latar</string>
-    <string name="space_background_preview">Latar ruang</string>
-    <string name="space_background_note">Gambar dari galeri (PNG, JPEG, WebP, AVIF) di belakang layar utama ruang ini. Salinannya tetap di dalam launcher dan tidak pernah dikirim ke mana pun.</string>
-    <string name="style_background_hint">Hanya untuk ruang saat ini “%1$s”. Setiap ruang punya latarnya sendiri.</string>
     <string name="background_brightness">Kecerahan</string>
     <string name="background_blur">Buram</string>
     <string name="background_row_alpha">Latar baris</string>

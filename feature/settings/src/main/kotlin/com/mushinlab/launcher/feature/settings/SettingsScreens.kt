@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.GestureTuning
-import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.search.KeyboardLayout
 import com.mushinlab.launcher.core.search.KeyboardLayouts
@@ -98,16 +97,6 @@ internal fun AdvancedScreen(state: SettingsUiState, push: (SettingsRoute) -> Uni
 internal fun HomeSettingsSection(state: SettingsUiState, actions: SettingsActions) {
     val s = state.settings
     val preferences = actions.preferences
-    DropdownRow(
-        stringResource(R.string.home_icons),
-        listOf(
-            IconMode.NONE to stringResource(R.string.home_icons_none),
-            IconMode.LEFT to stringResource(R.string.home_icons_left),
-            IconMode.RIGHT to stringResource(R.string.home_icons_right),
-        ),
-        s.iconMode,
-        "icon_mode",
-    ) { mode -> preferences.updateSettings { it.copy(iconMode = mode) } }
     DropdownRow(
         stringResource(R.string.home_clock),
         listOf(

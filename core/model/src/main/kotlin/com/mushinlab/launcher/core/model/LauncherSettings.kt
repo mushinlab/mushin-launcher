@@ -1,13 +1,16 @@
 package com.mushinlab.launcher.core.model
 
-/** Whether app icons are shown next to labels, and on which side. */
-enum class IconMode { NONE, LEFT, RIGHT }
+/** Whether app icons are shown; a shown icon always sits at the end of its row (ADR-0028). */
+enum class IconMode { NONE, RIGHT }
 
 /** Clock format; [SYSTEM] follows the device 12/24-hour setting. */
 enum class ClockFormat { SYSTEM, H24, H12 }
 
 /** Size of home-screen app labels; [sp] is the font size in sp. */
 enum class HomeTextSize(val sp: Int) { S(sp = 22), M(sp = 26), L(sp = 30) }
+
+/** Horizontal alignment of home-screen app labels within their rows. */
+enum class HomeTextAlign { START, CENTER, END }
 
 /**
  * The five allowed press styles (ADR-0004): fading highlight, briefly held highlight, accent tint, dimming
@@ -71,7 +74,7 @@ object StrokeWidth {
  */
 data class LauncherSettings(
     val currentSpaceId: Long? = null,
-    val iconMode: IconMode = IconMode.LEFT,
+    val iconMode: IconMode = IconMode.RIGHT,
     val clockFormat: ClockFormat = ClockFormat.SYSTEM,
     val showDate: Boolean = true,
     val clockPosition: ClockPosition = ClockPosition.START,
@@ -79,6 +82,7 @@ data class LauncherSettings(
     val font: AppFont = AppFont.SYSTEM,
     val fontWeight: AppFontWeight = AppFontWeight.REGULAR,
     val homeTextSize: HomeTextSize = HomeTextSize.M,
+    val homeTextAlign: HomeTextAlign = HomeTextAlign.START,
     val strokeWidth: Int = StrokeWidth.DEFAULT_DP,
     val strokeColor: StrokeColor = StrokeColor.ACCENT,
     val strokeDots: Boolean = true,

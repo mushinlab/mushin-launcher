@@ -75,7 +75,11 @@ private fun SettingsRouteScreen(
             SpaceRouteScreen(route, state, actions, push, back)
 
         SettingsRoute.Style, SettingsRoute.Press ->
-            AppearanceRouteScreen(route, state, actions, push, back)
+            AppearanceRouteScreen(route, state, actions, back)
+
+        SettingsRoute.TextSheet -> TextSheet(state, actions, back)
+
+        SettingsRoute.ThemeSheet -> ThemeSheet(state, actions, back)
 
         SettingsRoute.Keyboard, SettingsRoute.Gestures, is SettingsRoute.PickGestureApp ->
             InputRouteScreen(route, state, actions, push, back)
@@ -111,12 +115,11 @@ private fun AppearanceRouteScreen(
     route: SettingsRoute,
     state: SettingsUiState,
     actions: SettingsActions,
-    push: (SettingsRoute) -> Unit,
     back: () -> Unit,
 ) {
     when (route) {
         SettingsRoute.Press -> PressSettingsScreen(state, actions, back)
-        else -> StyleScreen(state, actions, push, back)
+        else -> StyleScreen(state, actions, back)
     }
 }
 

@@ -1,6 +1,8 @@
 package com.mushinlab.launcher.feature.home
 
 import android.os.SystemClock
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,6 +26,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.StrokeCap
@@ -82,11 +85,13 @@ fun TraceLayer(trace: Trace, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ListHandle(active: Boolean, onBounds: (Rect) -> Unit) {
+fun ListHandle(active: Boolean, visible: Boolean, onBounds: (Rect) -> Unit) {
     val colors = LocalMushinColors.current
+    val alpha by animateFloatAsState(if (visible) 1f else 0f, tween(Motion.TRANSITION_MS), label = "handle")
     Box(
         Modifier
             .fillMaxWidth()
+            .alpha(alpha)
             .height(HANDLE_HEIGHT + HANDLE_LIST_GAP)
             .onGloballyPositioned { onBounds(it.boundsInRoot()) }
             .testTag("list_handle")

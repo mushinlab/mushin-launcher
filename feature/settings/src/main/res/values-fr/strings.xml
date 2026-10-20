@@ -44,7 +44,7 @@
     <string name="error_generic">Une erreur s’est produite</string>
 
     <string name="space_colored_icons">Icônes en couleur</string>
-    <string name="space_colored_icons_note">Les icônes des applis gardent leurs couleurs au lieu d’être monochromes tant que cet espace est actif : sur l’écran d’accueil, dans la recherche et dans les suggestions de saisie gestuelle. S’applique quand les icônes sont activées dans « Écran d’accueil ».</string>
+    <string name="space_colored_icons_note">Les icônes des applis gardent leurs couleurs au lieu d’être monochromes tant que cet espace est actif : sur l’écran d’accueil, dans la recherche et dans les suggestions de saisie gestuelle. S’applique quand « Icônes » est activé.</string>
     <string name="palette_graphite">Graphite</string>
     <string name="palette_navy">Navy</string>
     <string name="palette_paper">Paper</string>
@@ -63,15 +63,16 @@
     <string name="picker_full">%1$d sur %2$d sélectionnées — plus de place sur l’accueil</string>
 
     <string name="home_icons">Icônes</string>
-    <string name="home_icons_none">Sans icônes</string>
-    <string name="home_icons_left">À gauche</string>
-    <string name="home_icons_right">À droite</string>
     <string name="home_clock">Format de l’heure</string>
     <string name="home_clock_system">Système</string>
     <string name="home_clock_24">24 heures</string>
     <string name="home_clock_12">12 heures</string>
     <string name="home_show_date">Afficher la date</string>
     <string name="home_text_size">Taille du texte</string>
+    <string name="home_text_align">Alignement du texte</string>
+    <string name="home_text_align_start">À gauche</string>
+    <string name="home_text_align_center">Au centre</string>
+    <string name="home_text_align_end">À droite</string>
     <string name="home_text_s">Petite</string>
     <string name="home_text_m">Moyenne</string>
     <string name="home_text_l">Grande</string>
@@ -163,6 +164,7 @@
     <string name="style_font">Police</string>
     <string name="style_weight">Graisse</string>
     <string name="style_note">La police et la graisse s’appliquent à toute l’appli ; la taille, à la liste de l’écran d’accueil.</string>
+    <string name="style_home_note">La police, l’alignement du texte, la palette, les icônes et l’arrière-plan se règlent désormais sur l’écran d’accueil : touchez ✎ en bas.</string>
     <string name="font_system">Roboto (système)</string>
     <string name="weight_light">Fine</string>
     <string name="weight_regular">Normale</string>
@@ -196,12 +198,7 @@
     <string name="memory_sheet_hint">Dessinez une forme d’un seul trait, sur les lettres ou non.</string>
     <string name="memory_sheet_short">Trop court : tracez une ligne.</string>
     <string name="memory_sheet_result">Voici comment le geste sera mémorisé. Ajouter, recommencer ou annuler ?</string>
-    <string name="space_background">Arrière-plan</string>
-    <string name="space_background_change">Changer l’arrière-plan</string>
     <string name="space_background_remove">Retirer l’arrière-plan</string>
-    <string name="space_background_preview">Arrière-plan de l’espace</string>
-    <string name="space_background_note">Une image de la galerie (PNG, JPEG, WebP, AVIF) derrière l’écran d’accueil de cet espace. La copie reste dans le launcher et n’est jamais envoyée nulle part.</string>
-    <string name="style_background_hint">Uniquement pour l’espace actuel « %1$s ». Chaque espace a son propre fond.</string>
     <string name="background_brightness">Luminosité</string>
     <string name="background_blur">Flou</string>
     <string name="background_row_alpha">Fond des lignes</string>

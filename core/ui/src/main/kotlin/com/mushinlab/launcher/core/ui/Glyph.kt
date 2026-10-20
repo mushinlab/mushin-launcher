@@ -24,14 +24,18 @@ import androidx.compose.ui.unit.dp
 enum class Glyph(@param:DrawableRes val res: Int) {
     ADD(R.drawable.ic_add),
     BACK(R.drawable.ic_arrow_back),
+    CHECK(R.drawable.ic_check),
     EDIT(R.drawable.ic_edit),
     HELP(R.drawable.ic_help),
+    IMAGE(R.drawable.ic_image),
+    PALETTE(R.drawable.ic_palette),
     SETTINGS(R.drawable.ic_settings),
+    TEXT(R.drawable.ic_text),
 }
 
 /**
  * A square icon button tinted with [tint]; [description] is read by accessibility services.
- * Press feedback is off unless [pressedColor] is set (see [pressable]).
+ * A press shows the [LocalPressFeedback] style like any other button; a transparent [pressedColor] turns it off.
  */
 @Composable
 fun GlyphButton(
@@ -42,7 +46,7 @@ fun GlyphButton(
     modifier: Modifier = Modifier,
     size: Dp = 48.dp,
     glyphSize: Dp = 22.dp,
-    pressedColor: Color = Color.Transparent,
+    pressedColor: Color = LocalMushinColors.current.keyPressed,
     onClick: () -> Unit,
 ) {
     val colors = LocalMushinColors.current

@@ -44,7 +44,7 @@
     <string name="error_generic">Something went wrong</string>
 
     <string name="space_colored_icons">Color icons</string>
-    <string name="space_colored_icons_note">App icons in their own colors instead of monochrome while this space is active — on the home screen, in search and in swipe suggestions. Applies when icons are on in “Home screen”.</string>
+    <string name="space_colored_icons_note">App icons in their own colors instead of monochrome while this space is active — on the home screen, in search and in swipe suggestions. Applies when “Icons” are on.</string>
     <string name="palette_graphite">Graphite</string>
     <string name="palette_navy">Navy</string>
     <string name="palette_paper">Paper</string>
@@ -63,15 +63,16 @@
     <string name="picker_full">%1$d of %2$d selected — no more room on Home</string>
 
     <string name="home_icons">Icons</string>
-    <string name="home_icons_none">No icons</string>
-    <string name="home_icons_left">Left</string>
-    <string name="home_icons_right">Right</string>
     <string name="home_clock">Clock format</string>
     <string name="home_clock_system">System</string>
     <string name="home_clock_24">24-hour</string>
     <string name="home_clock_12">12-hour</string>
     <string name="home_show_date">Show date</string>
     <string name="home_text_size">Text size</string>
+    <string name="home_text_align">Text alignment</string>
+    <string name="home_text_align_start">Left</string>
+    <string name="home_text_align_center">Center</string>
+    <string name="home_text_align_end">Right</string>
     <string name="home_text_s">Small</string>
     <string name="home_text_m">Medium</string>
     <string name="home_text_l">Large</string>
@@ -162,6 +163,7 @@
     <string name="style_font">Font</string>
     <string name="style_weight">Weight</string>
     <string name="style_note">Font and weight apply to the whole app; the size applies to the home screen list.</string>
+    <string name="style_home_note">Font, text alignment, palette, icons and background are now set on the home screen: tap ✎ at the bottom of it.</string>
     <string name="font_system">Roboto (system)</string>
     <string name="weight_light">Light</string>
     <string name="weight_regular">Regular</string>
@@ -195,12 +197,7 @@
     <string name="memory_sheet_hint">Draw any figure in one stroke, over the letters or not.</string>
     <string name="memory_sheet_short">Too short: draw a line.</string>
     <string name="memory_sheet_result">This is how the gesture will be remembered. Add, repeat or cancel?</string>
-    <string name="space_background">Background</string>
-    <string name="space_background_change">Change background</string>
     <string name="space_background_remove">Remove background</string>
-    <string name="space_background_preview">Space background</string>
-    <string name="space_background_note">A gallery image (PNG, JPEG, WebP, AVIF) behind the home screen of this space. The copy stays inside the launcher and is never sent anywhere.</string>
-    <string name="style_background_hint">Only for the current space “%1$s”. Each space has its own background.</string>
     <string name="background_brightness">Brightness</string>
     <string name="background_blur">Blur</string>
     <string name="background_row_alpha">Row background</string>

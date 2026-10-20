@@ -16,13 +16,35 @@ class HomeGestureDetector(
     private val registry: RowRegistry,
     private val zone: () -> StartZone,
     private val enabled: () -> Boolean,
-    private val clockHoldMs: Long,
+    private val editing: () -> Boolean,
 ) {
     suspend fun detect(scope: PointerInputScope, callbacks: HomeGestureCallbacks) {
         scope.awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false)
-            if (enabled() && !registry.isBlocked(down.position)) onDown(down, callbacks)
+            when {
+                !enabled() || registry.isBlocked(down.position) -> Unit
+                editing() -> onEditDown(down, callbacks)
+                else -> onDown(down, callbacks)
+            }
         }
+    }
+
+    private suspend fun AwaitPointerEventScope.onEditDown(down: PointerInputChange, callbacks: HomeGestureCallbacks) {
+        arbiter.reset()
+        val drag = when {
+            registry.clock.contains(down.position) -> EditDrag(callbacks.clock) { it.x }
+            registry.handle.contains(down.position) -> EditDrag(callbacks.handle) { it.y }
+            else -> null
+        }
+        if (drag == null) {
+            consumeUntilUp(down.id)
+            return
+        }
+        val moved = awaitMoveBeyondSlop(down.id, down.position) ?: return
+        drag.callbacks.onHold(drag.axis(down.position))
+        drag.callbacks.onDrag(drag.axis(moved))
+        dragUntilUp(down.id) { drag.callbacks.onDrag(drag.axis(it)) }
+        drag.callbacks.onRelease()
     }
 
     private suspend fun AwaitPointerEventScope.onDown(down: PointerInputChange, callbacks: HomeGestureCallbacks) {
@@ -36,12 +58,13 @@ class HomeGestureDetector(
         }
         val tracker = VelocityTracker()
         tracker.addPointerInputChange(down)
-        val holdMs = if (target == PressTarget.Clock) clockHoldMs else viewConfiguration.longPressTimeoutMillis
-        callbacks.onRowPressed(target.rowIndex)
+        callbacks.onPressed(target.rowIndex, target == PressTarget.Clock)
         val outcome = try {
-            withTimeoutOrNull(holdMs) { awaitSlopOrUp(down.id, down.position, tracker) }
+            withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+                awaitSlopOrUp(down.id, down.position, tracker)
+            }
         } finally {
-            callbacks.onRowPressed(null)
+            callbacks.onPressed(null, clock = false)
         }
         when (outcome) {
             null -> onHold(down, target, callbacks)
@@ -56,7 +79,6 @@ class HomeGestureDetector(
         return when {
             row != null -> PressTarget.Row(row)
             registry.clock.contains(position) -> PressTarget.Clock
-            registry.handle.contains(position) -> PressTarget.Handle
             else -> PressTarget.Background
         }
     }
@@ -67,16 +89,8 @@ class HomeGestureDetector(
         callbacks: HomeGestureCallbacks,
     ) {
         arbiter.reset()
-        when (target) {
-            PressTarget.Clock -> holdAndDrag(down.id, down.position.x, callbacks.clock) { it.x }
-
-            PressTarget.Handle -> holdAndDrag(down.id, down.position.y, callbacks.handle) { it.y }
-
-            else -> {
-                callbacks.onLongPress(down.position, target.rowIndex)
-                consumeUntilUp(down.id)
-            }
-        }
+        callbacks.onLongPress(down.position, target.rowIndex)
+        consumeUntilUp(down.id)
     }
 
     private fun onTap(up: PressOutcome.Up, target: PressTarget, callbacks: HomeGestureCallbacks) {
@@ -124,10 +138,10 @@ private sealed interface PressTarget {
 
     data object Clock : PressTarget
 
-    data object Handle : PressTarget
-
     data object Background : PressTarget
 }
+
+private class EditDrag(val callbacks: DragCallbacks, val axis: (Offset) -> Float)
 
 private val PressTarget.rowIndex: Int?
     get() = (this as? PressTarget.Row)?.index
@@ -164,6 +178,16 @@ private fun AwaitPointerEventScope.outcomeOf(
     }
 }
 
+private suspend fun AwaitPointerEventScope.awaitMoveBeyondSlop(id: PointerId, start: Offset): Offset? {
+    while (true) {
+        val change = awaitSingle(id) ?: return null
+        when {
+            !change.pressed -> return null
+            (change.position - start).getDistance() > viewConfiguration.touchSlop -> return change.position
+        }
+    }
+}
+
 private suspend fun AwaitPointerEventScope.trackUntilUp(
     id: PointerId,
     tracker: VelocityTracker,
@@ -184,17 +208,6 @@ private suspend fun AwaitPointerEventScope.awaitSingle(id: PointerId): PointerIn
 
 private fun pathLength(points: List<Offset>): Float =
     points.zipWithNext { a, b -> (b - a).getDistance() }.sum()
-
-private suspend fun AwaitPointerEventScope.holdAndDrag(
-    id: PointerId,
-    start: Float,
-    callbacks: DragCallbacks,
-    axis: (Offset) -> Float,
-) {
-    callbacks.onHold(start)
-    dragUntilUp(id) { callbacks.onDrag(axis(it)) }
-    callbacks.onRelease()
-}
 
 private suspend fun AwaitPointerEventScope.dragUntilUp(id: PointerId, onMove: (Offset) -> Unit) {
     while (true) {

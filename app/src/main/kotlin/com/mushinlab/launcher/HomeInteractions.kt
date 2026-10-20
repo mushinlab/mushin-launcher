@@ -90,11 +90,6 @@ class HomeInteractions(
         navigator.settings.push(SettingsRoute.MemoryPickApp)
     }
 
-    fun editCurrentSpace() {
-        val space = model.currentSpace ?: return
-        navigator.openSettings(SettingsRoute.SpaceEditor(space.id))
-    }
-
     fun addApps() {
         val space = model.currentSpace ?: return
         navigator.openSettings(SettingsRoute.PickApps(space.id))

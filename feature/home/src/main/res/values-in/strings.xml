@@ -9,7 +9,11 @@
     <string name="popup_remove_from_space">Keluarkan dari ruang</string>
     <string name="popup_uninstall">Uninstal</string>
     <string name="home_suggestion">Saran: aplikasi yang lebih sering Anda buka</string>
-    <string name="home_edit">Ubah ruang</string>
+    <string name="home_edit">Ubah layar utama</string>
+    <string name="home_edit_done">Selesai</string>
+    <string name="home_edit_background">Latar</string>
+    <string name="home_edit_text">Teks</string>
+    <string name="home_edit_theme">Tema</string>
     <string name="home_add_apps">Tambah aplikasi</string>
     <string name="home_add_apps_inline">+ Tambah aplikasi</string>
     <string name="suggest_header">Anda lebih sering membuka “%1$s”</string>

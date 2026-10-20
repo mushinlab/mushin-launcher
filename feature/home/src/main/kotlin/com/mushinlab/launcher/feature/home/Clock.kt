@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -41,6 +42,7 @@ import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
+import com.mushinlab.launcher.core.ui.pressFeedback
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -87,6 +89,8 @@ fun ClockArea(
     showDate: Boolean,
     position: ClockPosition,
     drag: ClockDrag?,
+    editing: Boolean,
+    pressed: Boolean,
     onBounds: (Rect) -> Unit,
     onTap: () -> Unit,
     onMeasured: (area: Int, block: Int) -> Unit,
@@ -97,9 +101,7 @@ fun ClockArea(
     var block by remember { mutableIntStateOf(0) }
     var height by remember { mutableIntStateOf(0) }
     val home = ClockSlots.left(position, area, block, inset)
-    val left = if (drag ==
-        null
-    ) {
+    val left = if (drag == null) {
         home
     } else {
         (home + drag.x - drag.startX).roundToInt().coerceIn(0, maxOf(0, area - block))
@@ -112,7 +114,7 @@ fun ClockArea(
                 onMeasured(area, block)
             },
     ) {
-        if (drag != null && block > 0) {
+        if ((editing || drag != null) && block > 0) {
             ClockSlotMarks(ClockSlots.nearest(left, area, block, inset), area, block, height, inset)
         }
         Column(
@@ -124,6 +126,8 @@ fun ClockArea(
                     onMeasured(area, block)
                 }
                 .onGloballyPositioned { onBounds(it.boundsInRoot()) }
+                .clip(RoundedCornerShape(SLOT_RADIUS))
+                .pressFeedback(pressed)
                 .semantics {
                     role = Role.Button
                     onClick {
@@ -217,7 +221,7 @@ private fun ClockDate(minute: State<Long>, position: ClockPosition) {
 private val SLOT_RADIUS = 12.dp
 private val SLOT_MARK_WIDTH = 40.dp
 private val SLOT_MARK_HEIGHT = 4.dp
-private val SLOT_MARK_GAP = 10.dp
+private val SLOT_MARK_GAP = 6.dp
 private const val SLOT_ALPHA = 0.08f
 private const val SLOT_BORDER_ALPHA = 0.5f
 private const val SLOT_MARK_ALPHA = 0.35f

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -33,7 +35,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -41,7 +45,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -93,30 +100,25 @@ internal fun BackgroundEditorScreen(spaceId: Long, state: SettingsUiState, actio
             .testTag("background_editor"),
     ) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
-        BoxWithConstraints(
-            Modifier.weight(1f).fillMaxWidth().padding(vertical = PREVIEW_MARGIN),
-            contentAlignment = Alignment.Center,
-        ) {
-            val density = LocalDensity.current
-            val frame = if (window.width > 0 && window.height > 0) {
-                window
-            } else {
-                with(density) { IntSize(maxWidth.roundToPx(), maxHeight.roundToPx()) }
-            }
-            val width = with(density) { frame.width.toDp() }
-            val height = with(density) { frame.height.toDp() }
-            val scale = min(1f, min(maxWidth / width, maxHeight / height))
-            Box(Modifier.size(width * scale, height * scale).clipToBounds(), contentAlignment = Alignment.Center) {
-                PreviewFrame(space, state.settings, image, editor, Modifier.requiredSize(width, height), scale)
-            }
-        }
-        EditorControls(editor) {
-            EditorButton(stringResource(R.string.background_other), "background_other") { background.pick(spaceId) }
-            Spacer(Modifier.weight(1f))
+        EditorBar {
             EditorButton(stringResource(R.string.settings_cancel), "background_cancel", onClick = back)
+            Spacer(Modifier.weight(1f))
+            EditorButton(stringResource(R.string.background_other), "background_other") { background.pick(spaceId) }
+        }
+        EditorPreview(space, state.settings, image, editor, window, Modifier.weight(1f).fillMaxWidth())
+        EditorSliders(editor)
+        EditorBar {
+            if (space.hasBackground) {
+                EditorButton(stringResource(R.string.space_background_remove), "background_remove") {
+                    background.remove(spaceId)
+                    back()
+                }
+            }
+            Spacer(Modifier.weight(1f))
             EditorButton(
                 stringResource(R.string.settings_save),
                 "background_save",
+                primary = true,
                 enabled = image != null && window.width > 0,
             ) {
                 background.save(editor.edit(spaceId, window))
@@ -124,6 +126,31 @@ internal fun BackgroundEditorScreen(spaceId: Long, state: SettingsUiState, actio
             }
         }
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
+    }
+}
+
+@Composable
+private fun EditorPreview(
+    space: SpaceSummary,
+    settings: LauncherSettings,
+    image: ImageBitmap?,
+    editor: BackgroundEditor,
+    window: IntSize,
+    modifier: Modifier,
+) {
+    BoxWithConstraints(modifier.padding(vertical = PREVIEW_MARGIN), contentAlignment = Alignment.Center) {
+        val density = LocalDensity.current
+        val frame = if (window.width > 0 && window.height > 0) {
+            window
+        } else {
+            with(density) { IntSize(maxWidth.roundToPx(), maxHeight.roundToPx()) }
+        }
+        val width = with(density) { frame.width.toDp() }
+        val height = with(density) { frame.height.toDp() }
+        val scale = min(1f, min(maxWidth / width, maxHeight / height))
+        Box(Modifier.size(width * scale, height * scale).clipToBounds(), contentAlignment = Alignment.Center) {
+            PreviewFrame(space, settings, image, editor, Modifier.requiredSize(width, height), scale)
+        }
     }
 }
 
@@ -179,53 +206,84 @@ private fun Modifier.cropGestures(image: ImageBitmap?, editor: BackgroundEditor)
 }
 
 @Composable
-private fun EditorControls(editor: BackgroundEditor, buttons: @Composable () -> Unit) {
-    SliderRow(
+private fun EditorSliders(editor: BackgroundEditor) {
+    val labels = listOf(
         stringResource(R.string.background_brightness),
+        stringResource(R.string.background_blur),
+        stringResource(R.string.background_row_alpha),
+    )
+    val labelWidth = rememberLabelWidth(labels, MushinType.style(15.sp, LocalMushinColors.current.textPrimary))
+    InlineSliderRow(
+        labels[0],
+        labelWidth,
         editor.brightness,
         SpaceBackground.BRIGHTNESS_MIN..SpaceBackground.BRIGHTNESS_MAX,
         SpaceBackground.STEP,
         tag = "background_brightness",
         format = ::percent,
     ) { editor.brightness = it }
-    SliderRow(
-        stringResource(R.string.background_blur),
+    InlineSliderRow(
+        labels[1],
+        labelWidth,
         editor.blur,
         0f..SpaceBackground.BLUR_MAX,
         SpaceBackground.STEP,
         tag = "background_blur",
         format = ::percent,
     ) { editor.blur = it }
-    SliderRow(
-        stringResource(R.string.background_row_alpha),
+    InlineSliderRow(
+        labels[2],
+        labelWidth,
         editor.rowAlpha,
         SpaceBackground.ROW_ALPHA_MIN..SpaceBackground.ROW_ALPHA_MAX,
         SpaceBackground.STEP,
         tag = "background_row_alpha",
         format = ::percent,
     ) { editor.rowAlpha = it }
-    Row(
-        Modifier.fillMaxWidth().padding(horizontal = CARD_MARGIN, vertical = CARD_GAP),
-        horizontalArrangement = Arrangement.spacedBy(CARD_GAP),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        buttons()
+}
+
+@Composable
+private fun rememberLabelWidth(labels: List<String>, style: TextStyle): Dp {
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    return remember(labels, style, density) {
+        val widest = labels.maxOf { measurer.measure(it, style, maxLines = 1).size.width }
+        with(density) { widest.toDp() }.coerceAtMost(LABEL_MAX_WIDTH)
     }
 }
 
 @Composable
-private fun EditorButton(label: String, tag: String, enabled: Boolean = true, onClick: () -> Unit) {
+private fun EditorBar(buttons: @Composable RowScope.() -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = CARD_MARGIN, vertical = CARD_GAP),
+        horizontalArrangement = Arrangement.spacedBy(CARD_GAP),
+        verticalAlignment = Alignment.CenterVertically,
+        content = buttons,
+    )
+}
+
+@Composable
+private fun EditorButton(
+    label: String,
+    tag: String,
+    primary: Boolean = false,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
     val colors = LocalMushinColors.current
+    val alpha = if (enabled) 1f else DISABLED_ALPHA
     Box(
         Modifier
             .heightIn(min = BUTTON_HEIGHT)
+            .clip(RoundedCornerShape(CARD_RADIUS))
+            .background(if (primary) colors.accent.copy(alpha = alpha) else Color.Transparent)
             .pressable(enabled = enabled, onClick = onClick)
             .testTag(tag)
-            .alpha(if (enabled) 1f else DISABLED_ALPHA)
-            .padding(horizontal = 12.dp),
+            .padding(horizontal = BUTTON_PADDING),
         contentAlignment = Alignment.Center,
     ) {
-        BasicText(label, style = MushinType.style(16.sp, colors.accent, FontWeight.Medium))
+        val text = if (primary) colors.background else colors.accent.copy(alpha = alpha)
+        BasicText(label, style = MushinType.style(16.sp, text, FontWeight.Medium))
     }
 }
 
@@ -234,3 +292,5 @@ private fun percent(value: Float): String = "${(value * PERCENT).roundToInt()} %
 private const val PERCENT = 100
 private val PREVIEW_MARGIN = 8.dp
 private val BUTTON_HEIGHT = 48.dp
+private val BUTTON_PADDING = 16.dp
+private val LABEL_MAX_WIDTH = 140.dp

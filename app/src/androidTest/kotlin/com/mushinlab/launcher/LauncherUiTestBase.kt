@@ -11,6 +11,7 @@ import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.GestureTuning
+import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.KeyboardFit
 import com.mushinlab.launcher.core.model.PressFeedback
@@ -41,6 +42,7 @@ abstract class LauncherUiTestBase {
                 onboardingDone = true,
                 homeListOffset = 0,
                 iconMode = IconMode.NONE,
+                homeTextAlign = HomeTextAlign.START,
                 keyboardLayouts = listOf("en", "ru"),
                 activeKeyboardLayout = "en",
             )

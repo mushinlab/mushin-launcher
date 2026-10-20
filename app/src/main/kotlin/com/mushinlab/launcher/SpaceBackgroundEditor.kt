@@ -28,16 +28,29 @@ class SpaceBackgroundEditor(
 ) {
     private val editing = MutableStateFlow<EditingImage?>(null)
     private var pickTarget: Long? = null
+    private var pickFromHome = false
     val source: StateFlow<EditingImage?> = editing.asStateFlow()
 
     fun pick(spaceId: Long) {
         pickTarget = spaceId
+        pickFromHome = false
         request(LauncherEffect.PickBackground(spaceId))
+    }
+
+    fun openFromHome(spaceId: Long) {
+        if (spaceId in container.backgrounds.versions.value) {
+            navigator.openSettings(SettingsRoute.BackgroundEditor(spaceId))
+        } else {
+            pick(spaceId)
+            pickFromHome = true
+        }
     }
 
     fun onPicked(uri: Uri?) {
         val spaceId = pickTarget ?: return
+        val fromHome = pickFromHome
         pickTarget = null
+        pickFromHome = false
         if (uri == null) return
         val source = ImageDecoder.createSource(contentResolver, uri)
         scope.launch {
@@ -46,10 +59,14 @@ class SpaceBackgroundEditor(
                 navigator.notice = Notice(R.string.notice_background_failed)
                 return@launch
             }
-            if (!navigator.settings.isOpen) return@launch
-            editing.value = EditingImage(spaceId, bitmap, fromFile = false)
             val route = SettingsRoute.BackgroundEditor(spaceId)
-            if (navigator.settings.top != route) navigator.settings.push(route)
+            val open = navigator.settings.isOpen
+            if (!open && !fromHome) return@launch
+            editing.value = EditingImage(spaceId, bitmap, fromFile = false)
+            when {
+                !open -> navigator.openSettings(route)
+                navigator.settings.top != route -> navigator.settings.push(route)
+            }
         }
     }
 

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
+import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.SpaceBackground
@@ -35,6 +36,7 @@ data class HomeUiState(
     val rows: ImmutableList<HomeRow> = persistentListOf(),
     val iconMode: IconMode = IconMode.NONE,
     val textSize: HomeTextSize = HomeTextSize.M,
+    val textAlign: HomeTextAlign = HomeTextAlign.START,
     val clockFormat: ClockFormat = ClockFormat.SYSTEM,
     val showDate: Boolean = true,
     val clockPosition: ClockPosition = ClockPosition.START,

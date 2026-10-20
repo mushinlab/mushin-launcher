@@ -32,7 +32,7 @@ import org.junit.runner.RunWith
 class SpacesUiTest : LauncherUiTestBase() {
     @Test
     fun pickerAppliesEachTapWithoutDone() {
-        rule.onNodeWithTag("home_edit").performClick()
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.SpaceEditor(normalId)) }
         rule.onNodeWithTag("env_add").performScrollTo().performClick()
         val app = runBlocking { container.catalog.apps.first() }.first { it.key !in spaceItems() }
         rule.onNodeWithTag("picker_filter").performTextInput(app.label)
@@ -63,9 +63,27 @@ class SpacesUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun editButtonOpensTheCurrentSpace() {
+    fun editButtonTogglesEditModeWithItsThreeTools() {
+        val navigator = rule.activity.launcher.navigator
+        rule.onNodeWithTag("home_edit_tools").assertDoesNotExist()
         rule.onNodeWithTag("home_edit").performClick()
-        rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.SpaceEditor(normalId) }
+        rule.onNodeWithTag("home_edit_tools").assertIsDisplayed()
+        assertThat(navigator.settings.isOpen).isFalse()
+        rule.onNodeWithTag("home_edit_text").performClick()
+        rule.waitUntil(5_000) { navigator.settings.top == SettingsRoute.TextSheet }
+        rule.onNodeWithTag("text_sheet").assertIsDisplayed()
+        rule.runOnIdle { navigator.handleBack() }
+        rule.onNodeWithTag("home_edit_theme").performClick()
+        rule.waitUntil(5_000) { navigator.settings.top == SettingsRoute.ThemeSheet }
+        rule.onNodeWithTag("theme_sheet").assertIsDisplayed()
+        rule.runOnIdle { navigator.handleBack() }
+        rule.waitUntil(5_000) { !navigator.settings.isOpen }
+        assertThat(navigator.homeEditing).isTrue()
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.waitUntil(5_000) {
+            runCatching { rule.onNodeWithTag("home_edit_tools").assertDoesNotExist() }.isSuccess
+        }
+        assertThat(navigator.homeEditing).isFalse()
     }
 
     @Test

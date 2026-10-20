@@ -21,6 +21,8 @@ class LauncherNavigator(
     var searchMode by mutableStateOf(SearchMode.TYPING)
     var renameTarget by mutableStateOf<AppKey?>(null)
     var notice by mutableStateOf<Notice?>(null)
+    var homeEditing by mutableStateOf(false)
+        private set
     private var tracePending = false
 
     val acceptsInput: Boolean get() = !settings.isOpen && renameTarget == null
@@ -50,6 +52,11 @@ class LauncherNavigator(
         closeOverlays()
         settings.close()
         renameTarget = null
+        homeEditing = false
+    }
+
+    fun toggleHomeEditing() {
+        homeEditing = !homeEditing
     }
 
     fun openSettings(route: SettingsRoute = SettingsRoute.Root) {
@@ -71,6 +78,7 @@ class LauncherNavigator(
             search.panels.resizing -> search.panels.toggleResize()
             overlay == Overlay.Search -> closeOverlays()
             settings.isOpen -> settings.pop()
+            homeEditing -> homeEditing = false
         }
     }
 }

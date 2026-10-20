@@ -8,7 +8,7 @@ interface HomeGestureCallbacks {
 
     val handle: DragCallbacks
 
-    fun onRowPressed(index: Int?)
+    fun onPressed(rowIndex: Int?, clock: Boolean)
 
     fun onRowTap(index: Int)
 

@@ -40,6 +40,7 @@ import com.mushinlab.launcher.feature.home.HomeActions
 import com.mushinlab.launcher.feature.home.HomeRow
 import com.mushinlab.launcher.feature.home.HomeScreen
 import com.mushinlab.launcher.feature.search.SearchMode
+import com.mushinlab.launcher.feature.settings.SettingsRoute
 
 @Composable
 fun LauncherRoot(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
@@ -101,6 +102,7 @@ private fun HomeLayer(vm: LauncherViewModel) {
         minute = vm.minute,
         actions = actions,
         gesturesEnabled = { input.gesturesEnabled },
+        editing = vm.navigator.homeEditing,
         modifier = Modifier
             .zIndex(0f)
             .graphicsLayer { slideOut(input.exit, shift.value) }
@@ -164,7 +166,15 @@ private fun homeActions(vm: LauncherViewModel, density: Density) = object : Home
 
     override fun onClockMoved(position: ClockPosition) = vm.preferences.update { it.copy(clockPosition = position) }
 
-    override fun onEdit() = vm.homeInput.editCurrentSpace()
+    override fun onEdit() = navigator.toggleHomeEditing()
+
+    override fun onEditBackground() {
+        vm.model.currentSpace?.let { vm.backgrounds.openFromHome(it.id) }
+    }
+
+    override fun onEditText() = navigator.openSettings(SettingsRoute.TextSheet)
+
+    override fun onEditTheme() = navigator.openSettings(SettingsRoute.ThemeSheet)
 
     override fun onAddApps() = vm.homeInput.addApps()
 

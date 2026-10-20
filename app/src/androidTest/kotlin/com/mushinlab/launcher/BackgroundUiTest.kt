@@ -9,7 +9,6 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
@@ -17,7 +16,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.model.CropRect
 import com.mushinlab.launcher.core.ui.MushinColors
-import com.mushinlab.launcher.feature.settings.R as SettingsR
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -44,8 +42,11 @@ class BackgroundUiTest : LauncherUiTestBase() {
 
     private fun normalSpace() = container.spaces.spaces.value.first { it.id == normalId }
 
-    private fun openStyle() {
-        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Style) }
+    private fun openEditor() {
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.BackgroundEditor(normalId)) }
+        rule.waitUntil(5_000) {
+            runCatching { rule.onNodeWithTag("background_preview_image").assertIsDisplayed() }.isSuccess
+        }
     }
 
     private fun assertRowOverRed(tag: String, zebra: ComposeColor, alpha: Float = DEFAULT_ROW_ALPHA) {
@@ -101,32 +102,25 @@ class BackgroundUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun styleShowsTheBackgroundSectionOfTheCurrentSpace() {
-        openStyle()
-        rule.onNodeWithTag("space_background_change").performScrollTo().assertIsDisplayed()
-        val hint = rule.activity.getString(SettingsR.string.style_background_hint, normalSpace().name)
-        rule.onNodeWithText(hint).performScrollTo().assertIsDisplayed()
-        rule.onNodeWithTag("space_background_remove").assertDoesNotExist()
-        rule.onNodeWithTag("space_background_preview").assertDoesNotExist()
+    fun editModeBackgroundButtonOpensTheEditorOfTheCurrentSpace() {
         seedRedBackground()
-        rule.waitUntil(5_000) {
-            runCatching { rule.onNodeWithTag("space_background_remove").performScrollTo() }.isSuccess
-        }
-        rule.onNodeWithTag("space_background_preview").performScrollTo().assertIsDisplayed()
+        rule.waitUntil(5_000) { normalId in container.backgrounds.versions.value }
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("home_edit_background").performClick()
+        val navigator = rule.activity.launcher.navigator
+        rule.waitUntil(5_000) { navigator.settings.top == SettingsRoute.BackgroundEditor(normalId) }
+        rule.onNodeWithTag("background_remove").assertIsDisplayed()
+        rule.onNodeWithTag("background_save").assertIsDisplayed()
+        rule.onNodeWithTag("background_cancel").performClick()
+        rule.waitUntil(5_000) { !navigator.settings.isOpen }
+        assertThat(navigator.homeEditing).isTrue()
     }
 
     @Test
     fun editorShowsTheMockHomeAndSavesTheLook() {
         seedRedBackground()
-        openStyle()
-        rule.waitUntil(5_000) {
-            runCatching { rule.onNodeWithTag("space_background_change").performScrollTo() }.isSuccess &&
-                normalSpace().id in container.backgrounds.versions.value
-        }
-        rule.onNodeWithTag("space_background_change").performScrollTo().performClick()
-        rule.waitUntil(5_000) {
-            runCatching { rule.onNodeWithTag("background_preview_image").assertIsDisplayed() }.isSuccess
-        }
+        rule.waitUntil(5_000) { normalId in container.backgrounds.versions.value }
+        openEditor()
         rule.onNodeWithTag("background_mock_clock").assertIsDisplayed()
         repeat(5) { rule.onNodeWithTag("background_mock_row_$it").assertIsDisplayed() }
         rule.onNodeWithTag("background_brightness").assertIsDisplayed()
@@ -167,20 +161,16 @@ class BackgroundUiTest : LauncherUiTestBase() {
     fun removeDeletesTheImageAndResetsTheLook() {
         seedRedBackground()
         runBlocking { container.looks.setBackgroundLook(normalId, brightness = 0.3f, blur = 0.3f, rowAlpha = 0.4f) }
-        openStyle()
-        rule.waitUntil(5_000) {
-            runCatching { rule.onNodeWithTag("space_background_remove").performScrollTo() }.isSuccess
-        }
-        rule.onNodeWithTag("space_background_remove").performClick()
+        rule.waitUntil(5_000) { normalId in container.backgrounds.versions.value }
+        openEditor()
+        rule.onNodeWithTag("background_remove").performClick()
         rule.waitUntil(5_000) {
             normalId !in container.backgrounds.versions.value &&
                 normalSpace().backgroundBrightness == 0f &&
                 normalSpace().backgroundBlur == 0f &&
                 normalSpace().backgroundRowAlpha == DEFAULT_ROW_ALPHA
         }
-        rule.onNodeWithTag("space_background_remove").assertDoesNotExist()
-        rule.onNodeWithTag("space_background_preview").assertDoesNotExist()
-        rule.runOnIdle { rule.activity.launcher.navigator.settings.close() }
+        rule.onNodeWithTag("background_editor").assertDoesNotExist()
         rule.onNodeWithTag("home_background").assertDoesNotExist()
     }
 

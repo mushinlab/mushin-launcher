@@ -16,6 +16,7 @@ import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
 import com.mushinlab.launcher.core.model.GestureTuning
+import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.PressFeedback
 import com.mushinlab.launcher.core.model.StrokeColor
@@ -95,26 +96,36 @@ class SettingsUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun styleChangesTheFontOfTheWholeApp() {
+    fun styleKeepsOnlyWhatIsNotOnTheHomeScreen() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         rule.onNodeWithTag("nav_style").performClick()
-        rule.onNodeWithTag("palette_picker").assertIsDisplayed()
-        rule.onNodeWithTag("style_colored_icons").assertIsDisplayed()
+        rule.onNodeWithTag("stroke_dots").performScrollTo().assertIsDisplayed()
+        listOf("palette_picker", "style_colored_icons", "font_dropdown", "icon_mode_dropdown").forEach {
+            rule.onNodeWithTag(it).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun textSheetChangesTheFontOfTheWholeAppAndTheAlignment() {
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.TextSheet) }
         rule.onNodeWithTag("font_dropdown").performScrollTo().performClick()
         rule.onNodeWithTag("font_MONTSERRAT").performClick()
         rule.onNodeWithTag("font_weight_dropdown").performScrollTo().performClick()
         rule.onNodeWithTag("font_weight_LIGHT").performClick()
+        rule.onNodeWithTag("text_align_dropdown").performScrollTo().performClick()
+        rule.onNodeWithTag("text_align_END").performClick()
         rule.waitUntil(5_000) {
             container.settings.settings.value.let {
-                it.font == AppFont.MONTSERRAT && it.fontWeight == AppFontWeight.LIGHT
+                it.font == AppFont.MONTSERRAT &&
+                    it.fontWeight == AppFontWeight.LIGHT &&
+                    it.homeTextAlign == HomeTextAlign.END
             }
         }
     }
 
     @Test
-    fun styleOffersElevenThemesIncludingTheNewOnes() {
-        rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
-        rule.onNodeWithTag("nav_style").performClick()
+    fun themeSheetOffersElevenThemesIncludingTheNewOnes() {
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.ThemeSheet) }
         listOf("LAGOON", "PLUM", "EMBER", "MIST", "ROSE").forEach {
             rule.onNodeWithTag("palette_$it").performScrollTo().assertIsDisplayed()
         }

@@ -44,7 +44,7 @@
     <string name="error_generic">Algo salió mal</string>
 
     <string name="space_colored_icons">Iconos en color</string>
-    <string name="space_colored_icons_note">Iconos de las apps en sus propios colores en lugar de monocromos mientras este espacio está activo: en la pantalla de inicio, en la búsqueda y en las sugerencias de la escritura gestual. Se aplica cuando los iconos están activados en «Pantalla de inicio».</string>
+    <string name="space_colored_icons_note">Iconos de las apps en sus propios colores en lugar de monocromos mientras este espacio está activo: en la pantalla de inicio, en la búsqueda y en las sugerencias de la escritura gestual. Se aplica cuando «Iconos» está activado.</string>
     <string name="palette_graphite">Graphite</string>
     <string name="palette_navy">Navy</string>
     <string name="palette_paper">Paper</string>
@@ -63,15 +63,16 @@
     <string name="picker_full">%1$d de %2$d seleccionadas — no caben más en Inicio</string>
 
     <string name="home_icons">Iconos</string>
-    <string name="home_icons_none">Sin iconos</string>
-    <string name="home_icons_left">Izquierda</string>
-    <string name="home_icons_right">Derecha</string>
     <string name="home_clock">Formato de hora</string>
     <string name="home_clock_system">Sistema</string>
     <string name="home_clock_24">24 horas</string>
     <string name="home_clock_12">12 horas</string>
     <string name="home_show_date">Mostrar fecha</string>
     <string name="home_text_size">Tamaño del texto</string>
+    <string name="home_text_align">Alineación del texto</string>
+    <string name="home_text_align_start">Izquierda</string>
+    <string name="home_text_align_center">Centro</string>
+    <string name="home_text_align_end">Derecha</string>
     <string name="home_text_s">Pequeño</string>
     <string name="home_text_m">Mediano</string>
     <string name="home_text_l">Grande</string>
@@ -163,6 +164,7 @@
     <string name="style_font">Fuente</string>
     <string name="style_weight">Grosor</string>
     <string name="style_note">La fuente y el grosor se aplican a toda la app; el tamaño, a la lista de la pantalla de inicio.</string>
+    <string name="style_home_note">La fuente, la alineación del texto, la paleta, los iconos y el fondo ahora se ajustan en la pantalla de inicio: toca ✎ abajo.</string>
     <string name="font_system">Roboto (sistema)</string>
     <string name="weight_light">Fina</string>
     <string name="weight_regular">Normal</string>
@@ -196,12 +198,7 @@
     <string name="memory_sheet_hint">Dibuja cualquier figura de un solo trazo, sobre las letras o no.</string>
     <string name="memory_sheet_short">Demasiado corto: dibuja una línea.</string>
     <string name="memory_sheet_result">Así se recordará el gesto. ¿Añadir, repetir o cancelar?</string>
-    <string name="space_background">Fondo</string>
-    <string name="space_background_change">Cambiar fondo</string>
     <string name="space_background_remove">Quitar fondo</string>
-    <string name="space_background_preview">Fondo del espacio</string>
-    <string name="space_background_note">Una imagen de la galería (PNG, JPEG, WebP, AVIF) detrás de la pantalla de inicio de este espacio. La copia se queda dentro del launcher y nunca se envía a ningún sitio.</string>
-    <string name="style_background_hint">Solo para el espacio actual «%1$s». Cada espacio tiene su propio fondo.</string>
     <string name="background_brightness">Brillo</string>
     <string name="background_blur">Desenfoque</string>
     <string name="background_row_alpha">Fondo de las filas</string>
