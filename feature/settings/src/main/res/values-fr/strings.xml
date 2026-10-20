@@ -209,14 +209,15 @@
     <string name="settings_tips">Astuces</string>
     <string name="summary_tips">De courtes animations sur ce que sait faire le launcher</string>
     <string name="tip_space_title">Configurez votre premier espace</string>
-    <string name="tip_space_text">Touchez le crayon en bas de l’écran d’accueil, choisissez une palette et cochez les applis voulues dans cet espace.</string>
+    <string name="tip_space_text">Touchez le crayon en bas de l’écran d’accueil, puis la palette pour choisir les couleurs. Touchez « Ajouter des applis » pour choisir les applis de cet espace.</string>
     <string name="tip_style_title">Personnalisez le launcher</string>
-    <string name="tip_style_text">Changez la police, la taille du texte et les icônes dans Style. Pour déplacer l’horloge, maintenez-la appuyée et faites-la glisser.</string>
+    <string name="tip_style_text">Touchez le crayon, puis Tt pour changer la police, la taille et l’alignement. Pendant la modification, faites glisser l’horloge ou le trait au-dessus de la liste pour les déplacer.</string>
     <string name="tip_memory_title">Entraînez le launcher</string>
     <string name="tip_memory_text">Dans Système → Avancé → Mémoire, dessinez une forme pour une appli. Dessinez la même forme sur l’écran d’accueil et le launcher propose cette appli.</string>
     <string name="tips_more_title">Pour aller plus loin, voyez les Astuces</string>
     <string name="tips_more_text">Revoyez ces astuces à tout moment dans Paramètres → Astuces.</string>
     <string name="tip_space_name">Personnel</string>
+    <string name="tip_add_apps">Ajouter des applis</string>
     <string-array name="tip_apps">
         <item>Téléphone</item>
         <item>Messages</item>

@@ -207,14 +207,15 @@
     <string name="settings_tips">Tips</string>
     <string name="summary_tips">Animasi singkat tentang kemampuan launcher</string>
     <string name="tip_space_title">Atur ruang pertama Anda</string>
-    <string name="tip_space_text">Ketuk pensil di bagian bawah layar utama, pilih palet, dan centang aplikasi yang Anda inginkan di ruang ini.</string>
+    <string name="tip_space_text">Ketuk pensil di bagian bawah layar utama, lalu palet untuk memilih warna. Ketuk “Tambah aplikasi” untuk memilih aplikasi di ruang ini.</string>
     <string name="tip_style_title">Sesuaikan launcher</string>
-    <string name="tip_style_text">Ubah font, ukuran teks, dan ikon di Gaya. Untuk memindahkan jam, tahan lalu seret.</string>
+    <string name="tip_style_text">Ketuk pensil, lalu Tt untuk mengubah font, ukuran, dan perataan. Saat mengedit, seret jam atau garis di atas daftar untuk memindahkannya.</string>
     <string name="tip_memory_title">Ajari launcher</string>
     <string name="tip_memory_text">Di Sistem → Lanjutan → Memori, gambar bentuk untuk sebuah aplikasi. Gambar bentuk yang sama di layar utama, dan launcher akan menyarankan aplikasi itu.</string>
     <string name="tips_more_title">Selengkapnya, buka Tips</string>
     <string name="tips_more_text">Putar ulang tips ini kapan saja di Setelan → Tips.</string>
     <string name="tip_space_name">Pribadi</string>
+    <string name="tip_add_apps">Tambah aplikasi</string>
     <string-array name="tip_apps">
         <item>Telepon</item>
         <item>Pesan</item>

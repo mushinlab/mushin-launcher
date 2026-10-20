@@ -8,8 +8,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.scale
-import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
@@ -24,71 +22,63 @@ internal fun StyleTipAnimation(modifier: Modifier = Modifier) {
     val colors = LocalMushinColors.current
     val text = rememberMiniText()
     val apps = stringArrayResource(R.array.tip_apps).toList()
-    val root = listOf(
-        stringResource(R.string.settings_style),
-        stringResource(R.string.settings_keyboard),
-        stringResource(R.string.settings_gestures),
-        stringResource(R.string.settings_apps),
-    )
-    val titles = listOf(stringResource(R.string.settings_title), stringResource(R.string.settings_style))
-    val rows = listOf(
+    val strings = listOf(
+        stringResource(R.string.style_text),
         stringResource(R.string.style_font),
         stringResource(R.string.home_text_size),
-        stringResource(R.string.home_icons),
+        stringResource(R.string.home_text_align),
+        stringResource(R.string.home_text_m),
+        stringResource(R.string.home_text_align_start),
+        stringResource(R.string.home_text_align_center),
     )
-    val labels = remember(text, apps, root, titles, rows) { StyleLabels(text, root + titles, rows, apps) }
+    val labels = remember(text, apps, strings) { StyleLabels(text, strings, apps) }
     val motion = remember(labels) { StyleMotion(labels.clock) }
     TipCanvas(LOOP_MS, STILL_MS, modifier) { time -> drawStyleTip(time, colors, labels, motion) }
 }
 
 @Immutable
-private class StyleLabels(text: MiniText, pages: List<String>, rows: List<String>, apps: List<String>) {
+private class StyleLabels(text: MiniText, strings: List<String>, apps: List<String>) {
     private val families = FontChoices.map { MushinFonts.family(it) }
-    val root = pages.take(ROOT_ROWS).map { text.of(it, Scene.LABEL_SIZE) }
-    val settingsTitle = text.of(pages[ROOT_ROWS], Scene.TITLE_SIZE)
-    val styleTitle = text.of(pages[ROOT_ROWS + 1], Scene.TITLE_SIZE)
-    val rows = rows.map { text.of(it, Scene.LABEL_SIZE, maxWidth = StyleGeometry.LABEL_WIDTH) }
-    val fontNames = FontNames.map { text.of(it, Scene.LABEL_SIZE) }
+    val title = text.of(strings[0], Scene.TITLE_SIZE)
+    val rows = strings.subList(1, SIZE_VALUE).map { text.of(it, SHEET_TEXT, maxWidth = StyleGeometry.LABEL_WIDTH) }
+    val size = value(text, strings[SIZE_VALUE])
+    val aligns = strings.drop(SIZE_VALUE + 1).map { value(text, it) }
+    val fontNames = FontNames.map { value(text, it) }
     val apps = families.map { family -> apps.take(HOME_APPS).map { text.of(it, Scene.ROW_SIZE, family) } }
-    val clock = text.of(CLOCK_TEXT, Scene.CLOCK_SIZE, families.last())
+    val clock = MiniClock(text.of(CLOCK_TEXT, Scene.CLOCK_SIZE, families.last()))
+
+    private fun value(text: MiniText, label: String) = text.of(label, SHEET_TEXT, maxWidth = StyleGeometry.VALUE_WIDTH)
 }
 
 @Immutable
-private class StyleMotion(clock: TextLayoutResult) {
-    private val width = clock.size.width.toFloat()
-    private val height = clock.size.height.toFloat()
-    private val slots = listOf(Scene.MARGIN, (Scene.WIDTH - width) / 2, Scene.WIDTH - Scene.MARGIN - width)
-
-    fun clockLeft(slot: Float): Float = if (slot <= 1f) {
-        mix(slots[0], slots[1], slot)
-    } else {
-        mix(slots[1], slots[2], slot - 1f)
-    }
-
-    fun clockCenter(slot: Float) = Offset(clockLeft(slot) + width / 2, Scene.clock.y + height / 2)
-
-    fun slotLeft(index: Int): Float = slots[index]
-
+private class StyleMotion(clock: MiniClock) {
     val finger = Track(
         listOf(
             Key(0, Scene.rest),
-            Key(300, Scene.rest),
-            Key(700, Scene.cardCenter(0)),
-            Key(1200, Scene.cardCenter(0)),
-            Key(1500, StyleGeometry.fontValue),
-            Key(2200, StyleGeometry.fontValue),
-            Key(2550, StyleGeometry.thumb(0f)),
-            Key(3200, StyleGeometry.thumb(1f)),
-            Key(3600, StyleGeometry.switch),
-            Key(3950, StyleGeometry.switch),
-            Key(4300, Scene.back),
-            Key(4750, Scene.back),
-            Key(5100, clockCenter(0f)),
-            Key(6900, clockCenter(2f)),
-            Key(7400, Scene.rest),
+            Key(400, Scene.rest),
+            Key(900, MiniHome.edit),
+            Key(1250, MiniHome.edit),
+            Key(1650, MiniHome.tool(MiniHome.TOOL_TEXT)),
+            Key(2050, MiniHome.tool(MiniHome.TOOL_TEXT)),
+            Key(2450, StyleGeometry.fontValue),
+            Key(3100, StyleGeometry.fontValue),
+            Key(3450, StyleGeometry.alignValue),
+            Key(3650, StyleGeometry.alignValue),
+            Key(SHEET_DRAG_FROM, StyleGeometry.grip),
+            Key(SHEET_DRAG_TO, StyleGeometry.grip + Offset(0f, StyleGeometry.SHEET_DRAG)),
+            Key(CLOCK_FROM, clock.center(0f)),
+            Key(CLOCK_TO, clock.center(MiniClock.LAST_SLOT)),
+            Key(LIST_FROM, MiniHome.handle(MiniHome.LIST_TOP)),
+            Key(LIST_TO, MiniHome.handle(MiniHome.LIST_TOP + StyleGeometry.LIST_SHIFT)),
+            Key(7250, MiniHome.edit),
+            Key(7550, MiniHome.edit),
+            Key(8000, Scene.rest),
         ),
     )
 }
+
+@Immutable
+private data class RowLook(val family: Int, val align: Float, val listTop: Float)
 
 private fun DrawScope.drawStyleTip(time: Float, colors: MushinColors, labels: StyleLabels, motion: StyleMotion) {
     val family = when {
@@ -98,223 +88,121 @@ private fun DrawScope.drawStyleTip(time: Float, colors: MushinColors, labels: St
     }
     val look = RowLook(
         family = family,
-        scale = mix(1f, TEXT_SCALE, ease(time, DRAG_FROM, DRAG_TO)),
-        icons = ease(time, TAP_ICONS + SWITCH_DELAY, TAP_ICONS + SWITCH_DELAY + SWITCH_MS),
+        align = ease(time, TAP_ALIGN + SWITCH_DELAY, TAP_ALIGN + SWITCH_DELAY + ALIGN_MS),
+        listTop = MiniHome.LIST_TOP + StyleGeometry.LIST_SHIFT * ease(time, LIST_FROM, LIST_TO),
     )
-    val settingsOut = ease(time, TAP_BACK + SLIDE_DELAY, TAP_BACK + SLIDE_DELAY + SLIDE_MS)
-    val stylePage = ease(time, TAP_STYLE + SLIDE_DELAY, TAP_STYLE + SLIDE_DELAY + SLIDE_MS)
+    val sheet = sheetOffset(
+        StyleGeometry.SHEET_TOP,
+        open = ease(time, TAP_TEXT + SLIDE_DELAY, TAP_TEXT + SLIDE_DELAY + SLIDE_MS),
+        dragged = StyleGeometry.SHEET_DRAG * ease(time, SHEET_DRAG_FROM, SHEET_DRAG_TO),
+        closed = ease(time, SHEET_DRAG_TO, SHEET_DRAG_TO + SLIDE_MS),
+    )
     scene(colors, loopFade(time, LOOP_MS)) {
-        if (settingsOut > 0f) drawStyledHome(time, colors, labels, motion, look)
-        if (settingsOut < 1f) {
-            translate(left = Scene.WIDTH * settingsOut) {
-                page(colors, 0f, labels.settingsTitle) {
-                    labels.root.forEachIndexed { index, label ->
-                        card(index, colors.surface, label, colors.textPrimary)
-                    }
-                }
-                if (stylePage > 0f) drawStylePage(time, colors, labels, look, Scene.WIDTH * (1f - stylePage))
-            }
-        }
-        val touch = if (time in HOLD_FROM.toFloat()..RELEASE.toFloat()) {
-            motion.clockCenter(slot(time))
-        } else {
-            motion.finger.at(time)
-        }
+        drawStyledHome(time, colors, labels, look)
+        homeSheet(colors, StyleGeometry.SHEET_TOP, sheet, labels.title) { drawTextSheet(colors, labels, look) }
         val press = maxOf(
-            pulse(time, TAP_STYLE, TAP_FONT_1, TAP_FONT_2, TAP_ICONS, TAP_BACK),
-            hold(time, DRAG_FROM - PRESS_LEAD, DRAG_TO),
-            hold(time, HOLD_FROM, RELEASE),
+            pulse(time, TAP_EDIT, TAP_TEXT, TAP_FONT_1, TAP_FONT_2, TAP_ALIGN, TAP_DONE),
+            hold(time, SHEET_DRAG_FROM - PRESS_LEAD, SHEET_DRAG_TO),
+            hold(time, CLOCK_FROM - PRESS_LEAD, CLOCK_TO),
+            hold(time, LIST_FROM - PRESS_LEAD, LIST_TO),
         )
         finger(
             colors,
-            touch,
+            motion.finger.at(time),
             press,
-            phase(time, 0, FINGER_FADE_MS) - phase(time, FINGER_OUT, FINGER_OUT + FINGER_FADE_MS),
+            phase(time, 0, FADE_MS) - phase(time, FINGER_OUT, FINGER_OUT + FADE_MS),
         )
     }
 }
 
-@Immutable
-private data class RowLook(val family: Int, val scale: Float, val icons: Float)
-
-private fun slot(time: Float): Float = ease(time, SLOT_1_FROM, SLOT_1_FROM + SLOT_MS) +
-    ease(time, SLOT_2_FROM, SLOT_2_FROM + SLOT_MS)
-
-private fun DrawScope.drawStylePage(
-    time: Float,
-    colors: MushinColors,
-    labels: StyleLabels,
-    look: RowLook,
-    offsetX: Float,
-) {
-    page(colors, offsetX, labels.styleTitle) {
-        val preview = StyleGeometry.preview
-        drawRoundRect(colors.surface, preview.first, preview.second, CornerRadius(CORNER))
-        styledRows(colors, labels.apps[look.family].take(PREVIEW_APPS), StyleGeometry.PREVIEW_ROWS_TOP, look)
-        StyleGeometry.cards.forEachIndexed { index, (top, height) ->
-            drawRoundRect(
-                colors.surface,
-                Offset(Scene.CARD_INSET, top),
-                Size(Scene.WIDTH - Scene.CARD_INSET * 2, height),
-                CornerRadius(CORNER),
-            )
-            text(labels.rows[index], colors.textPrimary, Offset(StyleGeometry.TEXT_X, top + StyleGeometry.TEXT_TOP))
-        }
-        val name = labels.fontNames[look.family]
-        textCenteredY(
-            name,
-            colors.textSecondary,
-            StyleGeometry.VALUE_RIGHT - name.size.width,
-            StyleGeometry.fontValue.y,
-        )
-        val progress = ease(time, DRAG_FROM, DRAG_TO)
+private fun DrawScope.drawStyledHome(time: Float, colors: MushinColors, labels: StyleLabels, look: RowLook) {
+    val edit = ease(time, TAP_EDIT + EDIT_DELAY, TAP_EDIT + EDIT_DELAY + EDIT_MS) -
+        ease(time, TAP_DONE + EDIT_DELAY, TAP_DONE + EDIT_DELAY + EDIT_MS)
+    editableClock(colors, labels.clock, MiniClock.LAST_SLOT * ease(time, CLOCK_FROM, CLOCK_TO), edit)
+    listHandle(colors, MiniHome.handle(look.listTop), edit, hold(time, LIST_FROM - PRESS_LEAD, LIST_TO))
+    labels.apps[look.family].forEachIndexed { index, label ->
+        val top = look.listTop + Scene.ROW_HEIGHT * index
+        val centerY = top + Scene.ROW_HEIGHT / 2
+        drawRect(colors.zebra(index), Offset(0f, top), Size(Scene.WIDTH, Scene.ROW_HEIGHT))
         drawRoundRect(
-            colors.textSecondary,
-            Offset(StyleGeometry.TRACK_LEFT, StyleGeometry.TRACK_Y - 1f),
-            Size(StyleGeometry.TRACK_RIGHT - StyleGeometry.TRACK_LEFT, 2f),
-            alpha = TRACK_ALPHA,
+            colors.accent,
+            Offset(StyleGeometry.ICON_X, centerY - ICON_SIZE / 2),
+            Size(ICON_SIZE, ICON_SIZE),
+            CornerRadius(ICON_CORNER),
         )
-        val thumb = StyleGeometry.thumb(progress)
-        drawLine(colors.accent, Offset(StyleGeometry.TRACK_LEFT, thumb.y), thumb, strokeWidth = 2f)
-        drawCircle(colors.accent, radius = THUMB_RADIUS, center = thumb)
-        switch(colors, StyleGeometry.switch, look.icons)
+        val centered = Scene.MARGIN + (StyleGeometry.TEXT_RIGHT - Scene.MARGIN - label.size.width) / 2
+        textCenteredY(label, colors.textPrimary, mix(Scene.MARGIN, centered, look.align), centerY)
     }
+    editBar(colors, edit)
 }
 
-private fun DrawScope.switch(colors: MushinColors, center: Offset, on: Float) {
-    val size = Size(SWITCH_WIDTH, SWITCH_HEIGHT)
-    val topLeft = Offset(center.x - SWITCH_WIDTH / 2, center.y - SWITCH_HEIGHT / 2)
-    drawRoundRect(colors.keyBackground, topLeft, size, CornerRadius(SWITCH_HEIGHT / 2))
-    drawRoundRect(colors.accent, topLeft, size, CornerRadius(SWITCH_HEIGHT / 2), alpha = on)
-    val knob = mix(topLeft.x + SWITCH_HEIGHT / 2, topLeft.x + SWITCH_WIDTH - SWITCH_HEIGHT / 2, on)
-    drawCircle(
-        if (on > HALF) colors.background else colors.textSecondary,
-        radius = SWITCH_HEIGHT / 2 - SWITCH_GAP,
-        center = Offset(knob, center.y),
-    )
-}
-
-private fun DrawScope.styledRows(colors: MushinColors, rows: List<TextLayoutResult>, top: Float, look: RowLook) {
-    rows.forEachIndexed { index, label ->
-        val y = top + Scene.ROW_HEIGHT * index
-        val centerY = y + Scene.ROW_HEIGHT / 2
-        drawRect(
-            colors.zebra(index),
-            Offset(Scene.CARD_INSET, y),
-            Size(Scene.WIDTH - Scene.CARD_INSET * 2, Scene.ROW_HEIGHT),
+private fun DrawScope.drawTextSheet(colors: MushinColors, labels: StyleLabels, look: RowLook) {
+    val values = listOf(labels.fontNames[look.family], labels.size, labels.aligns[if (look.align > 0f) 1 else 0])
+    labels.rows.forEachIndexed { index, label ->
+        val centerY = StyleGeometry.rowCenterY(index)
+        drawRoundRect(
+            colors.surface,
+            Offset(Scene.CARD_INSET, centerY - StyleGeometry.ROW_HEIGHT / 2),
+            Size(Scene.WIDTH - Scene.CARD_INSET * 2, StyleGeometry.ROW_HEIGHT),
+            CornerRadius(CARD_CORNER),
         )
-        if (look.icons > 0f) {
-            drawRoundRect(
-                colors.accent,
-                Offset(ICON_X, centerY - ICON_SIZE / 2),
-                Size(ICON_SIZE, ICON_SIZE),
-                CornerRadius(ICON_SIZE / 2 - 1f),
-                alpha = look.icons,
-            )
-        }
-        val x = mix(ICON_X, ICON_X + ICON_SHIFT, look.icons)
-        scale(look.scale, pivot = Offset(x, centerY)) {
-            textCenteredY(label, colors.textPrimary, x, centerY)
-        }
+        textCenteredY(label, colors.textPrimary, StyleGeometry.TEXT_X, centerY)
+        val value = values[index]
+        textCenteredY(value, colors.textSecondary, StyleGeometry.VALUE_RIGHT - value.size.width, centerY)
     }
-}
-
-private fun DrawScope.drawStyledHome(
-    time: Float,
-    colors: MushinColors,
-    labels: StyleLabels,
-    motion: StyleMotion,
-    look: RowLook,
-) {
-    val lift = ease(time, LIFT_FROM, LIFT_FROM + SWITCH_MS) - ease(time, RELEASE, RELEASE + SWITCH_MS)
-    if (lift > 0f) {
-        repeat(SLOTS) { index ->
-            drawRoundRect(
-                colors.divider,
-                Offset(motion.slotLeft(index), Scene.clock.y + labels.clock.size.height + SLOT_GAP),
-                Size(labels.clock.size.width.toFloat(), 2f),
-                alpha = lift,
-            )
-        }
-    }
-    val left = motion.clockLeft(slot(time))
-    val center = motion.clockCenter(slot(time))
-    scale(1f + LIFT_SCALE * lift, pivot = center) {
-        if (lift > 0f) {
-            drawRoundRect(
-                colors.surface,
-                Offset(left - LIFT_PAD, Scene.clock.y - LIFT_PAD),
-                Size(labels.clock.size.width + LIFT_PAD * 2, labels.clock.size.height + LIFT_PAD * 2),
-                CornerRadius(CORNER),
-                alpha = lift,
-            )
-        }
-        clockFace(colors, labels.clock, Offset(left, Scene.clock.y))
-    }
-    styledRows(colors, labels.apps[look.family], Scene.HOME_ROWS_TOP, look)
-    pencil(Scene.pencil, colors.textSecondary)
 }
 
 private object StyleGeometry {
-    const val LABEL_WIDTH = 100f
+    const val SHEET_TOP = 214f
+    const val SHEET_DRAG = 70f
+    const val ROWS_TOP = SHEET_TOP + 44f
+    const val ROW_HEIGHT = 24f
+    const val ROW_STEP = 28f
     const val TEXT_X = 16f
-    const val TEXT_TOP = 7f
     const val VALUE_RIGHT = Scene.WIDTH - 16f
-    const val PREVIEW_ROWS_TOP = 48f
-    const val TRACK_LEFT = 20f
-    const val TRACK_RIGHT = Scene.WIDTH - 20f
-    const val TRACK_Y = 202f
-    const val THUMB_FROM = 70f
-    const val THUMB_TO = 140f
-    val preview = Offset(Scene.CARD_INSET, 40f) to Size(Scene.WIDTH - Scene.CARD_INSET * 2, 88f)
-    val cards = listOf(140f to 26f, 172f to 42f, 220f to 26f)
-    val fontValue = Offset(VALUE_RIGHT - 20f, 153f)
-    val switch = Offset(Scene.WIDTH - 30f, 233f)
+    const val LABEL_WIDTH = 92f
+    const val VALUE_WIDTH = 52f
+    const val VALUE_TAP = 14f
+    const val LIST_SHIFT = 30f
+    const val ICON_X = Scene.WIDTH - Scene.MARGIN - ICON_SIZE
+    const val TEXT_RIGHT = ICON_X - 6f
+    val grip = MiniHome.grip(SHEET_TOP)
+    val fontValue = Offset(VALUE_RIGHT - VALUE_TAP, rowCenterY(0))
+    val alignValue = Offset(VALUE_RIGHT - VALUE_TAP, rowCenterY(2))
 
-    fun thumb(progress: Float) = Offset(mix(THUMB_FROM, THUMB_TO, progress), TRACK_Y)
+    fun rowCenterY(index: Int) = ROWS_TOP + ROW_STEP * index + ROW_HEIGHT / 2
 }
 
 private val FontChoices = listOf(AppFont.SYSTEM, AppFont.MONTSERRAT, AppFont.INTER)
 private val FontNames = listOf("Roboto", "Montserrat", "Inter")
 
 private const val CLOCK_TEXT = "12:45"
-private const val LOOP_MS = 8000
-private const val STILL_MS = 7300
+private const val LOOP_MS = 9000
+private const val STILL_MS = 8000
 private const val SLIDE_MS = 300
 private const val SLIDE_DELAY = 100
+private const val EDIT_DELAY = 50
+private const val EDIT_MS = 200
 private const val SWITCH_DELAY = 60
-private const val SWITCH_MS = 200
-private const val TAP_STYLE = 750
-private const val TAP_FONT_1 = 1550
-private const val TAP_FONT_2 = 2050
-private const val DRAG_FROM = 2600
-private const val DRAG_TO = 3200
+private const val ALIGN_MS = 300
 private const val PRESS_LEAD = 50
-private const val TAP_ICONS = 3650
-private const val TAP_BACK = 4350
-private const val HOLD_FROM = 5100
-private const val LIFT_FROM = 5650
-private const val SLOT_1_FROM = 5900
-private const val SLOT_2_FROM = 6450
-private const val SLOT_MS = 400
-private const val RELEASE = 6900
-private const val FINGER_OUT = 7300
-private const val FINGER_FADE_MS = 300
+private const val TAP_EDIT = 950
+private const val TAP_TEXT = 1700
+private const val TAP_FONT_1 = 2500
+private const val TAP_FONT_2 = 2950
+private const val TAP_ALIGN = 3500
+private const val SHEET_DRAG_FROM = 4000
+private const val SHEET_DRAG_TO = 4350
+private const val CLOCK_FROM = 4800
+private const val CLOCK_TO = 5800
+private const val LIST_FROM = 6250
+private const val LIST_TO = 6750
+private const val TAP_DONE = 7300
+private const val FINGER_OUT = 7550
+private const val FADE_MS = 300
 private const val HOME_APPS = 4
-private const val ROOT_ROWS = 4
-private const val PREVIEW_APPS = 3
-private const val SLOTS = 3
-private const val TEXT_SCALE = 1.3f
-private const val CORNER = 4f
-private const val TRACK_ALPHA = 0.35f
-private const val THUMB_RADIUS = 5f
-private const val SWITCH_WIDTH = 20f
-private const val SWITCH_HEIGHT = 11f
-private const val SWITCH_GAP = 1.5f
-private const val HALF = 0.5f
-private const val ICON_X = 14f
+private const val SIZE_VALUE = 4
+private const val SHEET_TEXT = 9f
+private const val CARD_CORNER = 4f
 private const val ICON_SIZE = 9f
-private const val ICON_SHIFT = 14f
-private const val SLOT_GAP = 16f
-private const val LIFT_SCALE = 0.05f
-private const val LIFT_PAD = 4f
+private const val ICON_CORNER = 3.5f

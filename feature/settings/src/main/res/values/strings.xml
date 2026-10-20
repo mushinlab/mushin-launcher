@@ -208,14 +208,15 @@
     <string name="settings_tips">Tips</string>
     <string name="summary_tips">Short animations about what the launcher can do</string>
     <string name="tip_space_title">Set up your first space</string>
-    <string name="tip_space_text">Tap the pencil at the bottom of the home screen, pick a palette and check the apps you want in this space.</string>
+    <string name="tip_space_text">Tap the pencil at the bottom of the home screen, then the palette to pick colors. Tap “Add apps” to choose the apps of this space.</string>
     <string name="tip_style_title">Customize the launcher</string>
-    <string name="tip_style_text">Change the font, text size and icons in Style. To move the clock, hold it and drag.</string>
+    <string name="tip_style_text">Tap the pencil, then Tt to change the font, size and alignment. While editing, drag the clock or the line above the list to move them.</string>
     <string name="tip_memory_title">Teach the launcher</string>
     <string name="tip_memory_text">In System → Advanced → Memory, draw a shape for an app. Draw the same shape on the home screen and the launcher suggests that app.</string>
     <string name="tips_more_title">For more, explore Tips</string>
     <string name="tips_more_text">Replay these tips any time in Settings → Tips.</string>
     <string name="tip_space_name">Personal</string>
+    <string name="tip_add_apps">Add apps</string>
     <string name="tip_awesome_app" translatable="false">Awesome App</string>
     <string-array name="tip_apps">
         <item>Phone</item>

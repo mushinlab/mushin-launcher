@@ -210,14 +210,15 @@
     <string name="settings_tips">Советы</string>
     <string name="summary_tips">Короткие анимации о том, что умеет лаунчер</string>
     <string name="tip_space_title">Настройте первый спейс</string>
-    <string name="tip_space_text">Нажмите на карандаш внизу главного экрана, выберите палитру и отметьте приложения, которые нужны в этом спейсе.</string>
+    <string name="tip_space_text">Нажмите на карандаш внизу главного экрана, затем на палитру, чтобы выбрать цвета. Нажмите «Добавить приложения», чтобы выбрать приложения этого спейса.</string>
     <string name="tip_style_title">Настройте лаунчер под себя</string>
-    <string name="tip_style_text">Шрифт, размер текста и значки меняются в «Стиле». Часы можно передвинуть: удержите их и перетащите.</string>
+    <string name="tip_style_text">Нажмите на карандаш, затем на Tт, чтобы сменить шрифт, размер и выравнивание. В режиме правки перетащите часы или черту над списком, чтобы передвинуть их.</string>
     <string name="tip_memory_title">Научите лаунчер</string>
     <string name="tip_memory_text">В «Системе → Дополнительно → Память» нарисуйте фигуру для приложения. Нарисуйте её же на главном экране, и лаунчер предложит это приложение.</string>
     <string name="tips_more_title">Больше — в «Советах»</string>
     <string name="tips_more_text">Эти подсказки всегда можно посмотреть снова: «Настройки → Советы».</string>
     <string name="tip_space_name">Личное</string>
+    <string name="tip_add_apps">Добавить приложения</string>
     <string-array name="tip_apps">
         <item>Телефон</item>
         <item>Сообщения</item>

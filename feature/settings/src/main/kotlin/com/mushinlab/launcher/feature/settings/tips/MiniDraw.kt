@@ -46,6 +46,7 @@ internal object Scene {
     const val SMALL_SIZE = 8f
     const val ROW_SIZE = 11f
     const val CLOCK_SIZE = 30f
+    const val DATE_GAP = 4f
     val back = Offset(16f, HEADER_Y)
     val pencil = Offset(WIDTH - 20f, HEIGHT - 16f)
     val rest = Offset(WIDTH * 0.66f, HEIGHT * 0.84f)
@@ -144,7 +145,7 @@ internal fun DrawScope.backArrow(center: Offset, color: Color, circle: Color) {
     drawPath(path, color, style = stroke)
 }
 
-internal fun DrawScope.pencil(center: Offset, color: Color) {
+internal fun DrawScope.pencil(center: Offset, color: Color, alpha: Float = 1f) {
     val stroke = Stroke(width = ICON_STROKE, cap = StrokeCap.Round, join = StrokeJoin.Round)
     val path = Path().apply {
         moveTo(center.x - PENCIL_HALF, center.y + PENCIL_HALF)
@@ -154,7 +155,7 @@ internal fun DrawScope.pencil(center: Offset, color: Color) {
         lineTo(center.x - PENCIL_HALF + PENCIL_TIP, center.y + PENCIL_HALF)
         close()
     }
-    drawPath(path, color, style = stroke)
+    drawPath(path, color, alpha = alpha, style = stroke)
 }
 
 internal fun DrawScope.zebraRows(
@@ -187,7 +188,7 @@ internal fun DrawScope.clockFace(colors: MushinColors, clock: TextLayoutResult, 
     drawText(clock, colors.textPrimary, at)
     drawRoundRect(
         colors.textSecondary,
-        topLeft = Offset(at.x + 1f, at.y + clock.size.height + DATE_GAP),
+        topLeft = Offset(at.x + 1f, at.y + clock.size.height + Scene.DATE_GAP),
         size = Scene.dateSize,
         cornerRadius = CornerRadius(Scene.dateSize.height / 2),
         alpha = DATE_ALPHA,
@@ -202,5 +203,4 @@ private const val ARROW_HALF = 4.5f
 private const val ARROW_HEAD = 3.5f
 private const val PENCIL_HALF = 5.5f
 private const val PENCIL_TIP = 3f
-private const val DATE_GAP = 4f
 private const val DATE_ALPHA = 0.5f
