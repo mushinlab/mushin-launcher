@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 — 2026-10-21
 
 ### Added
 - Home edit mode (ADR-0028). The pencil at the bottom of the home screen now switches edit mode on and off (it turns into a check mark).
