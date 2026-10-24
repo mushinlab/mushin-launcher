@@ -32,6 +32,7 @@ internal fun AddAppsRow(
     rowStyle: RowStyle,
     background: Color,
     registry: RowRegistry,
+    enabled: Boolean,
     onClick: () -> Unit,
 ) {
     DisposableEffect(Unit) { onDispose { registry.block(HOME_ADD, null) } }
@@ -41,7 +42,7 @@ internal fun AddAppsRow(
             .height(rowStyle.height)
             .background(background)
             .onGloballyPositioned { registry.block(HOME_ADD, it.boundsInRoot()) }
-            .pressable(onClick = onClick)
+            .pressable(enabled = enabled, onClick = onClick)
             .testTag(HOME_ADD)
             .padding(horizontal = HomeDimens.rowPadding),
         verticalAlignment = Alignment.CenterVertically,

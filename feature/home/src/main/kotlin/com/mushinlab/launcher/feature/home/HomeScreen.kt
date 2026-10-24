@@ -203,6 +203,7 @@ private fun HomeColumn(
                     registry = registry,
                     rowStyle = RowStyle(textStyle, rowHeight, rowColor),
                     pressedRow = { gestures.pressedRow },
+                    shown = { EditList.shown(it, editing, gestures.handle.active) },
                     onAddApps = { actions.value.onAddApps() },
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                 ) { capacity ->
@@ -308,6 +309,7 @@ private fun FavoritesList(
     registry: RowRegistry,
     rowStyle: RowStyle,
     pressedRow: () -> Int?,
+    shown: (Int) -> Boolean,
     onAddApps: () -> Unit,
     modifier: Modifier,
     onCapacity: (Int) -> Unit,
@@ -320,25 +322,31 @@ private fun FavoritesList(
         Column(verticalArrangement = Arrangement.Top) {
             visible.forEachIndexed { index, row ->
                 val pressed = pressedRow() == index
-                FavoriteRow(
-                    index,
-                    row,
-                    RowLayout(state.iconMode, state.textAlign),
-                    rowStyle.text,
-                    rowStyle.height,
-                    registry,
-                    rowStyle.color(index),
-                    pressed,
-                )
+                Reveal(shown(index)) {
+                    FavoriteRow(
+                        index,
+                        row,
+                        RowLayout(state.iconMode, state.textAlign),
+                        rowStyle.text,
+                        rowStyle.height,
+                        registry,
+                        rowStyle.color(index),
+                        pressed,
+                    )
+                }
             }
             if (state.rows.size < capacity) {
-                AddAppsRow(
-                    RowLayout(state.iconMode, state.textAlign),
-                    rowStyle,
-                    rowStyle.color(visible.size),
-                    registry,
-                    onAddApps,
-                )
+                val addShown = shown(visible.size)
+                Reveal(addShown) {
+                    AddAppsRow(
+                        RowLayout(state.iconMode, state.textAlign),
+                        rowStyle,
+                        rowStyle.color(visible.size),
+                        registry,
+                        enabled = addShown,
+                        onClick = onAddApps,
+                    )
+                }
             }
         }
     }
