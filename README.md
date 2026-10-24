@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/release/assets/banner.png" width="100%" alt="Mushin launcher">
+</p>
+
 # Mushin Launcher
 
 A minimalist text launcher for Android that gets you to the right app in one touch and nothing more.
