@@ -1,6 +1,6 @@
 # Политика конфиденциальности Mushin Launcher / Mushin Launcher Privacy Policy
 
-Вступает в силу: 2026-10-18. Разработчик: Mushin Lab. Контакт: mushin-lab@proton.me.
+Вступает в силу: 2026-10-24. Разработчик: Mushin Lab. Контакт: mushin-lab@proton.me.
 
 Эту страницу нужно опубликовать по постоянному публичному адресу и указать этот адрес в Play Console («Политика и программы → Контент приложения → Политика конфиденциальности»). Тот же текст есть в приложении: «Настройки → Система → Конфиденциальность»; всё выученное можно посмотреть и стереть в «Настройки → Система → Дополнительно → Память».
 
@@ -14,7 +14,7 @@
 - История запусков: когда и как часто открывалось каждое приложение, недавние приложения каждого спейса и дни за последние две недели, в которые приложение открывалось в спейсе, а также время последней подсказки «?». Используется для сортировки поиска, списка недавних и подсказок для главного экрана. Стирается в «Настройки → Система → Дополнительно → Память → Стереть историю запусков».
 - Копия списка главного экрана для быстрого запуска и технический журнал завершений процесса лаунчера (причина и объём памяти, без личных данных).
 - Выученные жесты: последовательности букв и форма нарисованных путей и приложение, к которому они относятся.
-- Изображения фона, если вы их выбрали: для каждого спейса — уменьшенная копия выбранной части одного снимка из галереи. Лаунчер получает только выбранные снимки через системный выбор фото, доступа к остальной галерее у него нет.
+- Изображения фона, если вы их выбрали: для каждого спейса — копия выбранной части встроенной картинки или цвета либо уменьшенная копия одного снимка из галереи. Снимки из галереи лаунчер получает только через системный выбор фото и только те, что вы выбрали; доступа к остальной галерее у него нет.
 
 Эти данные хранятся только в личной папке приложения и не включаются в резервные копии и перенос на другое устройство. Они удаляются при удалении Mushin Launcher. Данные приложения можно удалить вручную: «Настройки → Приложения → Mushin Launcher → Хранилище → Очистить хранилище».
 
@@ -36,7 +36,7 @@
 - Launch history: when and how often each app was opened, the recent apps of each space, the days in the last two weeks an app was opened in a space, and the time of the last “?” hint. It is used to rank search, list recent apps and suggest apps for the home screen. Erase it in Settings → System → Advanced → Memory → Erase launch history.
 - A copy of the home list for a fast start and a technical log of how the launcher process ended (reason and memory, no personal data).
 - Learned gestures: the letter sequences and shapes of drawn paths and the app each one belongs to.
-- Background images, if you choose them: for each space, a reduced copy of the chosen part of one photo from your gallery. The launcher receives only the photos you pick through the system photo picker and has no access to the rest of your gallery.
+- Background images, if you choose them: for each space, a copy of the chosen part of a built-in picture or colour, or a reduced copy of one photo from your gallery. The launcher receives gallery photos only through the system photo picker and only the ones you pick; it has no access to the rest of your gallery.
 
 This data is kept only in the app's private storage. It is excluded from backups and device-to-device transfer, and it is deleted when you uninstall Mushin Launcher. You can also delete it manually in Settings → Apps → Mushin Launcher → Storage → Clear storage.
 

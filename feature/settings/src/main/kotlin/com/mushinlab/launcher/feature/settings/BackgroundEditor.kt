@@ -78,7 +78,13 @@ internal class BackgroundEditor(brightness: Float, blur: Float, rowAlpha: Float)
 }
 
 @Composable
-internal fun BackgroundEditorScreen(spaceId: Long, state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+internal fun BackgroundEditorScreen(
+    spaceId: Long,
+    state: SettingsUiState,
+    actions: SettingsActions,
+    push: (SettingsRoute) -> Unit,
+    back: () -> Unit,
+) {
     val space = state.spaces.firstOrNull { it.id == spaceId }
     if (space == null) {
         back()
@@ -93,6 +99,7 @@ internal fun BackgroundEditorScreen(spaceId: Long, state: SettingsUiState, actio
     }
     LaunchedEffect(image) { editor.crop = BackgroundCrop() }
     val window = LocalWindowInfo.current.containerSize
+    var confirmRemove by remember { mutableStateOf(false) }
     Column(
         Modifier
             .fillMaxSize()
@@ -102,18 +109,13 @@ internal fun BackgroundEditorScreen(spaceId: Long, state: SettingsUiState, actio
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
         EditorBar {
             EditorButton(stringResource(R.string.settings_cancel), "background_cancel", onClick = back)
-            Spacer(Modifier.weight(1f))
-            EditorButton(stringResource(R.string.background_other), "background_other") { background.pick(spaceId) }
         }
         EditorPreview(space, state.settings, image, editor, window, Modifier.weight(1f).fillMaxWidth())
         EditorSliders(editor)
+        ImageActions(replaceable = image != null, onRemove = { confirmRemove = true }) {
+            push(SettingsRoute.BackgroundPicker(spaceId))
+        }
         EditorBar {
-            if (space.hasBackground) {
-                EditorButton(stringResource(R.string.space_background_remove), "background_remove") {
-                    background.remove(spaceId)
-                    back()
-                }
-            }
             Spacer(Modifier.weight(1f))
             EditorButton(
                 stringResource(R.string.settings_save),
@@ -126,6 +128,18 @@ internal fun BackgroundEditorScreen(spaceId: Long, state: SettingsUiState, actio
             }
         }
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
+    }
+    if (confirmRemove) {
+        ConfirmDialog(
+            message = stringResource(R.string.background_remove_confirm),
+            confirm = stringResource(R.string.space_background_remove),
+            onConfirm = {
+                confirmRemove = false
+                background.remove(spaceId)
+                back()
+            },
+            onDismiss = { confirmRemove = false },
+        )
     }
 }
 

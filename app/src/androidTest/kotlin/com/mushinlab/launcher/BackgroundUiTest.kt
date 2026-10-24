@@ -109,6 +109,42 @@ class BackgroundUiTest : LauncherUiTestBase() {
     }
 
     @Test
+    fun withoutAnImageTheBackgroundButtonOpensThePresetsAndAPresetGoesToTheEditor() {
+        val navigator = rule.activity.launcher.navigator
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("home_edit_background").performClick()
+        rule.waitUntil(5_000) { navigator.settings.top == SettingsRoute.BackgroundPicker(normalId) }
+        listOf("folder_PLAIN", "folder_JAPANESE", "folder_COSMOS", "folder_gallery").forEach {
+            rule.onNodeWithTag(it).performScrollTo().assertIsDisplayed()
+        }
+        rule.onNodeWithTag("folder_JAPANESE").performClick()
+        rule.onNodeWithTag("preset_JAPANESE_9").performScrollTo().assertIsDisplayed()
+        rule.onNodeWithTag("preset_JAPANESE_0").performScrollTo().performClick()
+        rule.waitUntil(5_000) { navigator.settings.routes == listOf(SettingsRoute.BackgroundEditor(normalId)) }
+        rule.waitUntil(5_000) {
+            runCatching { rule.onNodeWithTag("background_preview_image").assertIsDisplayed() }.isSuccess
+        }
+        rule.onNodeWithTag("background_replace").assertIsDisplayed()
+        rule.onNodeWithTag("background_save").performClick()
+        rule.waitUntil(5_000) { normalId in container.backgrounds.versions.value && !navigator.settings.isOpen }
+    }
+
+    @Test
+    fun replaceImageOpensThePresetsAndASolidColourReplacesTheImage() {
+        seedRedBackground()
+        rule.waitUntil(5_000) { normalId in container.backgrounds.versions.value }
+        openEditor()
+        rule.onNodeWithTag("background_replace").performClick()
+        val navigator = rule.activity.launcher.navigator
+        rule.waitUntil(5_000) { navigator.settings.top == SettingsRoute.BackgroundPicker(normalId) }
+        rule.onNodeWithTag("folder_PLAIN").performClick()
+        rule.onNodeWithTag("preset_PLAIN_7").performScrollTo().performClick()
+        rule.waitUntil(5_000) { navigator.settings.routes == listOf(SettingsRoute.BackgroundEditor(normalId)) }
+        rule.onNodeWithTag("background_save").performClick()
+        rule.waitUntil(5_000) { !navigator.settings.isOpen }
+    }
+
+    @Test
     fun editorShowsTheMockHomeAndSavesTheLook() {
         seedRedBackground()
         rule.waitUntil(5_000) { normalId in container.backgrounds.versions.value }
@@ -156,6 +192,8 @@ class BackgroundUiTest : LauncherUiTestBase() {
         rule.waitUntil(5_000) { normalId in container.backgrounds.versions.value }
         openEditor()
         rule.onNodeWithTag("background_remove").performClick()
+        assertThat(normalId in container.backgrounds.versions.value).isTrue()
+        rule.onNodeWithTag("dialog_button_1").performClick()
         rule.waitUntil(5_000) {
             normalId !in container.backgrounds.versions.value &&
                 normalSpace().backgroundBrightness == 0f &&

@@ -1,6 +1,7 @@
 package com.mushinlab.launcher
 
 import android.content.ContentResolver
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.compose.runtime.mutableLongStateOf
@@ -53,6 +54,7 @@ import kotlinx.coroutines.withContext
 class LauncherViewModel(
     private val container: AppContainer,
     contentResolver: ContentResolver,
+    resources: Resources,
     initial: HomeSnapshot?,
     private val versionName: String,
     savedState: SavedStateHandle,
@@ -103,7 +105,7 @@ class LauncherViewModel(
 
     val model: LauncherModel = RepositoryLauncherModel(container, data, spaces, apps, preferences)
     val navigator = LauncherNavigator()
-    val backgrounds = SpaceBackgroundEditor(container, contentResolver, viewModelScope, navigator) {
+    val backgrounds = SpaceBackgroundEditor(container, contentResolver, resources, viewModelScope, navigator) {
         effectChannel.trySend(it)
     }
     val launches = AppLaunches(model, navigator)

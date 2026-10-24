@@ -25,6 +25,7 @@ enum class Glyph(@param:DrawableRes val res: Int) {
     ADD(R.drawable.ic_add),
     BACK(R.drawable.ic_arrow_back),
     CHECK(R.drawable.ic_check),
+    DELETE(R.drawable.ic_delete),
     EDIT(R.drawable.ic_edit),
     HELP(R.drawable.ic_help),
     IMAGE(R.drawable.ic_image),

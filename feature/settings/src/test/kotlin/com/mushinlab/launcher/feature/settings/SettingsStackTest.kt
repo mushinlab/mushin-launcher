@@ -11,6 +11,8 @@ class SettingsStackTest {
         SettingsRoute.SpaceEditor(7),
         SettingsRoute.PickApps(7),
         SettingsRoute.BackgroundEditor(7),
+        SettingsRoute.BackgroundPicker(7),
+        SettingsRoute.BackgroundFolder(7, PresetFolder.JAPANESE),
         SettingsRoute.PickGestureApp(SwipeDirection.LEFT),
         SettingsRoute.ClockSheet,
         SettingsRoute.TextSheet,

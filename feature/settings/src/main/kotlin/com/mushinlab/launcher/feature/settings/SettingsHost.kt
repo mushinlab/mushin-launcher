@@ -74,6 +74,8 @@ private fun SettingsRouteScreen(
         is SettingsRoute.SpaceEditor,
         is SettingsRoute.PickApps,
         is SettingsRoute.BackgroundEditor,
+        is SettingsRoute.BackgroundPicker,
+        is SettingsRoute.BackgroundFolder,
         ->
             SpaceRouteScreen(route, state, actions, push, back)
 
@@ -108,7 +110,9 @@ private fun SpaceRouteScreen(
 ) {
     when (route) {
         is SettingsRoute.PickApps -> SpaceAppPicker(route.spaceId, state, actions, back)
-        is SettingsRoute.BackgroundEditor -> BackgroundEditorScreen(route.spaceId, state, actions, back)
+        is SettingsRoute.BackgroundEditor -> BackgroundEditorScreen(route.spaceId, state, actions, push, back)
+        is SettingsRoute.BackgroundPicker -> BackgroundPickerScreen(route.spaceId, actions, push, back)
+        is SettingsRoute.BackgroundFolder -> BackgroundFolderScreen(route.spaceId, route.folder, actions, back)
         is SettingsRoute.SpaceEditor -> SpaceEditorScreen(route.spaceId, state, actions, push, back)
         else -> Unit
     }

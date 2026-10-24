@@ -1,6 +1,7 @@
 package com.mushinlab.launcher
 
 import android.content.ContentResolver
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
@@ -8,6 +9,7 @@ import com.mushinlab.launcher.core.model.BackgroundCrop
 import com.mushinlab.launcher.core.model.CropFrame
 import com.mushinlab.launcher.core.model.SpaceBackground
 import com.mushinlab.launcher.feature.settings.BackgroundEdit
+import com.mushinlab.launcher.feature.settings.BackgroundPreset
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,52 +24,61 @@ class EditingImage(val spaceId: Long, val bitmap: Bitmap, val fromFile: Boolean)
 class SpaceBackgroundEditor(
     private val container: AppContainer,
     private val contentResolver: ContentResolver,
+    private val resources: Resources,
     private val scope: CoroutineScope,
     private val navigator: LauncherNavigator,
     private val request: (LauncherEffect) -> Unit,
 ) {
     private val editing = MutableStateFlow<EditingImage?>(null)
     private var pickTarget: Long? = null
-    private var pickFromHome = false
     val source: StateFlow<EditingImage?> = editing.asStateFlow()
 
     fun pick(spaceId: Long) {
         pickTarget = spaceId
-        pickFromHome = false
         request(LauncherEffect.PickBackground(spaceId))
     }
 
     fun openFromHome(spaceId: Long) {
-        if (spaceId in container.backgrounds.versions.value) {
-            navigator.openSettings(SettingsRoute.BackgroundEditor(spaceId))
+        val route = if (spaceId in container.backgrounds.versions.value) {
+            SettingsRoute.BackgroundEditor(spaceId)
         } else {
-            pick(spaceId)
-            pickFromHome = true
+            SettingsRoute.BackgroundPicker(spaceId)
+        }
+        navigator.openSettings(route)
+    }
+
+    fun usePreset(spaceId: Long, preset: BackgroundPreset) {
+        scope.launch {
+            val bitmap = withContext(Dispatchers.IO) {
+                when (preset) {
+                    is BackgroundPreset.Plain -> plainBitmap(preset.argb)
+
+                    is BackgroundPreset.Picture ->
+                        container.backgrounds.decode(ImageDecoder.createSource(resources, preset.image))
+                }
+            }
+            open(spaceId, bitmap)
         }
     }
 
     fun onPicked(uri: Uri?) {
         val spaceId = pickTarget ?: return
-        val fromHome = pickFromHome
         pickTarget = null
-        pickFromHome = false
         if (uri == null) return
         val source = ImageDecoder.createSource(contentResolver, uri)
         scope.launch {
             val bitmap = withContext(Dispatchers.IO) { container.backgrounds.decode(source) }
-            if (bitmap == null) {
-                navigator.notice = Notice(R.string.notice_background_failed)
-                return@launch
-            }
-            val route = SettingsRoute.BackgroundEditor(spaceId)
-            val open = navigator.settings.isOpen
-            if (!open && !fromHome) return@launch
-            editing.value = EditingImage(spaceId, bitmap, fromFile = false)
-            when {
-                !open -> navigator.openSettings(route)
-                navigator.settings.top != route -> navigator.settings.push(route)
-            }
+            if (navigator.settings.isOpen) open(spaceId, bitmap)
         }
+    }
+
+    private fun open(spaceId: Long, bitmap: Bitmap?) {
+        if (bitmap == null) {
+            navigator.notice = Notice(R.string.notice_background_failed)
+            return
+        }
+        editing.value = EditingImage(spaceId, bitmap, fromFile = false)
+        navigator.settings.open(SettingsRoute.BackgroundEditor(spaceId))
     }
 
     fun edit(spaceId: Long) {
@@ -124,3 +135,9 @@ class SpaceBackgroundEditor(
         const val THUMBNAIL_DP = 160f
     }
 }
+
+private fun plainBitmap(argb: Int): Bitmap =
+    Bitmap.createBitmap(PLAIN_WIDTH, PLAIN_HEIGHT, Bitmap.Config.ARGB_8888).apply { eraseColor(argb) }
+
+private const val PLAIN_WIDTH = 90
+private const val PLAIN_HEIGHT = 200

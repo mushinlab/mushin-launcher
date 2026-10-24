@@ -2,10 +2,15 @@
 
 ## Unreleased
 
+### Added
+- Built-in backgrounds (ADR-0032). The new “Choose background” page has the folders Solid color (eight calm colours), Japanese (ten ink-style pictures, five light and five dark), Cosmos (empty for now) and From gallery, which opens the system photo picker. A chosen picture or colour opens in the background editor. The Background button in edit mode opens this page when the space has no image yet.
+
 ### Changed
 - Home rows (ADR-0030): the app icon now follows the label instead of sitting at the right edge. With centre alignment the label is centred on the screen's centre line; with right alignment the label and icon sit at the right edge. The “Add apps” row follows the same rule.
 - In edit mode the check mark button is twice as large (80 dp instead of 40 dp) and grows and shrinks in 200 ms.
 - The Clock, Text and Theme sheets have a shadow instead of an outline and slide up from the bottom when they open and down when they close.
+- Background editor: under the sliders, two buttons with an icon and a label: “Remove background”, which asks for confirmation first, and “Replace image”, which opens “Choose background”. “Other image” at the top is gone.
+- The privacy policy (effective 2026-10-24) mentions built-in backgrounds.
 - In edit mode only the first five rows of the home list are shown (ADR-0031); the whole list fades in while the line above it is dragged and fades out again on release.
 
 ## 0.4.0 — 2026-10-21

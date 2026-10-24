@@ -28,6 +28,10 @@ sealed interface SettingsRoute {
 
     data class BackgroundEditor(val spaceId: Long) : SettingsRoute
 
+    data class BackgroundPicker(val spaceId: Long) : SettingsRoute
+
+    data class BackgroundFolder(val spaceId: Long, val folder: PresetFolder) : SettingsRoute
+
     data class PickGestureApp(val direction: SwipeDirection) : SettingsRoute
 
     data object ClockSheet : SettingsRoute

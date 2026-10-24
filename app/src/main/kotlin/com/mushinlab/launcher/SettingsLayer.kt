@@ -19,6 +19,7 @@ import com.mushinlab.launcher.core.search.GestureSample
 import com.mushinlab.launcher.feature.settings.AppActions
 import com.mushinlab.launcher.feature.settings.BackgroundActions
 import com.mushinlab.launcher.feature.settings.BackgroundEdit
+import com.mushinlab.launcher.feature.settings.BackgroundPreset
 import com.mushinlab.launcher.feature.settings.BackgroundSource
 import com.mushinlab.launcher.feature.settings.MemoryActions
 import com.mushinlab.launcher.feature.settings.PreferenceActions
@@ -94,6 +95,8 @@ private fun systemActions(vm: LauncherViewModel) = object : SystemActions {
 
 private fun backgroundActions(vm: LauncherViewModel) = object : BackgroundActions {
     override fun pick(spaceId: Long) = vm.backgrounds.pick(spaceId)
+
+    override fun usePreset(spaceId: Long, preset: BackgroundPreset) = vm.backgrounds.usePreset(spaceId, preset)
 
     override fun edit(spaceId: Long) = vm.backgrounds.edit(spaceId)
 

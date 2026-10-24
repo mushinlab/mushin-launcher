@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
                 LauncherViewModel(
                     container = container,
                     contentResolver = applicationContext.contentResolver,
+                    resources = applicationContext.resources,
                     initial = container.snapshots.read(),
                     versionName = packageManager.getPackageInfo(packageName, 0).versionName.orEmpty(),
                     savedState = createSavedStateHandle(),

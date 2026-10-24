@@ -30,6 +30,10 @@ object SettingsRouteCodec {
 
         is SettingsRoute.BackgroundEditor -> join("BackgroundEditor", route.spaceId)
 
+        is SettingsRoute.BackgroundPicker -> join("BackgroundPicker", route.spaceId)
+
+        is SettingsRoute.BackgroundFolder -> join("BackgroundFolder", route.spaceId, route.folder.name)
+
         is SettingsRoute.PickGestureApp -> join("PickGestureApp", route.direction.name)
 
         is SettingsRoute.MemoryApp -> with(route.key) {
@@ -52,6 +56,10 @@ object SettingsRouteCodec {
         "PickApps" -> SettingsRoute.PickApps(parts[1].toLong())
 
         "BackgroundEditor" -> SettingsRoute.BackgroundEditor(parts[1].toLong())
+
+        "BackgroundPicker" -> SettingsRoute.BackgroundPicker(parts[1].toLong())
+
+        "BackgroundFolder" -> SettingsRoute.BackgroundFolder(parts[1].toLong(), PresetFolder.valueOf(parts[2]))
 
         "PickGestureApp" -> SettingsRoute.PickGestureApp(SwipeDirection.valueOf(parts[1]))
 

@@ -64,6 +64,8 @@ interface SystemActions {
 interface BackgroundActions {
     fun pick(spaceId: Long)
 
+    fun usePreset(spaceId: Long, preset: BackgroundPreset)
+
     fun edit(spaceId: Long)
 
     fun close(spaceId: Long)
