@@ -84,9 +84,9 @@ class MemoryUiTest : LauncherUiTestBase() {
     fun learnHintCloseOffersHideAndNeverSuggest() {
         runBlocking { container.gestureLearning.update { emptyList() } }
         repeat(HomeInteractions.LEARN_HINT_MISSES) { drawOnHome("qazwsx", scale = 1f) }
-        rule.onNodeWithTag("learn_hint_close").performClick()
-        rule.onNodeWithTag("learn_hint_hide").assertIsDisplayed()
-        rule.onNodeWithTag("learn_hint_never").performClick()
+        rule.onNodeWithTag("learn_hint_close", useUnmergedTree = true).performClick()
+        rule.onNodeWithTag("learn_hint_hide", useUnmergedTree = true).assertIsDisplayed()
+        rule.onNodeWithTag("learn_hint_never", useUnmergedTree = true).performClick()
         rule.waitUntil(5_000) { !container.settings.settings.value.learnHints }
         rule.onNodeWithTag("learn_hint").assertDoesNotExist()
         repeat(HomeInteractions.LEARN_HINT_MISSES) { drawOnHome("qazwsx", scale = 1f) }
