@@ -6,13 +6,6 @@
 
 A minimalist text launcher for Android that gets you to the right app in one touch and nothing more.
 
-<p>
-  <img src="docs/release/assets/screenshots/en-1-home.png" width="200" alt="Home screen">
-  <img src="docs/release/assets/screenshots/en-2-search.png" width="200" alt="Search">
-  <img src="docs/release/assets/screenshots/en-3-gesture.png" width="200" alt="Drawing an app name">
-  <img src="docs/release/assets/screenshots/en-4-popup.png" width="200" alt="App menu">
-</p>
-
 ## Why
 
 - **A grid of colourful icons invites aimless launches.** Mushin shows a short list of names with muted icons. No feeds, widgets, badges or ads.
