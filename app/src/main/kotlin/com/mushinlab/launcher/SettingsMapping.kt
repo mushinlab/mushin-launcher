@@ -78,7 +78,7 @@ internal fun SettingsUiState.withMemory(samples: List<LearnedGesture>, usage: Ma
                 val label = labels[key] ?: return@mapNotNull null
                 val drawings = list.sortedByDescending {
                     it.weight
-                }.map { LearnedDrawing(it.path, it.weight, it.shape) }
+                }.map { LearnedDrawing(it.path, it.weight, it.shape.toImmutableList()) }
                 LearnedApp(key, label, drawings.toImmutableList())
             }
             .sortedWith(Alphabet.comparator { it.label })

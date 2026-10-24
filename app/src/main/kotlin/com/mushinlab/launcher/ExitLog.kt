@@ -34,7 +34,6 @@ class ExitLog(private val context: Context) {
             "pss=${info.pss}",
             "rss=${info.rss}",
             if (memoryLimiter) "MEMORY_LIMITER" else "-",
-            info.description.orEmpty().replace('\n', ' '),
         ).joinToString("\t")
     }
 

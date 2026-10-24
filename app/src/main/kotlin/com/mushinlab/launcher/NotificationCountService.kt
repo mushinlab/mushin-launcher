@@ -6,26 +6,44 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import com.mushinlab.launcher.core.apps.NotificationCounts
 import com.mushinlab.launcher.core.apps.PostedNotification
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 class NotificationCountService : NotificationListenerService() {
     private val container get() = (application as MushinApp).container
+    private var watch: Job? = null
 
-    override fun onListenerConnected() = publish()
+    override fun onListenerConnected() {
+        watch?.cancel()
+        watch = container.scope.launch {
+            container.settings.loaded.filterNotNull().map { it.notificationCounts }.distinctUntilChanged()
+                .collect { on -> if (on) publish() else stop() }
+        }
+    }
 
-    override fun onNotificationPosted(sbn: StatusBarNotification?) = publish()
+    override fun onNotificationPosted(sbn: StatusBarNotification?) = publishIfOn()
 
-    override fun onNotificationRemoved(sbn: StatusBarNotification?) = publish()
+    override fun onNotificationRemoved(sbn: StatusBarNotification?) = publishIfOn()
 
     override fun onListenerDisconnected() {
+        watch?.cancel()
+        watch = null
         container.notificationCounts.value = emptyMap()
     }
 
+    private fun publishIfOn() {
+        if (container.settings.loaded.value?.notificationCounts == true) publish()
+    }
+
+    private fun stop() {
+        container.notificationCounts.value = emptyMap()
+        requestUnbind()
+    }
+
     private fun publish() {
-        if (container.settings.loaded.value?.notificationCounts == false) {
-            container.notificationCounts.value = emptyMap()
-            requestUnbind()
-            return
-        }
         val users = getSystemService(UserManager::class.java)
         container.notificationCounts.value = NotificationCounts.count(
             activeNotifications.orEmpty().map {

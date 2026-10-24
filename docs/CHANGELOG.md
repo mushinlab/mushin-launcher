@@ -4,8 +4,6 @@
 
 ### Added
 - Built-in backgrounds (ADR-0032). The new “Choose background” page has the folders Solid color (eight calm colours), Japanese (ten ink-style pictures, five light and five dark), Cosmos (empty for now) and From gallery, which opens the system photo picker. A chosen picture or colour opens in the background editor. The Background button in edit mode opens this page when the space has no image yet.
-
-### Added
 - Settings → System → Privacy (ADR-0033): a red “Delete memory” at the top erases the launch history and all learned gestures after a system confirmation; “Stored data” below is folded by default and shows the launch history and how useful each app is in the current space.
 - The learning card on the home screen has a ✕ that shows “Hide” and “Never suggest”; the latter turns off learning hints.
 
@@ -20,6 +18,11 @@
 - In edit mode only the first five rows of the home list are shown (ADR-0031); the whole list fades in while the line above it is dragged and fades out again on release.
 - The built-in Japanese backgrounds (ADR-0034) are now five drawings; the light and dark versions are put together on the device, so the APK is about 280 KB smaller. Dark versions look slightly different from before.
 - README: a banner at the top and a shorter “Why Mushin”.
+- Security and architecture review (`docs/release/security-audit-2026-10-25.md`):
+  - the notification counter reads nothing until settings are loaded and lets go of notification access as soon as counts are turned off;
+  - “Delete memory” also erases the time of the last “?” hint, as the privacy policy says;
+  - holding a key for its digit and holding the reorder handle follow the system long-press time;
+  - the exit log keeps only reason and memory codes.
 
 ## 0.4.0 — 2026-10-21
 

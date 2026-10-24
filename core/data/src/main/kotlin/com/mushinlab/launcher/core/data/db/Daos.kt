@@ -68,6 +68,9 @@ interface SpaceDao {
     @Query("UPDATE environment SET hint_at = :at WHERE id = :id")
     suspend fun setHintAt(id: Long, at: Long?)
 
+    @Query("UPDATE environment SET hint_at = NULL")
+    suspend fun clearHintTimes()
+
     @Query("DELETE FROM environment WHERE id = :id")
     suspend fun delete(id: Long)
 

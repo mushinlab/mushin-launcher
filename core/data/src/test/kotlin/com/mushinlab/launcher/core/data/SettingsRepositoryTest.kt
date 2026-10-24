@@ -146,6 +146,25 @@ class SettingsRepositoryTest {
     }
 
     @Test
+    fun nonFiniteStoredNumbersFallBackToDefaults() = runTest {
+        val file = File(tmp.root, "settings.preferences_pb")
+        val store = PreferenceDataStoreFactory.create(scope = backgroundScope) { file }
+        store.edit {
+            it[floatPreferencesKey("kb_width")] = Float.NaN
+            it[floatPreferencesKey("kb_shift")] = Float.POSITIVE_INFINITY
+            it[floatPreferencesKey("gesture_shift_penalty")] = Float.NaN
+            it[floatPreferencesKey("gesture_suggest_margin")] = Float.NEGATIVE_INFINITY
+        }
+        val repo = SettingsRepository(store, backgroundScope)
+        val loaded = repo.loaded.filterNotNull().first()
+        val defaults = LauncherSettings()
+        assertThat(loaded.keyboardWidth).isEqualTo(defaults.keyboardWidth)
+        assertThat(loaded.keyboardShift).isEqualTo(defaults.keyboardShift)
+        assertThat(loaded.gestureShiftPenalty).isEqualTo(defaults.gestureShiftPenalty)
+        assertThat(loaded.gestureSuggestMargin).isEqualTo(defaults.gestureSuggestMargin)
+    }
+
+    @Test
     fun previouslySavedHomeListOffsetIsKept() = runTest {
         val file = File(tmp.root, "settings.preferences_pb")
         val store = PreferenceDataStoreFactory.create(scope = backgroundScope) { file }

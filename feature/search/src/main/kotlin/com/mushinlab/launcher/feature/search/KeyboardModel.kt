@@ -48,7 +48,6 @@ object KeyboardDimens {
     val resizeMark = 22.dp
     const val DWELL_MS = 1000L
     const val VERTICAL_RATIO = 0.5f
-    const val DIGIT_HOLD_MS = 300L
 }
 
 data class KeyGeometry(val spec: KeySpec, val rect: Rect)

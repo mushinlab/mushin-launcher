@@ -141,15 +141,15 @@ class SettingsRepository(
                 activeKeyboardLayout = prefs.valueOr(KB_ACTIVE_LAYOUT, layouts.first()),
                 keyboardHaptics = prefs.valueOr(KB_HAPTICS, defaults.keyboardHaptics),
                 keyboardDigitHints = prefs.valueOr(KB_DIGIT_HINTS, defaults.keyboardDigitHints),
-                keyboardWidth = prefs.valueOr(KB_WIDTH, defaults.keyboardWidth)
+                keyboardWidth = prefs.finiteOr(KB_WIDTH, defaults.keyboardWidth)
                     .coerceIn(KeyboardFit.WIDTH_MIN, KeyboardFit.WIDTH_MAX),
-                keyboardShift = prefs.valueOr(KB_SHIFT, defaults.keyboardShift)
+                keyboardShift = prefs.finiteOr(KB_SHIFT, defaults.keyboardShift)
                     .coerceIn(KeyboardFit.SHIFT_MIN, KeyboardFit.SHIFT_MAX),
                 homeListOffset = prefs[HOME_LIST_OFFSET]?.coerceIn(0, HomeListOffset.MAX_DP),
                 searchColoredIcons = prefs.valueOr(SEARCH_COLORED_ICONS, defaults.searchColoredIcons),
-                gestureShiftPenalty = prefs.valueOr(GESTURE_SHIFT_PENALTY, defaults.gestureShiftPenalty)
+                gestureShiftPenalty = prefs.finiteOr(GESTURE_SHIFT_PENALTY, defaults.gestureShiftPenalty)
                     .coerceIn(GestureTuning.SHIFT_PENALTY_MIN, GestureTuning.SHIFT_PENALTY_MAX),
-                gestureSuggestMargin = prefs.valueOr(GESTURE_SUGGEST_MARGIN, defaults.gestureSuggestMargin)
+                gestureSuggestMargin = prefs.finiteOr(GESTURE_SUGGEST_MARGIN, defaults.gestureSuggestMargin)
                     .coerceIn(GestureTuning.SUGGEST_MARGIN_MIN, GestureTuning.SUGGEST_MARGIN_MAX),
                 searchFuzzy = prefs.valueOr(SEARCH_FUZZY, defaults.searchFuzzy),
                 searchLayoutSwap = prefs.valueOr(SEARCH_LAYOUT_SWAP, defaults.searchLayoutSwap),
@@ -196,6 +196,9 @@ class SettingsRepository(
         }
 
         private fun <T> Preferences.valueOr(key: Preferences.Key<T>, default: T): T = this[key] ?: default
+
+        private fun Preferences.finiteOr(key: Preferences.Key<Float>, default: Float): Float =
+            this[key]?.takeIf { it.isFinite() } ?: default
 
         private fun decodeLayouts(raw: String?): List<String>? = raw
             ?.split(',')

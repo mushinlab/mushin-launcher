@@ -157,7 +157,11 @@ data class GestureSummary(
 )
 
 @Immutable
-data class LearnedDrawing(val path: String, val weight: Double, val shape: List<ShapeVertex> = emptyList())
+data class LearnedDrawing(
+    val path: String,
+    val weight: Double,
+    val shape: ImmutableList<ShapeVertex> = persistentListOf(),
+)
 
 @Immutable
 data class LearnedApp(

@@ -45,6 +45,7 @@ internal suspend fun PointerInputScope.handleKeys(
             glideStart = KeyboardDimens.glideStart.toPx(),
             dwellRadius = viewConfiguration.touchSlop,
             vectorTolerance = vectorTolerance,
+            digitHoldMs = viewConfiguration.longPressTimeoutMillis,
         ),
     )
     awaitPointerEventScope {
@@ -72,6 +73,7 @@ private class Thresholds(
     val glideStart: Float,
     val dwellRadius: Float,
     val vectorTolerance: Float,
+    val digitHoldMs: Long,
 )
 
 internal class KeyboardCallbacks(
@@ -161,7 +163,7 @@ private class KeyboardGestureHandler(
     }
 
     private suspend fun holdForDigit(press: ActivePress) {
-        delay(KeyboardDimens.DIGIT_HOLD_MS)
+        delay(thresholds.digitHoldMs)
         if (press.mode == PressMode.NORMAL) {
             press.mode = PressMode.DIGIT
             state.bubbleKey = press.keyIndex

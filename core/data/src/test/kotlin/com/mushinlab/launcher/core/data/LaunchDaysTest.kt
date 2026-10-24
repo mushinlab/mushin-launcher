@@ -125,20 +125,20 @@ class LaunchDaysTest {
     }
 
     @Test
-    fun clearingUsageDeletesLaunchDaysButKeepsTheHintTime() = runTest {
+    fun clearingUsageDeletesLaunchDaysAndTheHintTime() = runTest {
         val spaces = SpaceRepository(rule.db, backgroundScope, rule.clock)
         val history = history()
         val space = normalId(spaces)
         history.recordLaunch(slack, space, fromSearch = false)
         history.recordHint(space)
         history.launchDays.first { it.isNotEmpty() }
+        spaces.spaces.first { s -> s.any { it.hintAt != null } }
 
         history.clearUsage()
 
         assertThat(history.launchDays.first { it.isEmpty() }).isEmpty()
         assertThat(storedDays()).isEmpty()
-        assertThat(spaces.spaces.first { s -> s.any { it.hintAt != null } }.first { it.id == space }.hintAt)
-            .isEqualTo(rule.now)
+        assertThat(spaces.spaces.first { s -> s.none { it.hintAt != null } }.first { it.id == space }.hintAt).isNull()
     }
 
     @Test

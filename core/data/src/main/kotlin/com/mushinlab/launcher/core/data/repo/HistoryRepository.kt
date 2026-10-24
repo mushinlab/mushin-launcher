@@ -155,13 +155,17 @@ class HistoryRepository(
         recentDao.clearAll()
     }
 
-    /** Erases the launch history: launch counts, usage per space, recent apps of every space and launch days. */
+    /**
+     * Erases the launch history: launch counts, usage per space, recent apps of every space, launch days and the time
+     * of the last home screen hint.
+     */
     suspend fun clearUsage() {
         db.withTransaction {
             usageDao.deleteAll()
             spaceDao.deleteAll()
             dayDao.deleteAll()
             recentDao.clearAll()
+            db.spaceDao().clearHintTimes()
         }
     }
 

@@ -178,13 +178,14 @@ private fun DragHandle(
     ) { BasicText("≡", style = MushinType.style(22.sp, LocalMushinColors.current.textSecondary)) }
 }
 
-private suspend fun AwaitPointerEventScope.awaitHold(id: PointerId): Boolean = withTimeoutOrNull(HANDLE_HOLD_MS) {
-    var released = false
-    while (!released) {
-        val change = awaitPointerEvent().changes.firstOrNull { it.id == id }
-        released = change == null || !change.pressed
-    }
-} == null
+private suspend fun AwaitPointerEventScope.awaitHold(id: PointerId): Boolean =
+    withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+        var released = false
+        while (!released) {
+            val change = awaitPointerEvent().changes.firstOrNull { it.id == id }
+            released = change == null || !change.pressed
+        }
+    } == null
 
 private suspend fun AwaitPointerEventScope.dragUntilUp(id: PointerId, onDelta: (Float) -> Unit) {
     var change = awaitPointerEvent().changes.firstOrNull { it.id == id }
@@ -197,4 +198,3 @@ private suspend fun AwaitPointerEventScope.dragUntilUp(id: PointerId, onDelta: (
 
 private val ROW_HEIGHT = 56.dp
 private const val DRAG_ALPHA = 0.12f
-private const val HANDLE_HOLD_MS = 200L
