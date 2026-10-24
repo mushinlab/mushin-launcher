@@ -9,7 +9,7 @@ enum class PresetFolder { PLAIN, JAPANESE, COSMOS }
 sealed interface BackgroundPreset {
     data class Plain(val argb: Int) : BackgroundPreset
 
-    data class Picture(@param:DrawableRes val image: Int, @param:DrawableRes val thumbnail: Int) : BackgroundPreset
+    data class Picture(@param:DrawableRes val art: Int, val dark: Boolean) : BackgroundPreset
 }
 
 object BackgroundPresets {
@@ -31,15 +31,12 @@ private val PlainColors = listOf(
     0xFFF2EDE4,
 )
 
-private val Japanese = listOf(
-    BackgroundPreset.Picture(R.drawable.bg_jp_fuji_sun, R.drawable.bg_jp_fuji_sun_thumb),
-    BackgroundPreset.Picture(R.drawable.bg_jp_sakura, R.drawable.bg_jp_sakura_thumb),
-    BackgroundPreset.Picture(R.drawable.bg_jp_mushin, R.drawable.bg_jp_mushin_thumb),
-    BackgroundPreset.Picture(R.drawable.bg_jp_torii, R.drawable.bg_jp_torii_thumb),
-    BackgroundPreset.Picture(R.drawable.bg_jp_reflection, R.drawable.bg_jp_reflection_thumb),
-    BackgroundPreset.Picture(R.drawable.bg_jp_fuji_sun_dark, R.drawable.bg_jp_fuji_sun_dark_thumb),
-    BackgroundPreset.Picture(R.drawable.bg_jp_sakura_dark, R.drawable.bg_jp_sakura_dark_thumb),
-    BackgroundPreset.Picture(R.drawable.bg_jp_mushin_dark, R.drawable.bg_jp_mushin_dark_thumb),
-    BackgroundPreset.Picture(R.drawable.bg_jp_torii_dark, R.drawable.bg_jp_torii_dark_thumb),
-    BackgroundPreset.Picture(R.drawable.bg_jp_reflection_dark, R.drawable.bg_jp_reflection_dark_thumb),
+private val JapaneseArt = listOf(
+    R.drawable.bg_jp_fuji_sun,
+    R.drawable.bg_jp_sakura,
+    R.drawable.bg_jp_mushin,
+    R.drawable.bg_jp_torii,
+    R.drawable.bg_jp_reflection,
 )
+
+private val Japanese = listOf(false, true).flatMap { dark -> JapaneseArt.map { BackgroundPreset.Picture(it, dark) } }

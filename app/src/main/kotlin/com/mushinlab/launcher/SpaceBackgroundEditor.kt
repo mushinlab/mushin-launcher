@@ -10,6 +10,7 @@ import com.mushinlab.launcher.core.model.CropFrame
 import com.mushinlab.launcher.core.model.SpaceBackground
 import com.mushinlab.launcher.feature.settings.BackgroundEdit
 import com.mushinlab.launcher.feature.settings.BackgroundPreset
+import com.mushinlab.launcher.feature.settings.PresetArt
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -54,7 +55,8 @@ class SpaceBackgroundEditor(
                     is BackgroundPreset.Plain -> plainBitmap(preset.argb)
 
                     is BackgroundPreset.Picture ->
-                        container.backgrounds.decode(ImageDecoder.createSource(resources, preset.image))
+                        container.backgrounds.decode(ImageDecoder.createSource(resources, preset.art))
+                            ?.let { PresetArt.render(it, preset.dark) }
                 }
             }
             open(spaceId, bitmap)

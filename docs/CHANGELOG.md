@@ -18,7 +18,7 @@
 - Background editor: under the sliders, two buttons with an icon and a label: “Remove background”, which asks for confirmation first, and “Replace image”, which opens “Choose background”. “Other image” at the top is gone.
 - The privacy policy (effective 2026-10-24) mentions built-in backgrounds.
 - In edit mode only the first five rows of the home list are shown (ADR-0031); the whole list fades in while the line above it is dragged and fades out again on release.
-- The built-in Japanese backgrounds are compressed a little more so the APK stays under 4 MB.
+- The built-in Japanese backgrounds (ADR-0034) are now five drawings; the light and dark versions are put together on the device, so the APK is about 280 KB smaller. Dark versions look slightly different from before.
 - README: a banner at the top and a shorter “Why Mushin”.
 
 ## 0.4.0 — 2026-10-21

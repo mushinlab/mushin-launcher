@@ -14,12 +14,13 @@ class BackgroundPresetsTest {
     }
 
     @Test
-    fun japaneseFolderHasTheTenPicturesWithThumbnails() {
+    fun japaneseFolderHasFiveLightPicturesThenTheSameFiveDark() {
         val pictures = BackgroundPresets.of(PresetFolder.JAPANESE).map { it as BackgroundPreset.Picture }
 
         assertThat(pictures).hasSize(10)
-        assertThat(pictures.map { it.image }.toSet()).hasSize(10)
-        assertThat(pictures.none { it.image == it.thumbnail }).isTrue()
+        assertThat(pictures.map { it.dark }).isEqualTo(List(5) { false } + List(5) { true })
+        assertThat(pictures.drop(5).map { it.art }).isEqualTo(pictures.take(5).map { it.art })
+        assertThat(pictures.map { it.art }.toSet()).hasSize(5)
     }
 
     @Test

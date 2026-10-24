@@ -19,12 +19,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -37,6 +43,8 @@ import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.pressable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 internal fun BackgroundPickerScreen(
@@ -187,12 +195,25 @@ private fun PresetImage(preset: BackgroundPreset, modifier: Modifier) {
     when (preset) {
         is BackgroundPreset.Plain -> Box(modifier.background(Color(preset.argb)))
 
-        is BackgroundPreset.Picture -> Image(
-            painterResource(preset.thumbnail),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = modifier,
-        )
+        is BackgroundPreset.Picture -> {
+            val resources = LocalResources.current
+            val width = with(LocalDensity.current) { PREVIEW_WIDTH.roundToPx() }
+            val image by produceState<ImageBitmap?>(null, preset, width) {
+                value = withContext(Dispatchers.Default) {
+                    PresetArt.preview(resources, preset.art, preset.dark, width)?.asImageBitmap()
+                }
+            }
+            Box(modifier) {
+                image?.let {
+                    Image(
+                        it,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.matchParentSize(),
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -205,3 +226,4 @@ private val TILE_RADIUS = 10.dp
 private val PREVIEW_RADIUS = 6.dp
 private val TILE_PADDING = 8.dp
 private val GALLERY_ICON = 40.dp
+private val PREVIEW_WIDTH = 120.dp
