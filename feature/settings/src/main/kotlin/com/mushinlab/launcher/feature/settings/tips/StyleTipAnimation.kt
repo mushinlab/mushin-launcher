@@ -124,14 +124,14 @@ private fun DrawScope.drawStyledHome(time: Float, colors: MushinColors, labels: 
         val top = look.listTop + Scene.ROW_HEIGHT * index
         val centerY = top + Scene.ROW_HEIGHT / 2
         drawRect(colors.zebra(index), Offset(0f, top), Size(Scene.WIDTH, Scene.ROW_HEIGHT))
+        val left = mix(Scene.MARGIN, (Scene.WIDTH - label.size.width) / 2, look.align)
+        textCenteredY(label, colors.textPrimary, left, centerY)
         drawRoundRect(
             colors.accent,
-            Offset(StyleGeometry.ICON_X, centerY - ICON_SIZE / 2),
+            Offset(left + label.size.width + ICON_GAP, centerY - ICON_SIZE / 2),
             Size(ICON_SIZE, ICON_SIZE),
             CornerRadius(ICON_CORNER),
         )
-        val centered = Scene.MARGIN + (StyleGeometry.TEXT_RIGHT - Scene.MARGIN - label.size.width) / 2
-        textCenteredY(label, colors.textPrimary, mix(Scene.MARGIN, centered, look.align), centerY)
     }
     editBar(colors, edit)
 }
@@ -164,8 +164,6 @@ private object StyleGeometry {
     const val VALUE_WIDTH = 52f
     const val VALUE_TAP = 14f
     const val LIST_SHIFT = 30f
-    const val ICON_X = Scene.WIDTH - Scene.MARGIN - ICON_SIZE
-    const val TEXT_RIGHT = ICON_X - 6f
     val grip = MiniHome.grip(SHEET_TOP)
     val fontValue = Offset(VALUE_RIGHT - VALUE_TAP, rowCenterY(0))
     val alignValue = Offset(VALUE_RIGHT - VALUE_TAP, rowCenterY(2))
@@ -205,4 +203,5 @@ private const val SIZE_VALUE = 4
 private const val SHEET_TEXT = 9f
 private const val CARD_CORNER = 4f
 private const val ICON_SIZE = 9f
+private const val ICON_GAP = 6f
 private const val ICON_CORNER = 3.5f

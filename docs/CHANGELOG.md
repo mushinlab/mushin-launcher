@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Home rows (ADR-0030): the app icon now follows the label instead of sitting at the right edge. With centre alignment the label is centred on the screen's centre line; with right alignment the label and icon sit at the right edge. The “Add apps” row follows the same rule.
+- In edit mode the check mark button is twice as large (80 dp instead of 40 dp) and grows and shrinks in 200 ms.
+- The Clock, Text and Theme sheets have a shadow instead of an outline and slide up from the bottom when they open and down when they close.
+
 ## 0.4.0 — 2026-10-21
 
 ### Added

@@ -4,12 +4,10 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -48,16 +46,20 @@ internal fun AddAppsRow(
             .padding(horizontal = HomeDimens.rowPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(Modifier.weight(1f), horizontalArrangement = layout.arrangement) {
+        LabelWithIcon(
+            layout.align,
+            Modifier.weight(1f),
+            if (layout.icons) {
+                { PlusIcon() }
+            } else {
+                null
+            },
+        ) {
             SingleLineText(
                 stringResource(if (layout.icons) R.string.home_add_apps else R.string.home_add_apps_inline),
                 rowStyle.text,
-                Modifier.testTag("home_add_label"),
+                Modifier.weight(1f, fill = false).testTag("home_add_label"),
             )
-        }
-        if (layout.icons) {
-            Spacer(Modifier.width(HomeDimens.iconGap))
-            PlusIcon()
         }
     }
 }

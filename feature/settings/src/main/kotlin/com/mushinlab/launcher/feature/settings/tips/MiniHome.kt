@@ -125,7 +125,7 @@ internal fun DrawScope.addAppsRow(colors: MushinColors, top: Float, index: Int, 
     val centerY = top + Scene.ROW_HEIGHT / 2
     drawRect(colors.zebra(index), Offset(0f, top), Size(Scene.WIDTH, Scene.ROW_HEIGHT))
     textCenteredY(label, colors.textPrimary, Scene.MARGIN, centerY)
-    val plus = Offset(Scene.WIDTH - Scene.MARGIN - PLUS_RADIUS, centerY)
+    val plus = Offset(Scene.MARGIN + label.size.width + PLUS_GAP + PLUS_RADIUS, centerY)
     glyphCircle(colors, plus, PLUS_RADIUS)
     plusGlyph(plus, colors.textSecondary, PLUS_ARM)
 }
@@ -183,6 +183,7 @@ private const val MARK_HEIGHT = 2f
 private const val MARK_ALPHA = 0.35f
 private const val PLUS_RADIUS = 6f
 private const val PLUS_ARM = 2.6f
+private const val PLUS_GAP = 6f
 private const val SHEET_SCRIM = 0.15f
 private const val SHEET_CORNER = 8f
 private const val SHEET_TITLE_Y = 16f

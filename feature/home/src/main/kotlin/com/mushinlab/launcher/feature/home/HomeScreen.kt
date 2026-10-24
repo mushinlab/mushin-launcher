@@ -54,8 +54,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.HomeListOffset
-import com.mushinlab.launcher.core.model.HomeTextAlign
-import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.LocalMushinColors
@@ -163,6 +161,7 @@ fun HomeScreen(
             )
         }
         HomeColumn(state, minute, registry, gestures, currentActions, editing, hasBackground = background != null)
+        EditToggle(editing, registry, actions, Modifier.align(Alignment.BottomEnd))
         TraceLayer(trace)
     }
 }
@@ -303,18 +302,6 @@ private fun stringResourceRoleCard(): String = androidx.compose.ui.res.stringRes
 @Immutable
 internal class RowStyle(val text: TextStyle, val height: Dp, val color: (Int) -> Color)
 
-@Immutable
-internal data class RowLayout(val iconMode: IconMode, val align: HomeTextAlign) {
-    val icons: Boolean get() = iconMode != IconMode.NONE
-
-    val arrangement: Arrangement.Horizontal
-        get() = when (align) {
-            HomeTextAlign.START -> Arrangement.Start
-            HomeTextAlign.CENTER -> Arrangement.Center
-            HomeTextAlign.END -> Arrangement.End
-        }
-}
-
 @Composable
 private fun FavoritesList(
     state: HomeUiState,
@@ -386,13 +373,13 @@ private fun FavoriteRow(
             .padding(horizontal = HomeDimens.rowPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val rowAlpha = if (row.dimmed) DIMMED_ALPHA else 1f
         val badgeOnIcon = layout.icons && row.notifications > 0
-        Row(
-            Modifier.weight(1f).alpha(rowAlpha),
-            horizontalArrangement = layout.arrangement,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        val icon: (@Composable () -> Unit)? = if (layout.icons) {
+            { BadgedIcon(row, index, badgeOnIcon, Modifier) }
+        } else {
+            null
+        }
+        LabelWithIcon(layout.align, Modifier.weight(1f).alpha(if (row.dimmed) DIMMED_ALPHA else 1f), icon) {
             SingleLineText(row.label, textStyle, Modifier.weight(1f, fill = false))
             if (row.work) {
                 Spacer(Modifier.width(6.dp))
@@ -407,10 +394,6 @@ private fun FavoriteRow(
                 Spacer(Modifier.width(8.dp))
                 SwipeMarks(row.swipes, textStyle.fontSize, colors.textSecondary, Modifier.testTag("swipe_$index"))
             }
-        }
-        if (layout.icons) {
-            Spacer(Modifier.width(HomeDimens.iconGap))
-            BadgedIcon(row, index, badgeOnIcon, Modifier.alpha(rowAlpha))
         }
     }
 }

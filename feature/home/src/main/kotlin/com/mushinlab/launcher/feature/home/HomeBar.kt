@@ -1,14 +1,19 @@
 package com.mushinlab.launcher.feature.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -32,9 +37,8 @@ import com.mushinlab.launcher.feature.home.gesture.RowRegistry
 @Composable
 internal fun HomeBar(suggestion: HomeSuggestion?, editing: Boolean, registry: RowRegistry, actions: HomeActions) {
     val colors = LocalMushinColors.current
-    val tint = colors.textSecondary.copy(alpha = BAR_ALPHA)
     Row(
-        Modifier.fillMaxWidth().height(HomeDimens.barHeight).padding(horizontal = 8.dp),
+        Modifier.fillMaxWidth().height(HomeDimens.barHeight).padding(horizontal = BAR_PADDING),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AnimatedVisibility(
@@ -60,15 +64,28 @@ internal fun HomeBar(suggestion: HomeSuggestion?, editing: Boolean, registry: Ro
                 },
             ) { actions.onSuggestion(anchor) }
         }
-        GlyphButton(
-            if (editing) Glyph.CHECK else Glyph.EDIT,
-            stringResource(if (editing) R.string.home_edit_done else R.string.home_edit),
-            if (editing) colors.accent else tint,
-            tag = "home_edit",
-            modifier = Modifier.onGloballyPositioned { registry.block(BAR_EDIT, it.boundsInRoot()) },
-            onClick = actions::onEdit,
-        )
+        Spacer(Modifier.width(EDIT_SIZE))
     }
+}
+
+@Composable
+internal fun EditToggle(editing: Boolean, registry: RowRegistry, actions: HomeActions, modifier: Modifier) {
+    val colors = LocalMushinColors.current
+    val size by animateDpAsState(if (editing) DONE_SIZE else EDIT_SIZE, tween(Motion.TRANSITION_MS), label = "edit")
+    val glyph by animateDpAsState(if (editing) DONE_GLYPH else EDIT_GLYPH, tween(Motion.TRANSITION_MS), label = "glyph")
+    GlyphButton(
+        if (editing) Glyph.CHECK else Glyph.EDIT,
+        stringResource(if (editing) R.string.home_edit_done else R.string.home_edit),
+        if (editing) colors.accent else colors.textSecondary.copy(alpha = BAR_ALPHA),
+        tag = "home_edit",
+        size = size,
+        glyphSize = glyph,
+        modifier = modifier
+            .windowInsetsPadding(WindowInsets.navigationBars)
+            .padding(end = BAR_PADDING, bottom = (HomeDimens.barHeight - EDIT_SIZE) / 2)
+            .onGloballyPositioned { registry.block(BAR_EDIT, it.boundsInRoot()) },
+        onClick = actions::onEdit,
+    )
 }
 
 @Composable
@@ -109,3 +126,8 @@ private const val BAR_EDIT = "bar_edit"
 private const val BAR_SUGGEST = "bar_suggest"
 private const val BAR_TOOLS = "bar_tools"
 private const val BAR_ALPHA = 0.7f
+private val BAR_PADDING = 8.dp
+private val EDIT_SIZE = 48.dp
+private val EDIT_GLYPH = 22.dp
+private val DONE_SIZE = 88.dp
+private val DONE_GLYPH = 44.dp

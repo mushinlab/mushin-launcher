@@ -1,10 +1,12 @@
 package com.mushinlab.launcher.feature.settings
 
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
@@ -24,9 +26,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -35,9 +39,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.Motion
-import com.mushinlab.launcher.core.ui.PopupStyle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+
+internal val LocalSettingsTransition = staticCompositionLocalOf<AnimatedVisibilityScope?> { null }
 
 @Composable
 internal fun SettingsSheet(
@@ -48,12 +53,17 @@ internal fun SettingsSheet(
     color: Color = LocalMushinColors.current.surface,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val colors = LocalMushinColors.current
     val scope = rememberCoroutineScope()
     val drag = remember { Animatable(0f) }
     var sheetPx by remember { mutableFloatStateOf(0f) }
     val currentClose by rememberUpdatedState(onClose)
     val shape = RoundedCornerShape(topStart = SHEET_RADIUS, topEnd = SHEET_RADIUS)
+    val slide = LocalSettingsTransition.current?.run {
+        Modifier.animateEnterExit(
+            enter = slideInVertically(tween(Motion.TRANSITION_MS)) { it },
+            exit = slideOutVertically(tween(Motion.TRANSITION_MS)) { it },
+        )
+    } ?: Modifier
     BoxWithConstraints(
         Modifier
             .fillMaxSize()
@@ -68,11 +78,12 @@ internal fun SettingsSheet(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .then(height)
+                .then(slide)
                 .onSizeChanged { sheetPx = it.height.toFloat() }
                 .graphicsLayer { translationY = drag.value }
+                .shadow(SHEET_ELEVATION, shape, ambientColor = Color.Black, spotColor = Color.Black)
                 .clip(shape)
                 .background(color)
-                .border(PopupStyle.outlineWidth, PopupStyle.outline(colors), shape)
                 .pointerInput(Unit) { detectTapGestures { } }
                 .testTag(tag),
         ) {
@@ -127,4 +138,5 @@ private const val CLOSE_FRACTION = 0.25f
 private const val SHEET_SCRIM = 0.5f
 private const val HANDLE_ALPHA = 0.5f
 private val SHEET_RADIUS = 16.dp
+private val SHEET_ELEVATION = 24.dp
 private val HANDLE_AREA = 32.dp

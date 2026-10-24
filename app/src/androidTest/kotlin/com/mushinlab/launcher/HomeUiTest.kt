@@ -253,7 +253,7 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun iconsSitAtTheRowEndAndLabelsFollowTheTextAlignment() {
+    fun iconsFollowTheLabelAndCentredLabelsSitOnTheScreenCentre() {
         val label = rule.onNodeWithTag("row_0").fetchSemanticsNode()
             .config[SemanticsProperties.ContentDescription]
             .first()
@@ -264,7 +264,9 @@ class HomeUiTest : LauncherUiTestBase() {
                 .boundsInRoot
         }
         val add = { rule.onNodeWithTag("home_add_label", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot }
-        val gap = with(rule.density) { 40.dp.toPx() }
+        val plus = { rule.onNodeWithTag("home_add_icon", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot }
+        val padding = with(rule.density) { 24.dp.toPx() }
+        val gap = with(rule.density) { 16.dp.toPx() }
         fun show(align: HomeTextAlign) {
             runBlocking { container.settings.update { it.copy(iconMode = IconMode.RIGHT, homeTextAlign = align) } }
             rule.waitUntil(5_000) {
@@ -273,18 +275,18 @@ class HomeUiTest : LauncherUiTestBase() {
             rule.waitForIdle()
         }
         try {
-            show(HomeTextAlign.START)
             val row = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot
-            val icon = rule.onNodeWithTag("home_add_icon", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-            assertThat(row.right - icon.right).isLessThan(gap)
-            assertThat(name().left - row.left).isLessThan(gap)
+            show(HomeTextAlign.START)
+            assertThat(name().left - row.left).isWithin(1f).of(padding)
             assertThat(add().left).isWithin(1f).of(name().left)
-            show(HomeTextAlign.END)
-            assertThat(icon.left - add().right).isLessThan(gap)
-            assertThat(add().right).isWithin(1f).of(name().right)
+            assertThat(plus().left - add().right).isWithin(1f).of(gap)
             show(HomeTextAlign.CENTER)
-            assertThat(add().center.x).isWithin(1f).of(name().center.x)
-            assertThat(name().center.x).isWithin(gap).of((row.left + icon.left) / 2)
+            assertThat(name().center.x).isWithin(1f).of(row.center.x)
+            assertThat(add().center.x).isWithin(1f).of(row.center.x)
+            assertThat(plus().left - add().right).isWithin(1f).of(gap)
+            show(HomeTextAlign.END)
+            assertThat(row.right - plus().right).isWithin(1f).of(padding)
+            assertThat(plus().left - add().right).isWithin(1f).of(gap)
         } finally {
             runBlocking {
                 container.settings.update { it.copy(iconMode = IconMode.NONE, homeTextAlign = HomeTextAlign.START) }

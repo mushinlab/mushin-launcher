@@ -30,7 +30,10 @@ fun SettingsHost(stack: SettingsStack, state: SettingsUiState, actions: Settings
         label = "settings",
     ) { entry ->
         if (entry != null) {
-            CompositionLocalProvider(LocalSpaceName provides state.spaces.firstOrNull { it.current }?.name) {
+            CompositionLocalProvider(
+                LocalSpaceName provides state.spaces.firstOrNull { it.current }?.name,
+                LocalSettingsTransition provides this,
+            ) {
                 SettingsRouteScreen(entry.route, stack, state, actions)
             }
         }
