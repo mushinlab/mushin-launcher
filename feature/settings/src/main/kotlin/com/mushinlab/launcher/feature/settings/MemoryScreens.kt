@@ -45,66 +45,32 @@ import com.mushinlab.launcher.core.ui.drawVectors
 import com.mushinlab.launcher.core.ui.pressable
 
 @Composable
-internal fun MemoryScreen(
-    state: SettingsUiState,
-    actions: SettingsActions,
-    push: (SettingsRoute) -> Unit,
-    back: () -> Unit,
-) {
-    var confirm by remember { mutableStateOf<(() -> Unit)?>(null) }
-    var message by remember { mutableStateOf("") }
-    val forgetGestures = stringResource(R.string.memory_forget_gestures_confirm)
-    val clearUsage = stringResource(R.string.memory_clear_usage_confirm)
-    SettingsPage(stringResource(R.string.settings_memory), back) {
-        NoteText(stringResource(R.string.memory_note))
-        SectionHeader(stringResource(R.string.memory_gestures))
-        NavRow(stringResource(R.string.memory_add_gesture), tag = "memory_add_gesture") {
-            push(SettingsRoute.MemoryPickApp)
-        }
-        if (state.learned.isEmpty()) NoteText(stringResource(R.string.memory_gestures_none))
-        state.learned.forEach { app ->
-            NavRow(
-                app.label,
-                value = pluralStringResource(R.plurals.memory_drawings, app.drawings.size, app.drawings.size),
-                tag = "memory_app_${app.label}",
-            ) { push(SettingsRoute.MemoryApp(app.key)) }
-        }
-        if (state.learned.isNotEmpty()) {
-            NavRow(stringResource(R.string.memory_forget_gestures), tag = "memory_forget_gestures") {
-                message = forgetGestures
-                confirm = actions.memory::forgetAllGestures
-            }
-        }
-        CardGap()
-        SectionHeader(stringResource(R.string.memory_usage))
-        NoteText(stringResource(R.string.memory_usage_note))
-        if (state.usage.isEmpty()) NoteText(stringResource(R.string.memory_usage_none))
-        state.usage.forEach { row -> ValueRow(row.label, row.launches.toString(), "memory_usage_${row.label}") }
-        if (state.usage.isNotEmpty()) {
-            NavRow(stringResource(R.string.memory_clear_usage), tag = "memory_clear_usage") {
-                message = clearUsage
-                confirm = actions.memory::clearUsage
-            }
-        }
-        state.spaces.firstOrNull { it.current }?.let { space ->
-            CardGap()
-            SectionHeader(stringResource(R.string.memory_usefulness, space.name))
-            NoteText(stringResource(R.string.memory_usefulness_note))
-            if (state.usefulness.isEmpty()) NoteText(stringResource(R.string.memory_usage_none))
-            state.usefulness.forEach { row ->
-                ValueRow(row.label, row.score.toString(), "memory_score_${row.label}")
-            }
-        }
+internal fun LearnedGesturesSection(state: SettingsUiState, actions: SettingsActions, push: (SettingsRoute) -> Unit) {
+    var confirm by remember { mutableStateOf(false) }
+    SectionHeader(stringResource(R.string.memory_gestures))
+    NavRow(stringResource(R.string.memory_add_gesture), tag = "memory_add_gesture") {
+        push(SettingsRoute.MemoryPickApp)
     }
-    confirm?.let { action ->
+    if (state.learned.isEmpty()) NoteText(stringResource(R.string.memory_gestures_none))
+    state.learned.forEach { app ->
+        NavRow(
+            app.label,
+            value = pluralStringResource(R.plurals.memory_drawings, app.drawings.size, app.drawings.size),
+            tag = "memory_app_${app.label}",
+        ) { push(SettingsRoute.MemoryApp(app.key)) }
+    }
+    if (state.learned.isNotEmpty()) {
+        NavRow(stringResource(R.string.memory_forget_gestures), tag = "memory_forget_gestures") { confirm = true }
+    }
+    if (confirm) {
         ConfirmDialog(
-            message = message,
+            message = stringResource(R.string.memory_forget_gestures_confirm),
             confirm = stringResource(R.string.memory_erase),
             onConfirm = {
-                action()
-                confirm = null
+                actions.memory.forgetAllGestures()
+                confirm = false
             },
-            onDismiss = { confirm = null },
+            onDismiss = { confirm = false },
         )
     }
 }
@@ -224,7 +190,7 @@ private fun thumbnailVectors(drawing: LearnedDrawing, size: Size, centers: Map<C
 }
 
 @Composable
-private fun ValueRow(title: String, value: String, tag: String) {
+internal fun ValueRow(title: String, value: String, tag: String) {
     val colors = LocalMushinColors.current
     Row(
         Modifier.settingsCard().heightIn(min = 48.dp).padding(horizontal = CARD_PADDING, vertical = 10.dp).testTag(tag),

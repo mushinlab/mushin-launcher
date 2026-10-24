@@ -16,6 +16,9 @@
     <string name="notice_no_clock">Nenhum app de relógio encontrado</string>
     <string name="learn_hint_title">O que você quis dizer?</string>
     <string name="learn_hint_subtitle">Ir para o aprendizado</string>
+    <string name="learn_hint_options">Opções da dica</string>
+    <string name="learn_hint_hide">Ocultar</string>
+    <string name="learn_hint_never">Não sugerir mais</string>
     <string name="tile_search">Pesquisa Mushin</string>
     <string name="notice_background_failed">Não foi possível abrir a imagem</string>
     <string name="notice_no_notification_settings">As configurações de acesso a notificações não estão disponíveis neste dispositivo</string>

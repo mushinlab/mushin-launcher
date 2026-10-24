@@ -80,7 +80,26 @@ class HomeInteractionsTest {
     }
 
     @Test
+    fun drawingsAreIgnoredWhileGestureInputIsOff() {
+        repeat(HomeInteractions.LEARN_HINT_MISSES) { home.onDrawing(scribble, width = 1080f, density = 2.6f) }
+
+        assertThat(home.learnHint).isFalse()
+        assertThat(effects).isEmpty()
+    }
+
+    @Test
+    fun withHintsOffMissedDrawingsAreRejectedWithoutTheLearningCard() {
+        model.settings = model.settings.copy(gestureInput = true, learnHints = false)
+
+        repeat(HomeInteractions.LEARN_HINT_MISSES * 2) { home.onDrawing(scribble, width = 1080f, density = 2.6f) }
+
+        assertThat(home.learnHint).isFalse()
+        assertThat(effects).hasSize(HomeInteractions.LEARN_HINT_MISSES * 2)
+    }
+
+    @Test
     fun repeatedUnknownDrawingsOfferLearningWithTheirAverage() {
+        model.settings = model.settings.copy(gestureInput = true)
         repeat(HomeInteractions.LEARN_HINT_MISSES - 1) { home.onDrawing(scribble, width = 1080f, density = 2.6f) }
         assertThat(home.learnHint).isFalse()
 
@@ -94,12 +113,13 @@ class HomeInteractionsTest {
 
         home.openLearning()
         assertThat(home.learnHint).isFalse()
-        assertThat(navigator.settings.routes).containsExactly(SettingsRoute.Memory, SettingsRoute.MemoryPickApp)
+        assertThat(navigator.settings.routes).containsExactly(SettingsRoute.Gestures, SettingsRoute.MemoryPickApp)
         assertThat(navigator.settings.draft).isNotEmpty()
     }
 
     @Test
     fun drawingIsIgnoredWhileAnOverlayIsOpen() {
+        model.settings = model.settings.copy(gestureInput = true)
         navigator.openSearch(SearchMode.TYPING)
 
         home.onDrawing(scribble, width = 1080f, density = 2.6f)

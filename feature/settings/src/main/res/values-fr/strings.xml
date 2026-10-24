@@ -10,6 +10,15 @@
     <string name="settings_off">Désactivé</string>
     <string name="settings_keyboard">Clavier</string>
     <string name="settings_gestures">Gestes</string>
+    <string name="gesture_input">Saisie par gestes</string>
+    <string name="gesture_input_note">Dessinez une forme sur l’écran d’accueil pour ouvrir une appli ; le launcher retient quelle forme vous dessinez pour quelle appli. Si c’est désactivé, seule la saisie par glissement au clavier fonctionne et rien n’est appris.</string>
+    <string name="learn_hints">Astuces d’apprentissage</string>
+    <string name="learn_hints_note">Si le launcher ne reconnaît pas plusieurs dessins de suite sur l’écran d’accueil, une carte en haut propose de lui apprendre cette forme.</string>
+    <string name="privacy_delete_memory">Effacer la mémoire</string>
+    <string name="privacy_delete_memory_note">Efface l’historique des lancements et les gestes appris. Les espaces, les paramètres et les arrière-plans sont conservés.</string>
+    <string name="privacy_delete_memory_confirm">Effacer l’historique des lancements et tous les gestes appris ? La recherche, les suggestions et les dessins réapprendront.</string>
+    <string name="privacy_data">Données enregistrées</string>
+    <string name="summary_privacy">Données enregistrées, effacer la mémoire</string>
     <string name="settings_press">Animation au toucher</string>
     <string name="settings_apps">Masquées et renommées</string>
     <string name="settings_system">Système</string>
@@ -129,7 +138,6 @@
     <string name="system_licenses">Licences</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, icônes Material Symbols — Apache License 2.0. Polices Inter, Open Sans et Montserrat — SIL Open Font License 1.1 (les textes des licences sont dans l’appli, assets/licenses).</string>
     <string name="settings_memory">Mémoire</string>
-    <string name="memory_note">Tout ce que Mushin a appris reste sur ce téléphone. Ici, vous pouvez le consulter et l’effacer.</string>
     <string name="memory_gestures">Gestes appris</string>
     <string name="memory_gestures_none">Rien pour l’instant. Un geste est mémorisé quand vous ouvrez une appli après avoir corrigé un tracé ou choisi parmi les suggestions.</string>
     <string name="memory_forget_gestures">Oublier tous les gestes</string>
@@ -137,8 +145,6 @@
     <string name="memory_usage">Fréquence de lancement</string>
     <string name="memory_usage_note">Les résultats de recherche sont triés selon elle.</string>
     <string name="memory_usage_none">Vide pour l’instant.</string>
-    <string name="memory_clear_usage">Effacer l’historique des lancements</string>
-    <string name="memory_clear_usage_confirm">Effacer l’historique des lancements de toutes les applis ? Les compteurs, les applis récentes de la recherche et les jours utilisés pour les suggestions sont supprimés. La recherche et les suggestions réapprendront.</string>
     <string name="memory_erase">Effacer</string>
     <string name="memory_app_note">Les tracés qui mènent à cette appli, affichés sous forme de vecteurs. Le point marque le début de la ligne ; un anneau marque l’endroit où le doigt s’est arrêté — plus la pause est longue, plus l’anneau est grand. Plus le poids est élevé, plus le tracé désigne cette appli.</string>
     <string name="memory_forget_app">Oublier tous les tracés de cette appli</string>
@@ -150,14 +156,10 @@
         <item quantity="many">%d de tracés</item>
         <item quantity="other">%d tracés</item>
     </plurals>
-    <string name="settings_advanced">Avancé</string>
     <string name="summary_keyboard">Dispositions, vibration, indications de chiffres, saisie gestuelle</string>
     <string name="summary_gestures">Balayages sur l’écran d’accueil et tracé</string>
     <string name="summary_apps">Applis masquées, noms personnalisés</string>
     <string name="summary_system">Launcher par défaut, langue, confidentialité, avancé</string>
-    <string name="summary_advanced">Animation au toucher, mémoire</string>
-    <string name="summary_press">Comment les lignes réagissent au toucher</string>
-    <string name="summary_memory">Gestes appris, compteurs de lancement, utilité</string>
     <string name="style_font">Police</string>
     <string name="style_weight">Graisse</string>
     <string name="style_note">La police et la graisse s’appliquent à toute l’appli ; la taille, à la liste de l’écran d’accueil.</string>
@@ -217,7 +219,7 @@
     <string name="tip_style_title">Personnalisez le launcher</string>
     <string name="tip_style_text">Touchez le crayon, puis Tt pour changer la police, la taille et l’alignement. Pendant la modification, faites glisser l’horloge ou le trait au-dessus de la liste pour les déplacer.</string>
     <string name="tip_memory_title">Entraînez le launcher</string>
-    <string name="tip_memory_text">Dans Système → Avancé → Mémoire, dessinez une forme pour une appli. Dessinez la même forme sur l’écran d’accueil et le launcher propose cette appli.</string>
+    <string name="tip_memory_text">Dans Paramètres → Gestes, activez « Saisie par gestes » et dessinez une forme pour une appli. Dessinez la même forme sur l’écran d’accueil et le launcher propose cette appli.</string>
     <string name="tips_more_title">Pour aller plus loin, voyez les Astuces</string>
     <string name="tips_more_text">Revoyez ces astuces à tout moment dans Paramètres → Astuces.</string>
     <string name="tip_space_name">Personnel</string>

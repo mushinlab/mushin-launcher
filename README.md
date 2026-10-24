@@ -17,7 +17,7 @@ A minimalist text launcher for Android that gets you to the right app in one tou
 
 ## Highlights
 
-1. **Draw to launch.** Trace a word over the invisible keyboard, or draw any shape right on the home screen. Mushin recognises the app by the shape of the line, even when it is sloppy or off to the side. It learns your drawings on the device, and you can review or erase them in Memory.
+1. **Draw to launch.** Trace a word over the invisible keyboard. Mushin recognises the app by the shape of the line, even when it is sloppy or off to the side. Turn on Gesture input in Settings → Gestures to draw any shape right on the home screen; Mushin then learns your drawings on the device, and you can review or erase them there.
 2. **Spaces.** Separate app lists for each context: a normal space, a work space and up to 20 of your own. Each has its own palette and its own home list. Long-press the background to switch.
 3. **Instant, forgiving search.** Double-tap the background and the built-in keyboard is already there, with no system keyboard lag. Search matches prefixes, substrings and initials. It tolerates typos, the wrong keyboard layout and transliteration: «слак» finds Slack.
 4. **Search on top of any app.** Set Mushin as the digital assistant to open search with the assistant gesture, or add the Quick Settings tile.

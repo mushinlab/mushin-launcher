@@ -29,7 +29,7 @@ Mushin Launcher — главный экран, который за одно ка
 Ввод рисунком:
 • проведите пальцем по невидимой раскладке — Mushin узнаёт название установленного приложения по форме линии, даже если она нарисована криво или со сдвигом;
 • если рисунок похож на несколько приложений, Mushin покажет все варианты;
-• после выбора запоминает ваш жест — всё это прямо на устройстве.
+• с включённым «Вводом жестами» рисуйте фигуры прямо на главном экране: Mushin запоминает ваши жесты, всё это прямо на устройстве.
 
 Настройка под себя:
 • свайпы в четыре стороны запускают приложение, открывают шторку или поиск;
@@ -65,7 +65,7 @@ Instant search:
 Swipe typing:
 • trace a word over the invisible layout and Mushin recognises an installed app's name by the shape of the line, even if it is drawn sloppily or off to the side;
 • if the drawing looks like several apps, Mushin shows them all;
-• Mushin remembers your choice and learns your gestures — entirely on the device.
+• turn on Gesture input to draw shapes right on the home screen: Mushin learns your gestures, entirely on the device.
 
 Make it yours:
 • swipes in four directions launch an app, open the notification shade or open search;

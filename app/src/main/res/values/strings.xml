@@ -16,6 +16,9 @@
     <string name="notice_no_clock">No Clock app found</string>
     <string name="learn_hint_title">What did you mean?</string>
     <string name="learn_hint_subtitle">Proceed to learning</string>
+    <string name="learn_hint_options">Hint options</string>
+    <string name="learn_hint_hide">Hide</string>
+    <string name="learn_hint_never">Never suggest</string>
     <string name="tile_search">Mushin search</string>
     <string name="notice_background_failed">Could not open the image</string>
     <string name="notice_no_notification_settings">Notification access settings are not available on this device</string>

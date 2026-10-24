@@ -79,8 +79,6 @@ private fun SettingsRouteScreen(
         ->
             SpaceRouteScreen(route, state, actions, push, back)
 
-        SettingsRoute.Press -> PressSettingsScreen(state, actions, back)
-
         SettingsRoute.ClockSheet -> ClockSheet(state, actions, back)
 
         SettingsRoute.TextSheet -> TextSheet(state, actions, back)
@@ -90,10 +88,10 @@ private fun SettingsRouteScreen(
         SettingsRoute.Keyboard, SettingsRoute.Gestures, is SettingsRoute.PickGestureApp ->
             InputRouteScreen(route, state, actions, push, back)
 
-        SettingsRoute.Apps, SettingsRoute.System, SettingsRoute.Advanced ->
+        SettingsRoute.Apps, SettingsRoute.System, SettingsRoute.Privacy ->
             SystemRouteScreen(route, state, actions, push, back)
 
-        SettingsRoute.Memory, is SettingsRoute.MemoryApp, SettingsRoute.MemoryPickApp ->
+        is SettingsRoute.MemoryApp, SettingsRoute.MemoryPickApp ->
             MemoryRouteScreen(route, stack, state, actions, push, back)
 
         SettingsRoute.Tips, is SettingsRoute.Tip -> TipsRouteScreen(route, push, back)
@@ -143,7 +141,7 @@ private fun SystemRouteScreen(
 ) {
     when (route) {
         SettingsRoute.Apps -> AppsSettingsScreen(state, actions, back)
-        SettingsRoute.Advanced -> AdvancedScreen(state, push, back)
+        SettingsRoute.Privacy -> PrivacyScreen(state, actions, back)
         else -> SystemScreen(state, actions, push, back)
     }
 }
@@ -159,8 +157,7 @@ private fun MemoryRouteScreen(
 ) {
     when (route) {
         is SettingsRoute.MemoryApp -> MemoryAppScreen(route, state, actions, stack, back)
-        SettingsRoute.MemoryPickApp -> MemoryAppPicker(state, stack, push, back)
-        else -> MemoryScreen(state, actions, push, back)
+        else -> MemoryAppPicker(state, stack, push, back)
     }
 }
 

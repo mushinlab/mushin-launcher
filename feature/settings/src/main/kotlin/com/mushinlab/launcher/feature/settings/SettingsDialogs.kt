@@ -1,5 +1,6 @@
 package com.mushinlab.launcher.feature.settings
 
+import android.app.AlertDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,10 +19,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +33,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -152,3 +156,36 @@ private fun DialogButtons(buttons: List<Pair<String, () -> Unit>>) {
 }
 
 private const val SCRIM_ALPHA = 0.5f
+
+@Composable
+internal fun SystemConfirmDialog(
+    title: String,
+    message: String,
+    confirm: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val context = LocalContext.current
+    val cancel = stringResource(R.string.settings_cancel)
+    val confirmAction by rememberUpdatedState(onConfirm)
+    val dismissAction by rememberUpdatedState(onDismiss)
+    DisposableEffect(title, message) {
+        val dialog = AlertDialog.Builder(context)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(confirm) { _, _ -> confirmAction() }
+            .setNegativeButton(cancel, null)
+            .setOnDismissListener { dismissAction() }
+            .create()
+        dialog.setOnShowListener {
+            val error = dialog.context.obtainStyledAttributes(intArrayOf(android.R.attr.colorError))
+                .use { it.getColorStateList(0) }
+            if (error != null) dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(error)
+        }
+        dialog.show()
+        onDispose {
+            dialog.setOnDismissListener(null)
+            dialog.dismiss()
+        }
+    }
+}

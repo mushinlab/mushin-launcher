@@ -71,23 +71,6 @@ private fun RootRows(push: (SettingsRoute) -> Unit) {
 }
 
 @Composable
-internal fun AdvancedScreen(state: SettingsUiState, push: (SettingsRoute) -> Unit, back: () -> Unit) {
-    SettingsPage(stringResource(R.string.settings_advanced), back) {
-        NavRow(
-            stringResource(R.string.settings_press),
-            value = pressLabel(state.settings.pressFeedback),
-            summary = stringResource(R.string.summary_press),
-            tag = "nav_press",
-        ) { push(SettingsRoute.Press) }
-        NavRow(
-            stringResource(R.string.settings_memory),
-            summary = stringResource(R.string.summary_memory),
-            tag = "nav_memory",
-        ) { push(SettingsRoute.Memory) }
-    }
-}
-
-@Composable
 internal fun KeyboardSettingsScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
     val s = state.settings
     val preferences = actions.preferences
@@ -231,12 +214,10 @@ internal fun SystemScreen(
         ) { actions.system.setAppLanguage(it) }
         NavRow(stringResource(R.string.system_version), value = state.versionName) {}
         NavRow(
-            stringResource(R.string.settings_advanced),
-            summary = stringResource(R.string.summary_advanced),
-            tag = "nav_advanced",
-        ) { push(SettingsRoute.Advanced) }
-        SectionHeader(stringResource(R.string.system_privacy))
-        NoteText(stringResource(R.string.system_privacy_text))
+            stringResource(R.string.system_privacy),
+            summary = stringResource(R.string.summary_privacy),
+            tag = "nav_privacy",
+        ) { push(SettingsRoute.Privacy) }
         SectionHeader(stringResource(R.string.system_licenses))
         NoteText(stringResource(R.string.system_licenses_text))
     }

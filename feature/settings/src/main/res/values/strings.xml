@@ -10,6 +10,15 @@
     <string name="settings_off">Off</string>
     <string name="settings_keyboard">Keyboard</string>
     <string name="settings_gestures">Gestures</string>
+    <string name="gesture_input">Gesture input</string>
+    <string name="gesture_input_note">Draw a shape on the home screen to open an app; the launcher remembers which shape you draw for which app. When this is off, only swipe typing on the keyboard works and nothing is learned.</string>
+    <string name="learn_hints">Learning hints</string>
+    <string name="learn_hints_note">When the launcher does not recognize several drawings on the home screen in a row, a card at the top offers to teach it that shape.</string>
+    <string name="privacy_delete_memory">Delete memory</string>
+    <string name="privacy_delete_memory_note">Erases the launch history and the learned gestures. Spaces, settings and backgrounds stay.</string>
+    <string name="privacy_delete_memory_confirm">Delete the launch history and all learned gestures? Search, hints and drawings start learning again.</string>
+    <string name="privacy_data">Stored data</string>
+    <string name="summary_privacy">Stored data, delete memory</string>
     <string name="settings_press">Press animation</string>
     <string name="settings_apps">Hidden &amp; renamed</string>
     <string name="settings_system">System</string>
@@ -129,7 +138,6 @@
     <string name="system_licenses">Licenses</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, Material Symbols icons — Apache License 2.0. Inter, Open Sans and Montserrat fonts — SIL Open Font License 1.1 (licence texts are inside the app, assets/licenses).</string>
     <string name="settings_memory">Memory</string>
-    <string name="memory_note">Everything Mushin has learned stays on this phone. Here you can see it and erase it.</string>
     <string name="memory_gestures">Learned gestures</string>
     <string name="memory_gestures_none">Nothing yet. A gesture is remembered when you open an app after correcting a drawing or picking from suggestions.</string>
     <string name="memory_forget_gestures">Forget all gestures</string>
@@ -137,8 +145,6 @@
     <string name="memory_usage">Launch frequency</string>
     <string name="memory_usage_note">Search results are ranked by it.</string>
     <string name="memory_usage_none">Empty so far.</string>
-    <string name="memory_clear_usage">Erase launch history</string>
-    <string name="memory_clear_usage_confirm">Erase the launch history of all apps? Launch counts, recent apps in search and the days used for hints are deleted. Search and hints start learning again.</string>
     <string name="memory_erase">Erase</string>
     <string name="memory_app_note">Drawings that point to this app, shown as vectors. The dot marks where the line starts; a ring marks where the finger paused, the longer the pause, the bigger the ring. The higher the weight, the more strongly the drawing points to this app.</string>
     <string name="memory_forget_app">Forget all drawings for this app</string>
@@ -149,14 +155,10 @@
         <item quantity="one">%d drawing</item>
         <item quantity="other">%d drawings</item>
     </plurals>
-    <string name="settings_advanced">Advanced</string>
     <string name="summary_keyboard">Layouts, vibration, digit hints, swipe typing</string>
     <string name="summary_gestures">Swipes on the home screen and the stroke</string>
     <string name="summary_apps">Hidden apps, custom names</string>
     <string name="summary_system">Default launcher, language, privacy, advanced</string>
-    <string name="summary_advanced">Press animation, memory</string>
-    <string name="summary_press">How rows respond to touch</string>
-    <string name="summary_memory">Learned gestures, launch counts, usefulness</string>
     <string name="style_font">Font</string>
     <string name="style_weight">Weight</string>
     <string name="style_note">Font and weight apply to the whole app; the size applies to the home screen list.</string>
@@ -216,7 +218,7 @@
     <string name="tip_style_title">Customize the launcher</string>
     <string name="tip_style_text">Tap the pencil, then Tt to change the font, size and alignment. While editing, drag the clock or the line above the list to move them.</string>
     <string name="tip_memory_title">Teach the launcher</string>
-    <string name="tip_memory_text">In System → Advanced → Memory, draw a shape for an app. Draw the same shape on the home screen and the launcher suggests that app.</string>
+    <string name="tip_memory_text">In Settings → Gestures, turn on Gesture input and draw a shape for an app. Draw the same shape on the home screen and the launcher suggests that app.</string>
     <string name="tips_more_title">For more, explore Tips</string>
     <string name="tips_more_text">Replay these tips any time in Settings → Tips.</string>
     <string name="tip_space_name">Personal</string>

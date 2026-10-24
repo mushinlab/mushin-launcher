@@ -44,6 +44,7 @@ data class HomeUiState(
     val backgroundBrightness: Float = 0f,
     val backgroundBlur: Float = 0f,
     val backgroundRowAlpha: Float = SpaceBackground.ROW_ALPHA_DEFAULT,
+    val drawing: Boolean = false,
     val roleMissing: Boolean = false,
     val suggestion: HomeSuggestion? = null,
 )

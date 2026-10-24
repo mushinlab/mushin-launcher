@@ -43,6 +43,8 @@ abstract class LauncherUiTestBase {
                 homeListOffset = 0,
                 iconMode = IconMode.NONE,
                 homeTextAlign = HomeTextAlign.START,
+                gestureInput = true,
+                learnHints = true,
                 keyboardLayouts = listOf("en", "ru"),
                 activeKeyboardLayout = "en",
             )

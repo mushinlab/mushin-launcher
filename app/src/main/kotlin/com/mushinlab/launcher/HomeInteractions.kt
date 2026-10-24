@@ -60,6 +60,7 @@ class HomeInteractions(
     }
 
     fun onDrawing(points: List<GesturePoint>, width: Float, density: Float) {
+        if (!model.settings.gestureInput) return
         if (navigator.overlay != Overlay.None || points.size < 2 || width <= 0f) return
         val keyboardWidth = width * model.settings.keyboardWidth
         val rowHeight = KeyboardDimens.rowHeight.value * density
@@ -84,7 +85,7 @@ class HomeInteractions(
     fun openLearning() {
         learnHint = false
         navigator.closeOverlays()
-        navigator.settings.open(SettingsRoute.Memory)
+        navigator.settings.open(SettingsRoute.Gestures)
         navigator.settings.draft = learnDraft?.map { ShapeVertex(it.x, it.y) }
         learnDraft = null
         navigator.settings.push(SettingsRoute.MemoryPickApp)
@@ -112,9 +113,11 @@ class HomeInteractions(
         emit(LauncherEffect.Reject)
         missedDrawings += listOf(points)
         if (missedDrawings.size >= LEARN_HINT_MISSES) {
-            learnDraft = Shapes.average(missedDrawings)
+            if (model.settings.learnHints) {
+                learnDraft = Shapes.average(missedDrawings)
+                learnHint = true
+            }
             missedDrawings = emptyList()
-            learnHint = true
         }
     }
 

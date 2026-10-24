@@ -27,6 +27,7 @@ import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.LauncherSettings
+import com.mushinlab.launcher.core.model.PressFeedback
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinFonts
 import com.mushinlab.launcher.core.ui.MushinType
@@ -81,6 +82,13 @@ internal fun ThemeSheet(state: SettingsUiState, actions: SettingsActions, back: 
         }
         NoteText(stringResource(R.string.space_colored_icons_note))
         NotificationRows(state, actions)
+        DropdownRow(
+            stringResource(R.string.settings_press),
+            PressFeedback.entries.map { it to pressLabel(it) },
+            state.settings.pressFeedback,
+            "press",
+        ) { feedback -> preferences.updateSettings { it.copy(pressFeedback = feedback) } }
+        NoteText(stringResource(R.string.press_note))
     }
 }
 

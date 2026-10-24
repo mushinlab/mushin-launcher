@@ -16,6 +16,9 @@
     <string name="notice_no_clock">Не нашлось приложения «Часы»</string>
     <string name="learn_hint_title">Что вы имели в виду?</string>
     <string name="learn_hint_subtitle">Перейти к обучению</string>
+    <string name="learn_hint_options">Действия с подсказкой</string>
+    <string name="learn_hint_hide">Скрыть</string>
+    <string name="learn_hint_never">Больше не предлагать</string>
     <string name="tile_search">Поиск Mushin</string>
     <string name="notice_background_failed">Не удалось открыть изображение</string>
     <string name="notice_no_notification_settings">Настройки доступа к уведомлениям недоступны на этом устройстве</string>

@@ -27,10 +27,10 @@ internal fun MemoryTipAnimation(modifier: Modifier = Modifier) {
     val apps = stringArrayResource(R.array.tip_apps).toList()
     val awesome = stringResource(R.string.tip_awesome_app)
     val strings = listOf(
-        stringResource(R.string.settings_memory),
+        stringResource(R.string.settings_gestures),
         stringResource(R.string.memory_gestures),
         stringResource(R.string.memory_add_gesture),
-        stringResource(R.string.memory_usage),
+        stringResource(R.string.style_stroke),
         stringResource(R.string.memory_pick_title),
         stringResource(R.string.memory_add),
     )

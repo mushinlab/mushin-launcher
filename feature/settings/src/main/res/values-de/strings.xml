@@ -10,6 +10,15 @@
     <string name="settings_off">Aus</string>
     <string name="settings_keyboard">Tastatur</string>
     <string name="settings_gestures">Gesten</string>
+    <string name="gesture_input">Gesteneingabe</string>
+    <string name="gesture_input_note">Zeichne auf dem Startbildschirm eine Form, um eine App zu öffnen; der Launcher merkt sich, welche Form du für welche App zeichnest. Ist das aus, funktioniert nur die Wischeingabe auf der Tastatur, und nichts wird gelernt.</string>
+    <string name="learn_hints">Lernhinweise</string>
+    <string name="learn_hints_note">Erkennt der Launcher mehrere Zeichnungen auf dem Startbildschirm nacheinander nicht, bietet oben eine Karte an, ihm diese Form beizubringen.</string>
+    <string name="privacy_delete_memory">Gedächtnis löschen</string>
+    <string name="privacy_delete_memory_note">Löscht den Startverlauf und die gelernten Gesten. Bereiche, Einstellungen und Hintergründe bleiben.</string>
+    <string name="privacy_delete_memory_confirm">Startverlauf und alle gelernten Gesten löschen? Suche, Vorschläge und Zeichnungen lernen dann neu.</string>
+    <string name="privacy_data">Gespeicherte Daten</string>
+    <string name="summary_privacy">Gespeicherte Daten, Gedächtnis löschen</string>
     <string name="settings_press">Tippanimation</string>
     <string name="settings_apps">Ausgeblendet &amp; umbenannt</string>
     <string name="settings_system">System</string>
@@ -129,7 +138,6 @@
     <string name="system_licenses">Lizenzen</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, Symbole Material Symbols — Apache License 2.0. Schriftarten Inter, Open Sans und Montserrat — SIL Open Font License 1.1 (die Lizenztexte liegen in der App, assets/licenses).</string>
     <string name="settings_memory">Gedächtnis</string>
-    <string name="memory_note">Alles, was Mushin gelernt hat, bleibt auf diesem Telefon. Hier kannst du es ansehen und löschen.</string>
     <string name="memory_gestures">Gelernte Gesten</string>
     <string name="memory_gestures_none">Noch nichts. Eine Geste wird gemerkt, wenn du eine App öffnest, nachdem du eine Zeichnung korrigiert oder aus den Vorschlägen gewählt hast.</string>
     <string name="memory_forget_gestures">Alle Gesten vergessen</string>
@@ -137,8 +145,6 @@
     <string name="memory_usage">Starthäufigkeit</string>
     <string name="memory_usage_note">Danach werden die Suchergebnisse sortiert.</string>
     <string name="memory_usage_none">Noch leer.</string>
-    <string name="memory_clear_usage">Startverlauf löschen</string>
-    <string name="memory_clear_usage_confirm">Startverlauf aller Apps löschen? Startzähler, zuletzt verwendete Apps in der Suche und die Tage für Vorschläge werden gelöscht. Suche und Vorschläge lernen dann neu.</string>
     <string name="memory_erase">Löschen</string>
     <string name="memory_app_note">Zeichnungen, die zu dieser App führen, als Vektoren dargestellt. Der Punkt markiert den Anfang der Linie; ein Ring markiert, wo der Finger verweilt hat — je länger die Pause, desto größer der Ring. Je höher das Gewicht, desto stärker weist die Zeichnung auf diese App.</string>
     <string name="memory_forget_app">Alle Zeichnungen dieser App vergessen</string>
@@ -149,14 +155,10 @@
         <item quantity="one">%d Zeichnung</item>
         <item quantity="other">%d Zeichnungen</item>
     </plurals>
-    <string name="settings_advanced">Erweitert</string>
     <string name="summary_keyboard">Layouts, Vibration, Ziffernhinweise, Wischeingabe</string>
     <string name="summary_gestures">Wischgesten auf dem Startbildschirm und Linie</string>
     <string name="summary_apps">Ausgeblendete Apps, eigene Namen</string>
     <string name="summary_system">Standard-Launcher, Sprache, Datenschutz, Erweitert</string>
-    <string name="summary_advanced">Tippanimation, Gedächtnis</string>
-    <string name="summary_press">Wie Zeilen auf Berührung reagieren</string>
-    <string name="summary_memory">Gelernte Gesten, Startzähler, Nützlichkeit</string>
     <string name="style_font">Schrift</string>
     <string name="style_weight">Stärke</string>
     <string name="style_note">Schrift und Stärke gelten für die ganze App, die Größe für die Liste auf dem Startbildschirm.</string>
@@ -216,7 +218,7 @@
     <string name="tip_style_title">Passe den Launcher an</string>
     <string name="tip_style_text">Tippe auf den Stift und dann auf Tt, um Schrift, Größe und Ausrichtung zu ändern. Beim Bearbeiten kannst du die Uhr oder die Linie über der Liste verschieben.</string>
     <string name="tip_memory_title">Bring dem Launcher etwas bei</string>
-    <string name="tip_memory_text">Zeichne unter System → Erweitert → Gedächtnis eine Form für eine App. Zeichne dieselbe Form auf dem Startbildschirm, und der Launcher schlägt diese App vor.</string>
+    <string name="tip_memory_text">Schalte unter Einstellungen → Gesten die „Gesteneingabe“ ein und zeichne eine Form für eine App. Zeichne dieselbe Form auf dem Startbildschirm, und der Launcher schlägt diese App vor.</string>
     <string name="tips_more_title">Mehr findest du unter Tipps</string>
     <string name="tips_more_text">Diese Tipps kannst du jederzeit unter Einstellungen → Tipps erneut ansehen.</string>
     <string name="tip_space_name">Privat</string>

@@ -40,19 +40,15 @@ sealed interface SettingsRoute {
 
     data object ThemeSheet : SettingsRoute
 
-    data object Advanced : SettingsRoute
-
     data object Keyboard : SettingsRoute
 
     data object Gestures : SettingsRoute
-
-    data object Press : SettingsRoute
 
     data object Apps : SettingsRoute
 
     data object System : SettingsRoute
 
-    data object Memory : SettingsRoute
+    data object Privacy : SettingsRoute
 
     data class MemoryApp(val key: AppKey, val sketch: Boolean = false) : SettingsRoute
 

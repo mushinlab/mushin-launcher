@@ -8,6 +8,7 @@ import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
@@ -21,6 +22,7 @@ import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.PressFeedback
 import com.mushinlab.launcher.core.model.StrokeColor
+import com.mushinlab.launcher.feature.settings.R as SettingsR
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -30,11 +32,8 @@ import org.junit.runner.RunWith
 class SettingsUiTest : LauncherUiTestBase() {
     @Test
     fun selectedOptionIsMarkedByBackgroundAndPressStyleApplies() {
-        rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
-        rule.onNodeWithTag("nav_system").performScrollTo().performClick()
-        rule.onNodeWithTag("nav_advanced").performScrollTo().performClick()
-        rule.onNodeWithTag("nav_press").performClick()
-        rule.onNodeWithTag("press_dropdown").performClick()
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.ThemeSheet) }
+        rule.onNodeWithTag("press_dropdown").performScrollTo().performClick()
         rule.onNodeWithTag("press_FLASH").assertIsSelected()
         rule.onNodeWithTag("press_DIM").assertIsNotSelected().performClick()
         rule.waitUntil(5_000) { container.settings.settings.value.pressFeedback == PressFeedback.DIM }
@@ -93,6 +92,33 @@ class SettingsUiTest : LauncherUiTestBase() {
         rule.waitUntil(5_000) {
             container.settings.settings.value.gestureShiftPenalty == GestureTuning.SHIFT_PENALTY &&
                 container.settings.settings.value.gestureSuggestMargin == GestureTuning.SUGGEST_MARGIN
+        }
+    }
+
+    @Test
+    fun gestureInputHidesItsSettingsWhileOff() {
+        runBlocking { container.settings.update { it.copy(gestureInput = false) } }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Gestures) }
+        rule.onNodeWithTag("gesture_input").performScrollTo().assertIsDisplayed()
+        rule.onNodeWithTag("learn_hints").assertDoesNotExist()
+        rule.onNodeWithTag("memory_add_gesture").assertDoesNotExist()
+        rule.onNodeWithTag("gesture_input").performClick()
+        rule.waitUntil(5_000) { container.settings.settings.value.gestureInput }
+        rule.onNodeWithTag("learn_hints").performScrollTo().assertIsDisplayed()
+        rule.onNodeWithTag("memory_add_gesture").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun systemHasPrivacyWithStoredDataFoldedAndNoAdvanced() {
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.System) }
+        rule.onNodeWithTag("nav_advanced").assertDoesNotExist()
+        rule.onNodeWithTag("nav_privacy").performScrollTo().performClick()
+        rule.onNodeWithTag("privacy_delete_memory").assertIsDisplayed()
+        val history = rule.activity.getString(SettingsR.string.memory_usage)
+        rule.onNodeWithText(history).assertDoesNotExist()
+        rule.onNodeWithTag("privacy_data").performScrollTo().performClick()
+        rule.waitUntil(5_000) {
+            runCatching { rule.onNodeWithText(history).assertExists() }.isSuccess
         }
     }
 

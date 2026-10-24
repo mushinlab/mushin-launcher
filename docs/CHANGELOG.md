@@ -5,7 +5,13 @@
 ### Added
 - Built-in backgrounds (ADR-0032). The new “Choose background” page has the folders Solid color (eight calm colours), Japanese (ten ink-style pictures, five light and five dark), Cosmos (empty for now) and From gallery, which opens the system photo picker. A chosen picture or colour opens in the background editor. The Background button in edit mode opens this page when the space has no image yet.
 
+### Added
+- Settings → System → Privacy (ADR-0033): a red “Delete memory” at the top erases the launch history and all learned gestures after a system confirmation; “Stored data” below is folded by default and shows the launch history and how useful each app is in the current space.
+- The learning card on the home screen has a ✕ that shows “Hide” and “Never suggest”; the latter turns off learning hints.
+
 ### Changed
+- Gesture input is off by default (ADR-0033). Only swipe typing on the keyboard works until you turn on Settings → Gestures → Gesture input; then drawings on the home screen are recognised, gestures are learned, and “Learning hints” and “Learned gestures” appear under the switch. While it is off nothing is learned and learned gestures are not used.
+- Settings → System → Advanced is gone: learned gestures moved to Settings → Gestures, the launch history to Privacy, and “Press animation” to the Theme sheet of the home edit mode.
 - Home rows (ADR-0030): the app icon now follows the label instead of sitting at the right edge. With centre alignment the label is centred on the screen's centre line; with right alignment the label and icon sit at the right edge. The “Add apps” row follows the same rule.
 - In edit mode the check mark button is twice as large (80 dp instead of 40 dp) and grows and shrinks in 200 ms.
 - The Clock, Text and Theme sheets have a shadow instead of an outline and slide up from the bottom when they open and down when they close.

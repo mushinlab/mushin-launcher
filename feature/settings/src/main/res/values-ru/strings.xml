@@ -10,6 +10,15 @@
     <string name="settings_off">Выкл</string>
     <string name="settings_keyboard">Клавиатура</string>
     <string name="settings_gestures">Жесты</string>
+    <string name="gesture_input">Ввод жестами</string>
+    <string name="gesture_input_note">Нарисуйте фигуру на главном экране, чтобы открыть приложение; лаунчер запоминает, какую фигуру вы рисуете для какого приложения. Когда выключено, работает только ввод свайпом по клавиатуре и ничего не запоминается.</string>
+    <string name="learn_hints">Подсказки обучения</string>
+    <string name="learn_hints_note">Если лаунчер несколько раз подряд не узнал рисунок на главном экране, сверху появится карточка с предложением научить его этой фигуре.</string>
+    <string name="privacy_delete_memory">Стереть память</string>
+    <string name="privacy_delete_memory_note">Стирает историю запусков и выученные жесты. Спейсы, настройки и фоны остаются.</string>
+    <string name="privacy_delete_memory_confirm">Стереть историю запусков и все выученные жесты? Поиск, подсказки и рисунки начнут учиться заново.</string>
+    <string name="privacy_data">Сохранённые данные</string>
+    <string name="summary_privacy">Данные и стирание памяти</string>
     <string name="settings_press">Анимация нажатия</string>
     <string name="settings_apps">Скрытые и переименованные</string>
     <string name="settings_system">Система</string>
@@ -129,7 +138,6 @@
     <string name="system_licenses">Лицензии</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, значки Material Symbols — Apache License 2.0. Шрифты Inter, Open Sans, Montserrat — SIL Open Font License 1.1 (тексты лицензий внутри приложения, assets/licenses).</string>
     <string name="settings_memory">Память</string>
-    <string name="memory_note">Всё, чему Mushin научился, хранится только на этом телефоне. Здесь это можно посмотреть и стереть.</string>
     <string name="memory_gestures">Выученные жесты</string>
     <string name="memory_gestures_none">Пока ничего. Жест запоминается, когда после исправленного рисунка или выбора из вариантов вы открываете приложение.</string>
     <string name="memory_forget_gestures">Забыть все жесты</string>
@@ -137,8 +145,6 @@
     <string name="memory_usage">Частота запусков</string>
     <string name="memory_usage_note">По ней сортируются результаты поиска.</string>
     <string name="memory_usage_none">Пока пусто.</string>
-    <string name="memory_clear_usage">Стереть историю запусков</string>
-    <string name="memory_clear_usage_confirm">Стереть историю запусков всех приложений? Удалятся счётчики запусков, недавние в поиске и дни, по которым строятся подсказки. Поиск и подсказки начнут учиться заново.</string>
     <string name="memory_erase">Стереть</string>
     <string name="memory_app_note">Рисунки, по которым узнаётся это приложение, — в виде векторов. Точка — начало линии, кольцо — место, где палец задержался: чем дольше, тем больше кольцо. Чем больше вес, тем сильнее рисунок тянет к этому приложению.</string>
     <string name="memory_forget_app">Забыть все рисунки приложения</string>
@@ -151,14 +157,10 @@
         <item quantity="many">%d рисунков</item>
         <item quantity="other">%d рисунка</item>
     </plurals>
-    <string name="settings_advanced">Дополнительно</string>
     <string name="summary_keyboard">Раскладки, вибрация, подсказки цифр, рисунок на клавиатуре</string>
     <string name="summary_gestures">Свайпы на главном экране и линия</string>
     <string name="summary_apps">Скрытые приложения, свои названия</string>
     <string name="summary_system">Лаунчер по умолчанию, язык, конфиденциальность, дополнительно</string>
-    <string name="summary_advanced">Анимация нажатия, память</string>
-    <string name="summary_press">Как строки отвечают на касание</string>
-    <string name="summary_memory">Выученные жесты, частота запусков, полезность</string>
     <string name="style_font">Шрифт</string>
     <string name="style_weight">Насыщенность</string>
     <string name="style_note">Шрифт и насыщенность действуют во всём приложении, размер — для списка на главном экране.</string>
@@ -218,7 +220,7 @@
     <string name="tip_style_title">Настройте лаунчер под себя</string>
     <string name="tip_style_text">Нажмите на карандаш, затем на Tт, чтобы сменить шрифт, размер и выравнивание. В режиме правки перетащите часы или черту над списком, чтобы передвинуть их.</string>
     <string name="tip_memory_title">Научите лаунчер</string>
-    <string name="tip_memory_text">В «Системе → Дополнительно → Память» нарисуйте фигуру для приложения. Нарисуйте её же на главном экране, и лаунчер предложит это приложение.</string>
+    <string name="tip_memory_text">В «Настройки → Жесты» включите «Ввод жестами» и нарисуйте фигуру для приложения. Нарисуйте её же на главном экране, и лаунчер предложит это приложение.</string>
     <string name="tips_more_title">Больше — в «Советах»</string>
     <string name="tips_more_text">Эти подсказки всегда можно посмотреть снова: «Настройки → Советы».</string>
     <string name="tip_space_name">Личное</string>

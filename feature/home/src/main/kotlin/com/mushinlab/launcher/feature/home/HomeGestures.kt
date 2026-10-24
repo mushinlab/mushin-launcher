@@ -147,11 +147,11 @@ internal class HomeGestureHandler(
     }
 
     override fun onTrace(position: Offset, timeMs: Long) {
-        trace.add(position, timeMs)
+        if (state.value.drawing) trace.add(position, timeMs)
     }
 
     override fun onDraw(points: List<Offset>) {
-        actions.value.onDraw(points, width)
+        if (state.value.drawing) actions.value.onDraw(points, width)
     }
 }
 

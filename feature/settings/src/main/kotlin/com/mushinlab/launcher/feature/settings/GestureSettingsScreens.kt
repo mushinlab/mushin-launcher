@@ -48,6 +48,7 @@ internal fun GesturesScreen(
             SwipeRow(direction, state.gestures[direction], actions.preferences, push)
         }
         NoteText(stringResource(R.string.gesture_shade_zone))
+        GestureInputSection(state, actions, push)
         SectionHeader(stringResource(R.string.style_stroke))
         StrokeRows(state.settings, actions.preferences)
     }
@@ -100,5 +101,23 @@ internal enum class GestureChoice(val action: GestureAction) {
             GestureAction.AllApps -> ALL_APPS
             is GestureAction.LaunchApp -> APP
         }
+    }
+}
+
+@Composable
+private fun GestureInputSection(state: SettingsUiState, actions: SettingsActions, push: (SettingsRoute) -> Unit) {
+    val s = state.settings
+    val preferences = actions.preferences
+    SectionHeader(stringResource(R.string.gesture_input))
+    ToggleRow(stringResource(R.string.gesture_input), s.gestureInput, tag = "gesture_input") { on ->
+        preferences.updateSettings { it.copy(gestureInput = on) }
+    }
+    NoteText(stringResource(R.string.gesture_input_note))
+    if (s.gestureInput) {
+        ToggleRow(stringResource(R.string.learn_hints), s.learnHints, tag = "learn_hints") { on ->
+            preferences.updateSettings { it.copy(learnHints = on) }
+        }
+        NoteText(stringResource(R.string.learn_hints_note))
+        LearnedGesturesSection(state, actions, push)
     }
 }

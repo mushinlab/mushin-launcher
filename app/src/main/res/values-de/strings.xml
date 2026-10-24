@@ -16,6 +16,9 @@
     <string name="notice_no_clock">Keine Uhr-App gefunden</string>
     <string name="learn_hint_title">Was meintest du?</string>
     <string name="learn_hint_subtitle">Weiter zum Lernen</string>
+    <string name="learn_hint_options">Hinweisoptionen</string>
+    <string name="learn_hint_hide">Ausblenden</string>
+    <string name="learn_hint_never">Nie mehr vorschlagen</string>
     <string name="tile_search">Mushin-Suche</string>
     <string name="notice_background_failed">Bild konnte nicht geöffnet werden</string>
     <string name="notice_no_notification_settings">Die Einstellungen für den Benachrichtigungszugriff sind auf diesem Gerät nicht verfügbar</string>

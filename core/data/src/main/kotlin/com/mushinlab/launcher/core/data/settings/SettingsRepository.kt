@@ -115,6 +115,8 @@ class SettingsRepository(
         internal val SEARCH_LAYOUT_SWAP = booleanPreferencesKey("search_layout_swap")
         internal val SEARCH_TRANSLIT = booleanPreferencesKey("search_translit")
         internal val ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
+        internal val GESTURE_INPUT = booleanPreferencesKey("gesture_input")
+        internal val LEARN_HINTS = booleanPreferencesKey("learn_hints")
 
         internal fun decode(prefs: Preferences, defaultLayouts: List<String>): LauncherSettings {
             val defaults = LauncherSettings()
@@ -153,6 +155,8 @@ class SettingsRepository(
                 searchLayoutSwap = prefs.valueOr(SEARCH_LAYOUT_SWAP, defaults.searchLayoutSwap),
                 searchTranslit = prefs.valueOr(SEARCH_TRANSLIT, defaults.searchTranslit),
                 onboardingDone = prefs.valueOr(ONBOARDING_DONE, defaults.onboardingDone),
+                gestureInput = prefs.valueOr(GESTURE_INPUT, defaults.gestureInput),
+                learnHints = prefs.valueOr(LEARN_HINTS, defaults.learnHints),
             )
         }
 
@@ -187,6 +191,8 @@ class SettingsRepository(
             prefs[SEARCH_LAYOUT_SWAP] = settings.searchLayoutSwap
             prefs[SEARCH_TRANSLIT] = settings.searchTranslit
             prefs[ONBOARDING_DONE] = settings.onboardingDone
+            prefs[GESTURE_INPUT] = settings.gestureInput
+            prefs[LEARN_HINTS] = settings.learnHints
         }
 
         private fun <T> Preferences.valueOr(key: Preferences.Key<T>, default: T): T = this[key] ?: default

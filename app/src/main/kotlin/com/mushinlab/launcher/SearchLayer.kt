@@ -81,10 +81,13 @@ private fun SearchSourcesEffect(vm: LauncherViewModel) {
     val usage by vm.usage.collectAsStateWithLifecycle()
     val engine by vm.searchEngine.collectAsStateWithLifecycle()
     val learned by vm.learnedGestures.collectAsStateWithLifecycle()
+    val settings by vm.settings.collectAsStateWithLifecycle()
     val recents by vm.recents.collectAsStateWithLifecycle()
     LaunchedEffect(index, usage) { sources.update(index, usage) }
     LaunchedEffect(recents) { sources.setRecents(recents) }
-    LaunchedEffect(learned) { sources.setLearned(learned) }
+    LaunchedEffect(learned, settings.gestureInput) {
+        sources.setLearned(if (settings.gestureInput) learned else emptyList())
+    }
     val bindings by vm.gestureBindings.collectAsStateWithLifecycle()
     LaunchedEffect(bindings) { sources.setSwipes(bindings.swipesByApp()) }
     LaunchedEffect(engine) { sources.setEngine(engine) }

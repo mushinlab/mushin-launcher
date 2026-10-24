@@ -10,6 +10,15 @@
     <string name="settings_off">Nonaktif</string>
     <string name="settings_keyboard">Keyboard</string>
     <string name="settings_gestures">Gestur</string>
+    <string name="gesture_input">Input gestur</string>
+    <string name="gesture_input_note">Gambar bentuk di layar utama untuk membuka aplikasi; launcher mengingat bentuk yang Anda gambar untuk tiap aplikasi. Jika nonaktif, hanya ketik geser di keyboard yang berfungsi dan tidak ada yang dipelajari.</string>
+    <string name="learn_hints">Petunjuk belajar</string>
+    <string name="learn_hints_note">Jika launcher beberapa kali berturut-turut tidak mengenali gambar di layar utama, kartu di atas menawarkan untuk mengajarkan bentuk itu.</string>
+    <string name="privacy_delete_memory">Hapus memori</string>
+    <string name="privacy_delete_memory_note">Menghapus riwayat pembukaan dan gestur yang dipelajari. Ruang, setelan, dan latar tetap ada.</string>
+    <string name="privacy_delete_memory_confirm">Hapus riwayat pembukaan dan semua gestur yang dipelajari? Pencarian, saran, dan gambar akan belajar lagi.</string>
+    <string name="privacy_data">Data tersimpan</string>
+    <string name="summary_privacy">Data tersimpan, hapus memori</string>
     <string name="settings_press">Animasi sentuh</string>
     <string name="settings_apps">Tersembunyi &amp; diganti nama</string>
     <string name="settings_system">Sistem</string>
@@ -129,7 +138,6 @@
     <string name="system_licenses">Lisensi</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, ikon Material Symbols — Apache License 2.0. Font Inter, Open Sans, dan Montserrat — SIL Open Font License 1.1 (teks lisensi ada di dalam aplikasi, assets/licenses).</string>
     <string name="settings_memory">Memori</string>
-    <string name="memory_note">Semua yang dipelajari Mushin tetap ada di ponsel ini. Di sini Anda bisa melihat dan menghapusnya.</string>
     <string name="memory_gestures">Gestur yang dipelajari</string>
     <string name="memory_gestures_none">Belum ada. Gestur diingat saat Anda membuka aplikasi setelah memperbaiki gambar atau memilih dari saran.</string>
     <string name="memory_forget_gestures">Lupakan semua gestur</string>
@@ -137,8 +145,6 @@
     <string name="memory_usage">Frekuensi pembukaan</string>
     <string name="memory_usage_note">Hasil pencarian diurutkan berdasarkan ini.</string>
     <string name="memory_usage_none">Masih kosong.</string>
-    <string name="memory_clear_usage">Hapus riwayat pembukaan</string>
-    <string name="memory_clear_usage_confirm">Hapus riwayat pembukaan semua aplikasi? Jumlah pembukaan, aplikasi terbaru di pencarian, dan hari yang dipakai untuk saran akan dihapus. Pencarian dan saran akan belajar lagi.</string>
     <string name="memory_erase">Hapus</string>
     <string name="memory_app_note">Gambar yang mengarah ke aplikasi ini, ditampilkan sebagai vektor. Titik menandai awal garis; cincin menandai tempat jari berhenti — makin lama jedanya, makin besar cincinnya. Makin tinggi bobotnya, makin kuat gambar itu mengarah ke aplikasi ini.</string>
     <string name="memory_forget_app">Lupakan semua gambar aplikasi ini</string>
@@ -148,14 +154,10 @@
     <plurals name="memory_drawings">
         <item quantity="other">%d gambar</item>
     </plurals>
-    <string name="settings_advanced">Lanjutan</string>
     <string name="summary_keyboard">Tata letak, getaran, petunjuk angka, ketik geser</string>
     <string name="summary_gestures">Geser di layar utama dan garis</string>
     <string name="summary_apps">Aplikasi tersembunyi, nama kustom</string>
     <string name="summary_system">Launcher default, bahasa, privasi, lanjutan</string>
-    <string name="summary_advanced">Animasi sentuh, memori</string>
-    <string name="summary_press">Cara baris merespons sentuhan</string>
-    <string name="summary_memory">Gestur yang dipelajari, jumlah pembukaan, kegunaan</string>
     <string name="style_font">Font</string>
     <string name="style_weight">Ketebalan</string>
     <string name="style_note">Font dan ketebalan berlaku di seluruh aplikasi; ukuran berlaku untuk daftar di layar utama.</string>
@@ -215,7 +217,7 @@
     <string name="tip_style_title">Sesuaikan launcher</string>
     <string name="tip_style_text">Ketuk pensil, lalu Tt untuk mengubah font, ukuran, dan perataan. Saat mengedit, seret jam atau garis di atas daftar untuk memindahkannya.</string>
     <string name="tip_memory_title">Ajari launcher</string>
-    <string name="tip_memory_text">Di Sistem → Lanjutan → Memori, gambar bentuk untuk sebuah aplikasi. Gambar bentuk yang sama di layar utama, dan launcher akan menyarankan aplikasi itu.</string>
+    <string name="tip_memory_text">Di Setelan → Gestur, aktifkan “Input gestur” lalu gambar bentuk untuk aplikasi. Gambar bentuk yang sama di layar utama, dan launcher akan menyarankan aplikasi itu.</string>
     <string name="tips_more_title">Selengkapnya, buka Tips</string>
     <string name="tips_more_text">Putar ulang tips ini kapan saja di Setelan → Tips.</string>
     <string name="tip_space_name">Pribadi</string>

@@ -1,6 +1,5 @@
 package com.mushinlab.launcher.feature.settings
 
-import android.app.AlertDialog
 import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -24,7 +22,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +29,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -201,32 +197,13 @@ private fun SpaceTypeChoice(types: List<SpaceType>, selected: SpaceType, onSelec
 
 @Composable
 private fun DeleteSpaceDialog(space: SpaceSummary, onConfirm: () -> Unit, onDismiss: () -> Unit) {
-    val context = LocalContext.current
-    val title = stringResource(R.string.space_delete)
-    val message = stringResource(R.string.space_delete_confirm, space.name)
-    val delete = stringResource(R.string.settings_delete)
-    val cancel = stringResource(R.string.settings_cancel)
-    val confirmAction by rememberUpdatedState(onConfirm)
-    val dismissAction by rememberUpdatedState(onDismiss)
-    DisposableEffect(space.id) {
-        val dialog = AlertDialog.Builder(context)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton(delete) { _, _ -> confirmAction() }
-            .setNegativeButton(cancel, null)
-            .setOnDismissListener { dismissAction() }
-            .create()
-        dialog.setOnShowListener {
-            val error = dialog.context.obtainStyledAttributes(intArrayOf(android.R.attr.colorError))
-                .use { it.getColorStateList(0) }
-            if (error != null) dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(error)
-        }
-        dialog.show()
-        onDispose {
-            dialog.setOnDismissListener(null)
-            dialog.dismiss()
-        }
-    }
+    SystemConfirmDialog(
+        title = stringResource(R.string.space_delete),
+        message = stringResource(R.string.space_delete_confirm, space.name),
+        confirm = stringResource(R.string.settings_delete),
+        onConfirm = onConfirm,
+        onDismiss = onDismiss,
+    )
 }
 
 private const val CHIP_ALPHA = 0.16f

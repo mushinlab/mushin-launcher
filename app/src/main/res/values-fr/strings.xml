@@ -16,6 +16,9 @@
     <string name="notice_no_clock">Aucune appli Horloge trouvée</string>
     <string name="learn_hint_title">Que vouliez-vous dire ?</string>
     <string name="learn_hint_subtitle">Passer à l’apprentissage</string>
+    <string name="learn_hint_options">Options de l’astuce</string>
+    <string name="learn_hint_hide">Masquer</string>
+    <string name="learn_hint_never">Ne plus proposer</string>
     <string name="tile_search">Recherche Mushin</string>
     <string name="notice_background_failed">Impossible d’ouvrir l’image</string>
     <string name="notice_no_notification_settings">Les paramètres d’accès aux notifications ne sont pas disponibles sur cet appareil</string>

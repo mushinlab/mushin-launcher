@@ -16,6 +16,9 @@
     <string name="notice_no_clock">Aplikasi Jam tidak ditemukan</string>
     <string name="learn_hint_title">Apa maksud Anda?</string>
     <string name="learn_hint_subtitle">Lanjut ke pembelajaran</string>
+    <string name="learn_hint_options">Opsi petunjuk</string>
+    <string name="learn_hint_hide">Sembunyikan</string>
+    <string name="learn_hint_never">Jangan sarankan lagi</string>
     <string name="tile_search">Pencarian Mushin</string>
     <string name="notice_background_failed">Tidak dapat membuka gambar</string>
     <string name="notice_no_notification_settings">Setelan akses notifikasi tidak tersedia di perangkat ini</string>

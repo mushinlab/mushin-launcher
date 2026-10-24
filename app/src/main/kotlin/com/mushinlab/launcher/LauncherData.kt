@@ -75,6 +75,7 @@ internal fun homeState(
         iconMode = d.settings.iconMode,
         textSize = d.settings.homeTextSize,
         textAlign = d.settings.homeTextAlign,
+        drawing = d.settings.gestureInput,
         clockFormat = d.settings.clockFormat,
         showDate = d.settings.showDate,
         clockPosition = d.settings.clockPosition,

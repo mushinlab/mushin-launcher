@@ -100,5 +100,7 @@ data class LauncherSettings(
     val searchLayoutSwap: Boolean = true,
     val searchTranslit: Boolean = true,
     val searchColoredIcons: Boolean = false,
+    val gestureInput: Boolean = false,
+    val learnHints: Boolean = true,
     val onboardingDone: Boolean = false,
 )

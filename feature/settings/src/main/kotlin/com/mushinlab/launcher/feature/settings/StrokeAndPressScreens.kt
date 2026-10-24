@@ -79,17 +79,4 @@ internal fun pressLabel(feedback: PressFeedback): String = stringResource(
     },
 )
 
-@Composable
-internal fun PressSettingsScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
-    SettingsPage(stringResource(R.string.settings_press), back) {
-        DropdownRow(
-            stringResource(R.string.settings_press),
-            PressFeedback.entries.map { it to pressLabel(it) },
-            state.settings.pressFeedback,
-            "press",
-        ) { feedback -> actions.preferences.updateSettings { it.copy(pressFeedback = feedback) } }
-        NoteText(stringResource(R.string.press_note))
-    }
-}
-
 private val STROKE_SWATCH = 18.dp

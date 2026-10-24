@@ -68,6 +68,8 @@ class SettingsRepositoryTest {
         assertThat(settings.searchLayoutSwap).isTrue()
         assertThat(settings.searchTranslit).isTrue()
         assertThat(settings.onboardingDone).isFalse()
+        assertThat(settings.gestureInput).isFalse()
+        assertThat(settings.learnHints).isTrue()
     }
 
     @Test
@@ -92,6 +94,8 @@ class SettingsRepositoryTest {
                 clockPosition = ClockPosition.END,
                 font = AppFont.MONTSERRAT,
                 fontWeight = AppFontWeight.LIGHT,
+                gestureInput = true,
+                learnHints = false,
             )
         }
         val settings = repo.settings.first { it.currentSpaceId == 7L }
@@ -109,6 +113,8 @@ class SettingsRepositoryTest {
         assertThat(settings.clockPosition).isEqualTo(ClockPosition.END)
         assertThat(settings.font).isEqualTo(AppFont.MONTSERRAT)
         assertThat(settings.fontWeight).isEqualTo(AppFontWeight.LIGHT)
+        assertThat(settings.gestureInput).isTrue()
+        assertThat(settings.learnHints).isFalse()
         repo.update { it.copy(currentSpaceId = null) }
         assertThat(repo.settings.first { it.currentSpaceId == null }.iconMode).isEqualTo(IconMode.NONE)
     }

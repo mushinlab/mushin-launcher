@@ -10,6 +10,15 @@
     <string name="settings_off">Desactivado</string>
     <string name="settings_keyboard">Teclado</string>
     <string name="settings_gestures">Gestos</string>
+    <string name="gesture_input">Entrada por gestos</string>
+    <string name="gesture_input_note">Dibuja una forma en la pantalla de inicio para abrir una app; el launcher recuerda qué forma dibujas para cada app. Si está desactivado, solo funciona la escritura deslizando en el teclado y no se aprende nada.</string>
+    <string name="learn_hints">Sugerencias de aprendizaje</string>
+    <string name="learn_hints_note">Si el launcher no reconoce varios dibujos seguidos en la pantalla de inicio, aparece arriba una tarjeta que ofrece enseñarle esa forma.</string>
+    <string name="privacy_delete_memory">Borrar memoria</string>
+    <string name="privacy_delete_memory_note">Borra el historial de aperturas y los gestos aprendidos. Los espacios, los ajustes y los fondos se mantienen.</string>
+    <string name="privacy_delete_memory_confirm">¿Borrar el historial de aperturas y todos los gestos aprendidos? La búsqueda, las sugerencias y los dibujos volverán a aprender.</string>
+    <string name="privacy_data">Datos guardados</string>
+    <string name="summary_privacy">Datos guardados y borrar memoria</string>
     <string name="settings_press">Animación al tocar</string>
     <string name="settings_apps">Ocultas y renombradas</string>
     <string name="settings_system">Sistema</string>
@@ -129,7 +138,6 @@
     <string name="system_licenses">Licencias</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, iconos Material Symbols — Apache License 2.0. Fuentes Inter, Open Sans y Montserrat — SIL Open Font License 1.1 (los textos de las licencias están dentro de la app, assets/licenses).</string>
     <string name="settings_memory">Memoria</string>
-    <string name="memory_note">Todo lo que Mushin ha aprendido se queda en este teléfono. Aquí puedes verlo y borrarlo.</string>
     <string name="memory_gestures">Gestos aprendidos</string>
     <string name="memory_gestures_none">Nada todavía. Un gesto se recuerda cuando abres una app después de corregir un trazo o elegir entre las sugerencias.</string>
     <string name="memory_forget_gestures">Olvidar todos los gestos</string>
@@ -137,8 +145,6 @@
     <string name="memory_usage">Frecuencia de uso</string>
     <string name="memory_usage_note">Los resultados de búsqueda se ordenan según ella.</string>
     <string name="memory_usage_none">Vacío por ahora.</string>
-    <string name="memory_clear_usage">Borrar historial de aperturas</string>
-    <string name="memory_clear_usage_confirm">¿Borrar el historial de aperturas de todas las apps? Se eliminan los recuentos, las apps recientes de la búsqueda y los días usados para las sugerencias. La búsqueda y las sugerencias volverán a aprender.</string>
     <string name="memory_erase">Borrar</string>
     <string name="memory_app_note">Trazos que llevan a esta app, mostrados como vectores. El punto marca dónde empieza la línea; un anillo marca dónde se detuvo el dedo: cuanto más larga la pausa, más grande el anillo. Cuanto mayor es el peso, más apunta el trazo a esta app.</string>
     <string name="memory_forget_app">Olvidar todos los trazos de esta app</string>
@@ -150,14 +156,10 @@
         <item quantity="many">%d trazos</item>
         <item quantity="other">%d trazos</item>
     </plurals>
-    <string name="settings_advanced">Avanzado</string>
     <string name="summary_keyboard">Distribuciones, vibración, pistas de dígitos, escritura gestual</string>
     <string name="summary_gestures">Deslizamientos en la pantalla de inicio y trazo</string>
     <string name="summary_apps">Apps ocultas, nombres propios</string>
     <string name="summary_system">Launcher predeterminado, idioma, privacidad, avanzado</string>
-    <string name="summary_advanced">Animación al tocar, memoria</string>
-    <string name="summary_press">Cómo responden las filas al tocarlas</string>
-    <string name="summary_memory">Gestos aprendidos, recuentos de aperturas, utilidad</string>
     <string name="style_font">Fuente</string>
     <string name="style_weight">Grosor</string>
     <string name="style_note">La fuente y el grosor se aplican a toda la app; el tamaño, a la lista de la pantalla de inicio.</string>
@@ -217,7 +219,7 @@
     <string name="tip_style_title">Personaliza el launcher</string>
     <string name="tip_style_text">Toca el lápiz y luego Tt para cambiar la fuente, el tamaño y la alineación. Mientras editas, arrastra el reloj o la línea sobre la lista para moverlos.</string>
     <string name="tip_memory_title">Enseña al launcher</string>
-    <string name="tip_memory_text">En Sistema → Avanzado → Memoria, dibuja una forma para una app. Dibuja la misma forma en la pantalla de inicio y el launcher te sugerirá esa app.</string>
+    <string name="tip_memory_text">En Ajustes → Gestos, activa «Entrada por gestos» y dibuja una forma para una app. Dibuja la misma forma en la pantalla de inicio y el launcher te sugerirá esa app.</string>
     <string name="tips_more_title">Para más, explora Consejos</string>
     <string name="tips_more_text">Vuelve a ver estos consejos cuando quieras en Ajustes → Consejos.</string>
     <string name="tip_space_name">Personal</string>

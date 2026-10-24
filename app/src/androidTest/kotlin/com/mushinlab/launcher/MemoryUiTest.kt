@@ -4,6 +4,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeRight
@@ -26,9 +27,8 @@ class MemoryUiTest : LauncherUiTestBase() {
             container.gestureLearning.update { listOf(LearnedGesture("qwerty", app.key, 2.0)) }
         }
         try {
-            rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Advanced) }
-            rule.onNodeWithTag("nav_memory").performClick()
-            rule.onNodeWithTag("memory_app_${app.label}").performClick()
+            rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Gestures) }
+            rule.onNodeWithTag("memory_app_${app.label}").performScrollTo().performClick()
             rule.onNodeWithTag("memory_drawing_0").assertIsDisplayed()
             rule.onNodeWithTag("memory_forget_0").performClick()
             rule.waitUntil(5_000) { container.gestureLearning.samples.value.isEmpty() }
@@ -81,6 +81,28 @@ class MemoryUiTest : LauncherUiTestBase() {
     }
 
     @Test
+    fun learnHintCloseOffersHideAndNeverSuggest() {
+        runBlocking { container.gestureLearning.update { emptyList() } }
+        repeat(HomeInteractions.LEARN_HINT_MISSES) { drawOnHome("qazwsx", scale = 1f) }
+        rule.onNodeWithTag("learn_hint_close").performClick()
+        rule.onNodeWithTag("learn_hint_hide").assertIsDisplayed()
+        rule.onNodeWithTag("learn_hint_never").performClick()
+        rule.waitUntil(5_000) { !container.settings.settings.value.learnHints }
+        rule.onNodeWithTag("learn_hint").assertDoesNotExist()
+        repeat(HomeInteractions.LEARN_HINT_MISSES) { drawOnHome("qazwsx", scale = 1f) }
+        rule.onNodeWithTag("learn_hint").assertDoesNotExist()
+    }
+
+    @Test
+    fun withGestureInputOffDrawingOnTheHomeScreenDoesNothing() {
+        runBlocking { container.settings.update { it.copy(gestureInput = false) } }
+        rule.waitUntil(5_000) { !rule.activity.launcher.home.value.drawing }
+        repeat(HomeInteractions.LEARN_HINT_MISSES) { drawOnHome("qazwsx", scale = 1f) }
+        rule.onNodeWithTag("learn_hint").assertDoesNotExist()
+        assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None)
+    }
+
+    @Test
     fun learnHintCanBeSwipedAway() {
         rule.runOnIdle { rule.activity.launcher.homeInput.learnHint = true }
         rule.onNodeWithTag("learn_hint").performTouchInput { swipeRight(startX = left + 10f, endX = right) }
@@ -92,8 +114,8 @@ class MemoryUiTest : LauncherUiTestBase() {
     fun memoryAddsAGestureDrawnInTheSheet() {
         runBlocking { container.gestureLearning.update { emptyList() } }
         val app = runBlocking { container.catalog.apps.first() }.minBy { it.label }
-        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Memory) }
-        rule.onNodeWithTag("memory_add_gesture").performClick()
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Gestures) }
+        rule.onNodeWithTag("memory_add_gesture").performScrollTo().performClick()
         rule.onNodeWithTag("pick_${app.label}").performClick()
         rule.onNodeWithTag("memory_add").performClick()
         rule.onNodeWithTag("gesture_sheet").assertIsDisplayed()

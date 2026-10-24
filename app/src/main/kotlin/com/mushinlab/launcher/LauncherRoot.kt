@@ -118,7 +118,14 @@ private fun MessageLayer(vm: LauncherViewModel) {
     }
     if (vm.homeInput.learnHint) {
         Box(Modifier.zIndex(5f).fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-            LearnHint(onOpen = vm.homeInput::openLearning, onDismiss = { vm.homeInput.learnHint = false })
+            LearnHint(
+                onOpen = vm.homeInput::openLearning,
+                onDismiss = { vm.homeInput.learnHint = false },
+                onNever = {
+                    vm.homeInput.learnHint = false
+                    vm.preferences.update { it.copy(learnHints = false) }
+                },
+            )
         }
     }
     navigator.notice?.let { notice ->
