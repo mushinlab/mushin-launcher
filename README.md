@@ -4,21 +4,14 @@
 
 # Mushin Launcher
 
-A minimalist text launcher for Android that gets you to the right app in one touch and nothing more.
+A calm, minimalist launcher for Android. One touch to the app you need, and nothing else.
 
-## Why
+## Why Mushin
 
-- **A grid of colourful icons invites aimless launches.** Mushin shows a short list of names with muted icons. No feeds, widgets, badges or ads.
-- **System search is slow to open.** The keyboard slides in with an animation, and a swipe down fights with the notification shade. Mushin opens search with its own keyboard, instantly.
-- **The apps you need depend on where you are.** Work, home and travel each have different apps, and a single home screen cannot hold them all.
-
-## Highlights
-
-1. **Draw to launch.** Trace a word over the invisible keyboard. Mushin recognises the app by the shape of the line, even when it is sloppy or off to the side. Turn on Gesture input in Settings → Gestures to draw any shape right on the home screen; Mushin then learns your drawings on the device, and you can review or erase them there.
-2. **Spaces.** Separate app lists for each context: a normal space, a work space and up to 20 of your own. Each has its own palette and its own home list. Long-press the background to switch.
-3. **Instant, forgiving search.** Double-tap the background and the built-in keyboard is already there, with no system keyboard lag. Search matches prefixes, substrings and initials. It tolerates typos, the wrong keyboard layout and transliteration: «слак» finds Slack.
-4. **Search on top of any app.** Set Mushin as the digital assistant to open search with the assistant gesture, or add the Quick Settings tile.
-5. **Offline by design.** The app has no internet permission, so it cannot send anything anywhere. The build fails if a dependency tries to add it. No analytics, no ads, no backups of your data.
+- **Nothing between you and your phone.** No ads, no widgets, no feeds, nothing competing for your attention. No data collection and no analytics either: Mushin works fully offline and does not even ask for internet access.
+- **The fastest way to your apps.** The apps you use are one tap away, and everything else is a few letters or a quick drawn word away, with search that opens instantly.
+- **A launcher that adapts to you.** Mushin learns which apps you reach for and keeps separate spaces for work, home or travel, each with its own list and colours.
+- **Inspired by Japan.** Mushin (無心) is the Zen idea of a still, empty mind. The launcher borrows that calm: quiet colours, generous space and backgrounds of Mount Fuji, sakura and ink.
 
 ## Languages
 
