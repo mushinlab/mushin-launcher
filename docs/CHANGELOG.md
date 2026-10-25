@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.1 — 2026-10-25
 
 ### Changed
 - The APK no longer carries the dependency info block that only Google can read, so F-Droid can build it and check it against the APK on GitHub.
