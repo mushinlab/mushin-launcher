@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.0 — 2026-10-25
 
 ### Added
 - Built-in backgrounds (ADR-0032). The new “Choose background” page has the folders Solid color (eight calm colours), Japanese (ten ink-style pictures, five light and five dark), Cosmos (empty for now) and From gallery, which opens the system photo picker. A chosen picture or colour opens in the background editor. The Background button in edit mode opens this page when the space has no image yet.
