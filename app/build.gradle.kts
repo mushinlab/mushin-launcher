@@ -36,10 +36,14 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.findByName("upload")
                 ?: signingConfigs.getByName("debug").takeIf { debugSignedRelease }
+            vcsInfo.include = false
         }
     }
     buildFeatures {
         buildConfig = true
+    }
+    dependenciesInfo {
+        includeInApk = false
     }
 }
 

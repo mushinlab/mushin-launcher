@@ -24,6 +24,8 @@ Requires Android 13 or newer.
 1. Download the APK from [Releases](https://github.com/mushinlab/mushin-launcher/releases/latest) and install it.
 2. Open Mushin Launcher and agree to make it your home app. You can change this later in Settings → Apps → Default apps → Home app.
 
+To get updates automatically, add Mushin to [Obtainium](https://github.com/ImranR98/Obtainium): tap [this link](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/mushinlab/mushin-launcher) on your phone, or in Obtainium tap “Add app” and paste `https://github.com/mushinlab/mushin-launcher`.
+
 To verify the download, check that the signing certificate matches the SHA-256 fingerprint published in the release notes:
 
 ```

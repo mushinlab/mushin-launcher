@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- The APK no longer carries the dependency info block that only Google can read, so F-Droid can build it and check it against the APK on GitHub.
+- F-Droid metadata: descriptions in English and Russian, icon, feature graphic and new screenshots in `fastlane/metadata/android/`.
+- README: how to install and update with Obtainium.
+
 ## 0.5.0 — 2026-10-25
 
 ### Added

@@ -1,0 +1,29 @@
+Mushin Launcher is a home screen that gets you to the right app in one touch and nothing more. A short list of names replaces the grid of colourful icons. There are no feeds, no ads and no distractions.
+
+Spaces are app sets for each part of your life:
+• a normal space, a work space and up to 20 of your own;
+• each space has its own app list, palette and background;
+• long-press the background to switch.
+
+Instant search:
+• double-tap the background and the built-in keyboard is already on screen, with no system keyboard lag;
+• finds apps by prefix, by substring, by the initials of their words, with typos, in the wrong keyboard layout and in transliteration;
+• your recent apps for the current space sit on the right.
+
+Swipe typing:
+• trace a word over the invisible layout and Mushin recognises an installed app's name by the shape of the line, even if it is drawn sloppily or off to the side;
+• if the drawing looks like several apps, Mushin shows them all;
+• turn on Gesture input to draw shapes right on the home screen: Mushin learns your gestures, entirely on the device.
+
+Make it yours:
+• calm built-in backgrounds: solid colours and Japanese ink drawings in light and dark versions, or your own photo;
+• five fonts, three text sizes, labels on the left, in the centre or on the right;
+• swipes in four directions launch an app, open the notification shade or open search;
+• rename or hide apps, show icons next to the names or no icons at all;
+• five press-feedback styles and optional notification counts next to app names.
+
+Privacy. Mushin has no internet access, no analytics and no ads. All data stays on your device, and Settings → System → Privacy erases it in one tap.
+
+Languages: English, Español, Português (Brasil), Deutsch, Français, Bahasa Indonesia and Русский, with native keyboard layouts.
+
+How to enable. After installing, open Mushin Launcher and agree to make it your home app. You can change this later in Settings → Apps → Default apps → Home app.

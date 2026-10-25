@@ -1,0 +1,2 @@
+• The APK no longer carries the dependency info block that only Google can read, so F-Droid can build and verify it.
+• Install and update from GitHub with Obtainium: see the README.
