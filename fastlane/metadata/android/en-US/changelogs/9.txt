@@ -1,0 +1,4 @@
+• Folders: in edit mode tap “Add folder”, name it and add apps. Tap a folder to open its apps right under your finger.
+• Edit mode: every row has ✎ (replace the app or edit the folder) and 🗑 (remove).
+• “Add folder” and “Add app” appear only in edit mode.
+• Settings moved from the long-press panel to a button next to ✎ on the home screen.
