@@ -50,6 +50,8 @@ internal fun SpaceEntity.toModel(): Space {
 
 internal fun SpaceItemEntity.key(): AppKey = AppKey(packageName, activityName, userSerial)
 
+internal fun FolderItemEntity.key(): AppKey = AppKey(packageName, activityName, userSerial)
+
 internal fun AppOverrideEntity.toModel(): AppOverride = AppOverride(
     key = AppKey(packageName, activityName, userSerial),
     customLabel = customLabel,

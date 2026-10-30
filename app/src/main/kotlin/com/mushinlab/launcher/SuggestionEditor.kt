@@ -1,6 +1,7 @@
 package com.mushinlab.launcher
 
 import com.mushinlab.launcher.core.model.AppKey
+import com.mushinlab.launcher.core.model.FolderKeys
 import com.mushinlab.launcher.core.model.HintHistory
 import com.mushinlab.launcher.core.model.SpaceUsage
 import com.mushinlab.launcher.core.model.Usefulness
@@ -38,7 +39,8 @@ internal fun suggestionFor(
     now: Long,
 ): HomeSuggestion? {
     val space = d.current ?: return null
-    val home = d.items[space.id].orEmpty()
+    val rows = d.items[space.id].orEmpty()
+    val home = rows.filter { FolderKeys.idOf(it) == null }
     val elsewhere = d.items.filterKeys { it != space.id }.values.flatten().toSet()
     val label = { key: AppKey -> d.overrides[key]?.customLabel ?: d.apps[key]?.label.orEmpty() }
     val hint = Usefulness.suggest(
@@ -51,5 +53,5 @@ internal fun suggestionFor(
         now = now,
         history = HintHistory(space.createdAt, space.hintAt, stats.launchDays[space.id].orEmpty()),
     ) ?: return null
-    return HomeSuggestion(hint.add, label(hint.add), hint.replace, label(hint.replace), cap > 0 && home.size < cap)
+    return HomeSuggestion(hint.add, label(hint.add), hint.replace, label(hint.replace), cap > 0 && rows.size < cap)
 }

@@ -22,6 +22,8 @@ internal object EditList {
     const val ROWS = 5
 
     fun shown(index: Int, editing: Boolean, dragging: Boolean): Boolean = !editing || dragging || index < ROWS
+
+    fun addSlot(rows: Int, dragging: Boolean): Int = if (dragging) rows else minOf(rows, ROWS)
 }
 
 @Composable

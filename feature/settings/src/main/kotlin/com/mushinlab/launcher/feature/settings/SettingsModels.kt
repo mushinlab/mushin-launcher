@@ -56,6 +56,12 @@ sealed interface SettingsRoute {
 
     data object Tips : SettingsRoute
 
+    data class HomeFolder(val folderId: Long) : SettingsRoute
+
+    data class PickFolderApps(val folderId: Long) : SettingsRoute
+
+    data class ReplaceApp(val spaceId: Long, val key: AppKey) : SettingsRoute
+
     data class Tip(val id: String) : SettingsRoute
 }
 
@@ -136,6 +142,13 @@ data class EditorItem(
 )
 
 @Immutable
+data class FolderSummary(
+    val id: Long,
+    val name: String,
+    val apps: ImmutableList<EditorItem>,
+)
+
+@Immutable
 data class PickerApp(
     val key: AppKey,
     val label: String,
@@ -181,6 +194,7 @@ data class SettingsUiState(
     val settings: LauncherSettings = LauncherSettings(),
     val spaces: ImmutableList<SpaceSummary> = persistentListOf(),
     val spaceItems: ImmutableMap<Long, ImmutableList<EditorItem>> = persistentMapOf(),
+    val folders: ImmutableMap<Long, FolderSummary> = persistentMapOf(),
     val apps: ImmutableList<PickerApp> = persistentListOf(),
     val renamed: ImmutableList<RenamedApp> = persistentListOf(),
     val gestures: ImmutableMap<SwipeDirection, GestureSummary> = persistentMapOf(),

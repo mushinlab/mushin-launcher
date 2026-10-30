@@ -68,6 +68,10 @@
     <string name="picker_filter">Поиск</string>
     <string name="picker_selected">Выбрано %1$d из %2$d</string>
     <string name="picker_full">Выбрано %1$d из %2$d — больше не поместится на главном экране</string>
+    <string name="folder_name_hint">Название папки</string>
+    <string name="folder_add_apps">Добавить приложения</string>
+    <string name="folder_remove_app">Убрать %1$s</string>
+    <string name="replace_title">Заменить %1$s</string>
 
     <string name="home_icons">Иконки</string>
     <string name="clock_sheet">Часы</string>
@@ -216,7 +220,7 @@
     <string name="settings_tips">Советы</string>
     <string name="summary_tips">Короткие анимации о том, что умеет лаунчер</string>
     <string name="tip_space_title">Настройте первый спейс</string>
-    <string name="tip_space_text">Нажмите на карандаш внизу главного экрана, затем на палитру, чтобы выбрать цвета. Нажмите «Добавить приложения», чтобы выбрать приложения этого спейса.</string>
+    <string name="tip_space_text">Нажмите на карандаш внизу главного экрана, затем на палитру, чтобы выбрать цвета. Нажмите «Добавить приложение», чтобы выбрать приложения этого спейса.</string>
     <string name="tip_style_title">Настройте лаунчер под себя</string>
     <string name="tip_style_text">Нажмите на карандаш, затем на Tт, чтобы сменить шрифт, размер и выравнивание. В режиме правки перетащите часы или черту над списком, чтобы передвинуть их.</string>
     <string name="tip_memory_title">Научите лаунчер</string>

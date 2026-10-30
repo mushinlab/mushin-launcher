@@ -17,13 +17,14 @@ import com.mushinlab.launcher.core.model.Palettes
 import com.mushinlab.launcher.core.model.SpaceType
 
 /**
- * Room database of spaces, home lists, app overrides, launch history, gesture bindings and learned drawings.
+ * Room database of spaces, home lists and folders, app overrides, launch history, gesture bindings and learned
+ * drawings.
  *
  * The file and several tables keep the working name "env" (ADR-0015). Schemas are exported and every version
  * step is an auto-migration: v2 gesture_sample, v3 environment.colored_icons, v4 space_usage,
  * v5 app_override.system_shortcut and gesture_sample.shape, v6 environment.list_offset,
  * v7 drops app_override.system_shortcut ([DropSystemShortcut]), v8 environment.bg_brightness and bg_blur,
- * v9 space_launch_day and environment.hint_at, v10 environment.bg_row_alpha.
+ * v9 space_launch_day and environment.hint_at, v10 environment.bg_row_alpha, v11 folder and folder_item.
  * A new database is seeded with the normal and work spaces and the default gestures.
  */
 @Database(
@@ -37,8 +38,10 @@ import com.mushinlab.launcher.core.model.SpaceType
         GestureSampleEntity::class,
         SpaceUsageEntity::class,
         SpaceLaunchDayEntity::class,
+        FolderEntity::class,
+        FolderItemEntity::class,
     ],
-    version = 10,
+    version = 11,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -50,6 +53,7 @@ import com.mushinlab.launcher.core.model.SpaceType
         AutoMigration(from = 7, to = 8),
         AutoMigration(from = 8, to = 9),
         AutoMigration(from = 9, to = 10),
+        AutoMigration(from = 10, to = 11),
     ],
 )
 abstract class MushinDatabase : RoomDatabase() {

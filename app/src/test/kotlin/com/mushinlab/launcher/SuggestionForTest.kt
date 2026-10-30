@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.model.AppEntry
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.AppOverride
+import com.mushinlab.launcher.core.model.FolderKeys
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.Palettes
@@ -55,6 +56,17 @@ class SuggestionForTest {
         assertThat(hint?.add).isEqualTo(frequent)
         assertThat(hint?.replace).isEqualTo(home)
         assertThat(hint?.canAdd).isTrue()
+    }
+
+    @Test
+    fun aFolderIsNeverReplacedButTakesARow() {
+        val folder = FolderKeys.of(9)
+        val withFolder = data().copy(items = mapOf(normal.id to listOf(folder, home), work.id to listOf(elsewhere)))
+
+        val hint = suggestionFor(withFolder, stats(usage(frequent, 5.0)), emptySet(), cap = 2, now = now)
+
+        assertThat(hint?.replace).isEqualTo(home)
+        assertThat(hint?.canAdd).isFalse()
     }
 
     @Test

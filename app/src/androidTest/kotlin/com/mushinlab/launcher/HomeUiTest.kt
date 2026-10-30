@@ -5,8 +5,10 @@ import android.database.sqlite.SQLiteDatabase
 import android.provider.AlarmClock
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
@@ -16,6 +18,7 @@ import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,7 +60,17 @@ class HomeUiTest : LauncherUiTestBase() {
         val root = rule.onNodeWithTag("home").fetchSemanticsNode().boundsInRoot
         assertThat(popup.top).isAtLeast(root.top)
         assertThat(popup.bottom).isAtMost(root.bottom)
-        rule.onNodeWithTag("popup_settings").assertIsDisplayed()
+        rule.onNodeWithTag("popup_settings").assertDoesNotExist()
+    }
+
+    @Test
+    fun settingsButtonNextToTheEditButtonOpensSettings() {
+        val settings = rule.onNodeWithTag("home_settings").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        val edit = rule.onNodeWithTag("home_edit").fetchSemanticsNode().boundsInRoot
+        assertThat(settings.right).isAtMost(edit.left)
+        assertThat(settings.center.y).isWithin(2f).of(edit.center.y)
+        rule.onNodeWithTag("home_settings").performClick()
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.Root }
     }
 
     @Test
@@ -237,19 +250,70 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun addAppsRowUnderTheListOpensTheAppPickerOfTheCurrentSpace() {
+    fun addRowUnderTheListShowsOnlyInEditModeAndOpensTheAppPicker() {
+        rule.onNodeWithTag("home_add").assertDoesNotExist()
+        rule.onNodeWithTag("home_edit").performClick()
         val lastRow = rule.onNodeWithTag("row_2").fetchSemanticsNode().boundsInRoot
         val add = rule.onNodeWithTag("home_add").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
         assertThat(add.top).isWithin(1f).of(lastRow.bottom)
         assertThat(add.height).isWithin(1f).of(lastRow.height)
-        assertThat(add.left).isWithin(1f).of(lastRow.left)
         assertThat(add.width).isWithin(1f).of(lastRow.width)
-        rule.onNodeWithTag("home_add").assertTextEquals(rule.activity.getString(HomeR.string.home_add_apps_inline))
-        rule.onNodeWithTag("home_add").performClick()
+        val folder = rule.onNodeWithTag("home_add_folder").fetchSemanticsNode().boundsInRoot
+        val app = rule.onNodeWithTag("home_add_app").fetchSemanticsNode().boundsInRoot
+        assertThat(folder.right).isAtMost(app.left + 1f)
+        assertThat(folder.center.y).isWithin(1f).of(app.center.y)
+        rule.onNodeWithTag("home_add_folder").assertTextEquals(rule.activity.getString(HomeR.string.home_add_folder))
+        rule.onNodeWithTag("home_add_app").performClick()
         rule.waitUntil(5_000) {
             rule.activity.launcher.navigator.settings.top == SettingsRoute.PickApps(normalId)
         }
         assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None)
+    }
+
+    @Test
+    fun editModeRowsCanBeReplacedAndRemoved() {
+        val first = spaceItems().first()
+        rule.onNodeWithTag("row_edit_0", useUnmergedTree = true).assertDoesNotExist()
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("row_edit_0", useUnmergedTree = true).performClick()
+        rule.waitUntil(5_000) {
+            rule.activity.launcher.navigator.settings.top == SettingsRoute.ReplaceApp(normalId, first)
+        }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.close() }
+        rule.onNodeWithTag("row_remove_0", useUnmergedTree = true).performClick()
+        rule.waitUntil(5_000) { first !in spaceItems() }
+    }
+
+    @Test
+    fun newFolderOpensItsSheetWithTheNameFocusedAndOpensUnderTheFinger() {
+        val apps = spaceItems()
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("home_add_folder").performClick()
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top is SettingsRoute.HomeFolder }
+        val id = (rule.activity.launcher.navigator.settings.top as SettingsRoute.HomeFolder).folderId
+        rule.onNodeWithTag("folder_name").assertIsFocused().performTextInput("Banks")
+        runBlocking { container.folders.setApps(id, apps.take(2)) }
+        rule.waitUntil(5_000) { container.folders.folders.value[id]?.name == "Banks" }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.close() }
+        rule.onNodeWithTag("home_edit").performClick()
+        val row = "row_${apps.size}"
+        rule.onNodeWithTag(row).assertContentDescriptionEquals("Banks")
+        val tap = rule.onNodeWithTag(row).fetchSemanticsNode().boundsInRoot.center
+        rule.onNodeWithTag(row).performClick()
+        val item = rule.onNodeWithTag("folder_item_0").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        assertThat(item.center.y).isWithin(2f).of(tap.y)
+        rule.onNodeWithTag("folder_item_1").assertIsDisplayed()
+    }
+
+    @Test
+    fun anUntouchedNewFolderIsDroppedWhenItsSheetCloses() {
+        val apps = spaceItems()
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("home_add_folder").performClick()
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top is SettingsRoute.HomeFolder }
+        val id = (rule.activity.launcher.navigator.settings.top as SettingsRoute.HomeFolder).folderId
+        rule.runOnIdle { rule.activity.launcher.navigator.handleBack() }
+        rule.waitUntil(5_000) { spaceItems() == apps && id !in container.folders.folders.value }
     }
 
     @Test
@@ -263,8 +327,7 @@ class HomeUiTest : LauncherUiTestBase() {
                 .fetchSemanticsNode()
                 .boundsInRoot
         }
-        val add = { rule.onNodeWithTag("home_add_label", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot }
-        val plus = { rule.onNodeWithTag("home_add_icon", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot }
+        val icon = { rule.onNodeWithTag("icon_0", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot }
         val padding = with(rule.density) { 24.dp.toPx() }
         val gap = with(rule.density) { 16.dp.toPx() }
         fun show(align: HomeTextAlign) {
@@ -278,15 +341,12 @@ class HomeUiTest : LauncherUiTestBase() {
             val row = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot
             show(HomeTextAlign.START)
             assertThat(name().left - row.left).isWithin(1f).of(padding)
-            assertThat(add().left).isWithin(1f).of(name().left)
-            assertThat(plus().left - add().right).isWithin(1f).of(gap)
+            assertThat(icon().left - name().right).isWithin(1f).of(gap)
             show(HomeTextAlign.CENTER)
             assertThat(name().center.x).isWithin(1f).of(row.center.x)
-            assertThat(add().center.x).isWithin(1f).of(row.center.x)
-            assertThat(plus().left - add().right).isWithin(1f).of(gap)
+            assertThat(icon().left - name().right).isWithin(1f).of(gap)
             show(HomeTextAlign.END)
-            assertThat(row.right - plus().right).isWithin(1f).of(padding)
-            assertThat(plus().left - add().right).isWithin(1f).of(gap)
+            assertThat(row.right - icon().right).isWithin(1f).of(padding)
         } finally {
             runBlocking {
                 container.settings.update { it.copy(iconMode = IconMode.NONE, homeTextAlign = HomeTextAlign.START) }
@@ -295,17 +355,18 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun emptySpaceShowsOnlyTheAddAppsRowThatOpensTheAppPicker() {
+    fun emptySpaceInEditModeShowsOnlyTheAddRowThatOpensTheAppPicker() {
         runBlocking { container.spaces.setItems(normalId, emptyList()) }
         rule.waitUntil(5_000) {
             runCatching { rule.onNodeWithTag("row_0").assertDoesNotExist() }.isSuccess
         }
         rule.onNodeWithTag("empty_env").assertDoesNotExist()
+        rule.onNodeWithTag("home_edit").performClick()
         val handle = rule.onNodeWithTag("list_handle").fetchSemanticsNode().boundsInRoot
         val add = rule.onNodeWithTag("home_add").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
         assertThat(add.top).isWithin(1f).of(handle.bottom)
         assertThat(add.height).isAtLeast(with(rule.density) { 48.dp.toPx() })
-        rule.onNodeWithTag("home_add").performClick()
+        rule.onNodeWithTag("home_add_app").performClick()
         rule.waitUntil(5_000) {
             rule.activity.launcher.navigator.settings.top == SettingsRoute.PickApps(normalId)
         }

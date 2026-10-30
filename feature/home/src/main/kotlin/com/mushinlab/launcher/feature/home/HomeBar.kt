@@ -37,6 +37,7 @@ import com.mushinlab.launcher.feature.home.gesture.RowRegistry
 @Composable
 internal fun HomeBar(suggestion: HomeSuggestion?, editing: Boolean, registry: RowRegistry, actions: HomeActions) {
     val colors = LocalMushinColors.current
+    val toggle by animateDpAsState(if (editing) DONE_SIZE else EDIT_SIZE, tween(Motion.TRANSITION_MS), label = "toggle")
     Row(
         Modifier.fillMaxWidth().height(HomeDimens.barHeight).padding(horizontal = BAR_PADDING),
         verticalAlignment = Alignment.CenterVertically,
@@ -64,7 +65,15 @@ internal fun HomeBar(suggestion: HomeSuggestion?, editing: Boolean, registry: Ro
                 },
             ) { actions.onSuggestion(anchor) }
         }
-        Spacer(Modifier.width(EDIT_SIZE))
+        GlyphButton(
+            Glyph.SETTINGS,
+            stringResource(R.string.home_settings),
+            colors.textSecondary.copy(alpha = BAR_ALPHA),
+            tag = "home_settings",
+            modifier = Modifier.onGloballyPositioned { registry.block(BAR_SETTINGS, it.boundsInRoot()) },
+            onClick = actions::onOpenSettings,
+        )
+        Spacer(Modifier.width(toggle))
     }
 }
 
@@ -125,6 +134,7 @@ private fun EditTools(registry: RowRegistry, actions: HomeActions) {
 private const val BAR_EDIT = "bar_edit"
 private const val BAR_SUGGEST = "bar_suggest"
 private const val BAR_TOOLS = "bar_tools"
+private const val BAR_SETTINGS = "bar_settings"
 private const val BAR_ALPHA = 0.7f
 private val BAR_PADDING = 8.dp
 private val EDIT_SIZE = 48.dp

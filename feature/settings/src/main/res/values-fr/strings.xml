@@ -68,6 +68,10 @@
     <string name="picker_filter">Rechercher</string>
     <string name="picker_selected">%1$d sur %2$d sélectionnées</string>
     <string name="picker_full">%1$d sur %2$d sélectionnées — plus de place sur l’accueil</string>
+    <string name="folder_name_hint">Nom du dossier</string>
+    <string name="folder_add_apps">Ajouter des applis</string>
+    <string name="folder_remove_app">Retirer %1$s</string>
+    <string name="replace_title">Remplacer %1$s</string>
 
     <string name="home_icons">Icônes</string>
     <string name="clock_sheet">Horloge</string>
@@ -215,7 +219,7 @@
     <string name="settings_tips">Astuces</string>
     <string name="summary_tips">De courtes animations sur ce que sait faire le launcher</string>
     <string name="tip_space_title">Configurez votre premier espace</string>
-    <string name="tip_space_text">Touchez le crayon en bas de l’écran d’accueil, puis la palette pour choisir les couleurs. Touchez « Ajouter des applis » pour choisir les applis de cet espace.</string>
+    <string name="tip_space_text">Touchez le crayon en bas de l’écran d’accueil, puis la palette pour choisir les couleurs. Touchez « Ajouter une appli » pour choisir les applis de cet espace.</string>
     <string name="tip_style_title">Personnalisez le launcher</string>
     <string name="tip_style_text">Touchez le crayon, puis Tt pour changer la police, la taille et l’alignement. Pendant la modification, faites glisser l’horloge ou le trait au-dessus de la liste pour les déplacer.</string>
     <string name="tip_memory_title">Entraînez le launcher</string>

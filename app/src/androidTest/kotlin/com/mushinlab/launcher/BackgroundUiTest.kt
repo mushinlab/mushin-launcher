@@ -69,6 +69,8 @@ class BackgroundUiTest : LauncherUiTestBase() {
         assertRowOverRed("row_0", colors.zebraA)
         assertRowOverRed("row_1", colors.zebraB)
         assertRowOverRed("row_2", colors.zebraA)
+        rule.onNodeWithTag("home_add").assertDoesNotExist()
+        rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("home_add").assertIsDisplayed()
         assertRowOverRed("home_add", colors.zebraB)
     }
@@ -82,6 +84,7 @@ class BackgroundUiTest : LauncherUiTestBase() {
         val colors = MushinColors.from(normalSpace().palette)
         assertRowOverRed("row_0", colors.zebraA, alpha = 0.5f)
         assertRowOverRed("row_1", colors.zebraB, alpha = 0.5f)
+        rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("home_add").assertIsDisplayed()
         assertRowOverRed("home_add", colors.zebraB, alpha = 0.5f)
     }

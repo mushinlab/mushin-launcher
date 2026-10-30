@@ -188,4 +188,4 @@ private fun TextAlignRow(s: LauncherSettings, preferences: PreferenceActions) {
     ) { align -> preferences.updateSettings { it.copy(homeTextAlign = align) } }
 }
 
-private const val HOME_SHEET_SCRIM = 0.15f
+internal const val HOME_SHEET_SCRIM = 0.15f

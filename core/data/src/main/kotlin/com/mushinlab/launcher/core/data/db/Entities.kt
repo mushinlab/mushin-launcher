@@ -172,3 +172,42 @@ data class GestureSampleEntity(
     @ColumnInfo(name = "weight") val weight: Double,
     @ColumnInfo(name = "shape") val shape: String? = null,
 )
+
+@Entity(
+    tableName = "folder",
+    foreignKeys = [
+        ForeignKey(
+            entity = SpaceEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["env_id"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index(value = ["env_id"])],
+)
+data class FolderEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @ColumnInfo(name = "env_id") val spaceId: Long,
+    @ColumnInfo(name = "name") val name: String,
+)
+
+@Entity(
+    tableName = "folder_item",
+    primaryKeys = ["folder_id", "package_name", "activity_name", "user_serial"],
+    foreignKeys = [
+        ForeignKey(
+            entity = FolderEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["folder_id"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index(value = ["folder_id", "position"])],
+)
+data class FolderItemEntity(
+    @ColumnInfo(name = "folder_id") val folderId: Long,
+    @ColumnInfo(name = "package_name") val packageName: String,
+    @ColumnInfo(name = "activity_name") val activityName: String,
+    @ColumnInfo(name = "user_serial") val userSerial: Long,
+    @ColumnInfo(name = "position") val position: Int,
+)

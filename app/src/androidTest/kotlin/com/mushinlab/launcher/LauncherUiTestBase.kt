@@ -55,6 +55,7 @@ abstract class LauncherUiTestBase {
         }
         val apps = container.catalog.apps.first { it.size >= 3 }.sortedBy { it.label }.take(3)
         container.spaces.setItems(normal.id, apps.map { it.key })
+        container.folders.folders.value.keys.forEach { container.folders.delete(it) }
         rule.waitUntil(5_000) { rule.activity.launcher.navigator.overlay == Overlay.None }
         rule.waitUntil(5_000) { rule.activity.launcher.home.value.homeListOffset == 0 }
         rule.waitUntil(5_000) {

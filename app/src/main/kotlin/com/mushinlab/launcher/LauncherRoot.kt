@@ -70,6 +70,7 @@ fun LauncherRoot(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
                 HomeLayer(vm)
                 SearchLayer(vm, settings, iconProvider)
                 PopupLayer(vm)
+                FolderLayer(vm)
                 SuggestionLayer(vm)
                 Box(Modifier.zIndex(3f)) { SettingsLayer(vm) }
                 OnboardingLayer(vm)
@@ -106,7 +107,9 @@ private fun HomeLayer(vm: LauncherViewModel) {
         modifier = Modifier
             .zIndex(0f)
             .graphicsLayer { slideOut(input.exit, shift.value) }
-            .popupBackdrop(vm.navigator.overlay.let { it is Overlay.Popup || it is Overlay.Suggestion }),
+            .popupBackdrop(
+                vm.navigator.overlay.let { it is Overlay.Popup || it is Overlay.Suggestion || it is Overlay.Folder },
+            ),
     )
 }
 
@@ -152,8 +155,13 @@ private fun GraphicsLayerScope.slideOut(direction: SwipeDirection?, progress: Fl
 private fun homeActions(vm: LauncherViewModel, density: Density) = object : HomeActions {
     private val navigator get() = vm.navigator
 
-    override fun onRowTap(row: HomeRow, index: Int) {
-        vm.launches.launch(row.key, fromSearch = false)
+    override fun onRowTap(row: HomeRow, index: Int, position: Offset) {
+        val folder = row.folderId
+        when {
+            folder == null -> vm.launches.launch(row.key, fromSearch = false)
+            vm.folderRows.value[folder].isNullOrEmpty() -> navigator.openSettings(SettingsRoute.HomeFolder(folder))
+            else -> navigator.overlay = Overlay.Folder(folder, position)
+        }
     }
 
     override fun onLongPress(position: Offset, row: HomeRow?) {
@@ -186,6 +194,23 @@ private fun homeActions(vm: LauncherViewModel, density: Density) = object : Home
     override fun onEditTheme() = navigator.openSettings(SettingsRoute.ThemeSheet)
 
     override fun onAddApps() = vm.homeInput.addApps()
+
+    override fun onAddFolder() = vm.addFolder()
+
+    override fun onOpenSettings() = navigator.openSettings()
+
+    override fun onEditRow(row: HomeRow) {
+        val space = vm.model.currentSpace ?: return
+        val folder = row.folderId
+        navigator.openSettings(
+            if (folder != null) SettingsRoute.HomeFolder(folder) else SettingsRoute.ReplaceApp(space.id, row.key),
+        )
+    }
+
+    override fun onRemoveRow(row: HomeRow) {
+        val folder = row.folderId
+        if (folder != null) vm.folders.delete(folder) else vm.model.removeFromCurrentSpace(row.key)
+    }
 
     override fun onSuggestion(anchor: Offset) {
         navigator.overlay = Overlay.Suggestion(anchor)

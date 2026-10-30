@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mushinlab.launcher.core.model.AppKey
+import com.mushinlab.launcher.feature.home.FolderPanel
 import com.mushinlab.launcher.feature.home.HomePopup
 import com.mushinlab.launcher.feature.home.HomeSuggestion
 import com.mushinlab.launcher.feature.home.PopupActions
@@ -56,6 +57,28 @@ internal fun SuggestionLayer(vm: LauncherViewModel) {
 }
 
 @Composable
+internal fun FolderLayer(vm: LauncherViewModel) {
+    val overlay = vm.navigator.overlay as? Overlay.Folder ?: return
+    val folders by vm.folderRows.collectAsStateWithLifecycle()
+    val apps = folders[overlay.id]
+    if (apps.isNullOrEmpty()) {
+        LaunchedEffect(Unit) { vm.navigator.overlay = Overlay.None }
+        return
+    }
+    Box(Modifier.zIndex(2f).fillMaxSize()) {
+        FolderPanel(
+            overlay.anchor,
+            apps,
+            onLaunch = { key ->
+                vm.navigator.overlay = Overlay.None
+                vm.launches.launch(key, fromSearch = false)
+            },
+            onDismiss = { vm.navigator.overlay = Overlay.None },
+        )
+    }
+}
+
+@Composable
 internal fun PopupLayer(vm: LauncherViewModel) {
     val popup = vm.navigator.overlay as? Overlay.Popup ?: return
     val spaces by vm.popupSpaces.collectAsStateWithLifecycle()
@@ -79,11 +102,6 @@ private fun popupActions(vm: LauncherViewModel) = object : PopupActions {
     override fun onSelectSpace(id: Long) {
         vm.spaces.switchTo(id)
         vm.navigator.overlay = Overlay.None
-    }
-
-    override fun onOpenSettings() {
-        vm.navigator.overlay = Overlay.None
-        vm.navigator.settings.open()
     }
 
     override fun onOpenSpaceSettings(id: Long) {

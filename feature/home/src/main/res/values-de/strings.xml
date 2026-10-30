@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_make_default">Als Standard-Launcher festlegen</string>
-    <string name="popup_settings">⚙  Einstellungen</string>
     <string name="popup_about">App-Info</string>
     <string name="popup_rename">Umbenennen</string>
     <string name="popup_hide">Ausblenden</string>
@@ -15,8 +14,12 @@
     <string name="home_edit_background">Hintergrund</string>
     <string name="home_edit_text">Text</string>
     <string name="home_edit_theme">Design</string>
-    <string name="home_add_apps">Apps hinzufügen</string>
-    <string name="home_add_apps_inline">+ Apps hinzufügen</string>
+    <string name="home_settings">Einstellungen</string>
+    <string name="home_add_folder">Ordner hinzufügen</string>
+    <string name="home_add_app">App hinzufügen</string>
+    <string name="home_row_edit">%1$s bearbeiten</string>
+    <string name="home_row_remove">%1$s entfernen</string>
+    <string name="home_folder_untitled">Ordner</string>
     <string name="suggest_header">Du öffnest „%1$s“ öfter</string>
     <string name="suggest_replace">Statt „%1$s“ einsetzen</string>
     <string name="suggest_add">Zum Startbildschirm hinzufügen</string>

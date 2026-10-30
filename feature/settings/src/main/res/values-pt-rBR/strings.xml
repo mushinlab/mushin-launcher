@@ -68,6 +68,10 @@
     <string name="picker_filter">Pesquisar</string>
     <string name="picker_selected">%1$d de %2$d selecionados</string>
     <string name="picker_full">%1$d de %2$d selecionados — não cabe mais nada na tela inicial</string>
+    <string name="folder_name_hint">Nome da pasta</string>
+    <string name="folder_add_apps">Adicionar apps</string>
+    <string name="folder_remove_app">Remover %1$s</string>
+    <string name="replace_title">Substituir %1$s</string>
 
     <string name="home_icons">Ícones</string>
     <string name="clock_sheet">Relógio</string>
@@ -215,7 +219,7 @@
     <string name="settings_tips">Dicas</string>
     <string name="summary_tips">Animações curtas sobre o que o launcher sabe fazer</string>
     <string name="tip_space_title">Configure seu primeiro espaço</string>
-    <string name="tip_space_text">Toque no lápis na parte de baixo da tela inicial e depois na paleta para escolher as cores. Toque em “Adicionar apps” para escolher os apps deste espaço.</string>
+    <string name="tip_space_text">Toque no lápis na parte de baixo da tela inicial e depois na paleta para escolher as cores. Toque em “Adicionar app” para escolher os apps deste espaço.</string>
     <string name="tip_style_title">Personalize o launcher</string>
     <string name="tip_style_text">Toque no lápis e depois em Tt para mudar a fonte, o tamanho e o alinhamento. Durante a edição, arraste o relógio ou a linha acima da lista para movê-los.</string>
     <string name="tip_memory_title">Ensine o launcher</string>

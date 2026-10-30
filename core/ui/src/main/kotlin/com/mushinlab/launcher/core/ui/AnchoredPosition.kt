@@ -31,4 +31,17 @@ object AnchoredPosition {
         }
         return IntOffset(x, y)
     }
+
+    /**
+     * Top-left corner of a [popup] centered horizontally on the anchor whose point [offsetPx] below its top edge
+     * lands on the anchor, clamped into [safe] where possible.
+     */
+    fun atPoint(anchorX: Int, anchorY: Int, offsetPx: Int, popup: IntSize, safe: IntRect): IntOffset {
+        val maxX = (safe.right - popup.width).coerceAtLeast(safe.left)
+        val maxY = (safe.bottom - popup.height).coerceAtLeast(safe.top)
+        return IntOffset(
+            (anchorX - popup.width / 2).coerceIn(safe.left, maxX),
+            (anchorY - offsetPx).coerceIn(safe.top, maxY),
+        )
+    }
 }

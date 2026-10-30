@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_make_default">Usar como launcher predeterminado</string>
-    <string name="popup_settings">⚙  Ajustes</string>
     <string name="popup_about">Info. de la app</string>
     <string name="popup_rename">Cambiar nombre</string>
     <string name="popup_hide">Ocultar</string>
@@ -15,8 +14,12 @@
     <string name="home_edit_background">Fondo</string>
     <string name="home_edit_text">Texto</string>
     <string name="home_edit_theme">Tema</string>
-    <string name="home_add_apps">Añadir apps</string>
-    <string name="home_add_apps_inline">+ Añadir apps</string>
+    <string name="home_settings">Ajustes</string>
+    <string name="home_add_folder">Añadir carpeta</string>
+    <string name="home_add_app">Añadir app</string>
+    <string name="home_row_edit">Editar %1$s</string>
+    <string name="home_row_remove">Quitar %1$s</string>
+    <string name="home_folder_untitled">Carpeta</string>
     <string name="suggest_header">Abres «%1$s» más a menudo</string>
     <string name="suggest_replace">Ponerla en lugar de «%1$s»</string>
     <string name="suggest_add">Añadir a la pantalla de inicio</string>

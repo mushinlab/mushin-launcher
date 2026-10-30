@@ -40,6 +40,21 @@ object SettingsRouteCodec {
 
         is SettingsRoute.Tip -> join("Tip", route.id)
 
+        is SettingsRoute.HomeFolder, is SettingsRoute.PickFolderApps, is SettingsRoute.ReplaceApp ->
+            encodeHomeEdit(route)
+
+        else -> route.toString()
+    }
+
+    private fun encodeHomeEdit(route: SettingsRoute): String = when (route) {
+        is SettingsRoute.HomeFolder -> join("HomeFolder", route.folderId)
+
+        is SettingsRoute.PickFolderApps -> join("PickFolderApps", route.folderId)
+
+        is SettingsRoute.ReplaceApp -> with(route.key) {
+            join("ReplaceApp", packageName, activityName, userSerial, route.spaceId)
+        }
+
         else -> route.toString()
     }
 
@@ -68,6 +83,15 @@ object SettingsRouteCodec {
 
         "Tip" -> Tip.byId(parts[1])?.let { SettingsRoute.Tip(it.id) }
 
+        "HomeFolder" -> SettingsRoute.HomeFolder(parts[1].toLong())
+
+        "PickFolderApps" -> SettingsRoute.PickFolderApps(parts[1].toLong())
+
+        "ReplaceApp" -> SettingsRoute.ReplaceApp(
+            parts[SPACE_PART].toLong(),
+            AppKey(parts[PACKAGE_PART], parts[ACTIVITY_PART], parts[USER_PART].toLong()),
+        )
+
         else -> null
     }
 
@@ -77,4 +101,5 @@ object SettingsRouteCodec {
     private const val ACTIVITY_PART = 2
     private const val USER_PART = 3
     private const val SKETCH_PART = 4
+    private const val SPACE_PART = 4
 }

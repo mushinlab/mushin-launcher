@@ -64,8 +64,7 @@ class NavigationUiTest : LauncherUiTestBase() {
 
     @Test
     fun AC_13_1_homeButtonClosesSettings() {
-        backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
-        rule.onNodeWithTag("popup_settings").performClick()
+        rule.onNodeWithTag("home_settings").performClick()
         rule.onNodeWithTag("settings").assertIsDisplayed()
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         context.startActivity(

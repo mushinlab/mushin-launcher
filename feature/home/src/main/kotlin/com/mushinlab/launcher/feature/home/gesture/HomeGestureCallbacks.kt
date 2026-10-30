@@ -10,7 +10,7 @@ interface HomeGestureCallbacks {
 
     fun onPressed(rowIndex: Int?, clock: Boolean)
 
-    fun onRowTap(index: Int)
+    fun onRowTap(index: Int, position: Offset)
 
     fun onLongPress(position: Offset, rowIndex: Int?)
 

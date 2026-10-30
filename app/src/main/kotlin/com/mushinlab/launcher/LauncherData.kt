@@ -7,6 +7,8 @@ import com.mushinlab.launcher.core.data.snapshot.SnapshotRow
 import com.mushinlab.launcher.core.model.AppEntry
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.AppOverride
+import com.mushinlab.launcher.core.model.Folder
+import com.mushinlab.launcher.core.model.FolderKeys
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.model.ProfileType
@@ -43,8 +45,13 @@ data class LauncherData(
     val apps: Map<AppKey, AppEntry>,
     val overrides: Map<AppKey, AppOverride>,
     val settings: LauncherSettings,
+    val folders: Map<Long, Folder> = emptyMap(),
+    val untitledFolder: String = "",
 ) {
-    fun label(key: AppKey): String? = overrides[key]?.customLabel ?: apps[key]?.label
+    fun label(key: AppKey): String? =
+        FolderKeys.idOf(key)?.let(::folderLabel) ?: overrides[key]?.customLabel ?: apps[key]?.label
+
+    fun folderLabel(id: Long): String? = folders[id]?.name?.trim()?.ifEmpty { untitledFolder }
 
     fun currentItems(): List<AppKey> = current?.let { items[it.id] }.orEmpty()
 }
@@ -55,18 +62,25 @@ internal fun homeState(
     counts: Map<NotificationSource, Int>,
     swipes: Map<AppKey, List<SwipeDirection>>,
 ): HomeUiState {
+    val count = { key: AppKey ->
+        if (d.settings.notificationCounts) counts[NotificationSource(key.packageName, key.userSerial)] ?: 0 else 0
+    }
     val rows = d.currentItems().mapNotNull { key ->
+        val folder = FolderKeys.idOf(key)?.let { d.folders[it] }
+        if (folder != null) {
+            return@mapNotNull HomeRow(
+                key = key,
+                label = d.folderLabel(folder.id).orEmpty(),
+                notifications = folder.apps.sumOf(count),
+            )
+        }
         val entry = d.apps[key] ?: return@mapNotNull null
         HomeRow(
             key = key,
             label = d.overrides[key]?.customLabel ?: entry.label,
             dimmed = entry.isDimmed,
             work = entry.profile == ProfileType.WORK,
-            notifications = if (d.settings.notificationCounts) {
-                counts[NotificationSource(key.packageName, key.userSerial)] ?: 0
-            } else {
-                0
-            },
+            notifications = count(key),
             swipes = swipes[key]?.toImmutableList() ?: persistentListOf(),
         )
     }
@@ -117,6 +131,12 @@ internal fun homeSnapshot(d: LauncherData, state: HomeUiState): HomeSnapshot? {
         listOffset = state.homeListOffset,
         textAlign = state.textAlign,
     )
+}
+
+internal fun folderRows(d: LauncherData): Map<Long, ImmutableList<HomeRow>> = d.folders.mapValues { (_, folder) ->
+    folder.apps.mapNotNull { key ->
+        d.apps[key]?.let { HomeRow(key, d.label(key) ?: it.label, it.isDimmed, it.profile == ProfileType.WORK) }
+    }.toImmutableList()
 }
 
 internal fun popupSpaces(d: LauncherData?): ImmutableList<PopupSpace> =

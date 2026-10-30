@@ -78,7 +78,10 @@ interface SpaceDao {
     suspend fun maxSortOrder(): Int
 }
 
-/** Home lists of spaces, stored in `environment_item` with a position per row. */
+/**
+ * Home lists of spaces, stored in `environment_item` with a position per row, and home folders with their apps
+ * in `folder` and `folder_item` (ADR-0035).
+ */
 @Dao
 interface SpaceItemDao {
     @Query("SELECT * FROM environment_item ORDER BY env_id, position")
@@ -95,6 +98,36 @@ interface SpaceItemDao {
 
     @Query("DELETE FROM environment_item WHERE package_name = :packageName AND user_serial = :userSerial")
     suspend fun deletePackage(packageName: String, userSerial: Long)
+
+    @Query("SELECT * FROM folder ORDER BY id")
+    fun observeFolders(): Flow<List<FolderEntity>>
+
+    @Query("SELECT * FROM folder_item ORDER BY folder_id, position")
+    fun observeFolderItems(): Flow<List<FolderItemEntity>>
+
+    @Query("SELECT * FROM folder WHERE id = :id")
+    suspend fun getFolder(id: Long): FolderEntity?
+
+    @Insert
+    suspend fun insertFolder(entity: FolderEntity): Long
+
+    @Query("UPDATE folder SET name = :name WHERE id = :id")
+    suspend fun renameFolder(id: Long, name: String)
+
+    @Query("DELETE FROM folder WHERE id = :id")
+    suspend fun deleteFolder(id: Long)
+
+    @Query("SELECT * FROM folder_item WHERE folder_id = :folderId ORDER BY position")
+    suspend fun folderItems(folderId: Long): List<FolderItemEntity>
+
+    @Query("DELETE FROM folder_item WHERE folder_id = :folderId")
+    suspend fun deleteFolderItems(folderId: Long)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertFolderItems(items: List<FolderItemEntity>)
+
+    @Query("DELETE FROM folder_item WHERE package_name = :packageName AND user_serial = :userSerial")
+    suspend fun deleteFolderPackage(packageName: String, userSerial: Long)
 }
 
 /** Per-app user overrides; rows of removed packages are marked orphaned and purged later. */
@@ -306,6 +339,7 @@ interface AppKeyDao {
             "UNION SELECT package_name, activity_name, user_serial FROM space_usage " +
             "UNION SELECT package_name, activity_name, user_serial FROM space_launch_day " +
             "UNION SELECT package_name, activity_name, user_serial FROM gesture_sample " +
+            "UNION SELECT package_name, activity_name, user_serial FROM folder_item " +
             "UNION SELECT package_name, activity_name, user_serial FROM gesture_binding " +
             "WHERE package_name IS NOT NULL AND activity_name IS NOT NULL AND user_serial IS NOT NULL",
     )
@@ -359,6 +393,12 @@ interface AppKeyDao {
 
     @Query("DELETE FROM environment_item " + FROM_KEY)
     suspend fun deleteSpaceItems(packageName: String, userSerial: Long, from: String)
+
+    @Query("UPDATE OR IGNORE folder_item SET activity_name = :to " + FROM_KEY)
+    suspend fun moveFolderItems(packageName: String, userSerial: Long, from: String, to: String)
+
+    @Query("DELETE FROM folder_item " + FROM_KEY)
+    suspend fun deleteFolderItems(packageName: String, userSerial: Long, from: String)
 
     @Query("UPDATE OR IGNORE app_override SET activity_name = :to " + FROM_KEY)
     suspend fun moveOverrides(packageName: String, userSerial: Long, from: String, to: String)

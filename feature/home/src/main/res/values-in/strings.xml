@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_make_default">Jadikan launcher default</string>
-    <string name="popup_settings">⚙  Setelan</string>
     <string name="popup_about">Info aplikasi</string>
     <string name="popup_rename">Ganti nama</string>
     <string name="popup_hide">Sembunyikan</string>
@@ -15,8 +14,12 @@
     <string name="home_edit_background">Latar</string>
     <string name="home_edit_text">Teks</string>
     <string name="home_edit_theme">Tema</string>
-    <string name="home_add_apps">Tambah aplikasi</string>
-    <string name="home_add_apps_inline">+ Tambah aplikasi</string>
+    <string name="home_settings">Setelan</string>
+    <string name="home_add_folder">Tambah folder</string>
+    <string name="home_add_app">Tambah aplikasi</string>
+    <string name="home_row_edit">Ubah %1$s</string>
+    <string name="home_row_remove">Hapus %1$s</string>
+    <string name="home_folder_untitled">Folder</string>
     <string name="suggest_header">Anda lebih sering membuka “%1$s”</string>
     <string name="suggest_replace">Pasang menggantikan “%1$s”</string>
     <string name="suggest_add">Tambahkan ke layar utama</string>

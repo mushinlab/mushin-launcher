@@ -72,6 +72,15 @@ class LauncherNavigatorTest {
     }
 
     @Test
+    fun backClosesAnOpenFolder() {
+        navigator.overlay = Overlay.Folder(3, Offset.Zero)
+
+        navigator.handleBack()
+
+        assertThat(navigator.overlay).isEqualTo(Overlay.None)
+    }
+
+    @Test
     fun homeIntentLeavesHomeEditing() {
         navigator.toggleHomeEditing()
 

@@ -12,12 +12,13 @@ class PackageDataCleaner(
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
     /**
-     * Deletes home items, recents, usage, launch days and learned drawings of a removed package; its overrides are
-     * only marked orphaned so that a reinstall within the retention period restores them.
+     * Deletes home and folder items, recents, usage, launch days and learned drawings of a removed package; its
+     * overrides are only marked orphaned so that a reinstall within the retention period restores them.
      */
     suspend fun onPackageRemoved(packageName: String, userSerial: Long) {
         db.withTransaction {
             db.spaceItemDao().deletePackage(packageName, userSerial)
+            db.spaceItemDao().deleteFolderPackage(packageName, userSerial)
             db.searchRecentDao().deletePackage(packageName, userSerial)
             db.appUsageDao().deletePackage(packageName, userSerial)
             db.spaceUsageDao().deletePackage(packageName, userSerial)
@@ -49,6 +50,7 @@ class PackageDataCleaner(
                 dao.mergeSamples(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveBindings(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveSpaceItems(from.packageName, from.userSerial, from.activityName, to.activityName)
+                dao.moveFolderItems(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveOverrides(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveRecents(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveUsage(from.packageName, from.userSerial, from.activityName, to.activityName)
@@ -56,6 +58,7 @@ class PackageDataCleaner(
                 dao.moveLaunchDays(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.moveSamples(from.packageName, from.userSerial, from.activityName, to.activityName)
                 dao.deleteSpaceItems(from.packageName, from.userSerial, from.activityName)
+                dao.deleteFolderItems(from.packageName, from.userSerial, from.activityName)
                 dao.deleteOverrides(from.packageName, from.userSerial, from.activityName)
                 dao.deleteRecents(from.packageName, from.userSerial, from.activityName)
                 dao.deleteUsage(from.packageName, from.userSerial, from.activityName)

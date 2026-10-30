@@ -72,12 +72,20 @@ class LauncherNavigator(
     fun handleBack() {
         when {
             renameTarget != null -> renameTarget = null
-            overlay is Overlay.Popup || overlay is Overlay.Suggestion -> overlay = Overlay.None
+
+            overlay is Overlay.Popup || overlay is Overlay.Suggestion || overlay is Overlay.Folder ->
+                overlay = Overlay.None
+
             search.panels.menu != null -> search.panels.closeMenu()
+
             search.panels.options != null -> search.panels.closeOptions()
+
             search.panels.resizing -> search.panels.toggleResize()
+
             overlay == Overlay.Search -> closeOverlays()
+
             settings.isOpen -> settings.pop()
+
             homeEditing -> homeEditing = false
         }
     }

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.0 — 2026-10-30
+
+### Added
+- Folders on the home screen (ADR-0035). In edit mode, “Add folder” creates a folder at the end of the list and opens its mini-sheet: the name field is focused with the hint “Folder name”, below it are the folder's apps (✕ takes one out) and “Add apps”. A folder is a normal row with a folder icon; tapping it opens a panel of its apps whose first row sits right under your finger. A folder that was closed without a name and without apps is removed.
+- In edit mode every visible row has two round buttons on the right: ✎ and 🗑. For an app, ✎ picks another app to take its place and 🗑 removes it from the space; for a folder, ✎ opens the folder's mini-sheet and 🗑 deletes the folder (the apps stay installed).
+- A settings button at the bottom of the home screen, left of the edit button.
+
+### Changed
+- The “+ Add apps” row is gone outside edit mode. In edit mode, a row with two buttons, “Add folder” and “Add app”, sits under the last visible row; each button has its icon above a smaller label.
+- “Settings” is no longer in the long-press panel.
+- The database moves to version 11 (new `folder` and `folder_item` tables); the update keeps all data.
+
 ## 0.5.1 — 2026-10-25
 
 ### Changed

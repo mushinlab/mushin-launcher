@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_make_default">Make default launcher</string>
-    <string name="popup_settings">⚙  Settings</string>
     <string name="popup_about">App info</string>
     <string name="popup_rename">Rename</string>
     <string name="popup_hide">Hide</string>
@@ -15,8 +14,12 @@
     <string name="home_edit_background">Background</string>
     <string name="home_edit_text">Text</string>
     <string name="home_edit_theme">Theme</string>
-    <string name="home_add_apps">Add apps</string>
-    <string name="home_add_apps_inline">+ Add apps</string>
+    <string name="home_settings">Settings</string>
+    <string name="home_add_folder">Add folder</string>
+    <string name="home_add_app">Add app</string>
+    <string name="home_row_edit">Edit %1$s</string>
+    <string name="home_row_remove">Remove %1$s</string>
+    <string name="home_folder_untitled">Folder</string>
     <string name="suggest_header">You open “%1$s” more often</string>
     <string name="suggest_replace">Put it instead of “%1$s”</string>
     <string name="suggest_add">Add to home screen</string>

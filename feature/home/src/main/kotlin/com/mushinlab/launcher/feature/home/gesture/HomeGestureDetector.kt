@@ -99,7 +99,7 @@ class HomeGestureDetector(
             callbacks.onClockTap()
         } else {
             arbiter.onTapUp(up.position.x, up.position.y, up.timeMs, target is PressTarget.Row)
-            target.rowIndex?.let(callbacks::onRowTap)
+            target.rowIndex?.let { callbacks.onRowTap(it, up.position) }
         }
     }
 

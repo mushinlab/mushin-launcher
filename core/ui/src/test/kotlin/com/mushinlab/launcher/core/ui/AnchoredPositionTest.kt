@@ -31,6 +31,24 @@ class AnchoredPositionTest {
     }
 
     @Test
+    fun pointBelowTheTopLandsOnTheFingerWhenItFits() {
+        val pos = AnchoredPosition.atPoint(540, 600, offsetPx = 63, popup = popup, safe = safe)
+        assertThat(pos.y + 63).isEqualTo(600)
+        assertThat(pos.x).isEqualTo(540 - 315)
+    }
+
+    @Test
+    fun pointBelowTheTopStaysInsideSafeAreaForNineAnchors() {
+        anchors.forEach { (x, y) ->
+            val pos = AnchoredPosition.atPoint(x, y, offsetPx = 63, popup = popup, safe = safe)
+            assertThat(pos.x).isAtLeast(safe.left)
+            assertThat(pos.y).isAtLeast(safe.top)
+            assertThat(pos.x + popup.width).isAtMost(safe.right)
+            assertThat(pos.y + popup.height).isAtMost(safe.bottom)
+        }
+    }
+
+    @Test
     fun popupGoesBelowFingerWhenItFits() {
         val pos = AnchoredPosition.belowPoint(540, 600, popup, safe, gap)
         assertThat(pos.y).isEqualTo(621)

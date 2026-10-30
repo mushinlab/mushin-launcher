@@ -68,6 +68,10 @@
     <string name="picker_filter">Search</string>
     <string name="picker_selected">%1$d of %2$d selected</string>
     <string name="picker_full">%1$d of %2$d selected — no more room on Home</string>
+    <string name="folder_name_hint">Folder name</string>
+    <string name="folder_add_apps">Add apps</string>
+    <string name="folder_remove_app">Remove %1$s</string>
+    <string name="replace_title">Replace %1$s</string>
 
     <string name="home_icons">Icons</string>
     <string name="clock_sheet">Clock</string>
@@ -214,7 +218,7 @@
     <string name="settings_tips">Tips</string>
     <string name="summary_tips">Short animations about what the launcher can do</string>
     <string name="tip_space_title">Set up your first space</string>
-    <string name="tip_space_text">Tap the pencil at the bottom of the home screen, then the palette to pick colors. Tap “Add apps” to choose the apps of this space.</string>
+    <string name="tip_space_text">Tap the pencil at the bottom of the home screen, then the palette to pick colors. Tap “Add app” to choose the apps of this space.</string>
     <string name="tip_style_title">Customize the launcher</string>
     <string name="tip_style_text">Tap the pencil, then Tt to change the font, size and alignment. While editing, drag the clock or the line above the list to move them.</string>
     <string name="tip_memory_title">Teach the launcher</string>

@@ -21,6 +21,7 @@ import com.mushinlab.launcher.feature.settings.BackgroundActions
 import com.mushinlab.launcher.feature.settings.BackgroundEdit
 import com.mushinlab.launcher.feature.settings.BackgroundPreset
 import com.mushinlab.launcher.feature.settings.BackgroundSource
+import com.mushinlab.launcher.feature.settings.FolderActions
 import com.mushinlab.launcher.feature.settings.MemoryActions
 import com.mushinlab.launcher.feature.settings.PreferenceActions
 import com.mushinlab.launcher.feature.settings.SettingsActions
@@ -77,6 +78,21 @@ private fun spaceActions(vm: LauncherViewModel) = object : SpaceActions {
     }
 
     override fun removeSpaceItem(id: Long, key: AppKey) = vm.spaces.removeItem(id, key)
+
+    override fun replaceSpaceItem(id: Long, old: AppKey, new: AppKey) = vm.spaces.setItems(
+        id,
+        vm.settingsState.value.spaceItems[id].orEmpty().map { if (it.key == old) new else it.key },
+    )
+
+    override val folders = folderActions(vm)
+}
+
+private fun folderActions(vm: LauncherViewModel) = object : FolderActions {
+    override fun rename(id: Long, name: String) = vm.folders.rename(id, name)
+
+    override fun addApp(id: Long, key: AppKey) = vm.folders.addApp(id, key)
+
+    override fun removeApp(id: Long, key: AppKey) = vm.folders.removeApp(id, key)
 }
 
 private fun appActions(vm: LauncherViewModel) = object : AppActions {

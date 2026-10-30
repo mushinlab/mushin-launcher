@@ -5,6 +5,7 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.snapshotFlow
 import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -21,10 +22,14 @@ import com.mushinlab.launcher.core.model.swipesByApp
 import com.mushinlab.launcher.core.search.SearchEngine
 import com.mushinlab.launcher.core.search.SearchIndex
 import com.mushinlab.launcher.core.search.SearchOptions
+import com.mushinlab.launcher.feature.home.HomeRow
 import com.mushinlab.launcher.feature.home.HomeSuggestion
 import com.mushinlab.launcher.feature.home.HomeUiState
+import com.mushinlab.launcher.feature.home.R as HomeR
+import com.mushinlab.launcher.feature.settings.SettingsRoute
 import com.mushinlab.launcher.feature.settings.SettingsRouteCodec
 import com.mushinlab.launcher.feature.settings.SettingsUiState
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -46,6 +51,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -70,17 +76,27 @@ class LauncherViewModel(
             if (loaded) list.associateBy { it.key } else null
         }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    private val untitledFolder = resources.getString(HomeR.string.home_folder_untitled)
+
     private val data: StateFlow<LauncherData?> = combine(
-        container.spaces.spaces,
-        container.spaces.items,
+        combine(container.spaces.spaces, container.spaces.items, container.folders.folders, ::Triple),
         catalog,
         container.overrides.overrides,
         container.settings.loaded,
-    ) { spaces, items, apps, overrides, settings ->
+    ) { (spaces, items, folders), apps, overrides, settings ->
         if (apps == null || settings == null) {
             null
         } else {
-            LauncherData(spaces, resolveCurrentSpace(spaces, settings.currentSpaceId), items, apps, overrides, settings)
+            LauncherData(
+                spaces,
+                resolveCurrentSpace(spaces, settings.currentSpaceId),
+                items,
+                apps,
+                overrides,
+                settings,
+                folders,
+                untitledFolder,
+            )
         }
     }
         .filter { it != null && it.spaces.isNotEmpty() }
@@ -102,6 +118,7 @@ class LauncherViewModel(
     val preferences = PreferencesEditor(container)
     val memory = MemoryEditor(container)
     val suggestions = SuggestionEditor(container) { id -> data.value?.items?.get(id).orEmpty() }
+    val folders = FolderEditor(container) { capacity.value }
 
     val model: LauncherModel = RepositoryLauncherModel(container, data, spaces, apps, preferences)
     val navigator = LauncherNavigator()
@@ -157,6 +174,9 @@ class LauncherViewModel(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, snapshotState(initial, roleHeld.value))
 
+    val folderRows: StateFlow<Map<Long, ImmutableList<HomeRow>>> = data.map { it?.let(::folderRows).orEmpty() }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+
     val popupSpaces = data.map(::popupSpaces).stateIn(viewModelScope, SharingStarted.Eagerly, popupSpaces(null))
 
     val searchIndex: StateFlow<SearchIndex> = data
@@ -205,6 +225,17 @@ class LauncherViewModel(
             .flowOn(Dispatchers.IO)
             .launchIn(viewModelScope)
         viewModelScope.launch { warmIcons() }
+        snapshotFlow { navigator.settings.routes.mapNotNull { (it as? SettingsRoute.HomeFolder)?.folderId }.toSet() }
+            .runningFold(emptySet<Long>() to emptySet<Long>()) { (_, open), now -> open to now }
+            .onEach { (was, now) -> (was - now).forEach(folders::dropIfEmpty) }
+            .launchIn(viewModelScope)
+    }
+
+    fun addFolder() {
+        val space = data.value?.current ?: return
+        viewModelScope.launch {
+            folders.create(space.id)?.let { navigator.openSettings(SettingsRoute.HomeFolder(it)) }
+        }
     }
 
     fun setAccess(roleHeld: Boolean, notificationAccess: Boolean) {

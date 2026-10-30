@@ -44,6 +44,9 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -51,6 +54,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Full-screen layer with a popup panel placed below [anchor] (window pixels), or above it when there is no room.
+ * With [anchorDepth] the panel is instead placed so that the point [anchorDepth] below its top edge is at [anchor]
+ * (for example, the middle of its first row under the finger), shifted only as far as needed to stay on screen.
  *
  * The panel stays inside system bars and the display cutout and scrolls when taller than
  * [PanelDimens.MAX_HEIGHT_FRACTION] of the safe area. It has the [popupSurface] shadow and outline over a
@@ -62,6 +67,7 @@ fun AnchoredPanel(
     anchor: Offset,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    anchorDepth: Dp? = null,
     content: @Composable () -> Unit,
 ) {
     val colors = LocalMushinColors.current
@@ -108,17 +114,18 @@ fun AnchoredPanel(
             val maxHeight = (safe.height * PanelDimens.MAX_HEIGHT_FRACTION).toInt().coerceAtLeast(0)
             val width = PanelDimens.width.roundToPx().coerceAtMost(safe.width.coerceAtLeast(0))
             val placeable = measurables.first().measure(Constraints.fixedWidth(width).copy(maxHeight = maxHeight))
-            val position = AnchoredPosition.belowPoint(
-                anchorX = anchor.x.toInt(),
-                anchorY = anchor.y.toInt(),
-                popup = IntSize(placeable.width, placeable.height),
-                safe = safe,
-                gapPx = PanelDimens.gap.roundToPx(),
-            )
+            val position = panelPosition(anchor, anchorDepth, IntSize(placeable.width, placeable.height), safe)
             layout(window.width, window.height) { placeable.place(position) }
         }
     }
 }
+
+private fun Density.panelPosition(anchor: Offset, anchorDepth: Dp?, popup: IntSize, safe: IntRect): IntOffset =
+    if (anchorDepth != null) {
+        AnchoredPosition.atPoint(anchor.x.toInt(), anchor.y.toInt(), anchorDepth.roundToPx(), popup, safe)
+    } else {
+        AnchoredPosition.belowPoint(anchor.x.toInt(), anchor.y.toInt(), popup, safe, PanelDimens.gap.roundToPx())
+    }
 
 /** Non-interactive section title inside an [AnchoredPanel]. */
 @Composable

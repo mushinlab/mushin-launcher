@@ -124,8 +124,8 @@ internal class HomeGestureHandler(
         pressedClock = clock
     }
 
-    override fun onRowTap(index: Int) {
-        state.value.rows.getOrNull(index)?.let { actions.value.onRowTap(it, index) }
+    override fun onRowTap(index: Int, position: Offset) {
+        state.value.rows.getOrNull(index)?.let { actions.value.onRowTap(it, index, position) }
     }
 
     override fun onLongPress(position: Offset, rowIndex: Int?) {

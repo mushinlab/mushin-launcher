@@ -68,6 +68,10 @@
     <string name="picker_filter">Suchen</string>
     <string name="picker_selected">%1$d von %2$d ausgewählt</string>
     <string name="picker_full">%1$d von %2$d ausgewählt — kein Platz mehr auf dem Startbildschirm</string>
+    <string name="folder_name_hint">Ordnername</string>
+    <string name="folder_add_apps">Apps hinzufügen</string>
+    <string name="folder_remove_app">%1$s entfernen</string>
+    <string name="replace_title">%1$s ersetzen</string>
 
     <string name="home_icons">Symbole</string>
     <string name="clock_sheet">Uhr</string>
@@ -214,7 +218,7 @@
     <string name="settings_tips">Tipps</string>
     <string name="summary_tips">Kurze Animationen dazu, was der Launcher kann</string>
     <string name="tip_space_title">Richte deinen ersten Bereich ein</string>
-    <string name="tip_space_text">Tippe unten auf dem Startbildschirm auf den Stift und dann auf die Palette, um Farben zu wählen. Tippe auf „Apps hinzufügen“, um die Apps dieses Bereichs auszuwählen.</string>
+    <string name="tip_space_text">Tippe unten auf dem Startbildschirm auf den Stift und dann auf die Palette, um Farben zu wählen. Tippe auf „App hinzufügen“, um die Apps dieses Bereichs auszuwählen.</string>
     <string name="tip_style_title">Passe den Launcher an</string>
     <string name="tip_style_text">Tippe auf den Stift und dann auf Tt, um Schrift, Größe und Ausrichtung zu ändern. Beim Bearbeiten kannst du die Uhr oder die Linie über der Liste verschieben.</string>
     <string name="tip_memory_title">Bring dem Launcher etwas bei</string>

@@ -20,4 +20,11 @@ class EditListTest {
     fun draggingTheListHandleShowsTheWholeList() {
         assertThat((0..20).all { EditList.shown(it, editing = true, dragging = true) }).isTrue()
     }
+
+    @Test
+    fun addRowFollowsTheLastShownRow() {
+        assertThat(EditList.addSlot(rows = 3, dragging = false)).isEqualTo(3)
+        assertThat(EditList.addSlot(rows = 8, dragging = false)).isEqualTo(5)
+        assertThat(EditList.addSlot(rows = 8, dragging = true)).isEqualTo(8)
+    }
 }

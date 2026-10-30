@@ -2,6 +2,7 @@ package com.mushinlab.launcher
 
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.AppUsage
+import com.mushinlab.launcher.core.model.FolderKeys
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.LearnedGesture
 import com.mushinlab.launcher.core.model.SpaceUsage
@@ -9,6 +10,7 @@ import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.Usefulness
 import com.mushinlab.launcher.core.search.Alphabet
 import com.mushinlab.launcher.feature.settings.EditorItem
+import com.mushinlab.launcher.feature.settings.FolderSummary
 import com.mushinlab.launcher.feature.settings.GestureSummary
 import com.mushinlab.launcher.feature.settings.LearnedApp
 import com.mushinlab.launcher.feature.settings.LearnedDrawing
@@ -44,14 +46,10 @@ internal fun settingsState(
         )
     }.toImmutableList(),
     spaceItems = d.spaces.associate { space ->
-        space.id to d.items[space.id].orEmpty().map { key ->
-            EditorItem(
-                key = key,
-                label = d.label(key) ?: key.packageName,
-                hidden = d.overrides[key]?.hidden == true,
-                missing = key !in d.apps,
-            )
-        }.toImmutableList()
+        space.id to d.items[space.id].orEmpty().map { key -> editorItem(d, key) }.toImmutableList()
+    }.toImmutableMap(),
+    folders = d.folders.mapValues { (id, folder) ->
+        FolderSummary(id, folder.name, folder.apps.map { editorItem(d, it) }.toImmutableList())
     }.toImmutableMap(),
     apps = d.apps.values
         .map { PickerApp(it.key, d.label(it.key) ?: it.label, d.overrides[it.key]?.hidden == true) }
@@ -68,6 +66,13 @@ internal fun settingsState(
     capacity = capacity,
     isDefaultLauncher = roleHeld,
     versionName = versionName,
+)
+
+private fun editorItem(d: LauncherData, key: AppKey) = EditorItem(
+    key = key,
+    label = d.label(key) ?: key.packageName,
+    hidden = d.overrides[key]?.hidden == true,
+    missing = key !in d.apps && FolderKeys.idOf(key)?.let(d.folders::containsKey) != true,
 )
 
 internal fun SettingsUiState.withMemory(samples: List<LearnedGesture>, usage: Map<AppKey, AppUsage>): SettingsUiState {

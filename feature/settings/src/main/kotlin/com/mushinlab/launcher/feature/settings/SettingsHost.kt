@@ -95,6 +95,25 @@ private fun SettingsRouteScreen(
             MemoryRouteScreen(route, stack, state, actions, push, back)
 
         SettingsRoute.Tips, is SettingsRoute.Tip -> TipsRouteScreen(route, push, back)
+
+        is SettingsRoute.HomeFolder, is SettingsRoute.PickFolderApps, is SettingsRoute.ReplaceApp ->
+            HomeEditRouteScreen(route, state, actions, push, back)
+    }
+}
+
+@Composable
+private fun HomeEditRouteScreen(
+    route: SettingsRoute,
+    state: SettingsUiState,
+    actions: SettingsActions,
+    push: (SettingsRoute) -> Unit,
+    back: () -> Unit,
+) {
+    when (route) {
+        is SettingsRoute.HomeFolder -> FolderSheet(route.folderId, state, actions, push, back)
+        is SettingsRoute.PickFolderApps -> FolderAppPicker(route.folderId, state, actions, back)
+        is SettingsRoute.ReplaceApp -> ReplaceAppPicker(route, state, actions, back)
+        else -> Unit
     }
 }
 

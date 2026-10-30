@@ -15,6 +15,9 @@ sealed interface Overlay {
 
     @Immutable
     data class Suggestion(val anchor: Offset) : Overlay
+
+    @Immutable
+    data class Folder(val id: Long, val anchor: Offset) : Overlay
 }
 
 @Immutable

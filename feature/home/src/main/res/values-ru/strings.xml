@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_make_default">Сделать лаунчером по умолчанию</string>
-    <string name="popup_settings">⚙  Настройки</string>
     <string name="popup_about">О приложении</string>
     <string name="popup_rename">Переименовать</string>
     <string name="popup_hide">Скрыть</string>
@@ -15,8 +14,12 @@
     <string name="home_edit_background">Фон</string>
     <string name="home_edit_text">Текст</string>
     <string name="home_edit_theme">Тема</string>
-    <string name="home_add_apps">Добавить приложения</string>
-    <string name="home_add_apps_inline">+ Добавить приложения</string>
+    <string name="home_settings">Настройки</string>
+    <string name="home_add_folder">Добавить папку</string>
+    <string name="home_add_app">Добавить приложение</string>
+    <string name="home_row_edit">Изменить %1$s</string>
+    <string name="home_row_remove">Удалить %1$s</string>
+    <string name="home_folder_untitled">Папка</string>
     <string name="suggest_header">Чаще открываете «%1$s»</string>
     <string name="suggest_replace">Поставить вместо «%1$s»</string>
     <string name="suggest_add">Добавить на главный экран</string>

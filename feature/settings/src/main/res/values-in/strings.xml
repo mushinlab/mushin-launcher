@@ -68,6 +68,10 @@
     <string name="picker_filter">Cari</string>
     <string name="picker_selected">%1$d dari %2$d dipilih</string>
     <string name="picker_full">%1$d dari %2$d dipilih — layar utama sudah penuh</string>
+    <string name="folder_name_hint">Nama folder</string>
+    <string name="folder_add_apps">Tambah aplikasi</string>
+    <string name="folder_remove_app">Hapus %1$s</string>
+    <string name="replace_title">Ganti %1$s</string>
 
     <string name="home_icons">Ikon</string>
     <string name="clock_sheet">Jam</string>

@@ -28,6 +28,8 @@ interface PreferenceActions {
 }
 
 interface SpaceActions {
+    val folders: FolderActions
+
     suspend fun createSpace(name: String, type: SpaceType): String?
 
     suspend fun renameSpace(id: Long, name: String): String?
@@ -45,6 +47,16 @@ interface SpaceActions {
     fun addSpaceItem(id: Long, key: AppKey)
 
     fun removeSpaceItem(id: Long, key: AppKey)
+
+    fun replaceSpaceItem(id: Long, old: AppKey, new: AppKey)
+}
+
+interface FolderActions {
+    fun rename(id: Long, name: String)
+
+    fun addApp(id: Long, key: AppKey)
+
+    fun removeApp(id: Long, key: AppKey)
 }
 
 interface AppActions {

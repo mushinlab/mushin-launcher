@@ -35,7 +35,7 @@ import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.pressable
 
 @Composable
-private fun FilterField(value: String, onChange: (String) -> Unit) {
+internal fun FilterField(value: String, onChange: (String) -> Unit) {
     val colors = LocalMushinColors.current
     BasicTextField(
         value = value,
@@ -61,7 +61,7 @@ private fun FilterField(value: String, onChange: (String) -> Unit) {
     )
 }
 
-private fun filterApps(apps: List<PickerApp>, query: String): List<PickerApp> {
+internal fun filterApps(apps: List<PickerApp>, query: String): List<PickerApp> {
     if (query.isBlank()) return apps
     val index = SearchIndex.build(apps.map { SearchItem(it.key, it.label) })
     val byKey = apps.associateBy { it.key }
@@ -104,7 +104,7 @@ internal fun SpaceAppPicker(spaceId: Long, state: SettingsUiState, actions: Sett
 }
 
 @Composable
-private fun PickerRow(label: String, selected: Boolean, enabled: Boolean, tag: String, onClick: () -> Unit) {
+internal fun PickerRow(label: String, selected: Boolean, enabled: Boolean, tag: String, onClick: () -> Unit) {
     val colors = LocalMushinColors.current
     Box(
         Modifier

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
+import com.mushinlab.launcher.core.model.FolderKeys
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
@@ -20,7 +21,9 @@ data class HomeRow(
     val work: Boolean = false,
     val notifications: Int = 0,
     val swipes: ImmutableList<SwipeDirection> = persistentListOf(),
-)
+) {
+    val folderId: Long? get() = FolderKeys.idOf(key)
+}
 
 @Immutable
 data class HomeSuggestion(

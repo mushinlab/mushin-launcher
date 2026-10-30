@@ -17,6 +17,7 @@ import com.mushinlab.launcher.core.apps.icons.LauncherIconSource
 import com.mushinlab.launcher.core.data.background.LegacyBackgroundTransition
 import com.mushinlab.launcher.core.data.background.SpaceBackgroundStore
 import com.mushinlab.launcher.core.data.db.MushinDatabase
+import com.mushinlab.launcher.core.data.repo.FolderRepository
 import com.mushinlab.launcher.core.data.repo.GestureLearningRepository
 import com.mushinlab.launcher.core.data.repo.GestureRepository
 import com.mushinlab.launcher.core.data.repo.HistoryRepository
@@ -48,6 +49,7 @@ class AppContainer(private val app: Application) {
 
     val database by lazy { MushinDatabase.build(app) }
     val spaces by lazy { SpaceRepository(database, scope) }
+    val folders by lazy { FolderRepository(database, scope) }
     val looks by lazy { SpaceLookRepository(database) }
     val overrides by lazy { OverrideRepository(database, scope) }
     val history by lazy { HistoryRepository(database, scope) }

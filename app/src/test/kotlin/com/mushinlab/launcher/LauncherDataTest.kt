@@ -4,6 +4,8 @@ import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.apps.NotificationSource
 import com.mushinlab.launcher.core.data.repo.SpaceError
 import com.mushinlab.launcher.core.model.AppUsage
+import com.mushinlab.launcher.core.model.Folder
+import com.mushinlab.launcher.core.model.FolderKeys
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.LauncherSettings
@@ -38,6 +40,28 @@ class LauncherDataTest {
 
         assertThat(state.rows.map { it.label }).containsExactly("Slack", "Navigator").inOrder()
         assertThat(state.roleMissing).isFalse()
+    }
+
+    @Test
+    fun folderRowShowsItsNameOrTheDefaultAndSumsItsNotifications() {
+        val folder = Folder(5, normal.id, "  ", listOf(slack, maps, gone))
+        val withFolder = data(LauncherSettings(notificationCounts = true)).copy(
+            items = mapOf(normal.id to listOf(slack, FolderKeys.of(5), FolderKeys.of(6))),
+            folders = mapOf(5L to folder),
+            untitledFolder = "Folder",
+        )
+        val counts = mapOf(
+            NotificationSource(slack.packageName, slack.userSerial) to 3,
+            NotificationSource(maps.packageName, maps.userSerial) to 2,
+        )
+
+        val rows = homeState(withFolder, true, counts, emptyMap()).rows
+
+        assertThat(rows.map { it.label }).containsExactly("Slack", "Folder").inOrder()
+        assertThat(rows[1].folderId).isEqualTo(5L)
+        assertThat(rows[1].notifications).isEqualTo(5)
+        assertThat(folderRows(withFolder.copy(folders = mapOf(5L to folder.copy(name = "Banks"))))[5]?.map { it.label })
+            .containsExactly("Slack", "Navigator").inOrder()
     }
 
     @Test

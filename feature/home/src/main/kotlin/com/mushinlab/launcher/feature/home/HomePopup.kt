@@ -1,14 +1,30 @@
 package com.mushinlab.launcher.feature.home
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.ui.AnchoredPanel
+import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.HorizontalDivider
+import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.PanelHeader
 import com.mushinlab.launcher.core.ui.PanelItem
+import com.mushinlab.launcher.core.ui.SingleLineText
+import com.mushinlab.launcher.core.ui.pressable
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
@@ -25,8 +41,6 @@ data class PopupApp(
 
 interface PopupActions {
     fun onSelectSpace(id: Long)
-
-    fun onOpenSettings()
 
     fun onOpenSpaceSettings(id: Long)
 
@@ -64,10 +78,40 @@ fun HomePopup(
                 onClick = { actions.onSelectSpace(space.id) },
             )
         }
-        HorizontalDivider()
-        PanelItem(stringResource(R.string.popup_settings), tag = "popup_settings", onClick = actions::onOpenSettings)
     }
 }
+
+@Composable
+fun FolderPanel(anchor: Offset, apps: ImmutableList<HomeRow>, onLaunch: (AppKey) -> Unit, onDismiss: () -> Unit) {
+    AnchoredPanel(anchor = anchor, onDismiss = onDismiss, anchorDepth = FOLDER_ITEM / 2) {
+        apps.forEachIndexed { index, app ->
+            FolderItem(app, index) { onLaunch(app.key) }
+        }
+    }
+}
+
+@Composable
+private fun FolderItem(app: HomeRow, index: Int, onClick: () -> Unit) {
+    val colors = LocalMushinColors.current
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(FOLDER_ITEM)
+            .pressable(onClick = onClick)
+            .testTag("folder_item_$index")
+            .padding(horizontal = 16.dp)
+            .alpha(if (app.dimmed) DIMMED_ITEM else 1f),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        AppIcon(app.key, app.label, FOLDER_ICON)
+        Spacer(Modifier.width(12.dp))
+        SingleLineText(app.label, MushinType.style(MushinType.popupSize, colors.textPrimary))
+    }
+}
+
+private val FOLDER_ITEM = 48.dp
+private val FOLDER_ICON = 24.dp
+private const val DIMMED_ITEM = 0.5f
 
 @Composable
 private fun AppSection(app: PopupApp, actions: PopupActions) {

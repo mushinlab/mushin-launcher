@@ -248,6 +248,28 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun migrationTo11KeepsHomeListsAndAddsEmptyFolders() {
+        helper.createDatabase(DB_NAME, 10).use { db ->
+            MushinDatabase.SeedCallback(MushinDatabase.SeedNames("Обычный", "Работа")).seed(db, createdAt = 42L)
+            db.execSQL(
+                "INSERT INTO environment_item (env_id, package_name, activity_name, user_serial, position) " +
+                    "VALUES (1, 'com.slack', 'Main', 0, 0)",
+            )
+        }
+        helper.runMigrationsAndValidate(DB_NAME, 11, true).use { db ->
+            db.query("SELECT package_name FROM environment_item").use {
+                assertThat(it.count).isEqualTo(1)
+                it.moveToFirst()
+                assertThat(it.getString(0)).isEqualTo("com.slack")
+            }
+            db.query("SELECT COUNT(*) FROM folder").use {
+                it.moveToFirst()
+                assertThat(it.getInt(0)).isEqualTo(0)
+            }
+        }
+    }
+
     private companion object {
         const val DB_NAME = "migration-test"
     }
