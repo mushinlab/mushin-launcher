@@ -1,0 +1,4 @@
+• Edit mode: a long list scrolls, so every row can be edited.
+• Clock: hide the time or pick small, medium or large. With the time hidden, edit mode shows “Add time +”.
+• Centred labels are centred together with their icon.
+• Picking apps works like search: our keyboard at the bottom and the list growing up from it.
