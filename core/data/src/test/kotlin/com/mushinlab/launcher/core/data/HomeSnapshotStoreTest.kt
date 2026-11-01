@@ -7,6 +7,7 @@ import com.mushinlab.launcher.core.data.snapshot.SnapshotRow
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
+import com.mushinlab.launcher.core.model.ClockSize
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
@@ -35,6 +36,8 @@ class HomeSnapshotStoreTest {
             clockPosition = ClockPosition.END,
             listOffset = 64,
             textAlign = HomeTextAlign.CENTER,
+            showClock = false,
+            clockSize = ClockSize.L,
         )
         store.write(snapshot)
         assertThat(store.read()).isEqualTo(snapshot)
@@ -72,6 +75,8 @@ class HomeSnapshotStoreTest {
         assertThat(snapshot?.listOffset).isEqualTo(120)
         assertThat(snapshot?.rows?.single()?.label).isEqualTo("Maps")
         assertThat(snapshot?.textAlign).isEqualTo(HomeTextAlign.START)
+        assertThat(snapshot?.showClock).isTrue()
+        assertThat(snapshot?.clockSize).isEqualTo(ClockSize.M)
     }
 
     @Test

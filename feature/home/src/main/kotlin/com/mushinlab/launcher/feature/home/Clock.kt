@@ -3,13 +3,17 @@ package com.mushinlab.launcher.feature.home
 import android.text.format.DateFormat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
@@ -40,13 +44,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
+import com.mushinlab.launcher.core.model.ClockSize
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
+import com.mushinlab.launcher.core.ui.GlyphWrapper
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
+import com.mushinlab.launcher.core.ui.PopupStyle
+import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.pressFeedback
+import com.mushinlab.launcher.core.ui.pressable
+import com.mushinlab.launcher.feature.home.gesture.RowRegistry
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -90,6 +101,7 @@ object ClockSlots {
 fun ClockArea(
     minute: State<Long>,
     format: ClockFormat,
+    size: ClockSize,
     showDate: Boolean,
     position: ClockPosition,
     drag: ClockDrag?,
@@ -146,7 +158,7 @@ fun ClockArea(
                 .testTag("clock_block"),
             horizontalAlignment = position.horizontalAlignment(),
         ) {
-            ClockTime(minute, format, position)
+            ClockTime(minute, format, size, position)
             if (showDate) {
                 Spacer(Modifier.height(4.dp))
                 ClockDate(minute, position)
@@ -224,10 +236,10 @@ private fun ClockPosition.textAlign(): TextAlign = when (this) {
 }
 
 @Composable
-private fun ClockTime(minute: State<Long>, format: ClockFormat, position: ClockPosition) {
+private fun ClockTime(minute: State<Long>, format: ClockFormat, size: ClockSize, position: ClockPosition) {
     val context = LocalContext.current
     val colors = LocalMushinColors.current
-    val style = MushinType.style(MushinType.clockSize, colors.textPrimary, FontWeight.Light).copy(
+    val style = MushinType.style(size.sp.sp, colors.textPrimary, FontWeight.Light).copy(
         textAlign = position.textAlign(),
     )
     val use24h = ClockText.is24h(format, DateFormat.is24HourFormat(context))
@@ -250,6 +262,37 @@ private fun ClockDate(minute: State<Long>, position: ClockPosition) {
     )
 }
 
+@Composable
+internal fun AddClockBar(registry: RowRegistry, onClick: () -> Unit) {
+    val colors = LocalMushinColors.current
+    val shape = RoundedCornerShape(SLOT_RADIUS)
+    DisposableEffect(Unit) { onDispose { registry.block(ADD_CLOCK, null) } }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = HomeDimens.rowPadding)
+            .height(ADD_CLOCK_HEIGHT)
+            .clip(shape)
+            .background(colors.surface)
+            .border(GlyphWrapper.outline, PopupStyle.outline(colors), shape)
+            .onGloballyPositioned { registry.block(ADD_CLOCK, it.boundsInRoot()) }
+            .pressable(onClick = onClick)
+            .testTag(ADD_CLOCK),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        SingleLineText(
+            stringResource(R.string.home_add_clock),
+            MushinType.style(MushinType.secondarySize, colors.textPrimary),
+        )
+        Spacer(Modifier.width(8.dp))
+        GlyphBadge(Glyph.ADD, ADD_CLOCK_ICON)
+    }
+}
+
+private const val ADD_CLOCK = "home_add_clock"
+private val ADD_CLOCK_HEIGHT = 48.dp
+private val ADD_CLOCK_ICON = 24.dp
 private val SLOT_RADIUS = 12.dp
 private val CLOCK_EDIT_SIZE = 44.dp
 private val CLOCK_EDIT_GLYPH = 20.dp

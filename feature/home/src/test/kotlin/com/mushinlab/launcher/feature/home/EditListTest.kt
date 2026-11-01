@@ -5,26 +5,14 @@ import org.junit.Test
 
 class EditListTest {
     @Test
-    fun outsideEditModeEveryRowIsShown() {
-        assertThat((0..20).all { EditList.shown(it, editing = false, dragging = false) }).isTrue()
+    fun shortListFitsWithoutScrolling() {
+        assertThat(EditList.viewportRows(0)).isEqualTo(0f)
+        assertThat(EditList.viewportRows(5)).isEqualTo(5f)
     }
 
     @Test
-    fun editModeShowsOnlyTheFirstFiveRows() {
-        val shown = (0..9).filter { EditList.shown(it, editing = true, dragging = false) }
-
-        assertThat(shown).containsExactly(0, 1, 2, 3, 4).inOrder()
-    }
-
-    @Test
-    fun draggingTheListHandleShowsTheWholeList() {
-        assertThat((0..20).all { EditList.shown(it, editing = true, dragging = true) }).isTrue()
-    }
-
-    @Test
-    fun addRowFollowsTheLastShownRow() {
-        assertThat(EditList.addSlot(rows = 3, dragging = false)).isEqualTo(3)
-        assertThat(EditList.addSlot(rows = 8, dragging = false)).isEqualTo(5)
-        assertThat(EditList.addSlot(rows = 8, dragging = true)).isEqualTo(8)
+    fun longListShowsFiveRowsAndHalfOfTheNextToHintAtScrolling() {
+        assertThat(EditList.viewportRows(6)).isEqualTo(5.5f)
+        assertThat(EditList.viewportRows(20)).isEqualTo(5.5f)
     }
 }

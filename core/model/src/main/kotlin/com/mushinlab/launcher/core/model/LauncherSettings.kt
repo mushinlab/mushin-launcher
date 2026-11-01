@@ -9,6 +9,9 @@ enum class ClockFormat { SYSTEM, H24, H12 }
 /** Size of home-screen app labels; [sp] is the font size in sp. */
 enum class HomeTextSize(val sp: Int) { S(sp = 22), M(sp = 26), L(sp = 30) }
 
+/** Size of the home-screen clock digits; [sp] is the font size in sp (ADR-0036). */
+enum class ClockSize(val sp: Int) { S(sp = 56), M(sp = 72), L(sp = 96) }
+
 /** Horizontal alignment of home-screen app labels within their rows. */
 enum class HomeTextAlign { START, CENTER, END }
 
@@ -77,6 +80,8 @@ data class LauncherSettings(
     val iconMode: IconMode = IconMode.RIGHT,
     val clockFormat: ClockFormat = ClockFormat.SYSTEM,
     val showDate: Boolean = true,
+    val showClock: Boolean = true,
+    val clockSize: ClockSize = ClockSize.M,
     val clockPosition: ClockPosition = ClockPosition.START,
     val homeListOffset: Int? = null,
     val font: AppFont = AppFont.SYSTEM,

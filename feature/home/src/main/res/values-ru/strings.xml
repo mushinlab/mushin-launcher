@@ -20,6 +20,7 @@
     <string name="home_row_edit">Изменить %1$s</string>
     <string name="home_row_remove">Удалить %1$s</string>
     <string name="home_folder_untitled">Папка</string>
+    <string name="home_add_clock">Добавить время</string>
     <string name="suggest_header">Чаще открываете «%1$s»</string>
     <string name="suggest_replace">Поставить вместо «%1$s»</string>
     <string name="suggest_add">Добавить на главный экран</string>

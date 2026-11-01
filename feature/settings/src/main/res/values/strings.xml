@@ -79,6 +79,8 @@
     <string name="home_clock_system">System</string>
     <string name="home_clock_24">24-hour</string>
     <string name="home_clock_12">12-hour</string>
+    <string name="clock_show">Show time</string>
+    <string name="clock_size">Clock size</string>
     <string name="home_show_date">Show date</string>
     <string name="home_text_size">Text size</string>
     <string name="home_text_align">Text alignment</string>
@@ -226,7 +228,8 @@
     <string name="tips_more_title">For more, explore Tips</string>
     <string name="tips_more_text">Replay these tips any time in Settings → Tips.</string>
     <string name="tip_space_name">Personal</string>
-    <string name="tip_add_apps">Add apps</string>
+    <string name="tip_add_folder">Add folder</string>
+    <string name="tip_add_app">Add app</string>
     <string name="tip_awesome_app" translatable="false">Awesome App</string>
     <string-array name="tip_apps">
         <item>Phone</item>

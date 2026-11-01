@@ -47,8 +47,6 @@ interface SpaceActions {
     fun addSpaceItem(id: Long, key: AppKey)
 
     fun removeSpaceItem(id: Long, key: AppKey)
-
-    fun replaceSpaceItem(id: Long, old: AppKey, new: AppKey)
 }
 
 interface FolderActions {

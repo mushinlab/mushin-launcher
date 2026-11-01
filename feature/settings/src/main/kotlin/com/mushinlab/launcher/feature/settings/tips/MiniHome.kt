@@ -22,6 +22,7 @@ internal object MiniHome {
     const val TOOL_TEXT = 1
     const val TOOL_THEME = 2
     const val GRIP_Y = 8f
+    const val ADD_GLYPH_Y = 8f
     val edit = Scene.pencil
 
     fun tool(index: Int) = Offset(TOOL_LEFT + TOOL_STEP * index, edit.y)
@@ -29,6 +30,8 @@ internal object MiniHome {
     fun handle(listTop: Float) = Offset(Scene.WIDTH / 2, listTop - HANDLE_ABOVE)
 
     fun grip(sheetTop: Float) = Offset(Scene.WIDTH / 2, sheetTop + GRIP_Y)
+
+    fun addButton(rowTop: Float, half: Int) = Offset(Scene.WIDTH * (half * 2 + 1) / 2 / 2, rowTop + ADD_GLYPH_Y)
 }
 
 @Immutable
@@ -121,14 +124,20 @@ internal fun DrawScope.editableClock(colors: MushinColors, clock: MiniClock, slo
     clockFace(colors, clock.layout, Offset(clock.left(slot), Scene.clock.y))
 }
 
-internal fun DrawScope.addAppsRow(colors: MushinColors, top: Float, index: Int, label: TextLayoutResult) {
-    val centerY = top + Scene.ROW_HEIGHT / 2
-    drawRect(colors.zebra(index), Offset(0f, top), Size(Scene.WIDTH, Scene.ROW_HEIGHT))
-    textCenteredY(label, colors.textPrimary, Scene.MARGIN, centerY)
-    val plus = Offset(Scene.MARGIN + label.size.width + PLUS_GAP + PLUS_RADIUS, centerY)
-    glyphCircle(colors, plus, PLUS_RADIUS)
-    plusGlyph(plus, colors.textSecondary, PLUS_ARM)
+internal fun DrawScope.addRow(colors: MushinColors, top: Float, index: Int, labels: AddLabels, alpha: Float) {
+    if (alpha <= 0f) return
+    drawRect(colors.zebra(index), Offset(0f, top), Size(Scene.WIDTH, Scene.ROW_HEIGHT), alpha = alpha)
+    listOf(labels.folder, labels.app).forEachIndexed { half, label ->
+        val glyph = MiniHome.addButton(top, half)
+        glyphCircle(colors, glyph, PLUS_RADIUS, alpha)
+        if (half == 0) folderGlyph(glyph, colors.textSecondary.copy(alpha = alpha))
+        if (half == 1) plusGlyph(glyph, colors.textSecondary.copy(alpha = alpha), PLUS_ARM)
+        text(label, colors.textPrimary, Offset(glyph.x - label.size.width / 2f, glyph.y + ADD_LABEL_GAP), alpha)
+    }
 }
+
+@Immutable
+internal class AddLabels(val folder: TextLayoutResult, val app: TextLayoutResult)
 
 internal fun DrawScope.homeSheet(
     colors: MushinColors,
@@ -183,7 +192,7 @@ private const val MARK_HEIGHT = 2f
 private const val MARK_ALPHA = 0.35f
 private const val PLUS_RADIUS = 6f
 private const val PLUS_ARM = 2.6f
-private const val PLUS_GAP = 6f
+private const val ADD_LABEL_GAP = 6f
 private const val SHEET_SCRIM = 0.15f
 private const val SHEET_CORNER = 8f
 private const val SHEET_TITLE_Y = 16f

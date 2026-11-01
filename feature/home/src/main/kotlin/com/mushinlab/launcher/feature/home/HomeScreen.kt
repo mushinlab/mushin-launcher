@@ -1,9 +1,11 @@
 package com.mushinlab.launcher.feature.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,17 +26,23 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemGestures
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
@@ -55,7 +63,6 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ClockPosition
@@ -114,6 +121,8 @@ interface HomeEditActions {
     fun onEdit()
 
     fun onEditClock()
+
+    fun onShowClock()
 
     fun onEditBackground()
 
@@ -251,21 +260,27 @@ private fun HomeHeader(
         if (state.roleMissing) {
             RoleCard(registry, onClick = { actions.value.onRequestRole() })
         }
-        ClockArea(
-            minute = minute,
-            format = state.clockFormat,
-            showDate = state.showDate,
-            position = gestures.clock.shown,
-            drag = gestures.clock.drag,
-            editing = editing,
-            pressed = gestures.pressedClock,
-            onBounds = registry.clock::set,
-            onTap = { actions.value.onClockTap() },
-            onMeasured = gestures.clock::measured,
-            onEdit = remember(registry, actions) {
-                ClockEdit(onClick = { actions.value.onEditClock() }, onBounds = { registry.block(CLOCK_EDIT, it) })
-            },
-        )
+        if (state.showClock) {
+            DisposableEffect(Unit) { onDispose { registry.clock.set(null) } }
+            ClockArea(
+                minute = minute,
+                format = state.clockFormat,
+                size = state.clockSize,
+                showDate = state.showDate,
+                position = gestures.clock.shown,
+                drag = gestures.clock.drag,
+                editing = editing,
+                pressed = gestures.pressedClock,
+                onBounds = registry.clock::set,
+                onTap = { actions.value.onClockTap() },
+                onMeasured = gestures.clock::measured,
+                onEdit = remember(registry, actions) {
+                    ClockEdit(onClick = { actions.value.onEditClock() }, onBounds = { registry.block(CLOCK_EDIT, it) })
+                },
+            )
+        } else if (editing) {
+            AddClockBar(registry) { actions.value.onShowClock() }
+        }
         Spacer(Modifier.height(HomeDimens.listGap - HANDLE_HEIGHT))
     }
 }
@@ -320,11 +335,6 @@ private fun stringResourceRoleCard(): String = androidx.compose.ui.res.stringRes
 @Immutable
 internal class RowStyle(val text: TextStyle, val height: Dp, val color: (Int) -> Color)
 
-@Immutable
-private data class ListEditing(val editing: Boolean, val dragging: Boolean) {
-    fun shown(index: Int): Boolean = EditList.shown(index, editing, dragging)
-}
-
 @Composable
 private fun FavoritesList(
     state: HomeUiState,
@@ -342,9 +352,8 @@ private fun FavoritesList(
         val visible = state.rows.take(capacity)
         LaunchedEffect(visible.size) { registry.retainBelow(visible.size) }
         Column(verticalArrangement = Arrangement.Top) {
-            visible.forEachIndexed { index, row ->
-                val shown = editing.shown(index)
-                Reveal(shown) {
+            ScrollingRows(visible.size, rowStyle, editing, registry) {
+                visible.forEachIndexed { index, row ->
                     FavoriteRow(
                         index,
                         row,
@@ -352,7 +361,7 @@ private fun FavoritesList(
                         rowStyle,
                         registry,
                         pressedRow() == index,
-                        edit = if (editing.editing && shown) {
+                        edit = if (editing.editing) {
                             RowEdit({ actions.value.onEditRow(row) }, { actions.value.onRemoveRow(row) })
                         } else {
                             null
@@ -360,21 +369,19 @@ private fun FavoritesList(
                     )
                 }
             }
-        }
-        val slot = EditList.addSlot(visible.size, editing.dragging)
-        AnimatedVisibility(
-            visible = editing.editing && state.rows.size < capacity,
-            enter = fadeIn(tween(Motion.TRANSITION_MS)),
-            exit = fadeOut(tween(Motion.TRANSITION_MS)),
-            modifier = Modifier.offset { IntOffset(0, (rowStyle.height * slot).roundToPx()) },
-        ) {
-            AddRow(
-                rowStyle,
-                rowStyle.color(slot),
-                registry,
-                onAddFolder = { actions.value.onAddFolder() },
-                onAddApp = { actions.value.onAddApps() },
-            )
+            AnimatedVisibility(
+                visible = editing.editing && state.rows.size < capacity,
+                enter = fadeIn(tween(Motion.TRANSITION_MS)),
+                exit = fadeOut(tween(Motion.TRANSITION_MS)),
+            ) {
+                AddRow(
+                    rowStyle,
+                    rowStyle.color(visible.size),
+                    registry,
+                    onAddFolder = { actions.value.onAddFolder() },
+                    onAddApp = { actions.value.onAddApps() },
+                )
+            }
         }
     }
 }

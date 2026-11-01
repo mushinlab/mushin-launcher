@@ -30,7 +30,8 @@ internal fun SpaceTipAnimation(modifier: Modifier = Modifier) {
         stringResource(R.string.picker_title),
         stringResource(R.string.style_theme, stringResource(R.string.tip_space_name)),
         stringResource(R.string.home_icons),
-        stringResource(R.string.tip_add_apps),
+        stringResource(R.string.tip_add_folder),
+        stringResource(R.string.tip_add_app),
     )
     val labels = remember(text, apps, strings) { SpaceLabels(text, strings, apps) }
     val swatches = remember(colors) {
@@ -45,7 +46,10 @@ private class SpaceLabels(text: MiniText, strings: List<String>, apps: List<Stri
     val pickerTitle = text.of(strings[0], Scene.TITLE_SIZE)
     val themeTitle = text.of(strings[1], Scene.TITLE_SIZE)
     val icons = text.of(strings[2], Scene.LABEL_SIZE, maxWidth = SpaceGeometry.LABEL_WIDTH)
-    val addApps = text.of(strings[3], Scene.ROW_SIZE, maxWidth = SpaceGeometry.LABEL_WIDTH)
+    val add = AddLabels(
+        text.of(strings[3], ADD_TEXT, maxWidth = Scene.WIDTH / 2 - Scene.MARGIN),
+        text.of(strings[4], ADD_TEXT, maxWidth = Scene.WIDTH / 2 - Scene.MARGIN),
+    )
     val clock = MiniClock(text.of(CLOCK_TEXT, Scene.CLOCK_SIZE))
 }
 
@@ -90,7 +94,7 @@ private fun DrawScope.drawSpaceHome(time: Float, colors: MushinColors, labels: S
         if (index < HOME_APPS_BEFORE) 1f else added
     }
     val rows = mix(HOME_APPS_BEFORE.toFloat(), HOME_APPS_AFTER.toFloat(), added)
-    addAppsRow(colors, MiniHome.LIST_TOP + Scene.ROW_HEIGHT * rows, HOME_APPS_BEFORE, labels.addApps)
+    addRow(colors, MiniHome.LIST_TOP + Scene.ROW_HEIGHT * rows, HOME_APPS_BEFORE, labels.add, edit)
     editBar(colors, edit)
 }
 
@@ -131,7 +135,7 @@ private fun DrawScope.switchOff(colors: MushinColors, center: Offset) {
 
 private fun DrawScope.drawPicker(time: Float, colors: MushinColors, labels: SpaceLabels, offsetX: Float) {
     page(colors, offsetX, labels.pickerTitle) {
-        zebraRows(colors, Scene.CARD_TOP, labels.apps)
+        zebraRows(colors, SpaceGeometry.PICKER_BOTTOM - Scene.ROW_HEIGHT * labels.apps.size, labels.apps.reversed())
         labels.apps.indices.forEach { index ->
             val checked = when (index) {
                 MAPS -> ease(time, TAP_MAPS + CHECK_DELAY, TAP_MAPS + CHECK_DELAY + CHECK_MS)
@@ -139,6 +143,29 @@ private fun DrawScope.drawPicker(time: Float, colors: MushinColors, labels: Spac
                 else -> if (index < HOME_APPS_BEFORE) 1f else 0f
             }
             checkbox(colors, SpaceGeometry.checkbox(index), checked)
+        }
+        pickerKeyboard(colors)
+    }
+}
+
+private fun DrawScope.pickerKeyboard(colors: MushinColors) {
+    val top = SpaceGeometry.PICKER_BOTTOM
+    drawRoundRect(colors.surface, Offset(0f, top), Size(Scene.WIDTH, Scene.HEIGHT - top), CornerRadius(CARD_CORNER))
+    drawLine(
+        colors.accent,
+        Offset(Scene.MARGIN, top + CARET_TOP),
+        Offset(Scene.MARGIN, top + CARET_TOP + CARET_HEIGHT),
+        strokeWidth = 1f,
+    )
+    KeyCounts.forEachIndexed { row, count ->
+        val width = if (row == KeyCounts.lastIndex) SPACE_WIDTH else KEY_STEP * count
+        repeat(count) { column ->
+            drawRoundRect(
+                colors.keyBackground,
+                Offset((Scene.WIDTH - width) / 2 + KEY_STEP * column + KEY_GAP / 2, top + KEYS_TOP + KEY_ROW * row),
+                Size(if (row == KeyCounts.lastIndex) SPACE_WIDTH else KEY_STEP - KEY_GAP, KEY_ROW - KEY_GAP),
+                CornerRadius(KEY_CORNER),
+            )
         }
     }
 }
@@ -184,6 +211,7 @@ private object SpaceGeometry {
     const val ICONS_TOP = SHEET_TOP + 80f
     const val SWITCH_X = Scene.WIDTH - 30f
     const val LABEL_WIDTH = 120f
+    const val PICKER_BOTTOM = 236f
     const val SWATCH_LEFT = 24f
     const val SWATCH_STEP = 30f
     const val SWATCH_Y = SHEET_TOP + 56f
@@ -191,12 +219,13 @@ private object SpaceGeometry {
 
     fun swatch(index: Int) = Offset(SWATCH_LEFT + SWATCH_STEP * index, SWATCH_Y)
 
-    fun checkbox(index: Int) = Offset(CHECKBOX_X, Scene.rowCenterY(Scene.CARD_TOP, index))
+    fun checkbox(index: Int) = Offset(CHECKBOX_X, PICKER_BOTTOM - Scene.ROW_HEIGHT * index - Scene.ROW_HEIGHT / 2)
 }
 
 private val SwatchPalettes = listOf(Palettes.Lagoon, Palettes.Sand, Palettes.Plum, Palettes.Mist, Palettes.Moss)
 private val Grip = MiniHome.grip(SpaceGeometry.SHEET_TOP)
-private val AddRow = Offset(Scene.WIDTH / 2, Scene.rowCenterY(MiniHome.LIST_TOP, HOME_APPS_BEFORE))
+private val AddRow = MiniHome.addButton(MiniHome.LIST_TOP + Scene.ROW_HEIGHT * HOME_APPS_BEFORE, 1)
+private val KeyCounts = listOf(10, 9, 7, 1)
 
 private val Finger = Track(
     listOf(
@@ -267,6 +296,15 @@ private const val SWITCH_WIDTH = 20f
 private const val SWITCH_HEIGHT = 11f
 private const val SWITCH_GAP = 1.5f
 private const val CHECKBOX = 10f
+private const val ADD_TEXT = 7f
+private const val CARET_TOP = 8f
+private const val CARET_HEIGHT = 12f
+private const val KEYS_TOP = 26f
+private const val KEY_ROW = 22f
+private const val KEY_STEP = 17f
+private const val KEY_GAP = 2f
+private const val KEY_CORNER = 3f
+private const val SPACE_WIDTH = 90f
 private const val CHECK_LEFT = 0.55f
 private const val CHECK_BOTTOM_X = 0.1f
 private const val CHECK_BOTTOM_Y = 0.45f

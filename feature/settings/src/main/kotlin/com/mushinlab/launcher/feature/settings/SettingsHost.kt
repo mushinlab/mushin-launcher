@@ -22,8 +22,11 @@ import com.mushinlab.launcher.feature.settings.tips.TipsScreen
 @Immutable
 private data class SettingsEntry(val route: SettingsRoute, val depth: Int)
 
+/** Draws the app pickers ([SettingsRoute.PickApps], [SettingsRoute.PickFolderApps], [SettingsRoute.ReplaceApp]). */
+typealias AppPickerSlot = @Composable (route: SettingsRoute, back: () -> Unit) -> Unit
+
 @Composable
-fun SettingsHost(stack: SettingsStack, state: SettingsUiState, actions: SettingsActions) {
+fun SettingsHost(stack: SettingsStack, state: SettingsUiState, actions: SettingsActions, pickers: AppPickerSlot) {
     AnimatedContent(
         targetState = stack.top?.let { SettingsEntry(it, stack.size()) },
         transitionSpec = { settingsTransition() },
@@ -34,7 +37,7 @@ fun SettingsHost(stack: SettingsStack, state: SettingsUiState, actions: Settings
                 LocalSpaceName provides state.spaces.firstOrNull { it.current }?.name,
                 LocalSettingsTransition provides this,
             ) {
-                SettingsRouteScreen(entry.route, stack, state, actions)
+                SettingsRouteScreen(entry.route, stack, state, actions, pickers)
             }
         }
     }
@@ -65,6 +68,7 @@ private fun SettingsRouteScreen(
     stack: SettingsStack,
     state: SettingsUiState,
     actions: SettingsActions,
+    pickers: AppPickerSlot,
 ) {
     val back: () -> Unit = { if (stack.top == route) stack.pop() }
     val push: (SettingsRoute) -> Unit = { if (stack.top == route) stack.push(it) }
@@ -72,7 +76,6 @@ private fun SettingsRouteScreen(
         SettingsRoute.Root -> RootScreen(state, actions, push, back)
 
         is SettingsRoute.SpaceEditor,
-        is SettingsRoute.PickApps,
         is SettingsRoute.BackgroundEditor,
         is SettingsRoute.BackgroundPicker,
         is SettingsRoute.BackgroundFolder,
@@ -96,24 +99,9 @@ private fun SettingsRouteScreen(
 
         SettingsRoute.Tips, is SettingsRoute.Tip -> TipsRouteScreen(route, push, back)
 
-        is SettingsRoute.HomeFolder, is SettingsRoute.PickFolderApps, is SettingsRoute.ReplaceApp ->
-            HomeEditRouteScreen(route, state, actions, push, back)
-    }
-}
-
-@Composable
-private fun HomeEditRouteScreen(
-    route: SettingsRoute,
-    state: SettingsUiState,
-    actions: SettingsActions,
-    push: (SettingsRoute) -> Unit,
-    back: () -> Unit,
-) {
-    when (route) {
         is SettingsRoute.HomeFolder -> FolderSheet(route.folderId, state, actions, push, back)
-        is SettingsRoute.PickFolderApps -> FolderAppPicker(route.folderId, state, actions, back)
-        is SettingsRoute.ReplaceApp -> ReplaceAppPicker(route, state, actions, back)
-        else -> Unit
+
+        is SettingsRoute.PickApps, is SettingsRoute.PickFolderApps, is SettingsRoute.ReplaceApp -> pickers(route, back)
     }
 }
 
@@ -126,7 +114,6 @@ private fun SpaceRouteScreen(
     back: () -> Unit,
 ) {
     when (route) {
-        is SettingsRoute.PickApps -> SpaceAppPicker(route.spaceId, state, actions, back)
         is SettingsRoute.BackgroundEditor -> BackgroundEditorScreen(route.spaceId, state, actions, push, back)
         is SettingsRoute.BackgroundPicker -> BackgroundPickerScreen(route.spaceId, actions, push, back)
         is SettingsRoute.BackgroundFolder -> BackgroundFolderScreen(route.spaceId, route.folder, actions, back)

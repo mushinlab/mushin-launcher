@@ -20,6 +20,7 @@
     <string name="home_row_edit">Modifier %1$s</string>
     <string name="home_row_remove">Retirer %1$s</string>
     <string name="home_folder_untitled">Dossier</string>
+    <string name="home_add_clock">Ajouter l’heure</string>
     <string name="suggest_header">Vous ouvrez « %1$s » plus souvent</string>
     <string name="suggest_replace">La mettre à la place de « %1$s »</string>
     <string name="suggest_add">Ajouter à l’écran d’accueil</string>

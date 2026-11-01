@@ -53,6 +53,10 @@ internal fun DrawScope.plusGlyph(center: Offset, color: Color, arm: Float) {
     drawLine(color, Offset(center.x, center.y - arm), Offset(center.x, center.y + arm), GLYPH_WIDTH, StrokeCap.Round)
 }
 
+internal fun DrawScope.folderGlyph(center: Offset, color: Color) {
+    drawPath(shape(center, Folder).apply { close() }, color, style = GlyphStroke)
+}
+
 private fun shape(center: Offset, points: List<Offset>): Path = Path().apply {
     moveTo(center.x + points.first().x, center.y + points.first().y)
     points.drop(1).forEach { lineTo(center.x + it.x, center.y + it.y) }
@@ -69,6 +73,14 @@ private val TextStrokes = listOf(
     listOf(Offset(3.75f, -1.5f), Offset(3.75f, 4.5f)),
 )
 private val PaletteDots = listOf(Offset(-2.6f, 0.6f), Offset(-1.2f, -2.4f), Offset(1.6f, -2.4f), Offset(2.8f, 0.6f))
+private val Folder = listOf(
+    Offset(-3.2f, -2.4f),
+    Offset(-1f, -2.4f),
+    Offset(0f, -1.4f),
+    Offset(3.2f, -1.4f),
+    Offset(3.2f, 2.4f),
+    Offset(-3.2f, 2.4f),
+)
 private val Check = listOf(Offset(-4f, 0.5f), Offset(-1.3f, 3.2f), Offset(4f, -2.8f))
 
 private const val OUTLINE_ALPHA = 0.5f

@@ -79,6 +79,8 @@
     <string name="home_clock_system">Sistema</string>
     <string name="home_clock_24">24 horas</string>
     <string name="home_clock_12">12 horas</string>
+    <string name="clock_show">Mostrar hora</string>
+    <string name="clock_size">Tamanho do relógio</string>
     <string name="home_show_date">Mostrar data</string>
     <string name="home_text_size">Tamanho do texto</string>
     <string name="home_text_align">Alinhamento do texto</string>
@@ -227,7 +229,8 @@
     <string name="tips_more_title">Para mais, explore as Dicas</string>
     <string name="tips_more_text">Reveja estas dicas quando quiser em Configurações → Dicas.</string>
     <string name="tip_space_name">Pessoal</string>
-    <string name="tip_add_apps">Adicionar apps</string>
+    <string name="tip_add_folder">Adicionar pasta</string>
+    <string name="tip_add_app">Adicionar app</string>
     <string-array name="tip_apps">
         <item>Telefone</item>
         <item>Mensagens</item>

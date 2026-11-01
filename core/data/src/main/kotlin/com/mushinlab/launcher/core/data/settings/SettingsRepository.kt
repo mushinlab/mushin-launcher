@@ -90,6 +90,8 @@ class SettingsRepository(
         internal val ICON_MODE = stringPreferencesKey("icon_mode")
         internal val CLOCK_FORMAT = stringPreferencesKey("clock_format")
         internal val SHOW_DATE = booleanPreferencesKey("show_date")
+        internal val SHOW_CLOCK = booleanPreferencesKey("show_clock")
+        internal val CLOCK_SIZE = stringPreferencesKey("clock_size")
         internal val CLOCK_POSITION = stringPreferencesKey("clock_position")
         internal val FONT = stringPreferencesKey("font")
         internal val FONT_WEIGHT = stringPreferencesKey("font_weight")
@@ -126,6 +128,8 @@ class SettingsRepository(
                 iconMode = enumOr(prefs[ICON_MODE], defaults.iconMode),
                 clockFormat = enumOr(prefs[CLOCK_FORMAT], defaults.clockFormat),
                 showDate = prefs.valueOr(SHOW_DATE, defaults.showDate),
+                showClock = prefs.valueOr(SHOW_CLOCK, defaults.showClock),
+                clockSize = enumOr(prefs[CLOCK_SIZE], defaults.clockSize),
                 clockPosition = enumOr(prefs[CLOCK_POSITION], defaults.clockPosition),
                 font = enumOr(prefs[FONT], defaults.font),
                 fontWeight = enumOr(prefs[FONT_WEIGHT], defaults.fontWeight),
@@ -166,6 +170,8 @@ class SettingsRepository(
             prefs[ICON_MODE] = settings.iconMode.name
             prefs[CLOCK_FORMAT] = settings.clockFormat.name
             prefs[SHOW_DATE] = settings.showDate
+            prefs[SHOW_CLOCK] = settings.showClock
+            prefs[CLOCK_SIZE] = settings.clockSize.name
             prefs[CLOCK_POSITION] = settings.clockPosition.name
             prefs[FONT] = settings.font.name
             prefs[FONT_WEIGHT] = settings.fontWeight.name

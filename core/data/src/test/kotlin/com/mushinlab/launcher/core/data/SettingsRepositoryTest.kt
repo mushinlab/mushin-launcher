@@ -11,6 +11,7 @@ import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
+import com.mushinlab.launcher.core.model.ClockSize
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
@@ -47,6 +48,8 @@ class SettingsRepositoryTest {
         assertThat(settings.iconMode).isEqualTo(IconMode.RIGHT)
         assertThat(settings.clockFormat).isEqualTo(ClockFormat.SYSTEM)
         assertThat(settings.showDate).isTrue()
+        assertThat(settings.showClock).isTrue()
+        assertThat(settings.clockSize).isEqualTo(ClockSize.M)
         assertThat(settings.clockPosition).isEqualTo(ClockPosition.START)
         assertThat(settings.font).isEqualTo(AppFont.SYSTEM)
         assertThat(settings.fontWeight).isEqualTo(AppFontWeight.REGULAR)
@@ -96,6 +99,8 @@ class SettingsRepositoryTest {
                 fontWeight = AppFontWeight.LIGHT,
                 gestureInput = true,
                 learnHints = false,
+                showClock = false,
+                clockSize = ClockSize.L,
             )
         }
         val settings = repo.settings.first { it.currentSpaceId == 7L }
@@ -115,6 +120,8 @@ class SettingsRepositoryTest {
         assertThat(settings.fontWeight).isEqualTo(AppFontWeight.LIGHT)
         assertThat(settings.gestureInput).isTrue()
         assertThat(settings.learnHints).isFalse()
+        assertThat(settings.showClock).isFalse()
+        assertThat(settings.clockSize).isEqualTo(ClockSize.L)
         repo.update { it.copy(currentSpaceId = null) }
         assertThat(repo.settings.first { it.currentSpaceId == null }.iconMode).isEqualTo(IconMode.NONE)
     }

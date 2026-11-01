@@ -92,6 +92,8 @@ internal fun homeState(
         drawing = d.settings.gestureInput,
         clockFormat = d.settings.clockFormat,
         showDate = d.settings.showDate,
+        showClock = d.settings.showClock,
+        clockSize = d.settings.clockSize,
         clockPosition = d.settings.clockPosition,
         homeListOffset = d.current?.listOffset ?: d.settings.homeListOffset,
         backgroundBrightness = d.current?.backgroundBrightness ?: 0f,
@@ -111,6 +113,8 @@ internal fun snapshotState(snapshot: HomeSnapshot?, roleHeld: Boolean): HomeUiSt
         textAlign = snapshot.textAlign,
         clockFormat = snapshot.clockFormat,
         showDate = snapshot.showDate,
+        showClock = snapshot.showClock,
+        clockSize = snapshot.clockSize,
         clockPosition = snapshot.clockPosition,
         homeListOffset = snapshot.listOffset,
         roleMissing = !roleHeld,
@@ -130,6 +134,8 @@ internal fun homeSnapshot(d: LauncherData, state: HomeUiState): HomeSnapshot? {
         clockPosition = state.clockPosition,
         listOffset = state.homeListOffset,
         textAlign = state.textAlign,
+        showClock = state.showClock,
+        clockSize = state.clockSize,
     )
 }
 

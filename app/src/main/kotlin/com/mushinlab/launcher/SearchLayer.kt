@@ -94,7 +94,7 @@ private fun SearchSourcesEffect(vm: LauncherViewModel) {
 }
 
 @Composable
-private fun rememberSearchChrome(settings: LauncherSettings): SearchChrome {
+internal fun rememberSearchChrome(settings: LauncherSettings): SearchChrome {
     val enabledLayouts = settings.keyboardLayouts.ifEmpty { listOf(KeyboardLayouts.EN.id) }
     val layout = KeyboardLayouts.byId(settings.activeKeyboardLayout)?.takeIf { it.id in enabledLayouts }
         ?: KeyboardLayouts.byId(enabledLayouts.first())

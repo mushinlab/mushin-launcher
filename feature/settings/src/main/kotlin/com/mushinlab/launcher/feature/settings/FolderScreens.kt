@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
@@ -135,50 +133,5 @@ private fun FolderAppRow(app: EditorItem, onRemove: () -> Unit) {
             tag = "folder_remove_${app.label}",
             onClick = onRemove,
         )
-    }
-}
-
-@Composable
-internal fun FolderAppPicker(folderId: Long, state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
-    val inFolder = state.folders[folderId]?.apps.orEmpty().map { it.key }.toSet()
-    val visible = state.apps.filter { !it.hidden || it.key in inFolder }
-    var query by remember { mutableStateOf("") }
-    SettingsPage(stringResource(R.string.folder_add_apps), back, scrollable = false) {
-        FilterField(query) { query = it }
-        CardGap()
-        LazyColumn(Modifier.weight(1f)) {
-            items(filterApps(visible, query), key = { it.key.id }) { app ->
-                val checked = app.key in inFolder
-                PickerRow(app.label, checked, enabled = true, tag = "pick_${app.label}") {
-                    if (checked) {
-                        actions.spaces.folders.removeApp(folderId, app.key)
-                    } else {
-                        actions.spaces.folders.addApp(folderId, app.key)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-internal fun ReplaceAppPicker(
-    route: SettingsRoute.ReplaceApp,
-    state: SettingsUiState,
-    actions: SettingsActions,
-    back: () -> Unit,
-) {
-    var query by remember { mutableStateOf("") }
-    val label = state.spaceItems[route.spaceId]?.firstOrNull { it.key == route.key }?.label.orEmpty()
-    SettingsPage(stringResource(R.string.replace_title, label), back, scrollable = false) {
-        FilterField(query) { query = it }
-        LazyColumn(Modifier.weight(1f)) {
-            items(filterApps(state.apps.filterNot { it.hidden }, query), key = { it.key.id }) { app ->
-                NavRow(app.label, selected = app.key == route.key, tag = "pick_${app.label}") {
-                    actions.spaces.replaceSpaceItem(route.spaceId, route.key, app.key)
-                    back()
-                }
-            }
-        }
     }
 }

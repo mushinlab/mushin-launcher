@@ -185,6 +185,8 @@ private fun homeActions(vm: LauncherViewModel, density: Density) = object : Home
 
     override fun onEditClock() = navigator.openSettings(SettingsRoute.ClockSheet)
 
+    override fun onShowClock() = vm.preferences.update { it.copy(showClock = true) }
+
     override fun onEditBackground() {
         vm.model.currentSpace?.let { vm.backgrounds.openFromHome(it.id) }
     }

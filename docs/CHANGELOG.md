@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.0 — 2026-11-01
+
+### Added
+- Clock mini-sheet (ADR-0036): “Show time” turns the clock and date off; “Clock size” has small, medium and large. With the time off, edit mode shows a low “Add time +” bar in its place.
+
+### Changed
+- In edit mode a long home list scrolls instead of being cut after five rows: five and a half rows and a scroll bar show that there is more, so every row can be edited. “Add folder” and “Add app” stay right under the list.
+- Centred labels are centred together with their icon.
+- Picking apps (for a space, for a folder, and replacing a row with ✎) works like search: our keyboard at the bottom, the query just above it, and the list grows upwards from the keyboard so the nearest apps are under your thumb. The keyboard has no resize key here; its size is set in search.
+- The “Set up your first space” tip shows the “Add folder” and “Add app” buttons in edit mode and the new app picker.
+
 ## 0.6.0 — 2026-10-30
 
 ### Added

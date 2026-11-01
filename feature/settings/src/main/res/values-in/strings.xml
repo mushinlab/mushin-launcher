@@ -79,6 +79,8 @@
     <string name="home_clock_system">Sistem</string>
     <string name="home_clock_24">24 jam</string>
     <string name="home_clock_12">12 jam</string>
+    <string name="clock_show">Tampilkan jam</string>
+    <string name="clock_size">Ukuran jam</string>
     <string name="home_show_date">Tampilkan tanggal</string>
     <string name="home_text_size">Ukuran teks</string>
     <string name="home_text_align">Perataan teks</string>
@@ -225,7 +227,8 @@
     <string name="tips_more_title">Selengkapnya, buka Tips</string>
     <string name="tips_more_text">Putar ulang tips ini kapan saja di Setelan → Tips.</string>
     <string name="tip_space_name">Pribadi</string>
-    <string name="tip_add_apps">Tambah aplikasi</string>
+    <string name="tip_add_folder">Tambah folder</string>
+    <string name="tip_add_app">Tambah aplikasi</string>
     <string-array name="tip_apps">
         <item>Telepon</item>
         <item>Pesan</item>

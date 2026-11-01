@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
 import com.mushinlab.launcher.core.model.ClockFormat
+import com.mushinlab.launcher.core.model.ClockSize
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
@@ -37,20 +38,38 @@ internal fun ClockSheet(state: SettingsUiState, actions: SettingsActions, back: 
     val s = state.settings
     val preferences = actions.preferences
     HomeSheet(stringResource(R.string.clock_sheet), "clock_sheet", back) {
-        DropdownRow(
-            stringResource(R.string.home_clock),
-            listOf(
-                ClockFormat.SYSTEM to stringResource(R.string.home_clock_system),
-                ClockFormat.H24 to stringResource(R.string.home_clock_24),
-                ClockFormat.H12 to stringResource(R.string.home_clock_12),
-            ),
-            s.clockFormat,
-            "clock",
-        ) { format -> preferences.updateSettings { it.copy(clockFormat = format) } }
-        ToggleRow(stringResource(R.string.home_show_date), s.showDate, tag = "show_date") { value ->
-            preferences.updateSettings { it.copy(showDate = value) }
+        ToggleRow(stringResource(R.string.clock_show), s.showClock, tag = "show_clock") { value ->
+            preferences.updateSettings { it.copy(showClock = value) }
         }
+        if (s.showClock) ClockRows(s, preferences)
         NoteText(stringResource(R.string.home_clock_note))
+    }
+}
+
+@Composable
+private fun ClockRows(s: LauncherSettings, preferences: PreferenceActions) {
+    DropdownRow(
+        stringResource(R.string.clock_size),
+        listOf(
+            ClockSize.S to stringResource(R.string.home_text_s),
+            ClockSize.M to stringResource(R.string.home_text_m),
+            ClockSize.L to stringResource(R.string.home_text_l),
+        ),
+        s.clockSize,
+        "clock_size",
+    ) { size -> preferences.updateSettings { it.copy(clockSize = size) } }
+    DropdownRow(
+        stringResource(R.string.home_clock),
+        listOf(
+            ClockFormat.SYSTEM to stringResource(R.string.home_clock_system),
+            ClockFormat.H24 to stringResource(R.string.home_clock_24),
+            ClockFormat.H12 to stringResource(R.string.home_clock_12),
+        ),
+        s.clockFormat,
+        "clock",
+    ) { format -> preferences.updateSettings { it.copy(clockFormat = format) } }
+    ToggleRow(stringResource(R.string.home_show_date), s.showDate, tag = "show_date") { value ->
+        preferences.updateSettings { it.copy(showDate = value) }
     }
 }
 

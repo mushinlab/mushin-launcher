@@ -46,7 +46,11 @@ internal fun SettingsLayer(vm: LauncherViewModel) {
     val source = remember(editing) { editing?.let { BackgroundSource(it.spaceId, it.bitmap.asImageBitmap()) } }
     val configuration = LocalConfiguration.current
     val language = remember(configuration) { vm.appLanguage() }
-    SettingsHost(vm.navigator.settings, state.copy(backgroundSource = source, appLanguage = language), actions)
+    SettingsHost(
+        vm.navigator.settings,
+        state.copy(backgroundSource = source, appLanguage = language),
+        actions,
+    ) { route, back -> SettingsAppPicker(vm, route, state, back) }
 }
 
 private fun preferenceActions(vm: LauncherViewModel) = object : PreferenceActions {
@@ -78,11 +82,6 @@ private fun spaceActions(vm: LauncherViewModel) = object : SpaceActions {
     }
 
     override fun removeSpaceItem(id: Long, key: AppKey) = vm.spaces.removeItem(id, key)
-
-    override fun replaceSpaceItem(id: Long, old: AppKey, new: AppKey) = vm.spaces.setItems(
-        id,
-        vm.settingsState.value.spaceItems[id].orEmpty().map { if (it.key == old) new else it.key },
-    )
 
     override val folders = folderActions(vm)
 }

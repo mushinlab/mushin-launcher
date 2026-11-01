@@ -10,6 +10,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
 import com.mushinlab.launcher.core.model.ClockPosition
+import com.mushinlab.launcher.core.model.ClockSize
 import com.mushinlab.launcher.core.model.GestureTuning
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.IconMode
@@ -47,6 +48,8 @@ abstract class LauncherUiTestBase {
                 learnHints = true,
                 keyboardLayouts = listOf("en", "ru"),
                 activeKeyboardLayout = "en",
+                showClock = true,
+                clockSize = ClockSize.M,
             )
         }
         container.spaces.spaces.value.forEach {

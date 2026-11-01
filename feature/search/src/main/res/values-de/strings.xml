@@ -16,6 +16,7 @@
     <string name="search_translit">Transliteration</string>
     <string name="search_colored_icons">Farbige Symbole</string>
     <string name="search_backspace">Löschen</string>
+    <string name="picker_back">Zurück</string>
     <string name="search_clear_drawing">Zeichnung löschen</string>
     <string name="menu_rename">Umbenennen</string>
     <string name="search_all_settings">Alle Einstellungen</string>

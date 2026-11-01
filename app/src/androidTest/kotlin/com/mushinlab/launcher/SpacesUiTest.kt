@@ -35,14 +35,20 @@ class SpacesUiTest : LauncherUiTestBase() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.SpaceEditor(normalId)) }
         rule.onNodeWithTag("env_add").performScrollTo().performClick()
         val app = runBlocking { container.catalog.apps.first() }.first { it.key !in spaceItems() }
-        rule.onNodeWithTag("picker_filter").performTextInput(app.label)
+        rule.onNodeWithTag("app_picker").assertIsDisplayed()
+        val list = rule.onNodeWithTag("picker_list").fetchSemanticsNode().boundsInRoot
+        val input = rule.onNodeWithTag("picker_input").fetchSemanticsNode().boundsInRoot
+        assertThat(input.top).isAtLeast(list.bottom)
+        rule.onNodeWithTag("keyboard").assertIsDisplayed()
+        rule.onNodeWithTag("key_SPACE").assertIsDisplayed()
+        rule.onNodeWithTag("key_RESIZE").assertDoesNotExist()
+        app.label.lowercase().filter { it in 'a'..'z' }.take(4).forEach { rule.onNodeWithTag("key_$it").performClick() }
         rule.onNodeWithTag("pick_${app.label}").performClick()
         rule.waitUntil(5_000) { app.key in spaceItems() }
         rule.onNodeWithTag("pick_${app.label}").assertIsSelected()
         rule.onNodeWithTag("pick_${app.label}").performClick()
         rule.waitUntil(5_000) { app.key !in spaceItems() }
         rule.onNodeWithTag("pick_${app.label}").assertIsNotSelected()
-        Espresso.closeSoftKeyboard()
     }
 
     @Test

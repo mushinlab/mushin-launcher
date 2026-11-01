@@ -9,6 +9,7 @@ import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
@@ -20,6 +21,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -28,6 +30,7 @@ import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.apps.NotificationSource
 import com.mushinlab.launcher.core.data.repo.HistoryRepository
 import com.mushinlab.launcher.core.model.ClockPosition
+import com.mushinlab.launcher.core.model.ClockSize
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.IconMode
@@ -271,6 +274,45 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
+    fun inEditModeALongListScrollsSoEveryRowCanBeEdited() {
+        val apps = runBlocking { container.catalog.apps.first { it.size >= 8 } }.sortedBy { it.label }.take(8)
+        runBlocking { container.spaces.setItems(normalId, apps.map { it.key }) }
+        rule.waitUntil(5_000) { rule.activity.launcher.home.value.rows.size == 8 }
+        rule.onNodeWithTag("home_edit").performClick()
+        val list = rule.onNodeWithTag("edit_list").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        val row = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot
+        assertThat(list.height).isWithin(2f).of(row.height * 5.5f)
+        rule.onNodeWithTag("row_edit_7", useUnmergedTree = true).assertIsNotDisplayed()
+        rule.onNodeWithTag("edit_list").performTouchInput { swipeUp() }
+        rule.onNodeWithTag("row_edit_7", useUnmergedTree = true).assertIsDisplayed().performClick()
+        rule.waitUntil(5_000) {
+            rule.activity.launcher.navigator.settings.top == SettingsRoute.ReplaceApp(normalId, apps[7].key)
+        }
+        rule.onNodeWithTag("app_picker").assertIsDisplayed()
+    }
+
+    @Test
+    fun hiddenClockLeavesAnAddTimeBarInEditModeAndTheSizeChangesTheDigits() {
+        fun clockHeight() = rule.onNodeWithTag("clock").fetchSemanticsNode().boundsInRoot.height
+        runBlocking { container.settings.update { it.copy(clockSize = ClockSize.S) } }
+        rule.waitUntil(5_000) { rule.activity.launcher.home.value.clockSize == ClockSize.S }
+        rule.waitForIdle()
+        val small = clockHeight()
+        runBlocking { container.settings.update { it.copy(clockSize = ClockSize.L) } }
+        rule.waitUntil(5_000) { rule.activity.launcher.home.value.clockSize == ClockSize.L }
+        rule.waitForIdle()
+        assertThat(clockHeight()).isGreaterThan(small)
+        runBlocking { container.settings.update { it.copy(showClock = false, clockSize = ClockSize.M) } }
+        rule.waitUntil(5_000) { !rule.activity.launcher.home.value.showClock }
+        rule.onNodeWithTag("clock").assertDoesNotExist()
+        rule.onNodeWithTag("home_add_clock").assertDoesNotExist()
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("home_add_clock").assertIsDisplayed().performClick()
+        rule.waitUntil(5_000) { container.settings.settings.value.showClock }
+        rule.onNodeWithTag("clock").assertIsDisplayed()
+    }
+
+    @Test
     fun editModeRowsCanBeReplacedAndRemoved() {
         val first = spaceItems().first()
         rule.onNodeWithTag("row_edit_0", useUnmergedTree = true).assertDoesNotExist()
@@ -317,7 +359,7 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun iconsFollowTheLabelAndCentredLabelsSitOnTheScreenCentre() {
+    fun iconsFollowTheLabelAndCentredLabelWithIconSitsOnTheScreenCentre() {
         val label = rule.onNodeWithTag("row_0").fetchSemanticsNode()
             .config[SemanticsProperties.ContentDescription]
             .first()
@@ -343,7 +385,7 @@ class HomeUiTest : LauncherUiTestBase() {
             assertThat(name().left - row.left).isWithin(1f).of(padding)
             assertThat(icon().left - name().right).isWithin(1f).of(gap)
             show(HomeTextAlign.CENTER)
-            assertThat(name().center.x).isWithin(1f).of(row.center.x)
+            assertThat((name().left + icon().right) / 2).isWithin(1f).of(row.center.x)
             assertThat(icon().left - name().right).isWithin(1f).of(gap)
             show(HomeTextAlign.END)
             assertThat(row.right - icon().right).isWithin(1f).of(padding)

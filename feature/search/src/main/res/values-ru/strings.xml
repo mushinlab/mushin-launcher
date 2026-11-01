@@ -16,6 +16,7 @@
     <string name="search_translit">Транслит</string>
     <string name="search_colored_icons">Цветные иконки</string>
     <string name="search_backspace">Стереть символ</string>
+    <string name="picker_back">Назад</string>
     <string name="search_clear_drawing">Стереть нарисованное</string>
     <string name="menu_rename">Переименовать</string>
     <string name="search_all_settings">Все настройки</string>

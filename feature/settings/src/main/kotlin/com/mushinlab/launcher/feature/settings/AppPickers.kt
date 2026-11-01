@@ -35,7 +35,7 @@ import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.pressable
 
 @Composable
-internal fun FilterField(value: String, onChange: (String) -> Unit) {
+private fun FilterField(value: String, onChange: (String) -> Unit) {
     val colors = LocalMushinColors.current
     BasicTextField(
         value = value,
@@ -61,64 +61,11 @@ internal fun FilterField(value: String, onChange: (String) -> Unit) {
     )
 }
 
-internal fun filterApps(apps: List<PickerApp>, query: String): List<PickerApp> {
+private fun filterApps(apps: List<PickerApp>, query: String): List<PickerApp> {
     if (query.isBlank()) return apps
     val index = SearchIndex.build(apps.map { SearchItem(it.key, it.label) })
     val byKey = apps.associateBy { it.key }
     return SearchEngine().search(index, query, limit = apps.size).mapNotNull { byKey[it.key] }
-}
-
-@Composable
-internal fun SpaceAppPicker(spaceId: Long, state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
-    val existing = state.spaceItems[spaceId].orEmpty().map { it.key }.toSet()
-    var pending by remember(spaceId) { mutableStateOf(emptyMap<AppKey, Boolean>()) }
-    LaunchedEffect(existing) { pending = pending.filter { (key, added) -> (key in existing) != added } }
-    val selected = existing.filter { pending[it] != false }.toSet() + pending.filterValues { it }.keys
-    var query by remember { mutableStateOf("") }
-    val visible = state.apps.filter { !it.hidden || it.key in existing }
-    val limit = state.capacity.takeIf { it > 0 } ?: Int.MAX_VALUE
-    val full = selected.size >= limit
-    SettingsPage(stringResource(R.string.picker_title), back, scrollable = false) {
-        FilterField(query) { query = it }
-        if (limit != Int.MAX_VALUE) {
-            NoteText(
-                stringResource(if (full) R.string.picker_full else R.string.picker_selected, selected.size, limit),
-                if (full) LocalMushinColors.current.accent else LocalMushinColors.current.textSecondary,
-            )
-        }
-        CardGap()
-        LazyColumn(Modifier.weight(1f)) {
-            items(filterApps(visible, query), key = { it.key.id }) { app ->
-                val checked = app.key in selected
-                PickerRow(app.label, checked, enabled = checked || !full, tag = "pick_${app.label}") {
-                    pending = pending + (app.key to !checked)
-                    if (checked) {
-                        actions.spaces.removeSpaceItem(spaceId, app.key)
-                    } else {
-                        actions.spaces.addSpaceItem(spaceId, app.key)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-internal fun PickerRow(label: String, selected: Boolean, enabled: Boolean, tag: String, onClick: () -> Unit) {
-    val colors = LocalMushinColors.current
-    Box(
-        Modifier
-            .settingsCard()
-            .heightIn(min = 56.dp)
-            .selectedBackground(selected)
-            .pressable(enabled = enabled, onClick = onClick)
-            .testTag(tag)
-            .alpha(if (enabled) 1f else DISABLED_ALPHA)
-            .padding(horizontal = CARD_PADDING, vertical = 8.dp),
-        contentAlignment = Alignment.CenterStart,
-    ) {
-        SingleLineText(label, MushinType.style(17.sp, colors.textPrimary))
-    }
 }
 
 @Composable

@@ -79,6 +79,8 @@
     <string name="home_clock_system">Как в системе</string>
     <string name="home_clock_24">24 часа</string>
     <string name="home_clock_12">12 часов</string>
+    <string name="clock_show">Показывать время</string>
+    <string name="clock_size">Размер часов</string>
     <string name="home_show_date">Показывать дату</string>
     <string name="home_text_size">Размер текста</string>
     <string name="home_text_align">Выравнивание текста</string>
@@ -228,7 +230,8 @@
     <string name="tips_more_title">Больше — в «Советах»</string>
     <string name="tips_more_text">Эти подсказки всегда можно посмотреть снова: «Настройки → Советы».</string>
     <string name="tip_space_name">Личное</string>
-    <string name="tip_add_apps">Добавить приложения</string>
+    <string name="tip_add_folder">Добавить папку</string>
+    <string name="tip_add_app">Добавить приложение</string>
     <string-array name="tip_apps">
         <item>Телефон</item>
         <item>Сообщения</item>
