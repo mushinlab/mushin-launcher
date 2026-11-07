@@ -72,6 +72,17 @@ class LauncherNavigatorTest {
     }
 
     @Test
+    fun AC_37_2_backClosesEditTipsBeforeLeavingEditing() {
+        navigator.toggleHomeEditing()
+        navigator.overlay = Overlay.EditTips
+
+        navigator.handleBack()
+
+        assertThat(navigator.overlay).isEqualTo(Overlay.None)
+        assertThat(navigator.homeEditing).isTrue()
+    }
+
+    @Test
     fun backClosesAnOpenFolder() {
         navigator.overlay = Overlay.Folder(3, Offset.Zero)
 

@@ -33,10 +33,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
@@ -53,6 +49,8 @@ import com.mushinlab.launcher.core.search.GesturePoint
 import com.mushinlab.launcher.core.search.GestureSample
 import com.mushinlab.launcher.core.search.Shapes
 import com.mushinlab.launcher.core.search.TimedPoint
+import com.mushinlab.launcher.core.ui.BrushPoint
+import com.mushinlab.launcher.core.ui.BrushTrailLayer
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.LocalMushinStroke
 import com.mushinlab.launcher.core.ui.MushinType
@@ -74,7 +72,7 @@ internal fun GestureSheet(
         onDispose { stack.sheet = null }
     }
     val pad = remember { PadState(draft) }
-    SettingsSheet(tag = "gesture_sheet", onClose = { currentClose() }, heightFraction = SHEET_FRACTION) {
+    SettingsSheet(tag = "gesture_sheet", onClose = { currentClose() }) {
         BasicText(
             label,
             style = MushinType.style(20.sp, colors.textPrimary, FontWeight.Medium),
@@ -82,7 +80,7 @@ internal fun GestureSheet(
         )
         Spacer(Modifier.height(4.dp))
         SheetHint(pad)
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(16.dp))
         DrawPad(pad)
         Spacer(Modifier.height(16.dp))
         SheetButtons(pad, onAdd) { currentClose() }
@@ -129,6 +127,7 @@ private fun SheetButtons(pad: PadState, onAdd: (GestureSample) -> Unit, onCancel
 @Stable
 private class PadState(private var draft: List<ShapeVertex>?) {
     val points = mutableStateListOf<Offset>()
+    val brush = mutableStateListOf<BrushPoint>()
     var vectors by mutableStateOf<List<ShapeVertex>>(emptyList())
     var fromDraft by mutableStateOf(draft != null)
     var size = Size.Zero
@@ -144,6 +143,7 @@ private class PadState(private var draft: List<ShapeVertex>?) {
 
     fun reset() {
         points.clear()
+        brush.clear()
         vectors = emptyList()
         fromDraft = false
     }
@@ -166,60 +166,54 @@ private fun DrawPad(pad: PadState) {
     val letters = remember(measurer, style) {
         QWERTY.flatMap { it.first.toList() }.associateWith { measurer.measure(it.toString(), style) }
     }
-    Canvas(
-        Modifier
-            .fillMaxWidth()
-            .height(PAD_ROW * QWERTY.size)
-            .clipToBounds()
-            .onSizeChanged { pad.place(it.toSize()) }
-            .pointerInput(Unit) {
-                awaitEachGesture {
-                    val down = awaitFirstDown()
-                    down.consume()
-                    pad.reset()
-                    pad.points += down.position
-                    val timed = mutableListOf(TimedPoint(down.position.x, down.position.y, down.uptimeMillis))
-                    var change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
-                    while (change != null && change.pressed) {
-                        change.consume()
-                        pad.points += change.position
-                        timed += TimedPoint(change.position.x, change.position.y, change.uptimeMillis)
-                        change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
+    Box(Modifier.fillMaxWidth().height(PAD_ROW * QWERTY.size)) {
+        Canvas(
+            Modifier
+                .fillMaxWidth()
+                .height(PAD_ROW * QWERTY.size)
+                .clipToBounds()
+                .onSizeChanged { pad.place(it.toSize()) }
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown()
+                        down.consume()
+                        pad.reset()
+                        pad.points += down.position
+                        pad.brush += BrushPoint(down.position, down.uptimeMillis)
+                        val timed = mutableListOf(TimedPoint(down.position.x, down.position.y, down.uptimeMillis))
+                        var change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
+                        while (change != null && change.pressed) {
+                            change.consume()
+                            pad.points += change.position
+                            pad.brush += BrushPoint(change.position, change.uptimeMillis)
+                            timed += TimedPoint(change.position.x, change.position.y, change.uptimeMillis)
+                            change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
+                        }
+                        change?.consume()
+                        val rowHeight = size.height.toFloat() / QWERTY.size
+                        pad.vectors = Shapes.vectorize(timed, rowHeight * VECTOR_TOLERANCE, viewConfiguration.touchSlop)
                     }
-                    change?.consume()
-                    val rowHeight = size.height.toFloat() / QWERTY.size
-                    pad.vectors = Shapes.vectorize(timed, rowHeight * VECTOR_TOLERANCE, viewConfiguration.touchSlop)
                 }
+                .testTag("gesture_pad"),
+        ) {
+            val centers = qwertyCenters(size)
+            val keyWidth = size.width / QWERTY.first().first.length
+            val rowHeight = size.height / QWERTY.size
+            val gap = PAD_GAP.toPx()
+            letters.forEach { (char, layout) ->
+                val center = centers.getValue(char)
+                drawRoundRect(
+                    colors.keyBackground,
+                    topLeft = Offset(center.x - keyWidth / 2 + gap / 2, center.y - rowHeight / 2 + gap / 2),
+                    size = Size(keyWidth - gap, rowHeight - gap),
+                    cornerRadius = CornerRadius(CARD_RADIUS.toPx()),
+                )
+                drawText(layout, topLeft = center - Offset(layout.size.width / 2f, layout.size.height / 2f))
             }
-            .testTag("gesture_pad"),
-    ) {
-        val centers = qwertyCenters(size)
-        val keyWidth = size.width / QWERTY.first().first.length
-        val rowHeight = size.height / QWERTY.size
-        val gap = PAD_GAP.toPx()
-        letters.forEach { (char, layout) ->
-            val center = centers.getValue(char)
-            drawRoundRect(
-                colors.keyBackground,
-                topLeft = Offset(center.x - keyWidth / 2 + gap / 2, center.y - rowHeight / 2 + gap / 2),
-                size = Size(keyWidth - gap, rowHeight - gap),
-                cornerRadius = CornerRadius(CARD_RADIUS.toPx()),
-            )
-            drawText(layout, topLeft = center - Offset(layout.size.width / 2f, layout.size.height / 2f))
+            val width = stroke.width.toPx()
+            drawVectors(pad.vectors, strokeColor, width, stroke.dots)
         }
-        val width = stroke.width.toPx()
-        val raw = polyline(pad.points)
-        val rawColor = if (pad.ready) strokeColor.copy(alpha = RAW_ALPHA) else strokeColor
-        raw?.let { drawPath(it, rawColor, style = Stroke(width, cap = StrokeCap.Round, join = StrokeJoin.Round)) }
-        drawVectors(pad.vectors, strokeColor, width, stroke.dots)
-    }
-}
-
-private fun polyline(points: List<Offset>): Path? {
-    if (points.size < 2) return null
-    return Path().apply {
-        moveTo(points.first().x, points.first().y)
-        points.drop(1).forEach { lineTo(it.x, it.y) }
+        BrushTrailLayer(pad.brush, Modifier.matchParentSize().clipToBounds())
     }
 }
 
@@ -250,8 +244,6 @@ private fun SheetButton(
     }
 }
 
-private const val SHEET_FRACTION = 0.7f
-private const val RAW_ALPHA = 0.3f
 private val PAD_ROW = 66.dp
 private val PAD_GAP = 4.dp
 private const val VECTOR_TOLERANCE = 0.2f

@@ -38,6 +38,17 @@ class HomeSnapshotStoreTest {
             textAlign = HomeTextAlign.CENTER,
             showClock = false,
             clockSize = ClockSize.L,
+            widgetLayout = com.mushinlab.launcher.core.model.WidgetLayout(
+                clockPanel = com.mushinlab.launcher.core.model.WidgetPanelPosition.BOTTOM,
+                bottomSize = com.mushinlab.launcher.core.model.WidgetPanelSize.LARGE,
+                widgets = listOf(
+                    com.mushinlab.launcher.core.model.HostedWidget(
+                        21,
+                        com.mushinlab.launcher.core.model.WidgetPanelPosition.TOP,
+                        "Calendar",
+                    ),
+                ),
+            ),
         )
         store.write(snapshot)
         assertThat(store.read()).isEqualTo(snapshot)

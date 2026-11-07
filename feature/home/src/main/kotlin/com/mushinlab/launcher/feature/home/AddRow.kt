@@ -3,7 +3,6 @@ package com.mushinlab.launcher.feature.home
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,10 +28,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.ui.Glyph
-import com.mushinlab.launcher.core.ui.GlyphWrapper
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
-import com.mushinlab.launcher.core.ui.PopupStyle
 import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.pressable
 import com.mushinlab.launcher.feature.home.gesture.RowRegistry
@@ -82,8 +79,7 @@ internal fun GlyphBadge(glyph: Glyph, size: Dp, modifier: Modifier = Modifier) {
     Box(
         modifier
             .size(size)
-            .background(colors.surface, CircleShape)
-            .border(GlyphWrapper.outline, PopupStyle.outline(colors), CircleShape),
+            .background(colors.keyBackground, CircleShape),
         contentAlignment = Alignment.Center,
     ) {
         Image(

@@ -242,4 +242,23 @@
     <string name="onboarding_next">Berikutnya</string>
     <string name="onboarding_done">Selesai</string>
     <string name="onboarding_position">Slide %1$d dari %2$d</string>
+    <string name="edit_remove_from_list">Hapus dari daftar</string>
+    <string name="edit_replace">Ganti</string>
+    <string name="edit_tips">Tips pengeditan</string>
+    <string name="edit_tip_list_title">Aplikasi dan folder</string>
+    <string name="edit_tip_list">Ketuk aplikasi atau folder untuk menghapusnya dari daftar atau menggantinya. Untuk folder, Ganti membuka editornya. Tambahkan aplikasi dan folder di bawah daftar. Seret pegangan di atas daftar untuk memindahkannya; gulir untuk melihat aplikasi lainnya.</string>
+    <string name="edit_tip_widgets_title">Widget</string>
+    <string name="edit_tip_widgets">Gunakan tombol widget di samping palet untuk mengelola panel di atas dan di bawah aplikasi. Tambahkan waktu atau widget dari aplikasi terpasang, lalu pilih panel kecil, sedang, atau besar.</string>
+    <string name="edit_tip_font_title">Font</string>
+    <string name="edit_tip_font">Ketuk tombol teks untuk memilih font, ketebalan, ukuran, dan perataan nama aplikasi.</string>
+    <string name="edit_tip_theme_title">Tema</string>
+    <string name="edit_tip_theme">Ketuk palet untuk memilih tema ruang ini, ikon aplikasi, dan penghitung notifikasi. Gunakan tombol gambar untuk mengubah latar, kecerahan, dan keburaman.</string>
+    <string name="widgets_title">Widget</string>
+    <string name="widgets_top">Panel atas</string>
+    <string name="widgets_bottom">Panel bawah</string>
+    <string name="widgets_height">Tinggi panel</string>
+    <string name="widgets_add">Tambah widget</string>
+    <string name="widgets_remove">Hapus %1$s</string>
+    <string name="widgets_time">Waktu</string>
+    <string name="widgets_note">Panel kosong tidak memakai ruang. Geser panel secara horizontal untuk melihat widget lainnya.</string>
 </resources>

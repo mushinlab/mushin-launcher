@@ -22,4 +22,6 @@
     <string name="tile_search">Pencarian Mushin</string>
     <string name="notice_background_failed">Tidak dapat membuka gambar</string>
     <string name="notice_no_notification_settings">Setelan akses notifikasi tidak tersedia di perangkat ini</string>
+    <string name="widget_time">Waktu</string>
+    <string name="notice_widget_unavailable">Widget tidak tersedia di perangkat ini.</string>
 </resources>

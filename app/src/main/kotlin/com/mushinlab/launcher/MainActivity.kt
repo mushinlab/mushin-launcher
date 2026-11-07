@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     private val container get() = (application as MushinApp).container
     private val systemScreens = SystemScreens(this) { launcher.navigator.notice = it }
+    private val widgetScreens = WidgetSystemScreens(this, { container.widgetHost }) { launcher.widgets }
     private val systemBars = SystemBars(this)
 
     internal val launcher: LauncherViewModel by viewModels {
@@ -75,6 +76,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
+        container.widgetHost.startListening()
         launcher.minute.longValue = System.currentTimeMillis()
         val filter = IntentFilter().apply {
             addAction(Intent.ACTION_TIME_TICK)
@@ -91,8 +93,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
+        container.widgetHost.stopListening()
         unregisterReceiver(timeReceiver)
         launcher.homeInput.onStop()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        widgetScreens.onResult(requestCode, resultCode)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -116,9 +124,15 @@ class MainActivity : ComponentActivity() {
 
     private fun perform(effect: LauncherEffect) {
         when (effect) {
+            is LauncherEffect.PickWidget -> widgetScreens.pick(effect.id)
+
+            is LauncherEffect.ConfigureWidget -> widgetScreens.configure(effect.id)
+
+            LauncherEffect.WidgetUnavailable -> launcher.navigator.notice = Notice(R.string.notice_widget_unavailable)
+
             LauncherEffect.Reject -> window.decorView.performHapticFeedback(HapticFeedbackConstants.REJECT)
 
-            LauncherEffect.RequestHomeRole -> requestHomeRole()
+            LauncherEffect.RequestHomeRole -> systemScreens.requestHomeRole { roleRequest.launch(it) }
 
             is LauncherEffect.PickBackground ->
                 backgroundPicker.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
@@ -129,11 +143,6 @@ class MainActivity : ComponentActivity() {
                 container.notificationListener,
             )
         }
-    }
-
-    private fun requestHomeRole() {
-        val roleManager = getSystemService(RoleManager::class.java) ?: return
-        roleRequest.launch(roleManager.createRequestRoleIntent(RoleManager.ROLE_HOME))
     }
 
     private fun refreshAccess() {

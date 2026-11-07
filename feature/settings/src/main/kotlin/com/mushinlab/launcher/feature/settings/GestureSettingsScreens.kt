@@ -1,6 +1,9 @@
 package com.mushinlab.launcher.feature.settings
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.SwipeDirection
@@ -108,16 +111,20 @@ internal enum class GestureChoice(val action: GestureAction) {
 private fun GestureInputSection(state: SettingsUiState, actions: SettingsActions, push: (SettingsRoute) -> Unit) {
     val s = state.settings
     val preferences = actions.preferences
-    SectionHeader(stringResource(R.string.gesture_input))
     ToggleRow(stringResource(R.string.gesture_input), s.gestureInput, tag = "gesture_input") { on ->
         preferences.updateSettings { it.copy(gestureInput = on) }
     }
     NoteText(stringResource(R.string.gesture_input_note))
-    if (s.gestureInput) {
-        ToggleRow(stringResource(R.string.learn_hints), s.learnHints, tag = "learn_hints") { on ->
+    Column(Modifier.alpha(if (s.gestureInput) 1f else DISABLED_ALPHA)) {
+        ToggleRow(
+            stringResource(R.string.learn_hints),
+            s.learnHints,
+            tag = "learn_hints",
+            enabled = s.gestureInput,
+        ) { on ->
             preferences.updateSettings { it.copy(learnHints = on) }
         }
         NoteText(stringResource(R.string.learn_hints_note))
-        LearnedGesturesSection(state, actions, push)
+        LearnedGesturesSection(state, actions, push, enabled = s.gestureInput)
     }
 }

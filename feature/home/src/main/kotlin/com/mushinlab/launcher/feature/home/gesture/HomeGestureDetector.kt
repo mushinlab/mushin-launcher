@@ -169,7 +169,7 @@ private fun AwaitPointerEventScope.outcomeOf(
     start: Offset,
     tracker: VelocityTracker,
 ): PressOutcome? {
-    if (change == null) return PressOutcome.Cancelled
+    if (change == null || change.isConsumed) return PressOutcome.Cancelled
     tracker.addPointerInputChange(change)
     return when {
         !change.pressed -> PressOutcome.Up(change.position, change.uptimeMillis)
@@ -181,6 +181,7 @@ private fun AwaitPointerEventScope.outcomeOf(
 private suspend fun AwaitPointerEventScope.awaitMoveBeyondSlop(id: PointerId, start: Offset): Offset? {
     while (true) {
         val change = awaitSingle(id) ?: return null
+        if (change.isConsumed) return null
         when {
             !change.pressed -> return null
             (change.position - start).getDistance() > viewConfiguration.touchSlop -> return change.position

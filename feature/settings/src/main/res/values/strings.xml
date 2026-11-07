@@ -244,4 +244,23 @@
     <string name="onboarding_next">Next</string>
     <string name="onboarding_done">Done</string>
     <string name="onboarding_position">Slide %1$d of %2$d</string>
+    <string name="edit_remove_from_list">Remove from list</string>
+    <string name="edit_replace">Replace</string>
+    <string name="edit_tips">Editing tips</string>
+    <string name="edit_tip_list_title">Apps and folders</string>
+    <string name="edit_tip_list">Tap an app or folder to remove it from the list or replace it. For a folder, Replace opens its editor. Add apps and folders below the list. Drag the handle above the list to move it; scroll the list to reach more apps.</string>
+    <string name="edit_tip_widgets_title">Widgets</string>
+    <string name="edit_tip_widgets">Use the widgets button next to the palette to manage the panels above and below your apps. Add time or a widget from an installed app, and choose a small, medium or large panel.</string>
+    <string name="edit_tip_font_title">Font</string>
+    <string name="edit_tip_font">Tap the text button to choose the font, weight, size and alignment of app names.</string>
+    <string name="edit_tip_theme_title">Theme</string>
+    <string name="edit_tip_theme">Tap the palette to choose a theme for this space, app icons and notification counts. Use the image button to change the background, brightness and blur.</string>
+    <string name="widgets_title">Widgets</string>
+    <string name="widgets_top">Top panel</string>
+    <string name="widgets_bottom">Bottom panel</string>
+    <string name="widgets_height">Panel height</string>
+    <string name="widgets_add">Add widget</string>
+    <string name="widgets_remove">Remove %1$s</string>
+    <string name="widgets_time">Time</string>
+    <string name="widgets_note">Empty panels take no space. Swipe a panel horizontally to see more widgets.</string>
 </resources>

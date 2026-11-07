@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
+import com.mushinlab.launcher.core.ui.GlyphStyle
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.feature.home.gesture.RowRegistry
@@ -65,6 +66,17 @@ internal fun HomeBar(suggestion: HomeSuggestion?, editing: Boolean, registry: Ro
                 },
             ) { actions.onSuggestion(anchor) }
         }
+        if (editing) {
+            GlyphButton(
+                Glyph.HELP,
+                stringResource(R.string.home_edit_tips),
+                colors.textPrimary,
+                tag = "home_edit_tips",
+                modifier = Modifier.onGloballyPositioned { registry.block(BAR_TIPS, it.boundsInRoot()) },
+                onClick = actions::onEditTips,
+            )
+            DisposableEffect(Unit) { onDispose { registry.block(BAR_TIPS, null) } }
+        }
         GlyphButton(
             Glyph.SETTINGS,
             stringResource(R.string.home_settings),
@@ -87,6 +99,7 @@ internal fun EditToggle(editing: Boolean, registry: RowRegistry, actions: HomeAc
         stringResource(if (editing) R.string.home_edit_done else R.string.home_edit),
         if (editing) colors.accent else colors.textSecondary.copy(alpha = BAR_ALPHA),
         tag = "home_edit",
+        style = if (editing) GlyphStyle.FILLED else GlyphStyle.TONAL,
         size = size,
         glyphSize = glyph,
         modifier = modifier
@@ -128,9 +141,17 @@ private fun EditTools(registry: RowRegistry, actions: HomeActions) {
             tag = "home_edit_theme",
             onClick = actions::onEditTheme,
         )
+        GlyphButton(
+            Glyph.WIDGETS,
+            stringResource(R.string.home_widgets),
+            tint,
+            tag = "home_widgets",
+            onClick = actions::onEditWidgets,
+        )
     }
 }
 
+private const val BAR_TIPS = "bar_tips"
 private const val BAR_EDIT = "bar_edit"
 private const val BAR_SUGGEST = "bar_suggest"
 private const val BAR_TOOLS = "bar_tools"
@@ -139,5 +160,5 @@ private const val BAR_ALPHA = 0.7f
 private val BAR_PADDING = 8.dp
 private val EDIT_SIZE = 48.dp
 private val EDIT_GLYPH = 22.dp
-private val DONE_SIZE = 88.dp
-private val DONE_GLYPH = 44.dp
+private val DONE_SIZE = 56.dp
+private val DONE_GLYPH = 26.dp

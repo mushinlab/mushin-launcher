@@ -30,7 +30,6 @@ import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.search.GesturePoint
 import com.mushinlab.launcher.core.ui.LocalIconProvider
 import com.mushinlab.launcher.core.ui.LocalMushinColors
-import com.mushinlab.launcher.core.ui.LocalPressFeedback
 import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinFont
 import com.mushinlab.launcher.core.ui.MushinStroke
@@ -59,7 +58,6 @@ fun LauncherRoot(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
     MushinTheme(palette, font, stroke) {
         CompositionLocalProvider(
             LocalIconProvider provides icons,
-            LocalPressFeedback provides settings.pressFeedback,
         ) {
             Box(
                 Modifier
@@ -72,6 +70,7 @@ fun LauncherRoot(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
                 PopupLayer(vm)
                 FolderLayer(vm)
                 SuggestionLayer(vm)
+                Box(Modifier.zIndex(3f)) { HomeEditLayer(vm) }
                 Box(Modifier.zIndex(3f)) { SettingsLayer(vm) }
                 OnboardingLayer(vm)
                 MessageLayer(vm)
@@ -99,6 +98,7 @@ private fun HomeLayer(vm: LauncherViewModel) {
     }
     HomeScreen(
         background = background,
+        widgets = { id, height, width -> HostedWidgetView(id, vm.widgetHost, height, width) },
         state = home,
         minute = vm.minute,
         actions = actions,
@@ -201,17 +201,20 @@ private fun homeActions(vm: LauncherViewModel, density: Density) = object : Home
 
     override fun onOpenSettings() = navigator.openSettings()
 
-    override fun onEditRow(row: HomeRow) {
-        val space = vm.model.currentSpace ?: return
-        val folder = row.folderId
-        navigator.openSettings(
-            if (folder != null) SettingsRoute.HomeFolder(folder) else SettingsRoute.ReplaceApp(space.id, row.key),
-        )
+    override fun onEditWidgets() {
+        navigator.overlay = Overlay.Widgets
     }
 
-    override fun onRemoveRow(row: HomeRow) {
-        val folder = row.folderId
-        if (folder != null) vm.folders.delete(folder) else vm.model.removeFromCurrentSpace(row.key)
+    override fun onAddWidget(panel: com.mushinlab.launcher.core.model.WidgetPanelPosition) {
+        vm.widgets.add(panel)
+    }
+
+    override fun onEditTips() {
+        navigator.overlay = Overlay.EditTips
+    }
+
+    override fun onEditRow(row: HomeRow) {
+        navigator.overlay = Overlay.EditItem(row)
     }
 
     override fun onSuggestion(anchor: Offset) {

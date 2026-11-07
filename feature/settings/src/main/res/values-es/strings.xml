@@ -244,4 +244,23 @@
     <string name="onboarding_next">Siguiente</string>
     <string name="onboarding_done">Listo</string>
     <string name="onboarding_position">Diapositiva %1$d de %2$d</string>
+    <string name="edit_remove_from_list">Quitar de la lista</string>
+    <string name="edit_replace">Reemplazar</string>
+    <string name="edit_tips">Consejos de edición</string>
+    <string name="edit_tip_list_title">Aplicaciones y carpetas</string>
+    <string name="edit_tip_list">Toca una aplicación o carpeta para quitarla de la lista o reemplazarla. En una carpeta, Reemplazar abre su editor. Añade aplicaciones y carpetas debajo de la lista. Arrastra el control sobre la lista para moverla; desplázate para ver más aplicaciones.</string>
+    <string name="edit_tip_widgets_title">Widgets</string>
+    <string name="edit_tip_widgets">Usa el botón de widgets junto a la paleta para gestionar los paneles sobre y bajo tus aplicaciones. Añade la hora o un widget de una aplicación instalada y elige un panel pequeño, mediano o grande.</string>
+    <string name="edit_tip_font_title">Fuente</string>
+    <string name="edit_tip_font">Toca el botón de texto para elegir la fuente, el grosor, el tamaño y la alineación de los nombres de las aplicaciones.</string>
+    <string name="edit_tip_theme_title">Tema</string>
+    <string name="edit_tip_theme">Toca la paleta para elegir el tema de este espacio, los iconos y los contadores de notificaciones. Usa el botón de imagen para cambiar el fondo, el brillo y el desenfoque.</string>
+    <string name="widgets_title">Widgets</string>
+    <string name="widgets_top">Panel superior</string>
+    <string name="widgets_bottom">Panel inferior</string>
+    <string name="widgets_height">Altura del panel</string>
+    <string name="widgets_add">Añadir widget</string>
+    <string name="widgets_remove">Quitar %1$s</string>
+    <string name="widgets_time">Hora</string>
+    <string name="widgets_note">Los paneles vacíos no ocupan espacio. Desliza horizontalmente para ver más widgets.</string>
 </resources>

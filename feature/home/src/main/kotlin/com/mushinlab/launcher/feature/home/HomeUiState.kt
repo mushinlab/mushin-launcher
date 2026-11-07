@@ -53,4 +53,5 @@ data class HomeUiState(
     val drawing: Boolean = false,
     val roleMissing: Boolean = false,
     val suggestion: HomeSuggestion? = null,
+    val widgetPanels: HomeWidgetPanels = HomeWidgetPanels(),
 )

@@ -244,4 +244,23 @@
     <string name="onboarding_next">Próximo</string>
     <string name="onboarding_done">Concluir</string>
     <string name="onboarding_position">Slide %1$d de %2$d</string>
+    <string name="edit_remove_from_list">Remover da lista</string>
+    <string name="edit_replace">Substituir</string>
+    <string name="edit_tips">Dicas de edição</string>
+    <string name="edit_tip_list_title">Aplicativos e pastas</string>
+    <string name="edit_tip_list">Toque em um aplicativo ou pasta para remover da lista ou substituir. Para pastas, Substituir abre o editor. Adicione aplicativos e pastas abaixo da lista. Arraste a alça acima da lista para movê-la; role para ver mais aplicativos.</string>
+    <string name="edit_tip_widgets_title">Widgets</string>
+    <string name="edit_tip_widgets">Use o botão de widgets ao lado da paleta para gerenciar os painéis acima e abaixo dos aplicativos. Adicione a hora ou um widget de um aplicativo instalado e escolha um painel pequeno, médio ou grande.</string>
+    <string name="edit_tip_font_title">Fonte</string>
+    <string name="edit_tip_font">Toque no botão de texto para escolher a fonte, a espessura, o tamanho e o alinhamento dos nomes dos aplicativos.</string>
+    <string name="edit_tip_theme_title">Tema</string>
+    <string name="edit_tip_theme">Toque na paleta para escolher o tema deste espaço, os ícones e os contadores de notificações. Use o botão de imagem para mudar o fundo, o brilho e o desfoque.</string>
+    <string name="widgets_title">Widgets</string>
+    <string name="widgets_top">Painel superior</string>
+    <string name="widgets_bottom">Painel inferior</string>
+    <string name="widgets_height">Altura do painel</string>
+    <string name="widgets_add">Adicionar widget</string>
+    <string name="widgets_remove">Remover %1$s</string>
+    <string name="widgets_time">Hora</string>
+    <string name="widgets_note">Painéis vazios não ocupam espaço. Deslize na horizontal para ver mais widgets.</string>
 </resources>

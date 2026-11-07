@@ -25,4 +25,7 @@
     <string name="suggest_replace">Поставить вместо «%1$s»</string>
     <string name="suggest_add">Добавить на главный экран</string>
     <string name="suggest_dismiss">Не предлагать</string>
+    <string name="home_edit_tips">Советы по редактированию</string>
+    <string name="home_widgets">Виджеты</string>
+    <string name="home_add_widget">Добавить виджет +</string>
 </resources>

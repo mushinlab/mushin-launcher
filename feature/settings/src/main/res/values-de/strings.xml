@@ -243,4 +243,23 @@
     <string name="onboarding_next">Weiter</string>
     <string name="onboarding_done">Fertig</string>
     <string name="onboarding_position">Folie %1$d von %2$d</string>
+    <string name="edit_remove_from_list">Aus Liste entfernen</string>
+    <string name="edit_replace">Ersetzen</string>
+    <string name="edit_tips">Tipps zum Bearbeiten</string>
+    <string name="edit_tip_list_title">Apps und Ordner</string>
+    <string name="edit_tip_list">Tippe auf eine App oder einen Ordner, um sie aus der Liste zu entfernen oder zu ersetzen. Bei Ordnern öffnet „Ersetzen“ den Editor. Füge Apps und Ordner unter der Liste hinzu. Ziehe den Griff über der Liste, um sie zu verschieben. Scrolle, um weitere Apps zu sehen.</string>
+    <string name="edit_tip_widgets_title">Widgets</string>
+    <string name="edit_tip_widgets">Verwalte mit der Schaltfläche neben der Palette die Bereiche über und unter deinen Apps. Füge die Uhrzeit oder ein Widget einer installierten App hinzu und wähle einen kleinen, mittleren oder großen Bereich.</string>
+    <string name="edit_tip_font_title">Schrift</string>
+    <string name="edit_tip_font">Tippe auf die Textschaltfläche, um Schriftart, Stärke, Größe und Ausrichtung der App-Namen auszuwählen.</string>
+    <string name="edit_tip_theme_title">Thema</string>
+    <string name="edit_tip_theme">Tippe auf die Palette, um das Thema für diesen Space, App-Symbole und Benachrichtigungszähler auszuwählen. Mit der Bildschaltfläche änderst du Hintergrund, Helligkeit und Unschärfe.</string>
+    <string name="widgets_title">Widgets</string>
+    <string name="widgets_top">Oberer Bereich</string>
+    <string name="widgets_bottom">Unterer Bereich</string>
+    <string name="widgets_height">Bereichshöhe</string>
+    <string name="widgets_add">Widget hinzufügen</string>
+    <string name="widgets_remove">%1$s entfernen</string>
+    <string name="widgets_time">Uhrzeit</string>
+    <string name="widgets_note">Leere Bereiche belegen keinen Platz. Wische horizontal, um weitere Widgets zu sehen.</string>
 </resources>

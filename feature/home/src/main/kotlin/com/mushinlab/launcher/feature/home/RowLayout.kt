@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.IconMode
@@ -97,18 +98,20 @@ internal fun ScrollingRows(
     rowStyle: RowStyle,
     editing: ListEditing,
     registry: RowRegistry,
+    maxHeight: Dp,
     content: @Composable () -> Unit,
 ) {
     val scroll = rememberScrollState()
     val inView by animateFloatAsState(editing.rowsInView(rows), tween(Motion.TRANSITION_MS), label = "rows")
-    val scrolls = editing.editing && !editing.dragging && rows > EditList.ROWS
+    val viewport = minOf(rowStyle.height * inView, maxHeight.coerceAtLeast(0.dp))
+    val scrolls = rowStyle.height * rows > viewport
     LaunchedEffect(editing.editing) { if (!editing.editing) scroll.scrollTo(0) }
     DisposableEffect(scrolls) { onDispose { registry.block(EDIT_LIST, null) } }
     val bar = LocalMushinColors.current.textSecondary
     Column(
         Modifier
             .fillMaxWidth()
-            .height(rowStyle.height * inView)
+            .height(viewport)
             .onGloballyPositioned { if (scrolls) registry.block(EDIT_LIST, it.boundsInRoot()) }
             .scrollBar(scroll, bar.copy(alpha = SCROLL_BAR_ALPHA), visible = scrolls)
             .verticalScroll(scroll, enabled = scrolls)

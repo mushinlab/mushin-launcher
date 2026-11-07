@@ -16,8 +16,8 @@ enum class ClockSize(val sp: Int) { S(sp = 56), M(sp = 72), L(sp = 96) }
 enum class HomeTextAlign { START, CENTER, END }
 
 /**
- * The five allowed press styles (ADR-0004): fading highlight, briefly held highlight, accent tint, dimming
- * and scale-down. Ripple is never used.
+ * Legacy persisted press styles retained for preference compatibility. Visual feedback uses one gradient wave
+ * regardless of this value (ADR-0037).
  */
 enum class PressFeedback { FLASH, HOLD, ACCENT, DIM, SCALE }
 

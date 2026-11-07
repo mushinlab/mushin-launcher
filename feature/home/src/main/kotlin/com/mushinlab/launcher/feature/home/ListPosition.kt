@@ -28,18 +28,22 @@ internal data class ListPlacement(
 internal fun homeColumnPolicy(placement: ListPlacement, handle: ListHandleDrag): MeasurePolicy =
     MeasurePolicy { measurables, constraints ->
         val loose = constraints.copy(minHeight = 0)
+        val bar = measurables[BAR_INDEX].measure(loose)
+        val bottom = measurables[2].measure(loose)
         val header = measurables[0].measure(loose)
-        val bar = measurables[2].measure(loose)
-        val space = (constraints.maxHeight - header.height - bar.height).coerceAtLeast(0)
+        val space = (constraints.maxHeight - header.height - bar.height - bottom.height).coerceAtLeast(0)
         val listSpace = (space - placement.handleHeightPx).coerceAtLeast(0)
         val resting = placement.savedOffsetPx ?: with(placement) {
             autoListOffset(clockGapPx, listSpace.toFloat(), rowHeightPx, maxOffsetPx)
         }
-        val offset = handle.offsetPx(resting).roundToInt().coerceIn(0, listSpace)
+        val reserve = (placement.rowHeightPx * LIST_RESERVE_ROWS).roundToInt()
+        val limit = (listSpace - reserve).coerceAtLeast(0)
+        val offset = handle.offsetPx(resting).roundToInt().coerceIn(0, limit)
         val list = measurables[1].measure(Constraints.fixed(constraints.maxWidth, space - offset))
         layout(constraints.maxWidth, constraints.maxHeight) {
             header.place(0, 0)
             list.place(0, header.height + offset)
+            bottom.place(0, constraints.maxHeight - bar.height - bottom.height)
             bar.place(0, constraints.maxHeight - bar.height)
         }
     }
@@ -56,3 +60,7 @@ internal fun rememberRowHeight(textStyle: TextStyle): Dp {
 
 private const val AUTO_DEPTH = 3
 private const val MIN_VISIBLE_ROWS = 4
+
+private const val BAR_INDEX = 3
+
+private const val LIST_RESERVE_ROWS = 3

@@ -6,6 +6,12 @@ import androidx.compose.ui.geometry.Offset
 import com.mushinlab.launcher.core.model.AppKey
 
 sealed interface Overlay {
+    data class EditItem(val row: com.mushinlab.launcher.feature.home.HomeRow) : Overlay
+
+    data object EditTips : Overlay
+
+    data object Widgets : Overlay
+
     data object None : Overlay
 
     @Immutable
@@ -30,6 +36,12 @@ data class Notice(
 )
 
 sealed interface LauncherEffect {
+    data class PickWidget(val id: Int) : LauncherEffect
+
+    data class ConfigureWidget(val id: Int) : LauncherEffect
+
+    data object WidgetUnavailable : LauncherEffect
+
     data object Reject : LauncherEffect
 
     data object OpenClock : LauncherEffect

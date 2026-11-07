@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.HomeListOffset
 import com.mushinlab.launcher.core.model.SwipeDirection
+import com.mushinlab.launcher.core.model.WidgetPanelPosition
 import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
@@ -130,9 +131,13 @@ interface HomeEditActions {
 
     fun onEditTheme()
 
-    fun onEditRow(row: HomeRow)
+    fun onEditWidgets()
 
-    fun onRemoveRow(row: HomeRow)
+    fun onAddWidget(panel: WidgetPanelPosition)
+
+    fun onEditTips()
+
+    fun onEditRow(row: HomeRow)
 }
 
 object HomeDimens {
@@ -157,6 +162,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     editing: Boolean = false,
     background: ImageBitmap? = null,
+    widgets: WidgetContent = { _, _, _ -> },
 ) {
     val colors = LocalMushinColors.current
     val registry = remember { RowRegistry() }
@@ -186,102 +192,18 @@ fun HomeScreen(
                 Modifier.fillMaxSize().testTag("home_background"),
             )
         }
-        HomeColumn(state, minute, registry, gestures, currentActions, editing, hasBackground = background != null)
+        HomeColumn(
+            state,
+            minute,
+            registry,
+            gestures,
+            currentActions,
+            editing,
+            hasBackground = background != null,
+            widgets,
+        )
         EditToggle(editing, registry, actions, Modifier.align(Alignment.BottomEnd))
         TraceLayer(trace)
-    }
-}
-
-@Composable
-private fun HomeColumn(
-    state: HomeUiState,
-    minute: State<Long>,
-    registry: RowRegistry,
-    gestures: HomeGestureHandler,
-    actions: State<HomeActions>,
-    editing: Boolean,
-    hasBackground: Boolean,
-) {
-    val colors = LocalMushinColors.current
-    val density = LocalDensity.current
-    val textStyle = MushinType.style(state.textSize.sp.sp, colors.textPrimary)
-    val rowHeight = rememberRowHeight(textStyle)
-    val rowAlpha = state.backgroundRowAlpha
-    val rowColor: (Int) -> Color = remember(colors, hasBackground, rowAlpha) {
-        { index -> colors.row(index, overImage = hasBackground, alpha = rowAlpha) }
-    }
-    val placement = with(density) {
-        ListPlacement(
-            savedOffsetPx = state.homeListOffset?.dp?.toPx(),
-            clockGapPx = HomeDimens.listGap.toPx(),
-            rowHeightPx = rowHeight.toPx(),
-            maxOffsetPx = HomeListOffset.MAX_DP.dp.toPx(),
-            handleHeightPx = (HANDLE_HEIGHT + HANDLE_LIST_GAP).roundToPx(),
-        )
-    }
-    Layout(
-        content = {
-            HomeHeader(state, minute, registry, gestures, actions, editing)
-            Column(Modifier.fillMaxWidth()) {
-                ListHandle(active = gestures.handle.active, visible = editing, onBounds = registry.handle::set)
-                FavoritesList(
-                    state = state,
-                    registry = registry,
-                    rowStyle = RowStyle(textStyle, rowHeight, rowColor),
-                    pressedRow = { gestures.pressedRow },
-                    editing = ListEditing(editing, gestures.handle.active),
-                    actions = actions,
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                ) { capacity ->
-                    actions.value.onCapacityChanged(capacity)
-                }
-            }
-            Column(Modifier.fillMaxWidth()) {
-                HomeBar(state.suggestion, editing, registry, actions.value)
-                Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
-            }
-        },
-        modifier = Modifier.fillMaxSize(),
-        measurePolicy = remember(placement, gestures.handle) { homeColumnPolicy(placement, gestures.handle) },
-    )
-}
-
-@Composable
-private fun HomeHeader(
-    state: HomeUiState,
-    minute: State<Long>,
-    registry: RowRegistry,
-    gestures: HomeGestureHandler,
-    actions: State<HomeActions>,
-    editing: Boolean,
-) {
-    Column(Modifier.fillMaxWidth()) {
-        Spacer(Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + HomeDimens.topGap))
-        if (state.roleMissing) {
-            RoleCard(registry, onClick = { actions.value.onRequestRole() })
-        }
-        if (state.showClock) {
-            DisposableEffect(Unit) { onDispose { registry.clock.set(null) } }
-            ClockArea(
-                minute = minute,
-                format = state.clockFormat,
-                size = state.clockSize,
-                showDate = state.showDate,
-                position = gestures.clock.shown,
-                drag = gestures.clock.drag,
-                editing = editing,
-                pressed = gestures.pressedClock,
-                onBounds = registry.clock::set,
-                onTap = { actions.value.onClockTap() },
-                onMeasured = gestures.clock::measured,
-                onEdit = remember(registry, actions) {
-                    ClockEdit(onClick = { actions.value.onEditClock() }, onBounds = { registry.block(CLOCK_EDIT, it) })
-                },
-            )
-        } else if (editing) {
-            AddClockBar(registry) { actions.value.onShowClock() }
-        }
-        Spacer(Modifier.height(HomeDimens.listGap - HANDLE_HEIGHT))
     }
 }
 
@@ -308,7 +230,7 @@ private fun rememberStartZone(): State<StartZone> {
 }
 
 @Composable
-private fun RoleCard(registry: RowRegistry, onClick: () -> Unit) {
+internal fun RoleCard(registry: RowRegistry, onClick: () -> Unit) {
     val colors = LocalMushinColors.current
     Box(
         Modifier
@@ -336,7 +258,7 @@ private fun stringResourceRoleCard(): String = androidx.compose.ui.res.stringRes
 internal class RowStyle(val text: TextStyle, val height: Dp, val color: (Int) -> Color)
 
 @Composable
-private fun FavoritesList(
+internal fun FavoritesList(
     state: HomeUiState,
     registry: RowRegistry,
     rowStyle: RowStyle,
@@ -344,15 +266,26 @@ private fun FavoritesList(
     editing: ListEditing,
     actions: State<HomeActions>,
     modifier: Modifier,
+    listCapacity: Int,
     onCapacity: (Int) -> Unit,
 ) {
     BoxWithConstraints(modifier) {
-        val capacity = (maxHeight / rowStyle.height).toInt().coerceAtLeast(0)
+        val capacity = listCapacity
         LaunchedEffect(capacity) { onCapacity(capacity) }
-        val visible = state.rows.take(capacity)
+        val visible = state.rows
+        val availableHeight = maxHeight
+        val viewport = availableHeight - if (editing.editing) rowStyle.height else 0.dp
+        val scrolls =
+            rowStyle.height * visible.size > minOf(rowStyle.height * editing.rowsInView(visible.size), viewport)
         LaunchedEffect(visible.size) { registry.retainBelow(visible.size) }
         Column(verticalArrangement = Arrangement.Top) {
-            ScrollingRows(visible.size, rowStyle, editing, registry) {
+            ScrollingRows(
+                visible.size,
+                rowStyle,
+                editing,
+                registry,
+                availableHeight - if (editing.editing) rowStyle.height else 0.dp,
+            ) {
                 visible.forEachIndexed { index, row ->
                     FavoriteRow(
                         index,
@@ -361,10 +294,16 @@ private fun FavoritesList(
                         rowStyle,
                         registry,
                         pressedRow() == index,
-                        edit = if (editing.editing) {
-                            RowEdit({ actions.value.onEditRow(row) }, { actions.value.onRemoveRow(row) })
+                        onClick = if (editing.editing) {
+                            { actions.value.onEditRow(row) }
                         } else {
+                            { actions.value.onRowTap(row, index, registry.boundsOf(index)?.center ?: Offset.Zero) }
+                        },
+                        clickable = editing.editing || scrolls,
+                        onHold = if (editing.editing) {
                             null
+                        } else {
+                            { actions.value.onLongPress(registry.boundsOf(index)?.center ?: Offset.Zero, row) }
                         },
                     )
                 }
@@ -386,9 +325,6 @@ private fun FavoritesList(
     }
 }
 
-@Immutable
-private class RowEdit(val onEdit: () -> Unit, val onRemove: () -> Unit)
-
 @Composable
 private fun FavoriteRow(
     index: Int,
@@ -397,7 +333,9 @@ private fun FavoriteRow(
     rowStyle: RowStyle,
     registry: RowRegistry,
     pressed: Boolean,
-    edit: RowEdit?,
+    onClick: () -> Unit,
+    clickable: Boolean,
+    onHold: (() -> Unit)?,
 ) {
     val colors = LocalMushinColors.current
     val textStyle = rowStyle.text
@@ -407,12 +345,27 @@ private fun FavoriteRow(
             .height(rowStyle.height)
             .background(rowStyle.color(index))
             .onGloballyPositioned { registry.update(index, it.boundsInRoot()) }
-            .pressFeedback(pressed)
+            .then(
+                if (clickable) {
+                    Modifier.pressable(
+                        onLongClick = onHold,
+                        onClick = onClick,
+                    )
+                } else {
+                    Modifier.pressFeedback(pressed)
+                },
+            )
             .semantics(mergeDescendants = true) {
                 role = Role.Button
                 contentDescription = row.label
-                onClick { false }
-                onLongClick { false }
+                onClick {
+                    onClick()
+                    true
+                }
+                onLongClick {
+                    onHold?.invoke()
+                    onHold != null
+                }
             }
             .testTag("row_$index")
             .padding(horizontal = HomeDimens.rowPadding),
@@ -440,40 +393,6 @@ private fun FavoriteRow(
                 SwipeMarks(row.swipes, textStyle.fontSize, colors.textSecondary, Modifier.testTag("swipe_$index"))
             }
         }
-        if (edit != null) {
-            Spacer(Modifier.width(8.dp))
-            RowEditButtons(index, row.label, edit, registry)
-        }
-    }
-}
-
-@Composable
-private fun RowEditButtons(index: Int, label: String, edit: RowEdit, registry: RowRegistry) {
-    val tint = LocalMushinColors.current.textPrimary
-    val id = "row_edit_$index"
-    DisposableEffect(id) { onDispose { registry.block(id, null) } }
-    Row(
-        Modifier.onGloballyPositioned { registry.block(id, it.boundsInRoot()) },
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        GlyphButton(
-            Glyph.EDIT,
-            stringResource(R.string.home_row_edit, label),
-            tint,
-            tag = "row_edit_$index",
-            size = EDIT_BUTTON,
-            glyphSize = EDIT_GLYPH,
-            onClick = edit.onEdit,
-        )
-        GlyphButton(
-            Glyph.DELETE,
-            stringResource(R.string.home_row_remove, label),
-            tint,
-            tag = "row_remove_$index",
-            size = EDIT_BUTTON,
-            glyphSize = EDIT_GLYPH,
-            onClick = edit.onRemove,
-        )
     }
 }
 
@@ -500,8 +419,6 @@ private fun BadgedIcon(row: HomeRow, index: Int, badge: Boolean, modifier: Modif
 }
 
 private const val ROLE_CARD = "role_card"
-private const val CLOCK_EDIT = "clock_edit"
+internal const val CLOCK_EDIT = "clock_edit"
 private const val SHADE_ZONE = 0.2f
 private const val DIMMED_ALPHA = 0.5f
-private val EDIT_BUTTON = 40.dp
-private val EDIT_GLYPH = 20.dp

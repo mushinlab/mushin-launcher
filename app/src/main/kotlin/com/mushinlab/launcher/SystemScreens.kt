@@ -8,6 +8,11 @@ import android.provider.AlarmClock
 import android.provider.Settings
 
 class SystemScreens(private val activity: Activity, private val notify: (Notice) -> Unit) {
+    fun requestHomeRole(launch: (Intent) -> Unit) {
+        val manager = activity.getSystemService(android.app.role.RoleManager::class.java) ?: return
+        launch(manager.createRequestRoleIntent(android.app.role.RoleManager.ROLE_HOME))
+    }
+
     fun openClock() {
         try {
             activity.startActivity(Intent(AlarmClock.ACTION_SHOW_ALARMS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))

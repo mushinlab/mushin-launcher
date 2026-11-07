@@ -22,4 +22,6 @@
     <string name="tile_search">Pesquisa Mushin</string>
     <string name="notice_background_failed">Não foi possível abrir a imagem</string>
     <string name="notice_no_notification_settings">As configurações de acesso a notificações não estão disponíveis neste dispositivo</string>
+    <string name="widget_time">Hora</string>
+    <string name="notice_widget_unavailable">Widgets indisponíveis neste dispositivo.</string>
 </resources>

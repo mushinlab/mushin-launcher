@@ -244,4 +244,23 @@
     <string name="onboarding_next">Suivant</string>
     <string name="onboarding_done">Terminé</string>
     <string name="onboarding_position">Diapositive %1$d sur %2$d</string>
+    <string name="edit_remove_from_list">Retirer de la liste</string>
+    <string name="edit_replace">Remplacer</string>
+    <string name="edit_tips">Conseils de modification</string>
+    <string name="edit_tip_list_title">Applications et dossiers</string>
+    <string name="edit_tip_list">Touchez une application ou un dossier pour le retirer de la liste ou le remplacer. Pour un dossier, Remplacer ouvre son éditeur. Ajoutez des applications et des dossiers sous la liste. Faites glisser la poignée au-dessus de la liste pour la déplacer ; faites défiler pour voir les autres applications.</string>
+    <string name="edit_tip_widgets_title">Widgets</string>
+    <string name="edit_tip_widgets">Utilisez le bouton des widgets à côté de la palette pour gérer les panneaux au-dessus et en dessous des applications. Ajoutez l’heure ou un widget d’une application installée, puis choisissez un panneau petit, moyen ou grand.</string>
+    <string name="edit_tip_font_title">Police</string>
+    <string name="edit_tip_font">Touchez le bouton de texte pour choisir la police, la graisse, la taille et l’alignement des noms des applications.</string>
+    <string name="edit_tip_theme_title">Thème</string>
+    <string name="edit_tip_theme">Touchez la palette pour choisir le thème de cet espace, les icônes et les compteurs de notifications. Le bouton d’image permet de modifier le fond, la luminosité et le flou.</string>
+    <string name="widgets_title">Widgets</string>
+    <string name="widgets_top">Panneau supérieur</string>
+    <string name="widgets_bottom">Panneau inférieur</string>
+    <string name="widgets_height">Hauteur du panneau</string>
+    <string name="widgets_add">Ajouter un widget</string>
+    <string name="widgets_remove">Retirer %1$s</string>
+    <string name="widgets_time">Heure</string>
+    <string name="widgets_note">Les panneaux vides ne prennent pas de place. Balayez horizontalement pour voir les autres widgets.</string>
 </resources>

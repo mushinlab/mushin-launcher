@@ -22,4 +22,6 @@
     <string name="tile_search">Поиск Mushin</string>
     <string name="notice_background_failed">Не удалось открыть изображение</string>
     <string name="notice_no_notification_settings">Настройки доступа к уведомлениям недоступны на этом устройстве</string>
+    <string name="widget_time">Время</string>
+    <string name="notice_widget_unavailable">Виджеты недоступны на этом устройстве.</string>
 </resources>

@@ -245,4 +245,23 @@
     <string name="onboarding_next">Далее</string>
     <string name="onboarding_done">Готово</string>
     <string name="onboarding_position">Слайд %1$d из %2$d</string>
+    <string name="edit_remove_from_list">Убрать из списка</string>
+    <string name="edit_replace">Заменить</string>
+    <string name="edit_tips">Советы по редактированию</string>
+    <string name="edit_tip_list_title">Список приложений и папки</string>
+    <string name="edit_tip_list">Нажмите на приложение или папку, чтобы убрать из списка или заменить. У папки «Заменить» открывает её редактор. Добавляйте приложения и папки под списком. Тяните линию над списком, чтобы передвинуть его; прокручивайте список, чтобы увидеть остальные приложения.</string>
+    <string name="edit_tip_widgets_title">Виджеты</string>
+    <string name="edit_tip_widgets">Кнопка справа от палитры управляет панелями над и под списком. Добавьте время или виджет установленного приложения и выберите маленькую, среднюю или крупную панель.</string>
+    <string name="edit_tip_font_title">Шрифт</string>
+    <string name="edit_tip_font">Кнопка текста открывает выбор шрифта, насыщенности, размера и выравнивания названий приложений.</string>
+    <string name="edit_tip_theme_title">Тема</string>
+    <string name="edit_tip_theme">Палитра открывает выбор темы текущего спейса, значков приложений и счётчиков уведомлений. Кнопка картинки меняет фон, яркость и размытие.</string>
+    <string name="widgets_title">Виджеты</string>
+    <string name="widgets_top">Верхняя панель</string>
+    <string name="widgets_bottom">Нижняя панель</string>
+    <string name="widgets_height">Высота панели</string>
+    <string name="widgets_add">Добавить виджет</string>
+    <string name="widgets_remove">Убрать %1$s</string>
+    <string name="widgets_time">Время</string>
+    <string name="widgets_note">Пустые панели не занимают места. Листайте панель по горизонтали, чтобы увидеть остальные виджеты.</string>
 </resources>

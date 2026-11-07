@@ -125,6 +125,14 @@ class LauncherViewModel(
     val backgrounds = SpaceBackgroundEditor(container, contentResolver, resources, viewModelScope, navigator) {
         effectChannel.trySend(it)
     }
+    val widgets = WidgetEditor(
+        container,
+        viewModelScope,
+        { model.currentSpace?.id },
+        { effectChannel.trySend(it) },
+    )
+    val widgetHost = container.widgetHost
+    val widgetState = container.widgets.loaded
     val launches = AppLaunches(model, navigator)
     val homeInput = HomeInteractions(model, navigator, launches) { effectChannel.trySend(it) }
     val searchInput = SearchInteractions(model, navigator, launches) { effectChannel.trySend(it) }
@@ -161,7 +169,7 @@ class LauncherViewModel(
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    val home: StateFlow<HomeUiState> = combine(
+    private val baseHome: StateFlow<HomeUiState> = combine(
         data,
         roleHeld,
         container.notificationCounts,
@@ -173,6 +181,22 @@ class LauncherViewModel(
     }
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, snapshotState(initial, roleHeld.value))
+
+    val home: StateFlow<HomeUiState> = combine(
+        baseHome,
+        widgetState,
+        data.map {
+            it?.current?.id
+        },
+    ) { state, widgets, space ->
+        val id = space ?: initial?.spaceId
+        val layout = if (widgets == null && initial != null && initial.spaceId == id) {
+            initial.widgetLayout
+        } else {
+            widgets?.layouts?.get(id) ?: com.mushinlab.launcher.core.model.WidgetLayout()
+        }
+        state.copy(widgetPanels = widgetPanels(layout))
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, snapshotState(initial, roleHeld.value))
 
     val folderRows: StateFlow<Map<Long, ImmutableList<HomeRow>>> = data.map { it?.let(::folderRows).orEmpty() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
@@ -212,6 +236,11 @@ class LauncherViewModel(
         .stateIn(viewModelScope, SharingStarted.Eagerly, SettingsUiState(versionName = versionName))
 
     init {
+        viewModelScope.launch {
+            container.spaces.spaces.filter { it.isNotEmpty() }.collect { spaces ->
+                widgets.refresh(spaces.map { it.id }.toSet())
+            }
+        }
         savedState.get<Bundle>(SETTINGS_ROUTES)
             ?.getStringArrayList(SETTINGS_ROUTES)
             ?.mapNotNull(SettingsRouteCodec::decode)
@@ -234,7 +263,10 @@ class LauncherViewModel(
     fun addFolder() {
         val space = data.value?.current ?: return
         viewModelScope.launch {
-            folders.create(space.id)?.let { navigator.openSettings(SettingsRoute.HomeFolder(it)) }
+            folders.create(space.id)?.let { id ->
+                settingsState.first { id in it.folders }
+                navigator.openSettings(SettingsRoute.HomeFolder(id))
+            }
         }
     }
 

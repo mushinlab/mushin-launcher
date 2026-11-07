@@ -10,17 +10,23 @@ import com.mushinlab.launcher.core.model.AppOverride
 import com.mushinlab.launcher.core.model.Folder
 import com.mushinlab.launcher.core.model.FolderKeys
 import com.mushinlab.launcher.core.model.GestureAction
+import com.mushinlab.launcher.core.model.HostedWidget
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.model.ProfileType
 import com.mushinlab.launcher.core.model.SearchRecent
 import com.mushinlab.launcher.core.model.Space
 import com.mushinlab.launcher.core.model.SpaceBackground
 import com.mushinlab.launcher.core.model.SwipeDirection
+import com.mushinlab.launcher.core.model.WidgetLayout
+import com.mushinlab.launcher.core.model.WidgetPanelPosition
 import com.mushinlab.launcher.core.search.Alphabet
 import com.mushinlab.launcher.core.search.SearchIndex
 import com.mushinlab.launcher.core.search.SearchItem
 import com.mushinlab.launcher.feature.home.HomeRow
 import com.mushinlab.launcher.feature.home.HomeUiState
+import com.mushinlab.launcher.feature.home.HomeWidgetPanel
+import com.mushinlab.launcher.feature.home.HomeWidgetPanels
+import com.mushinlab.launcher.feature.home.HomeWidgetTile
 import com.mushinlab.launcher.feature.home.PopupSpace
 import com.mushinlab.launcher.feature.settings.ERR_CUSTOM
 import com.mushinlab.launcher.feature.settings.ERR_EMPTY
@@ -118,6 +124,7 @@ internal fun snapshotState(snapshot: HomeSnapshot?, roleHeld: Boolean): HomeUiSt
         clockPosition = snapshot.clockPosition,
         homeListOffset = snapshot.listOffset,
         roleMissing = !roleHeld,
+        widgetPanels = widgetPanels(snapshot.widgetLayout),
     )
 }
 
@@ -136,6 +143,7 @@ internal fun homeSnapshot(d: LauncherData, state: HomeUiState): HomeSnapshot? {
         textAlign = state.textAlign,
         showClock = state.showClock,
         clockSize = state.clockSize,
+        widgetLayout = widgetLayout(state.widgetPanels),
     )
 }
 
@@ -168,3 +176,37 @@ internal fun SpaceError.code(): String = when (this) {
     SpaceError.CustomLimitReached -> ERR_CUSTOM
     else -> toString()
 }
+
+internal fun widgetPanels(layout: WidgetLayout): HomeWidgetPanels {
+    fun panel(
+        position: WidgetPanelPosition,
+    ) = HomeWidgetPanel(
+        size = if (position ==
+            WidgetPanelPosition.TOP
+        ) {
+            layout.topSize
+        } else {
+            layout.bottomSize
+        },
+        clock = layout.clockPanel == position,
+        widgets = layout.widgets.filter { it.panel == position }.map {
+            HomeWidgetTile(it.id, it.label)
+        }.toImmutableList(),
+    )
+    return HomeWidgetPanels(
+        panel(WidgetPanelPosition.TOP),
+        panel(WidgetPanelPosition.BOTTOM),
+    )
+}
+
+private fun widgetLayout(panels: HomeWidgetPanels): WidgetLayout = WidgetLayout(
+    clockPanel = when {
+        panels.top.clock -> WidgetPanelPosition.TOP
+        panels.bottom.clock -> WidgetPanelPosition.BOTTOM
+        else -> null
+    },
+    topSize = panels.top.size,
+    bottomSize = panels.bottom.size,
+    widgets = panels.top.widgets.map { HostedWidget(it.id, WidgetPanelPosition.TOP, it.label) } +
+        panels.bottom.widgets.map { HostedWidget(it.id, WidgetPanelPosition.BOTTOM, it.label) },
+)

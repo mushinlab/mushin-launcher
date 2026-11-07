@@ -1,5 +1,6 @@
 package com.mushinlab.launcher.core.data.snapshot
 
+import com.mushinlab.launcher.core.data.widgets.WidgetStateCodec
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.ClockPosition
@@ -9,6 +10,8 @@ import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.Palette
+import com.mushinlab.launcher.core.model.WidgetLayout
+import com.mushinlab.launcher.core.model.WidgetState
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.File
@@ -38,6 +41,7 @@ data class HomeSnapshot(
     val textAlign: HomeTextAlign = HomeTextAlign.START,
     val showClock: Boolean = true,
     val clockSize: ClockSize = ClockSize.M,
+    val widgetLayout: WidgetLayout = WidgetLayout(),
 )
 
 /**
@@ -45,7 +49,8 @@ data class HomeSnapshot(
  *
  * Writes go to a temporary file and are renamed into place. [read] returns null for a missing or corrupt file
  * and for versions before 3; a version 3 file has no text alignment and reads as [HomeTextAlign.START], and
- * files before version 5 have no clock visibility and size and read as a shown medium clock. Both methods block on
+ * files before version 5 have no clock visibility and size and read as a shown medium clock. Version 6 adds widget
+ * panel layouts; older snapshots use the built-in time in the top panel. Both methods block on
  * file I/O.
  */
 class HomeSnapshotStore(directory: File) {
@@ -84,6 +89,11 @@ class HomeSnapshotStore(directory: File) {
                     work = input.readBoolean(),
                 )
             }
+            val widgetLayout = if (version >= WIDGET_VERSION) {
+                WidgetStateCodec.decode(input.readUTF()).layouts[spaceId] ?: WidgetLayout()
+            } else {
+                WidgetLayout()
+            }
             HomeSnapshot(
                 spaceId,
                 palette,
@@ -97,6 +107,7 @@ class HomeSnapshotStore(directory: File) {
                 textAlign,
                 showClock,
                 clockSize,
+                widgetLayout,
             )
         }
     }.getOrNull()
@@ -131,6 +142,7 @@ class HomeSnapshotStore(directory: File) {
                     out.writeBoolean(row.dimmed)
                     out.writeBoolean(row.work)
                 }
+                out.writeUTF(WidgetStateCodec.encode(WidgetState(mapOf(snapshot.spaceId to snapshot.widgetLayout))))
             }
             temp.renameTo(file)
         }
@@ -154,7 +166,8 @@ class HomeSnapshotStore(directory: File) {
     private companion object {
         const val MAX_ROWS = 512
         const val FILE_NAME = "home_snapshot.bin"
-        const val VERSION = 5
+        const val VERSION = 6
+        const val WIDGET_VERSION = 6
         const val CLOCK_VERSION = 5
         const val NO_ALIGN_VERSION = 3
         const val AUTO_LIST_OFFSET = -1

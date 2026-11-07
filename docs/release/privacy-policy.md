@@ -11,6 +11,7 @@
 **Что хранится на устройстве:**
 - Спейсы, порядок приложений в них, переименования и скрытые приложения.
 - Настройки.
+- Расположение и высота панелей виджетов каждого спейса, названия и системные ID выбранных виджетов.
 - История запусков: когда и как часто открывалось каждое приложение, недавние приложения каждого спейса и дни за последние две недели, в которые приложение открывалось в спейсе, а также время последней подсказки «?». Используется для сортировки поиска, списка недавних и подсказок для главного экрана. Стирается в «Настройки → Система → Конфиденциальность → Стереть память».
 - Копия списка главного экрана для быстрого запуска и технический журнал завершений процесса лаунчера (причина и объём памяти, без личных данных).
 - Выученные жесты, если вы включили «Ввод жестами» (по умолчанию выключен): последовательности букв и форма нарисованных путей и приложение, к которому они относятся.
@@ -33,6 +34,7 @@
 **Stored on your device:**
 - Spaces, the order of apps in them, renamed and hidden apps.
 - Settings.
+- Each space’s widget panel placement and height, and the labels and system IDs of selected widgets.
 - Launch history: when and how often each app was opened, the recent apps of each space, the days in the last two weeks an app was opened in a space, and the time of the last “?” hint. It is used to rank search, list recent apps and suggest apps for the home screen. Erase it in Settings → System → Privacy → Delete memory.
 - A copy of the home list for a fast start and a technical log of how the launcher process ended (reason and memory, no personal data).
 - Learned gestures, if you turn on Gesture input (off by default): the letter sequences and shapes of drawn paths and the app each one belongs to.

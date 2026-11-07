@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.8.0 — 2026-11-07
+
+### Added
+- Two independent widget panels per space, above and below apps. Empty panels take no space; edit mode keeps an “Add widget” button in each position.
+- Small, medium and large panel heights, horizontal widget shelves and a scrollable app list when needed. The widget button next to the palette opens panel controls.
+- Android’s system widget picker includes the built-in time entry and installed apps’ widgets, with provider configuration and cleanup on cancellation or removal. Panel layouts persist locally and are included in home snapshot v6.
+
+### Changed
+- In edit mode, tapping an app or folder opens a mini-sheet with “Remove from list” above “Replace”. Per-row edit and delete buttons are removed.
+- The edit toolbar has a question-mark button with tips about apps and folders, widgets, fonts and themes.
+- Buttons use a gradient touch wave instead of the five selectable press styles. Icon buttons have opaque tonal containers; the active edit action uses a filled rounded square.
+- Gesture input options remain visible and disabled while gesture input is off; its switch shares the title row.
+- The gesture training mini-sheet fits its content without the large gap above the drawing keyboard.
+- Live gesture trails use a continuous brush silhouette that quickly tapers with age; recognition still receives the original samples.
+
+### Fixed
+- Creating a folder waits until its data reaches the settings state before opening the mini-sheet, avoiding an immediate close caused by a stale empty state.
+
 ## 0.7.0 — 2026-11-01
 
 ### Added

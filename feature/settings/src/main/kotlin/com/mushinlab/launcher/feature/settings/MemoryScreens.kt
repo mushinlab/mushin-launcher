@@ -45,10 +45,15 @@ import com.mushinlab.launcher.core.ui.drawVectors
 import com.mushinlab.launcher.core.ui.pressable
 
 @Composable
-internal fun LearnedGesturesSection(state: SettingsUiState, actions: SettingsActions, push: (SettingsRoute) -> Unit) {
+internal fun LearnedGesturesSection(
+    state: SettingsUiState,
+    actions: SettingsActions,
+    push: (SettingsRoute) -> Unit,
+    enabled: Boolean = true,
+) {
     var confirm by remember { mutableStateOf(false) }
     SectionHeader(stringResource(R.string.memory_gestures))
-    NavRow(stringResource(R.string.memory_add_gesture), tag = "memory_add_gesture") {
+    NavRow(stringResource(R.string.memory_add_gesture), tag = "memory_add_gesture", enabled = enabled) {
         push(SettingsRoute.MemoryPickApp)
     }
     if (state.learned.isEmpty()) NoteText(stringResource(R.string.memory_gestures_none))
@@ -57,10 +62,14 @@ internal fun LearnedGesturesSection(state: SettingsUiState, actions: SettingsAct
             app.label,
             value = pluralStringResource(R.plurals.memory_drawings, app.drawings.size, app.drawings.size),
             tag = "memory_app_${app.label}",
+            enabled = enabled,
         ) { push(SettingsRoute.MemoryApp(app.key)) }
     }
     if (state.learned.isNotEmpty()) {
-        NavRow(stringResource(R.string.memory_forget_gestures), tag = "memory_forget_gestures") { confirm = true }
+        NavRow(stringResource(R.string.memory_forget_gestures), tag = "memory_forget_gestures", enabled = enabled) {
+            confirm =
+                true
+        }
     }
     if (confirm) {
         ConfirmDialog(

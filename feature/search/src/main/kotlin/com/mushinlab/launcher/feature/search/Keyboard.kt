@@ -25,10 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -43,10 +40,12 @@ import com.mushinlab.launcher.core.search.KeyAction
 import com.mushinlab.launcher.core.search.KeySpec
 import com.mushinlab.launcher.core.search.KeyboardLayout
 import com.mushinlab.launcher.core.search.KeyboardLayouts
+import com.mushinlab.launcher.core.ui.BrushTrailLayer
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.LocalMushinStroke
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.drawVectors
+import com.mushinlab.launcher.core.ui.pressFeedback
 import kotlin.math.roundToInt
 
 @Composable
@@ -111,6 +110,7 @@ fun Keyboard(
             KeyView(index, key, state, nextLayoutLabel, digitHints)
         }
         GlideTrail(state, Modifier.matchParentSize().clipToBounds().testTag("glide_trail"))
+        BrushTrailLayer(state.brush, Modifier.matchParentSize().clipToBounds())
         state.bubbleKey?.let { index ->
             keys.getOrNull(index)?.let { DigitBubble(it) }
         }
@@ -124,14 +124,6 @@ private fun GlideTrail(state: KeyboardState, modifier: Modifier) {
     val strokeColor = stroke.color(colors)
     val strokePx = with(LocalDensity.current) { stroke.width.toPx() }
     Canvas(modifier) {
-        if (state.trail.size > 1) {
-            val path = Path().apply {
-                moveTo(state.trail.first().x, state.trail.first().y)
-                state.trail.drop(1).forEach { lineTo(it.x, it.y) }
-            }
-            drawPath(path, strokeColor, style = Stroke(strokePx, cap = StrokeCap.Round, join = StrokeJoin.Round))
-            if (stroke.dots) state.dwells.forEach { drawCircle(strokeColor, radius = strokePx * 2, center = it) }
-        }
         drawVectors(state.vectors, strokeColor, strokePx, stroke.dots)
     }
 }
@@ -156,7 +148,8 @@ private fun KeyView(
             .offset { IntOffset(key.rect.left.roundToInt(), key.rect.top.roundToInt()) }
             .size(widthDp, heightDp)
             .clip(RoundedCornerShape(KeyboardDimens.radius))
-            .background(if (pressed) colors.keyPressed else colors.keyBackground)
+            .background(colors.keyBackground)
+            .pressFeedback(pressed)
             .testTag("key_${key.spec.char ?: key.spec.action?.name}"),
         contentAlignment = Alignment.Center,
     ) {

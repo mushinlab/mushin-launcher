@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -40,6 +39,7 @@ import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.LocalMushinStroke
 import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.PopupStyle
+import com.mushinlab.launcher.core.ui.drawBrushTrail
 import kotlinx.coroutines.flow.first
 
 @Immutable
@@ -70,16 +70,10 @@ fun TraceLayer(trace: Trace, modifier: Modifier = Modifier) {
     }
     Canvas(modifier.fillMaxSize().testTag("home_trace")) {
         val points = trace.points
-        for (i in 1 until points.size) {
-            val age = (trace.now - points[i].timeMs).coerceAtLeast(0L)
-            val alpha = (1f - age.toFloat() / Motion.TRANSITION_MS).coerceIn(0f, 1f) * TRACE_ALPHA
-            drawLine(
-                color.copy(alpha = alpha),
-                points[i - 1].position,
-                points[i].position,
-                widthPx,
-                StrokeCap.Round,
-            )
+        drawBrushTrail(points.map { it.position }, color.copy(alpha = TRACE_ALPHA), widthPx * BRUSH_WIDTH) { index ->
+            val age = (trace.now - points[index].timeMs).coerceAtLeast(0L)
+            val remaining = (1f - age.toFloat() / Motion.TRANSITION_MS).coerceIn(0f, 1f)
+            remaining * remaining
         }
     }
 }
@@ -118,7 +112,8 @@ fun ListHandle(active: Boolean, visible: Boolean, onBounds: (Rect) -> Unit) {
     }
 }
 
-private const val TRACE_ALPHA = 0.6f
+private const val TRACE_ALPHA = 0.85f
+private const val BRUSH_WIDTH = 2.5f
 val HANDLE_HEIGHT = 24.dp
 internal val HANDLE_LIST_GAP = 8.dp
 private val HANDLE_WIDTH = 36.dp

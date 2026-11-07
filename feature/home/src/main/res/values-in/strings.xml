@@ -25,4 +25,7 @@
     <string name="suggest_replace">Pasang menggantikan “%1$s”</string>
     <string name="suggest_add">Tambahkan ke layar utama</string>
     <string name="suggest_dismiss">Jangan sarankan</string>
+    <string name="home_edit_tips">Tips pengeditan</string>
+    <string name="home_widgets">Widget</string>
+    <string name="home_add_widget">Tambah widget +</string>
 </resources>

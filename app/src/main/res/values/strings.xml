@@ -22,4 +22,6 @@
     <string name="tile_search">Mushin search</string>
     <string name="notice_background_failed">Could not open the image</string>
     <string name="notice_no_notification_settings">Notification access settings are not available on this device</string>
+    <string name="widget_time">Time</string>
+    <string name="notice_widget_unavailable">Widgets are not available on this device.</string>
 </resources>

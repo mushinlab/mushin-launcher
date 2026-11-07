@@ -12,6 +12,7 @@ import com.mushinlab.launcher.core.search.KeyAction
 import com.mushinlab.launcher.core.search.KeySpec
 import com.mushinlab.launcher.core.search.Shapes
 import com.mushinlab.launcher.core.search.TimedPoint
+import com.mushinlab.launcher.core.ui.BrushPoint
 import kotlin.math.abs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -113,6 +114,7 @@ private class KeyboardGestureHandler(
         when {
             press.mode == PressMode.GLIDE -> {
                 state.trail += position
+                state.brush += BrushPoint(position, timeMs)
                 if ((position - press.anchor).getDistance() > thresholds.dwellRadius) {
                     press.anchor = position
                     press.timer?.cancel()
@@ -125,6 +127,7 @@ private class KeyboardGestureHandler(
                 press.mode = PressMode.GLIDE
                 state.pressed.remove(press.keyIndex)
                 press.points.forEach { state.trail += Offset(it.x, it.y) }
+                press.timed.forEach { state.brush += BrushPoint(Offset(it.x, it.y), it.timeMs) }
                 press.anchor = position
                 press.timer = scope.launch { dwell(press) }
             }

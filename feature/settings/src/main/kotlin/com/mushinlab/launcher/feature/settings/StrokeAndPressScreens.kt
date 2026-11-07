@@ -11,7 +11,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.LauncherSettings
-import com.mushinlab.launcher.core.model.PressFeedback
 import com.mushinlab.launcher.core.model.StrokeColor
 import com.mushinlab.launcher.core.model.StrokeWidth
 import com.mushinlab.launcher.core.ui.LocalMushinColors
@@ -67,16 +66,5 @@ private fun StrokeColorDropdown(selected: StrokeColor, onSelect: (StrokeColor) -
         onSelect = onSelect,
     )
 }
-
-@Composable
-internal fun pressLabel(feedback: PressFeedback): String = stringResource(
-    when (feedback) {
-        PressFeedback.FLASH -> R.string.press_flash
-        PressFeedback.HOLD -> R.string.press_hold
-        PressFeedback.ACCENT -> R.string.press_accent
-        PressFeedback.DIM -> R.string.press_dim
-        PressFeedback.SCALE -> R.string.press_scale
-    },
-)
 
 private val STROKE_SWATCH = 18.dp

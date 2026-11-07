@@ -25,4 +25,7 @@
     <string name="suggest_replace">Statt „%1$s“ einsetzen</string>
     <string name="suggest_add">Zum Startbildschirm hinzufügen</string>
     <string name="suggest_dismiss">Nicht vorschlagen</string>
+    <string name="home_edit_tips">Tipps zum Bearbeiten</string>
+    <string name="home_widgets">Widgets</string>
+    <string name="home_add_widget">Widget hinzufügen +</string>
 </resources>

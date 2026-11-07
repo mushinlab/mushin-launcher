@@ -91,13 +91,19 @@ fun NavRow(
 }
 
 @Composable
-fun ToggleRow(title: String, checked: Boolean, tag: String? = null, onToggle: (Boolean) -> Unit) {
+fun ToggleRow(
+    title: String,
+    checked: Boolean,
+    tag: String? = null,
+    enabled: Boolean = true,
+    onToggle: (Boolean) -> Unit,
+) {
     val colors = LocalMushinColors.current
     Row(
         Modifier
             .settingsCard()
             .heightIn(min = 56.dp)
-            .pressable(role = Role.Switch) { onToggle(!checked) }
+            .pressable(enabled = enabled, role = Role.Switch) { onToggle(!checked) }
             .let { if (tag != null) it.testTag(tag) else it }
             .padding(horizontal = CARD_PADDING, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,

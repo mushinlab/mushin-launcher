@@ -73,7 +73,8 @@ class LauncherNavigator(
         when {
             renameTarget != null -> renameTarget = null
 
-            overlay is Overlay.Popup || overlay is Overlay.Suggestion || overlay is Overlay.Folder ->
+            overlay is Overlay.Popup || overlay is Overlay.Suggestion || overlay is Overlay.Folder ||
+                overlay is Overlay.EditItem || overlay == Overlay.EditTips || overlay == Overlay.Widgets ->
                 overlay = Overlay.None
 
             search.panels.menu != null -> search.panels.closeMenu()

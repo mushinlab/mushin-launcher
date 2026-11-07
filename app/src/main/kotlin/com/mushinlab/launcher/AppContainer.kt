@@ -57,6 +57,8 @@ class AppContainer(private val app: Application) {
     val gestureLearning by lazy { GestureLearningRepository(database, scope) }
     val cleaner by lazy { PackageDataCleaner(database) }
     val settings by lazy { SettingsRepository.create(app, scope) }
+    val widgetHost by lazy { MushinWidgetHost(app) }
+    val widgets by lazy { com.mushinlab.launcher.core.data.widgets.WidgetRepository.create(app, scope) }
     val snapshots by lazy { HomeSnapshotStore(app.filesDir) }
     val language by lazy { AppLanguage(app) }
     val backgrounds by lazy {
@@ -79,6 +81,8 @@ class AppContainer(private val app: Application) {
 
     fun hasNotificationAccess(): Boolean =
         app.getSystemService(NotificationManager::class.java).isNotificationListenerAccessGranted(notificationListener)
+
+    fun applicationContext(): android.content.Context = app
 
     fun densityScale(): Float = app.resources.displayMetrics.density
 

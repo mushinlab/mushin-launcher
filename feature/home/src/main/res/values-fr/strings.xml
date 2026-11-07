@@ -25,4 +25,7 @@
     <string name="suggest_replace">La mettre à la place de « %1$s »</string>
     <string name="suggest_add">Ajouter à l’écran d’accueil</string>
     <string name="suggest_dismiss">Ne pas suggérer</string>
+    <string name="home_edit_tips">Conseils de modification</string>
+    <string name="home_widgets">Widgets</string>
+    <string name="home_add_widget">Ajouter un widget +</string>
 </resources>

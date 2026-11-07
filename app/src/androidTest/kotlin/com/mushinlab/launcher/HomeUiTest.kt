@@ -18,6 +18,7 @@ import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
@@ -209,8 +210,8 @@ class HomeUiTest : LauncherUiTestBase() {
 
     @Test
     fun inEditModeDraggingTheHandleMovesTheListTogetherWithTheHandle() {
-        val before = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.top
         rule.onNodeWithTag("home_edit").performClick()
+        val before = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.top
         rule.onNodeWithTag("list_handle").performTouchInput {
             down(center)
             moveBy(Offset(0f, 200f))
@@ -239,6 +240,7 @@ class HomeUiTest : LauncherUiTestBase() {
         val bar = rule.onNodeWithTag("home_edit").fetchSemanticsNode().boundsInRoot
         assertThat(bar.top - auto.bottom).isAtLeast(rowHeight * 4 - 1f)
         rule.onNodeWithTag("home_edit").performClick()
+        val naturalEditing = handle().top - (auto.top - natural)
         rule.onNodeWithTag("list_handle").performTouchInput {
             down(center)
             moveBy(Offset(0f, -150f))
@@ -248,7 +250,7 @@ class HomeUiTest : LauncherUiTestBase() {
         val saved = listOffsetOf(normalId)!!
         with(rule.density) {
             assertThat(saved.dp.toPx()).isWithin(6f).of(auto.top - natural - 150f)
-            rule.waitUntil(5_000) { abs(handle().top - (natural + saved.dp.toPx())) < 3f }
+            rule.waitUntil(5_000) { abs(handle().top - (naturalEditing + saved.dp.toPx())) < 3f }
         }
     }
 
@@ -281,10 +283,12 @@ class HomeUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("home_edit").performClick()
         val list = rule.onNodeWithTag("edit_list").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
         val row = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot
-        assertThat(list.height).isWithin(2f).of(row.height * 5.5f)
-        rule.onNodeWithTag("row_edit_7", useUnmergedTree = true).assertIsNotDisplayed()
+        assertThat(list.height).isAtMost(row.height * 5.5f + 2f)
+        assertThat(list.height).isAtLeast(row.height * 2)
+        rule.onNodeWithTag("row_7").assertIsNotDisplayed()
         rule.onNodeWithTag("edit_list").performTouchInput { swipeUp() }
-        rule.onNodeWithTag("row_edit_7", useUnmergedTree = true).assertIsDisplayed().performClick()
+        rule.onNodeWithTag("row_7").assertIsDisplayed().performClick()
+        rule.onNodeWithTag("edit_item_replace").performClick()
         rule.waitUntil(5_000) {
             rule.activity.launcher.navigator.settings.top == SettingsRoute.ReplaceApp(normalId, apps[7].key)
         }
@@ -292,7 +296,7 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun hiddenClockLeavesAnAddTimeBarInEditModeAndTheSizeChangesTheDigits() {
+    fun hiddenClockLeavesAddWidgetButtonsAndTheSizeChangesTheDigits() {
         fun clockHeight() = rule.onNodeWithTag("clock").fetchSemanticsNode().boundsInRoot.height
         runBlocking { container.settings.update { it.copy(clockSize = ClockSize.S) } }
         rule.waitUntil(5_000) { rule.activity.launcher.home.value.clockSize == ClockSize.S }
@@ -307,9 +311,26 @@ class HomeUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("clock").assertDoesNotExist()
         rule.onNodeWithTag("home_add_clock").assertDoesNotExist()
         rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("home_add_clock").assertIsDisplayed().performClick()
+        rule.onNodeWithTag("add_widget_TOP").assertIsDisplayed()
+        rule.onNodeWithTag("add_widget_BOTTOM").assertIsDisplayed()
+        runBlocking { container.settings.update { it.copy(showClock = true) } }
         rule.waitUntil(5_000) { container.settings.settings.value.showClock }
         rule.onNodeWithTag("clock").assertIsDisplayed()
+    }
+
+    @Test
+    fun AC_37_2_editTipsOpenOverHomeAndBackKeepsEditMode() {
+        rule.onNodeWithTag("home_edit_tips").assertDoesNotExist()
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("home_edit_tips").assertIsDisplayed().performClick()
+        rule.onNodeWithTag("edit_tips_sheet").assertIsDisplayed()
+        rule.onNodeWithText(
+            rule.activity.getString(com.mushinlab.launcher.feature.settings.R.string.edit_tip_list_title),
+        )
+            .assertIsDisplayed()
+        rule.runOnIdle { rule.activity.launcher.navigator.handleBack() }
+        rule.onNodeWithTag("edit_tips_sheet").assertDoesNotExist()
+        assertThat(rule.activity.launcher.navigator.homeEditing).isTrue()
     }
 
     @Test
@@ -317,13 +338,35 @@ class HomeUiTest : LauncherUiTestBase() {
         val first = spaceItems().first()
         rule.onNodeWithTag("row_edit_0", useUnmergedTree = true).assertDoesNotExist()
         rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("row_edit_0", useUnmergedTree = true).performClick()
+        rule.onNodeWithTag("row_0").performClick()
+        rule.onNodeWithTag("edit_item_replace").performClick()
         rule.waitUntil(5_000) {
             rule.activity.launcher.navigator.settings.top == SettingsRoute.ReplaceApp(normalId, first)
         }
         rule.runOnIdle { rule.activity.launcher.navigator.settings.close() }
-        rule.onNodeWithTag("row_remove_0", useUnmergedTree = true).performClick()
+        rule.onNodeWithTag("row_0").performClick()
+        rule.onNodeWithTag("edit_item_remove").performClick()
         rule.waitUntil(5_000) { first !in spaceItems() }
+    }
+
+    @Test
+    fun AC_37_1_folderTapInEditModeOffersItsEditorAndRemoval() {
+        val originalApps = spaceItems()
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("home_add_folder").performClick()
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top is SettingsRoute.HomeFolder }
+        val id = (rule.activity.launcher.navigator.settings.top as SettingsRoute.HomeFolder).folderId
+        rule.onNodeWithTag("folder_name").performTextInput("Folder")
+        rule.waitUntil(5_000) { container.folders.folders.value[id]?.name == "Folder" }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.close() }
+        rule.onNodeWithTag("row_${originalApps.size}").performClick()
+        rule.onNodeWithTag("edit_item_replace").performClick()
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.HomeFolder(id) }
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.close() }
+        rule.onNodeWithTag("row_${originalApps.size}").performClick()
+        rule.onNodeWithTag("edit_item_remove").performClick()
+        rule.waitUntil(5_000) { id !in container.folders.folders.value }
+        assertThat(spaceItems()).containsExactlyElementsIn(originalApps).inOrder()
     }
 
     @Test

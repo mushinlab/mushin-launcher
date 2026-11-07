@@ -1,0 +1,5 @@
+• Two widget panels per space with system widget selection and three panel heights. Empty panels take no space.
+• Tap apps and folders in edit mode to remove or replace; new editing tips.
+• Gradient touch feedback and refreshed icon buttons.
+• Smooth brush gesture trails and a compact training sheet.
+• Gesture input options stay visible while disabled.

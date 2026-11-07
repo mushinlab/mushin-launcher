@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.unit.dp
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -73,6 +74,9 @@ class MemoryUiTest : LauncherUiTestBase() {
         rule.runOnIdle { assertThat(rule.activity.launcher.navigator.settings.draft).isNotEmpty() }
         rule.onNodeWithTag("pick_${app.label}").performClick()
         rule.onNodeWithTag("gesture_sheet").assertIsDisplayed()
+        val hint = rule.onNodeWithTag("gesture_sheet_hint").fetchSemanticsNode().boundsInRoot
+        val pad = rule.onNodeWithTag("gesture_pad").fetchSemanticsNode().boundsInRoot
+        with(rule.density) { assertThat(pad.top - hint.bottom).isWithin(1f).of(16.dp.toPx()) }
         rule.onNodeWithTag("sheet_add").performClick()
         rule.waitUntil(5_000) {
             container.gestureLearning.samples.value.any { it.key == app.key && it.shape.size >= 2 }

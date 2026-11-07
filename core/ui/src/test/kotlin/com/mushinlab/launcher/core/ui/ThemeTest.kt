@@ -1,5 +1,7 @@
 package com.mushinlab.launcher.core.ui
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.model.AppFont
@@ -9,6 +11,20 @@ import org.junit.Test
 
 class ThemeTest {
     private val colors = MushinColors.from(Palettes.Graphite)
+
+    @Test
+    fun AC_37_4_iconContainersKeepContrastInEveryFixedTheme() {
+        Palettes.presets.values.forEach { palette ->
+            val colors = MushinColors.from(palette)
+            listOf(colors.textPrimary, colors.textSecondary, colors.accent).forEach { tint ->
+                assertThat(contrast(tint, colors.keyBackground)).isAtLeast(3f)
+            }
+            assertThat(contrast(colors.background, colors.accent)).isAtLeast(3f)
+        }
+    }
+
+    private fun contrast(a: Color, b: Color): Float =
+        (maxOf(a.luminance(), b.luminance()) + 0.05f) / (minOf(a.luminance(), b.luminance()) + 0.05f)
 
     @Test
     fun rowsAlternateBetweenTheTwoZebraColours() {

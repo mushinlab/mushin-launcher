@@ -18,6 +18,7 @@ import com.mushinlab.launcher.core.search.GesturePoint
 import com.mushinlab.launcher.core.search.KeySpec
 import com.mushinlab.launcher.core.search.KeyboardLayout
 import com.mushinlab.launcher.core.search.KeyboardLayouts
+import com.mushinlab.launcher.core.ui.BrushPoint
 
 interface KeyboardActions {
     fun onChar(c: Char): Boolean
@@ -106,11 +107,13 @@ class KeyboardState {
     val pressed = mutableStateMapOf<Int, Boolean>()
     var bubbleKey by mutableStateOf<Int?>(null)
     val trail = mutableStateListOf<Offset>()
+    val brush = mutableStateListOf<BrushPoint>()
     val dwells = mutableStateListOf<Offset>()
     var vectors by mutableStateOf<List<ShapeVertex>>(emptyList())
 
     fun clearDrawing() {
         trail.clear()
+        brush.clear()
         dwells.clear()
         vectors = emptyList()
     }

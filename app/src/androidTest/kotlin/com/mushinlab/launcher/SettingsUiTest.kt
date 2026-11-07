@@ -4,8 +4,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotSelected
-import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -20,7 +19,6 @@ import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.GestureTuning
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.PalettePreset
-import com.mushinlab.launcher.core.model.PressFeedback
 import com.mushinlab.launcher.core.model.StrokeColor
 import com.mushinlab.launcher.feature.settings.R as SettingsR
 import com.mushinlab.launcher.feature.settings.SettingsRoute
@@ -31,16 +29,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SettingsUiTest : LauncherUiTestBase() {
     @Test
-    fun selectedOptionIsMarkedByBackgroundAndPressStyleApplies() {
+    fun AC_37_3_themeHasNoLegacyPressAnimationSelector() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.ThemeSheet) }
-        rule.onNodeWithTag("press_dropdown").performScrollTo().performClick()
-        rule.onNodeWithTag("press_FLASH").assertIsSelected()
-        rule.onNodeWithTag("press_DIM").assertIsNotSelected().performClick()
-        rule.waitUntil(5_000) { container.settings.settings.value.pressFeedback == PressFeedback.DIM }
-        rule.onNodeWithTag("press_menu").assertDoesNotExist()
-        rule.onNodeWithTag("press_dropdown").performClick()
-        rule.onNodeWithTag("press_DIM").assertIsSelected()
-        rule.onNodeWithTag("press_FLASH").assertIsNotSelected()
+        rule.onNodeWithTag("press_dropdown").assertDoesNotExist()
+        rule.onNodeWithTag("theme_icons").assertExists()
     }
 
     @Test
@@ -96,13 +88,13 @@ class SettingsUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun gestureInputHidesItsSettingsWhileOff() {
+    fun AC_37_6_gestureInputKeepsDisabledSettingsVisibleWhileOff() {
         runBlocking { container.settings.update { it.copy(gestureInput = false) } }
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Gestures) }
         rule.onNodeWithTag("gesture_input").performScrollTo().assertIsDisplayed()
-        rule.onNodeWithTag("learn_hints").assertDoesNotExist()
-        rule.onNodeWithTag("memory_add_gesture").assertDoesNotExist()
-        rule.onNodeWithTag("gesture_input").performClick()
+        rule.onNodeWithTag("learn_hints").performScrollTo().assertIsNotEnabled()
+        rule.onNodeWithTag("memory_add_gesture").performScrollTo().assertIsNotEnabled()
+        rule.onNodeWithTag("gesture_input").performScrollTo().performClick()
         rule.waitUntil(5_000) { container.settings.settings.value.gestureInput }
         rule.onNodeWithTag("learn_hints").performScrollTo().assertIsDisplayed()
         rule.onNodeWithTag("memory_add_gesture").performScrollTo().assertIsDisplayed()

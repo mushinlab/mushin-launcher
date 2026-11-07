@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,11 +35,15 @@ enum class Glyph(@param:DrawableRes val res: Int) {
     PALETTE(R.drawable.ic_palette),
     SETTINGS(R.drawable.ic_settings),
     TEXT(R.drawable.ic_text),
+    WIDGETS(R.drawable.ic_widgets),
 }
+
+/** Container variants for icon actions, using only the current fixed palette. */
+enum class GlyphStyle { TONAL, FILLED, OUTLINED }
 
 /**
  * A square icon button tinted with [tint]; [description] is read by accessibility services.
- * A press shows the [LocalPressFeedback] style like any other button; a transparent [pressedColor] turns it off.
+ * A gradient wave starts at the touch position; the opaque container keeps contrast over wallpaper.
  */
 @Composable
 fun GlyphButton(
@@ -50,9 +55,25 @@ fun GlyphButton(
     size: Dp = 48.dp,
     glyphSize: Dp = 22.dp,
     pressedColor: Color = LocalMushinColors.current.keyPressed,
+    style: GlyphStyle = when (glyph) {
+        Glyph.DELETE, Glyph.CLOSE -> GlyphStyle.OUTLINED
+        else -> GlyphStyle.TONAL
+    },
     onClick: () -> Unit,
 ) {
     val colors = LocalMushinColors.current
+    val shape = if (style == GlyphStyle.FILLED) RoundedCornerShape(size * FILLED_RADIUS) else CircleShape
+    val background = when (style) {
+        GlyphStyle.FILLED -> colors.accent
+        GlyphStyle.TONAL -> colors.keyBackground
+        GlyphStyle.OUTLINED -> colors.surface
+    }
+    val foreground = if (style == GlyphStyle.FILLED) colors.background else tint.copy(alpha = 1f)
+    val outline = if (style == GlyphStyle.OUTLINED) {
+        Modifier.border(1.dp, colors.textSecondary, shape)
+    } else {
+        Modifier
+    }
     Box(
         modifier
             .size(size)
@@ -63,25 +84,30 @@ fun GlyphButton(
         Box(
             Modifier
                 .size(size - GlyphWrapper.inset * 2)
-                .clip(CircleShape)
-                .background(colors.surface)
-                .border(GlyphWrapper.outline, PopupStyle.outline(colors), CircleShape)
-                .pressable(pressedColor = pressedColor, onClick = onClick)
+                .clip(shape)
+                .background(background)
+                .then(outline)
+                .pressable(
+                    pressedColor = if (style == GlyphStyle.FILLED) foreground else pressedColor,
+                    onClick = onClick,
+                )
                 .testTag("${tag}_wrapper"),
             contentAlignment = Alignment.Center,
         ) {
             Image(
                 painterResource(glyph.res),
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(tint),
+                colorFilter = ColorFilter.tint(foreground),
                 modifier = Modifier.size(glyphSize),
             )
         }
     }
 }
 
-/** Circle every glyph button sits on, so an icon keeps its contrast over any palette or background image. */
+/** Container insets and the outline of draggable handles over a custom background. */
 object GlyphWrapper {
     val inset = 4.dp
     val outline = 2.dp
 }
+
+private const val FILLED_RADIUS = 0.28f
