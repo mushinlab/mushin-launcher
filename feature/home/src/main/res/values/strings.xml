@@ -27,5 +27,8 @@
     <string name="suggest_dismiss">Don’t suggest</string>
     <string name="home_edit_tips">Editing tips</string>
     <string name="home_widgets">Widgets</string>
-    <string name="home_add_widget">Add widget +</string>
+    <string name="home_add_widget">Add widget</string>
+    <string name="widget_remove">Remove widget</string>
+    <string name="widget_move_before">Move earlier</string>
+    <string name="widget_move_after">Move later</string>
 </resources>

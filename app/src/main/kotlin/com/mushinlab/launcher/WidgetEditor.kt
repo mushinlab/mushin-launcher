@@ -1,14 +1,13 @@
 package com.mushinlab.launcher
 
 import android.appwidget.AppWidgetManager
-import android.content.Context
-import com.mushinlab.launcher.core.data.settings.SettingsRepository
-import com.mushinlab.launcher.core.data.widgets.WidgetRepository
+import android.appwidget.AppWidgetProviderInfo
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.mushinlab.launcher.core.model.HostedWidget
 import com.mushinlab.launcher.core.model.PendingWidget
 import com.mushinlab.launcher.core.model.WidgetLayout
-import com.mushinlab.launcher.core.model.WidgetPanelPosition
-import com.mushinlab.launcher.core.model.WidgetPanelSize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.filterNotNull
@@ -23,8 +22,10 @@ class WidgetEditor(
 ) {
     private val context = container.applicationContext()
     private val repository = container.widgets
-    private val settings = container.settings
     private val host = container.widgetHost
+    val panels = WidgetPanelEditor(repository, scope, currentSpace, host)
+    var choices by mutableStateOf<List<WidgetChoice>?>(null)
+        private set
     private var choosing = false
     private val manager = AppWidgetManager.getInstance(context)
     private val initialized = scope.async {
@@ -32,33 +33,51 @@ class WidgetEditor(
         val retained =
             state.layouts.values.flatMap { it.widgets }.map { it.id }.toSet() + listOfNotNull(state.pending?.id)
         host.appWidgetIds.filterNot(retained::contains).forEach(host::deleteAppWidgetId)
+        if (!container.settings.loaded.filterNotNull().first().showClock) {
+            panels.removeClocks()
+            container.settings.update { it.copy(showClock = true) }
+        }
     }
 
-    fun add(panel: WidgetPanelPosition) {
+    fun add() {
         val spaceId = currentSpace() ?: return
         if (choosing) return
+        val layout = repository.loaded.value?.layouts?.get(spaceId) ?: WidgetLayout()
+        if (layout.widgets.size >= layout.mode.capacity) return
+        val clock = if (layout.widgets.none { it.isClock }) listOf(WidgetChoice.Clock) else emptyList()
+        choices = clock + compactProviders(context).map { WidgetChoice.Hosted(it) }
+    }
+
+    fun dismissChoices() {
+        choices = null
+    }
+
+    fun choose(choice: WidgetChoice) {
+        val spaceId = currentSpace() ?: return
+        choices = null
+        when (choice) {
+            WidgetChoice.Clock -> panels.append(spaceId, HostedWidget.clock)
+            is WidgetChoice.Hosted -> bind(spaceId, choice.info)
+        }
+    }
+
+    private fun bind(spaceId: Long, info: AppWidgetProviderInfo) {
+        if (choosing || !fitsCompactWidget(context, info)) return
         choosing = true
         scope.launch {
             initialized.await()
             cancelPending()
             val id = host.allocateAppWidgetId()
-            repository.update { it.copy(pending = PendingWidget(spaceId, panel, id)) }
-            emit(LauncherEffect.PickWidget(id))
+            repository.update { it.copy(pending = PendingWidget(spaceId, id)) }
+            emit(LauncherEffect.BindWidget(id, info))
         }
     }
 
-    fun onPicked(success: Boolean, clock: Boolean) = scope.launch {
+    fun onPicked(success: Boolean) = scope.launch {
         initialized.await()
         val pending = repository.loaded.filterNotNull().first().pending ?: return@launch
         when {
             !success -> {
-                cancelPending()
-                choosing = false
-            }
-
-            clock -> {
-                change(pending.spaceId) { it.copy(clockPanel = pending.panel) }
-                settings.update { it.copy(showClock = true) }
                 cancelPending()
                 choosing = false
             }
@@ -84,35 +103,12 @@ class WidgetEditor(
         emit(LauncherEffect.WidgetUnavailable)
     }
 
-    fun resize(panel: WidgetPanelPosition, size: WidgetPanelSize) {
-        val id = currentSpace() ?: return
-        scope.launch {
-            change(id) {
-                if (panel == WidgetPanelPosition.TOP) it.copy(topSize = size) else it.copy(bottomSize = size)
-            }
-        }
-    }
-
-    fun remove(id: Int) {
-        val space = currentSpace() ?: return
-        scope.launch {
-            change(space) { layout ->
-                if (id == CLOCK_ID) {
-                    layout.copy(clockPanel = null)
-                } else {
-                    layout.copy(widgets = layout.widgets.filterNot { it.id == id })
-                }
-            }
-            if (id != CLOCK_ID) host.deleteAppWidgetId(id)
-        }
-    }
-
     suspend fun refresh(ids: Set<Long> = container.spaces.spaces.value.map { it.id }.toSet()) {
         initialized.await()
         if (ids.isEmpty()) return
         val state = repository.loaded.filterNotNull().first()
         val removed = state.layouts.flatMap { (space, layout) ->
-            layout.widgets.filter { space !in ids || manager.getAppWidgetInfo(it.id) == null }
+            layout.widgets.filter { !it.isClock && (space !in ids || manager.getAppWidgetInfo(it.id) == null) }
         }
         val removedIds = removed.map { it.id }.toSet()
         repository.update { current ->
@@ -132,19 +128,14 @@ class WidgetEditor(
             cancelPending()
             return
         }
-        val widget = HostedWidget(pending.id, pending.panel, info.loadLabel(context.packageManager))
+        val widget = HostedWidget(pending.id, info.loadLabel(context.packageManager))
         repository.update { state ->
             val layout = state.layouts[pending.spaceId] ?: WidgetLayout()
-            state.copy(
-                layouts = state.layouts + (pending.spaceId to layout.copy(widgets = layout.widgets + widget)),
-                pending = null,
-            )
+            val widgets = if (layout.widgets.size < layout.mode.capacity) layout.widgets + widget else layout.widgets
+            state.copy(layouts = state.layouts + (pending.spaceId to layout.copy(widgets = widgets)), pending = null)
         }
-    }
-
-    private suspend fun change(spaceId: Long, transform: (WidgetLayout) -> WidgetLayout) {
-        repository.update {
-            it.copy(layouts = it.layouts + (spaceId to transform(it.layouts[spaceId] ?: WidgetLayout())))
+        if (repository.loaded.value?.layouts?.get(pending.spaceId)?.widgets?.none { it.id == pending.id } == true) {
+            host.deleteAppWidgetId(pending.id)
         }
     }
 
@@ -153,8 +144,10 @@ class WidgetEditor(
         host.deleteAppWidgetId(pending.id)
         repository.update { it.copy(pending = null) }
     }
+}
 
-    companion object {
-        const val CLOCK_ID = -1
-    }
+sealed interface WidgetChoice {
+    data object Clock : WidgetChoice
+
+    data class Hosted(val info: AppWidgetProviderInfo) : WidgetChoice
 }

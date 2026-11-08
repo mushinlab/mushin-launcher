@@ -185,8 +185,6 @@ private fun homeActions(vm: LauncherViewModel, density: Density) = object : Home
 
     override fun onEditClock() = navigator.openSettings(SettingsRoute.ClockSheet)
 
-    override fun onShowClock() = vm.preferences.update { it.copy(showClock = true) }
-
     override fun onEditBackground() {
         vm.model.currentSpace?.let { vm.backgrounds.openFromHome(it.id) }
     }
@@ -205,9 +203,11 @@ private fun homeActions(vm: LauncherViewModel, density: Density) = object : Home
         navigator.overlay = Overlay.Widgets
     }
 
-    override fun onAddWidget(panel: com.mushinlab.launcher.core.model.WidgetPanelPosition) {
-        vm.widgets.add(panel)
-    }
+    override fun onMoveWidget(id: Int, index: Int) = vm.widgets.panels.move(id, index)
+
+    override fun onAddWidget() = vm.widgets.add()
+
+    override fun onRemoveWidget(id: Int) = vm.widgets.panels.remove(id)
 
     override fun onEditTips() {
         navigator.overlay = Overlay.EditTips

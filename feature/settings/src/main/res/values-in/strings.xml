@@ -79,7 +79,6 @@
     <string name="home_clock_system">Sistem</string>
     <string name="home_clock_24">24 jam</string>
     <string name="home_clock_12">12 jam</string>
-    <string name="clock_show">Tampilkan jam</string>
     <string name="clock_size">Ukuran jam</string>
     <string name="home_show_date">Tampilkan tanggal</string>
     <string name="home_text_size">Ukuran teks</string>
@@ -173,7 +172,7 @@
     <string name="weight_medium">Sedang</string>
     <string name="memory_usefulness">Kegunaan di “%1$s”</string>
     <string name="memory_usefulness_note">Skor 1 sampai 100: seberapa sering dan seberapa baru Anda membuka aplikasi di ruang ini. Jika aplikasi yang tidak ada di layar utama punya skor jauh lebih tinggi daripada yang ada, tanda “?” dengan saran muncul di pojok kanan bawah.</string>
-    <string name="home_clock_note">Ketuk jam untuk membuka aplikasi Jam. Untuk memindahkannya, ketuk pensil di bagian bawah layar utama dan seret jam ke kiri, tengah, atau kanan.</string>
+    <string name="home_clock_note">Ketuk jam untuk membuka aplikasi Jam. Jam adalah slot panel widget: seret atau hapus seperti widget lainnya.</string>
     <string name="settings_back">Kembali</string>
     <string name="style_theme">Tema “%1$s”</string>
     <string name="style_text">Teks</string>
@@ -248,7 +247,7 @@
     <string name="edit_tip_list_title">Aplikasi dan folder</string>
     <string name="edit_tip_list">Ketuk aplikasi atau folder untuk menghapusnya dari daftar atau menggantinya. Untuk folder, Ganti membuka editornya. Tambahkan aplikasi dan folder di bawah daftar. Seret pegangan di atas daftar untuk memindahkannya; gulir untuk melihat aplikasi lainnya.</string>
     <string name="edit_tip_widgets_title">Widget</string>
-    <string name="edit_tip_widgets">Gunakan tombol widget di samping palet untuk mengelola panel di atas dan di bawah aplikasi. Tambahkan waktu atau widget dari aplikasi terpasang, lalu pilih panel kecil, sedang, atau besar.</string>
+    <string name="edit_tip_widgets">Panel atas memuat dua widget kecil dalam baris atau kolom, atau empat dalam mode diperluas. Tahan untuk memindahkan. Jam tetap di tempat.</string>
     <string name="edit_tip_font_title">Font</string>
     <string name="edit_tip_font">Ketuk tombol teks untuk memilih font, ketebalan, ukuran, dan perataan nama aplikasi.</string>
     <string name="edit_tip_theme_title">Tema</string>
@@ -259,6 +258,16 @@
     <string name="widgets_height">Tinggi panel</string>
     <string name="widgets_add">Tambah widget</string>
     <string name="widgets_remove">Hapus %1$s</string>
-    <string name="widgets_time">Waktu</string>
-    <string name="widgets_note">Panel kosong tidak memakai ruang. Geser panel secara horizontal untuk melihat widget lainnya.</string>
+    <string name="widgets_time">Jam</string>
+    <string name="widgets_note">Tahan dan seret widget dalam mode edit.</string>
+    <string name="widgets_mode">Panel</string>
+    <string name="widgets_standard">Standar · hingga 2</string>
+    <string name="widgets_expanded">Diperluas · 2 × 2</string>
+    <string name="widgets_arrangement">Susunan</string>
+    <string name="widgets_row">Baris</string>
+    <string name="widgets_column">Kolom</string>
+    <string name="widgets_reduce">Hapus widget tambahan untuk memilih Standar.</string>
+    <string name="widgets_small_only">Hanya widget kecil yang muat dalam satu sel yang ditampilkan.</string>
+    <string name="widgets_empty">Tidak ada widget kecil yang cocok dari aplikasi terpasang.</string>
+    <string name="widgets_saved_hidden">Widget yang melebihi batas panel tetap disimpan dalam daftar ini. Hapus untuk mengosongkan slot.</string>
 </resources>

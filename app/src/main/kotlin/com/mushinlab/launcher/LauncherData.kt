@@ -18,7 +18,6 @@ import com.mushinlab.launcher.core.model.Space
 import com.mushinlab.launcher.core.model.SpaceBackground
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.WidgetLayout
-import com.mushinlab.launcher.core.model.WidgetPanelPosition
 import com.mushinlab.launcher.core.search.Alphabet
 import com.mushinlab.launcher.core.search.SearchIndex
 import com.mushinlab.launcher.core.search.SearchItem
@@ -177,36 +176,16 @@ internal fun SpaceError.code(): String = when (this) {
     else -> toString()
 }
 
-internal fun widgetPanels(layout: WidgetLayout): HomeWidgetPanels {
-    fun panel(
-        position: WidgetPanelPosition,
-    ) = HomeWidgetPanel(
-        size = if (position ==
-            WidgetPanelPosition.TOP
-        ) {
-            layout.topSize
-        } else {
-            layout.bottomSize
-        },
-        clock = layout.clockPanel == position,
-        widgets = layout.widgets.filter { it.panel == position }.map {
-            HomeWidgetTile(it.id, it.label)
-        }.toImmutableList(),
-    )
-    return HomeWidgetPanels(
-        panel(WidgetPanelPosition.TOP),
-        panel(WidgetPanelPosition.BOTTOM),
-    )
-}
+internal fun widgetPanels(layout: WidgetLayout): HomeWidgetPanels = HomeWidgetPanels(
+    HomeWidgetPanel(
+        mode = layout.mode,
+        arrangement = layout.arrangement,
+        widgets = layout.widgets.map { HomeWidgetTile(it.id, it.label) }.toImmutableList(),
+    ),
+)
 
 private fun widgetLayout(panels: HomeWidgetPanels): WidgetLayout = WidgetLayout(
-    clockPanel = when {
-        panels.top.clock -> WidgetPanelPosition.TOP
-        panels.bottom.clock -> WidgetPanelPosition.BOTTOM
-        else -> null
-    },
-    topSize = panels.top.size,
-    bottomSize = panels.bottom.size,
-    widgets = panels.top.widgets.map { HostedWidget(it.id, WidgetPanelPosition.TOP, it.label) } +
-        panels.bottom.widgets.map { HostedWidget(it.id, WidgetPanelPosition.BOTTOM, it.label) },
+    mode = panels.top.mode,
+    arrangement = panels.top.arrangement,
+    widgets = panels.top.widgets.map { HostedWidget(it.id, it.label) },
 )

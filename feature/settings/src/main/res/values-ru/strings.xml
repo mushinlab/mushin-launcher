@@ -79,7 +79,6 @@
     <string name="home_clock_system">Как в системе</string>
     <string name="home_clock_24">24 часа</string>
     <string name="home_clock_12">12 часов</string>
-    <string name="clock_show">Показывать время</string>
     <string name="clock_size">Размер часов</string>
     <string name="home_show_date">Показывать дату</string>
     <string name="home_text_size">Размер текста</string>
@@ -176,7 +175,7 @@
     <string name="weight_medium">Средний</string>
     <string name="memory_usefulness">Полезность в спейсе «%1$s»</string>
     <string name="memory_usefulness_note">Оценка от 1 до 100: как часто и как недавно вы открывали приложение в этом спейсе. Если приложение не на главном экране оценено заметно выше, чем одно из приложений на нём, внизу справа появится «?» с предложением.</string>
-    <string name="home_clock_note">Тап по часам открывает приложение «Часы». Чтобы передвинуть их, нажмите на карандаш внизу главного экрана и перетащите часы влево, в центр или вправо.</string>
+    <string name="home_clock_note">Тап по часам открывает приложение «Часы». Часы — ячейка панели виджетов: их можно перетащить или убрать, как любой виджет.</string>
     <string name="settings_back">Назад</string>
     <string name="style_theme">Тема спейса «%1$s»</string>
     <string name="style_text">Текст</string>
@@ -251,7 +250,7 @@
     <string name="edit_tip_list_title">Список приложений и папки</string>
     <string name="edit_tip_list">Нажмите на приложение или папку, чтобы убрать из списка или заменить. У папки «Заменить» открывает её редактор. Добавляйте приложения и папки под списком. Тяните линию над списком, чтобы передвинуть его; прокручивайте список, чтобы увидеть остальные приложения.</string>
     <string name="edit_tip_widgets_title">Виджеты</string>
-    <string name="edit_tip_widgets">Кнопка справа от палитры управляет панелями над и под списком. Добавьте время или виджет установленного приложения и выберите маленькую, среднюю или крупную панель.</string>
+    <string name="edit_tip_widgets">В верхней панели — до двух маленьких виджетов в ряд или колонку, в расширенной — до четырёх. Для перестановки удерживайте и перетаскивайте виджет. Часы неподвижны.</string>
     <string name="edit_tip_font_title">Шрифт</string>
     <string name="edit_tip_font">Кнопка текста открывает выбор шрифта, насыщенности, размера и выравнивания названий приложений.</string>
     <string name="edit_tip_theme_title">Тема</string>
@@ -262,6 +261,16 @@
     <string name="widgets_height">Высота панели</string>
     <string name="widgets_add">Добавить виджет</string>
     <string name="widgets_remove">Убрать %1$s</string>
-    <string name="widgets_time">Время</string>
-    <string name="widgets_note">Пустые панели не занимают места. Листайте панель по горизонтали, чтобы увидеть остальные виджеты.</string>
+    <string name="widgets_time">Часы</string>
+    <string name="widgets_note">Удерживайте и перетаскивайте виджеты в режиме редактирования.</string>
+    <string name="widgets_mode">Панель</string>
+    <string name="widgets_standard">Стандартная · до 2</string>
+    <string name="widgets_expanded">Расширенная · 2 × 2</string>
+    <string name="widgets_arrangement">Расположение</string>
+    <string name="widgets_row">В ряд</string>
+    <string name="widgets_column">В колонку</string>
+    <string name="widgets_reduce">Чтобы выбрать стандартную панель, оставьте не более двух виджетов.</string>
+    <string name="widgets_small_only">Здесь только маленькие виджеты, которые помещаются в ячейку панели.</string>
+    <string name="widgets_empty">В установленных приложениях нет подходящих маленьких виджетов.</string>
+    <string name="widgets_saved_hidden">Виджеты сверх лимита панели сохранены в этом списке. Уберите их, чтобы освободить место.</string>
 </resources>

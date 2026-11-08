@@ -1,14 +1,18 @@
 package com.mushinlab.launcher
 
+import android.content.pm.PackageManager
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mushinlab.launcher.core.model.WidgetPanelPosition
 import com.mushinlab.launcher.feature.settings.EditItemSheet
 import com.mushinlab.launcher.feature.settings.EditTipsSheet
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 import com.mushinlab.launcher.feature.settings.WidgetLabel
 import com.mushinlab.launcher.feature.settings.WidgetPanelUi
+import com.mushinlab.launcher.feature.settings.WidgetPickerSheet
 import com.mushinlab.launcher.feature.settings.WidgetsSheet
 import kotlinx.collections.immutable.toImmutableList
 
@@ -18,23 +22,17 @@ internal fun HomeEditLayer(vm: LauncherViewModel) {
     when (val overlay = navigator.overlay) {
         Overlay.Widgets -> {
             val home by vm.home.collectAsStateWithLifecycle()
-            val panels = listOf(
-                WidgetPanelPosition.TOP to home.widgetPanels.top,
-                WidgetPanelPosition.BOTTOM to home.widgetPanels.bottom,
+            val panel = home.widgetPanels.top
+            val ui = WidgetPanelUi(
+                panel.mode,
+                panel.arrangement,
+                panel.widgets.map { WidgetLabel(it.id, it.label, clock = it.isClock) }.toImmutableList(),
             )
-                .map { (position, panel) ->
-                    WidgetPanelUi(
-                        position,
-                        panel.size,
-                        panel.clock && home.showClock,
-                        panel.widgets.map { WidgetLabel(it.id, it.label) }.toImmutableList(),
-                    )
-                }.toImmutableList()
             WidgetsSheet(
-                panels,
-                vm.widgets::resize,
+                ui,
+                vm.widgets.panels::resize,
                 vm.widgets::add,
-                vm.widgets::remove,
+                vm.widgets.panels::remove,
                 { navigator.openSettings(SettingsRoute.ClockSheet) },
                 { navigator.overlay = Overlay.None },
             )
@@ -67,4 +65,34 @@ internal fun HomeEditLayer(vm: LauncherViewModel) {
 
         else -> Unit
     }
+    vm.widgets.choices?.let { WidgetPicker(vm, it) }
 }
+
+@Composable
+private fun WidgetPicker(vm: LauncherViewModel, choices: List<WidgetChoice>) {
+    val manager = LocalContext.current.packageManager
+    BackHandler(onBack = vm.widgets::dismissChoices)
+    WidgetPickerSheet(
+        choices.mapIndexed { index, choice ->
+            when (choice) {
+                WidgetChoice.Clock -> WidgetLabel(index, "", app = stringResource(R.string.app_name), clock = true)
+
+                is WidgetChoice.Hosted -> WidgetLabel(
+                    index,
+                    choice.info.loadLabel(manager),
+                    app = appLabel(manager, choice),
+                )
+            }
+        }.toImmutableList(),
+        { index ->
+            val choice = choices.getOrNull(index)
+            if (choice != null) vm.widgets.choose(choice)
+            if (choice == WidgetChoice.Clock) vm.navigator.openSettings(SettingsRoute.ClockSheet)
+        },
+        vm.widgets::dismissChoices,
+    )
+}
+
+private fun appLabel(manager: PackageManager, choice: WidgetChoice.Hosted): String? = runCatching {
+    manager.getApplicationLabel(manager.getApplicationInfo(choice.info.provider.packageName, 0)).toString()
+}.getOrNull()

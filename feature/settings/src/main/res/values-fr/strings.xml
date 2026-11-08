@@ -79,7 +79,6 @@
     <string name="home_clock_system">Système</string>
     <string name="home_clock_24">24 heures</string>
     <string name="home_clock_12">12 heures</string>
-    <string name="clock_show">Afficher l’heure</string>
     <string name="clock_size">Taille de l’horloge</string>
     <string name="home_show_date">Afficher la date</string>
     <string name="home_text_size">Taille du texte</string>
@@ -175,7 +174,7 @@
     <string name="weight_medium">Moyenne</string>
     <string name="memory_usefulness">Utilité dans « %1$s »</string>
     <string name="memory_usefulness_note">Un score de 1 à 100 selon la fréquence et la date de vos ouvertures de l’appli dans cet espace. Si une appli absente de l’écran d’accueil a un score nettement supérieur à une appli qui y figure, un « ? » avec une suggestion apparaît en bas à droite.</string>
-    <string name="home_clock_note">Touchez l’horloge pour ouvrir l’appli Horloge. Pour la déplacer, touchez le crayon en bas de l’écran d’accueil et faites glisser l’horloge à gauche, au centre ou à droite.</string>
+    <string name="home_clock_note">Touchez l’horloge pour ouvrir l’appli Horloge. L’horloge est une case du panneau de widgets : déplacez-la ou retirez-la comme un autre widget.</string>
     <string name="settings_back">Retour</string>
     <string name="style_theme">Thème de « %1$s »</string>
     <string name="style_text">Texte</string>
@@ -250,7 +249,7 @@
     <string name="edit_tip_list_title">Applications et dossiers</string>
     <string name="edit_tip_list">Touchez une application ou un dossier pour le retirer de la liste ou le remplacer. Pour un dossier, Remplacer ouvre son éditeur. Ajoutez des applications et des dossiers sous la liste. Faites glisser la poignée au-dessus de la liste pour la déplacer ; faites défiler pour voir les autres applications.</string>
     <string name="edit_tip_widgets_title">Widgets</string>
-    <string name="edit_tip_widgets">Utilisez le bouton des widgets à côté de la palette pour gérer les panneaux au-dessus et en dessous des applications. Ajoutez l’heure ou un widget d’une application installée, puis choisissez un panneau petit, moyen ou grand.</string>
+    <string name="edit_tip_widgets">Le panneau supérieur accueille deux petits widgets en ligne ou en colonne, ou quatre en mode étendu. Maintenez pour déplacer. L’horloge reste fixe.</string>
     <string name="edit_tip_font_title">Police</string>
     <string name="edit_tip_font">Touchez le bouton de texte pour choisir la police, la graisse, la taille et l’alignement des noms des applications.</string>
     <string name="edit_tip_theme_title">Thème</string>
@@ -261,6 +260,16 @@
     <string name="widgets_height">Hauteur du panneau</string>
     <string name="widgets_add">Ajouter un widget</string>
     <string name="widgets_remove">Retirer %1$s</string>
-    <string name="widgets_time">Heure</string>
-    <string name="widgets_note">Les panneaux vides ne prennent pas de place. Balayez horizontalement pour voir les autres widgets.</string>
+    <string name="widgets_time">Horloge</string>
+    <string name="widgets_note">Maintenez un widget et faites-le glisser en mode édition.</string>
+    <string name="widgets_mode">Panneau</string>
+    <string name="widgets_standard">Standard · jusqu’à 2</string>
+    <string name="widgets_expanded">Étendu · 2 × 2</string>
+    <string name="widgets_arrangement">Disposition</string>
+    <string name="widgets_row">En ligne</string>
+    <string name="widgets_column">En colonne</string>
+    <string name="widgets_reduce">Retirez les widgets supplémentaires pour choisir Standard.</string>
+    <string name="widgets_small_only">Seuls les petits widgets qui tiennent dans une cellule sont affichés.</string>
+    <string name="widgets_empty">Aucun petit widget compatible dans les applications installées.</string>
+    <string name="widgets_saved_hidden">Les widgets au-delà de la limite du panneau restent dans cette liste. Retirez-les pour libérer une place.</string>
 </resources>

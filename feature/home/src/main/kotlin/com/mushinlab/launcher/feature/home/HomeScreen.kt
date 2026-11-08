@@ -68,7 +68,6 @@ import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.HomeListOffset
 import com.mushinlab.launcher.core.model.SwipeDirection
-import com.mushinlab.launcher.core.model.WidgetPanelPosition
 import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
@@ -118,12 +117,18 @@ interface HomeControlActions {
     fun onListOffset(dp: Int)
 }
 
-interface HomeEditActions {
+interface HomeWidgetActions {
+    fun onMoveWidget(id: Int, index: Int) {}
+
+    fun onRemoveWidget(id: Int) {}
+
+    fun onAddWidget()
+}
+
+interface HomeEditActions : HomeWidgetActions {
     fun onEdit()
 
     fun onEditClock()
-
-    fun onShowClock()
 
     fun onEditBackground()
 
@@ -132,8 +137,6 @@ interface HomeEditActions {
     fun onEditTheme()
 
     fun onEditWidgets()
-
-    fun onAddWidget(panel: WidgetPanelPosition)
 
     fun onEditTips()
 
@@ -419,6 +422,5 @@ private fun BadgedIcon(row: HomeRow, index: Int, badge: Boolean, modifier: Modif
 }
 
 private const val ROLE_CARD = "role_card"
-internal const val CLOCK_EDIT = "clock_edit"
 private const val SHADE_ZONE = 0.2f
 private const val DIMMED_ALPHA = 0.5f

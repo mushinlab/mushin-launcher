@@ -27,5 +27,8 @@
     <string name="suggest_dismiss">Jangan sarankan</string>
     <string name="home_edit_tips">Tips pengeditan</string>
     <string name="home_widgets">Widget</string>
-    <string name="home_add_widget">Tambah widget +</string>
+    <string name="home_add_widget">Tambah widget</string>
+    <string name="widget_remove">Hapus widget</string>
+    <string name="widget_move_before">Pindahkan ke awal</string>
+    <string name="widget_move_after">Pindahkan ke akhir</string>
 </resources>

@@ -32,7 +32,6 @@ class HomeGestureDetector(
     private suspend fun AwaitPointerEventScope.onEditDown(down: PointerInputChange, callbacks: HomeGestureCallbacks) {
         arbiter.reset()
         val drag = when {
-            registry.clock.contains(down.position) -> EditDrag(callbacks.clock) { it.x }
             registry.handle.contains(down.position) -> EditDrag(callbacks.handle) { it.y }
             else -> null
         }

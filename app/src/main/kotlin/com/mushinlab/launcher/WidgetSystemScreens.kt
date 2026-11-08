@@ -20,7 +20,7 @@ class WidgetSystemScreens(
     private val picker = activity.registerForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
     ) { result ->
-        editor().onPicked(result.resultCode == Activity.RESULT_OK, result.data?.getBooleanExtra(CLOCK, false) == true)
+        editor().onPicked(result.resultCode == Activity.RESULT_OK)
     }
 
     init {
@@ -35,23 +35,23 @@ class WidgetSystemScreens(
         })
     }
 
-    fun pick(id: Int) {
-        val clock = AppWidgetProviderInfo().apply {
-            provider = ComponentName(activity, "builtin.clock")
-            label = activity.getString(R.string.widget_time)
-            icon = com.mushinlab.launcher.core.ui.R.drawable.ic_clock
-        }
-        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_PICK).apply {
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
-            putParcelableArrayListExtra(AppWidgetManager.EXTRA_CUSTOM_INFO, arrayListOf(clock))
-            putParcelableArrayListExtra(
-                AppWidgetManager.EXTRA_CUSTOM_EXTRAS,
-                arrayListOf(Bundle().apply { putBoolean(CLOCK, true) }),
-            )
-        }
+    fun bind(id: Int, info: AppWidgetProviderInfo) {
+        val manager = AppWidgetManager.getInstance(activity)
         try {
-            picker.launch(intent)
+            if (manager.bindAppWidgetIdIfAllowed(id, info.profile, info.provider, null)) {
+                editor().onPicked(true)
+            } else {
+                picker.launch(
+                    Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
+                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
+                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider)
+                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, info.profile)
+                    },
+                )
+            }
         } catch (_: ActivityNotFoundException) {
+            editor().unavailable()
+        } catch (_: SecurityException) {
             editor().unavailable()
         }
     }
@@ -71,7 +71,6 @@ class WidgetSystemScreens(
     }
 
     private companion object {
-        const val CLOCK = "mushin_clock"
         const val CONFIGURE_REQUEST = 9081
     }
 }

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.0 — 2026-11-08
+
+### Changed
+- Replaced the two scrolling widget shelves with one compact top panel: Standard holds up to two small widgets in a row or column; Expanded holds four in a 2×2 grid. Hold and drag in edit mode to reorder.
+- The clock is a regular panel slot: drag it, remove it, or add it back as the first picker entry; its pencil opens the clock settings. The picker shows each widget's app and lists only widgets that fit a small cell without shrinking their contents. Existing widget storage migrates locally without discarding bound instances.
+- The clock and widgets smaller than their cell are centred in it. In edit mode the clock's pencil sits in the middle of its cell and the remove button in the corner.
+
+### Fixed
+- An Expanded panel with three widgets lets you add a fourth: widgets that did not fit their cell no longer hide while still taking a slot.
+
 ## 0.8.0 — 2026-11-07
 
 ### Added

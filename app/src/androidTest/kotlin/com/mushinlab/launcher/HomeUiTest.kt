@@ -132,34 +132,13 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun editModeShowsTheClockSlotsAndDraggingDropsItIntoTheNearest() {
-        rule.onNodeWithTag("clock_slot_END").assertDoesNotExist()
-        rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("clock_slot_START").assertExists()
-        rule.onNodeWithTag("clock_slot_CENTER").assertExists()
-        rule.onNodeWithTag("clock_slot_END").assertExists()
-        val width = rule.onNodeWithTag("home").fetchSemanticsNode().boundsInRoot.width
-        rule.onNodeWithTag("clock_block").performTouchInput {
-            down(center)
-            moveBy(Offset(width, 0f))
-            up()
-        }
-        rule.waitUntil(5_000) { container.settings.settings.value.clockPosition == ClockPosition.END }
-        rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("clock_slot_END").assertDoesNotExist()
-    }
-
-    @Test
     fun clockEditButtonAppearsOnlyInEditModeAndOpensTheClockSheet() {
-        rule.onNodeWithTag("clock_edit").assertDoesNotExist()
+        val edit = "tile_edit_${com.mushinlab.launcher.core.model.HostedWidget.CLOCK_ID}"
+        rule.onNodeWithTag(edit).assertDoesNotExist()
         rule.onNodeWithTag("home_edit").performClick()
-        val clock = rule.onNodeWithTag("clock_block").fetchSemanticsNode().boundsInRoot
-        val button = rule.onNodeWithTag("clock_edit").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
-        assertThat(button.left).isAtLeast(clock.right)
-        rule.onNodeWithTag("clock_edit").performClick()
+        rule.onNodeWithTag(edit).assertIsDisplayed().performClick()
         rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.ClockSheet }
         rule.onNodeWithTag("clock_sheet").assertIsDisplayed()
-        assertThat(container.settings.settings.value.clockPosition).isEqualTo(ClockPosition.START)
     }
 
     @Test
@@ -296,7 +275,7 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun hiddenClockLeavesAddWidgetButtonsAndTheSizeChangesTheDigits() {
+    fun clockSizeChangesTheDigitsAndRemovingTheClockLeavesTheAddCell() {
         fun clockHeight() = rule.onNodeWithTag("clock").fetchSemanticsNode().boundsInRoot.height
         runBlocking { container.settings.update { it.copy(clockSize = ClockSize.S) } }
         rule.waitUntil(5_000) { rule.activity.launcher.home.value.clockSize == ClockSize.S }
@@ -306,16 +285,14 @@ class HomeUiTest : LauncherUiTestBase() {
         rule.waitUntil(5_000) { rule.activity.launcher.home.value.clockSize == ClockSize.L }
         rule.waitForIdle()
         assertThat(clockHeight()).isGreaterThan(small)
-        runBlocking { container.settings.update { it.copy(showClock = false, clockSize = ClockSize.M) } }
-        rule.waitUntil(5_000) { !rule.activity.launcher.home.value.showClock }
-        rule.onNodeWithTag("clock").assertDoesNotExist()
-        rule.onNodeWithTag("home_add_clock").assertDoesNotExist()
+        runBlocking { container.settings.update { it.copy(clockSize = ClockSize.M) } }
         rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("tile_remove_${com.mushinlab.launcher.core.model.HostedWidget.CLOCK_ID}").performClick()
+        rule.waitUntil(5_000) { rule.activity.launcher.home.value.widgetPanels.top.widgets.isEmpty() }
+        rule.onNodeWithTag("clock").assertDoesNotExist()
         rule.onNodeWithTag("add_widget_TOP").assertIsDisplayed()
-        rule.onNodeWithTag("add_widget_BOTTOM").assertIsDisplayed()
-        runBlocking { container.settings.update { it.copy(showClock = true) } }
-        rule.waitUntil(5_000) { container.settings.settings.value.showClock }
-        rule.onNodeWithTag("clock").assertIsDisplayed()
+        runBlocking { container.widgets.update { com.mushinlab.launcher.core.model.WidgetState() } }
+        rule.waitUntil(5_000) { rule.activity.launcher.home.value.widgetPanels.top.widgets.isNotEmpty() }
     }
 
     @Test

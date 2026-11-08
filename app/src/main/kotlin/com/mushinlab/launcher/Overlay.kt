@@ -36,7 +36,7 @@ data class Notice(
 )
 
 sealed interface LauncherEffect {
-    data class PickWidget(val id: Int) : LauncherEffect
+    data class BindWidget(val id: Int, val info: android.appwidget.AppWidgetProviderInfo) : LauncherEffect
 
     data class ConfigureWidget(val id: Int) : LauncherEffect
 

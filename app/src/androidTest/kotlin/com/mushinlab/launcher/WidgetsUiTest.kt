@@ -1,27 +1,18 @@
 package com.mushinlab.launcher
 
 import android.appwidget.AppWidgetManager
-import android.view.accessibility.AccessibilityNodeInfo
-import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.unit.dp
-import androidx.test.espresso.Espresso
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import com.mushinlab.launcher.core.data.repo.SpaceOutcome
-import com.mushinlab.launcher.core.model.FolderKeys
-import com.mushinlab.launcher.core.model.SpaceType
+import com.mushinlab.launcher.core.model.HostedWidget
+import com.mushinlab.launcher.core.model.WidgetArrangement
 import com.mushinlab.launcher.core.model.WidgetLayout
-import com.mushinlab.launcher.core.model.WidgetPanelPosition
-import com.mushinlab.launcher.core.model.WidgetPanelSize
+import com.mushinlab.launcher.core.model.WidgetPanelMode
 import com.mushinlab.launcher.core.model.WidgetState
-import com.mushinlab.launcher.feature.settings.R as SettingsR
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -30,198 +21,211 @@ import org.junit.Test
 class WidgetsUiTest : LauncherUiTestBase() {
     @Before
     fun resetWidgets() = runBlocking {
+        InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand(
+            "appwidget grantbind --package com.mushinlab.launcher --user 0",
+        ).use { android.os.ParcelFileDescriptor.AutoCloseInputStream(it).readBytes() }
         container.widgets.update { WidgetState() }
-        container.settings.update { it.copy(showClock = true) }
     }
 
     @After
     fun clearWidgets() = runBlocking {
+        if (InstrumentationRegistry.getArguments().getString("keepWidgets") == "true") return@runBlocking
         container.widgetHost.appWidgetIds.forEach(container.widgetHost::deleteAppWidgetId)
         container.widgets.update { WidgetState() }
     }
 
     @Test
-    fun AC_38_1_emptyPanelsCollapseAndAddingOnlyAppearsWhileEditing() {
-        runBlocking {
-            container.widgets.update { WidgetState(mapOf(normalId to WidgetLayout(clockPanel = null))) }
-        }
-        rule.waitUntil(5_000) { !rule.activity.launcher.home.value.widgetPanels.top.clock }
-        rule.onNodeWithTag("widget_panel_TOP").assertDoesNotExist()
-        rule.onNodeWithTag("widget_panel_BOTTOM").assertDoesNotExist()
+    fun AC_39_1_clockIsARemovableSlotAddedBackFromThePicker() {
+        rule.onNodeWithTag("widget_${HostedWidget.CLOCK_ID}").assertIsDisplayed()
         rule.onNodeWithTag("add_widget_TOP").assertDoesNotExist()
+        screenshot("default")
         rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("add_widget_TOP").assertIsDisplayed()
-        rule.onNodeWithTag("add_widget_BOTTOM").assertIsDisplayed()
-        rule.onNodeWithTag("home_widgets").performClick()
-        rule.onNodeWithTag("widgets_sheet").assertIsDisplayed()
-        rule.onNodeWithTag("widget_size_TOP_dropdown").assertIsDisplayed()
+        rule.onNodeWithTag("tile_remove_${HostedWidget.CLOCK_ID}").performClick()
+        rule.waitUntil(5_000) { layout().widgets.isEmpty() }
+        rule.onNodeWithTag("clock_block").assertDoesNotExist()
+        rule.onNodeWithTag("add_widget_TOP").assertIsDisplayed().performClick()
+        assertThat(rule.activity.launcher.widgets.choices?.first()).isEqualTo(WidgetChoice.Clock)
+        rule.onNodeWithTag("widget_choice_0").performClick()
+        rule.waitUntil(5_000) { layout().widgets == listOf(HostedWidget.clock) }
+        rule.onNodeWithTag("clock_sheet").assertIsDisplayed()
     }
 
     @Test
-    fun AC_38_3_systemPickerAddsTimeToTheChosenPanel() {
+    fun AC_39_2_threeWidgetsInTheExpandedPanelLeaveTheFourthCellForAdding() {
+        seedWidgets(3)
         rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("add_widget_BOTTOM").performClick()
-        chooseSystemWidget(rule.activity.getString(R.string.widget_time))
-        rule.waitUntil(5_000) { container.widgets.loaded.value?.pending == null }
-        com.google.common.truth.Truth.assertWithMessage("Widget state: ${container.widgets.loaded.value}")
-            .that(
-                container.widgets.loaded.value?.layouts?.get(normalId)?.clockPanel,
-            ).isEqualTo(WidgetPanelPosition.BOTTOM)
-        rule.onNodeWithTag("widget_panel_TOP").assertDoesNotExist()
-        rule.onNodeWithTag("widget_panel_BOTTOM").assertIsDisplayed()
+        rule.onNodeWithTag("add_widget_TOP").assertIsDisplayed()
+        screenshot("expanded-three")
+    }
+
+    @Test
+    fun AC_39_3_pickerFiltersSmallWidgetsAndCancellationAllocatesNothing() {
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("add_widget_TOP").performClick()
+        rule.onNodeWithTag("widget_picker").assertIsDisplayed()
+        val choices = rule.activity.launcher.widgets.choices.orEmpty()
+        assertThat(choices).isNotEmpty()
+        assertThat(choices).doesNotContain(WidgetChoice.Clock)
+        assertThat(choices.all { it is WidgetChoice.Hosted && fitsCompactWidget(rule.activity, it.info) }).isTrue()
+        assertThat(choices.size).isLessThan(AppWidgetManager.getInstance(rule.activity).installedProviders.size)
+        screenshot("picker")
+        androidx.test.espresso.Espresso.pressBack()
+        rule.waitForIdle()
+        rule.onNodeWithTag("widget_picker").assertDoesNotExist()
+        assertThat(rule.activity.launcher.navigator.homeEditing).isTrue()
+        assertThat(container.widgets.loaded.value?.pending).isNull()
         assertThat(container.widgetHost.appWidgetIds).isEmpty()
     }
 
     @Test
-    fun AC_38_4_cancellingSystemPickerReleasesTheAllocatedId() {
+    fun AC_39_3_addRemoveAndRecreateRealWidget() {
+        val index = compactProviders(rule.activity).indexOfFirst { it.configure == null }
+        assertThat(index).isAtLeast(0)
         rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("add_widget_TOP").performClick()
-        rule.waitUntil(5_000) { container.widgets.loaded.value?.pending != null }
-        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
-        rule.waitUntil(5_000) { automation.rootInActiveWindow?.packageName?.toString() == "com.android.settings" }
-        automation.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK)
-        rule.waitUntil(5_000) { container.widgets.loaded.value?.pending == null }
-        assertThat(container.widgetHost.appWidgetIds).isEmpty()
-    }
-
-    @Test
-    fun AC_38_3_systemPickerBindsAndDisplaysAnInstalledAppsWidget() {
-        val manager = AppWidgetManager.getInstance(rule.activity)
-        val provider = manager.installedProviders.first { it.configure == null }
-        rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("add_widget_TOP").performClick()
-        chooseSystemWidget(provider.loadLabel(rule.activity.packageManager))
-        rule.waitUntil(5_000) { container.widgets.loaded.value?.layouts?.get(normalId)?.widgets?.isNotEmpty() == true }
-        val widget = container.widgets.loaded.value?.layouts?.get(normalId)?.widgets?.first() ?: error("Missing widget")
-        assertThat(manager.getAppWidgetInfo(widget.id).provider).isEqualTo(provider.provider)
+        rule.onNodeWithTag("widget_choice_$index").performScrollTo().performClick()
+        rule.waitUntil(10_000) { layout().widgets.any { !it.isClock } }
+        val widget = layout().widgets.first { !it.isClock }
         rule.onNodeWithTag("widget_${widget.id}").assertIsDisplayed()
         rule.activityRule.scenario.recreate()
         rule.onNodeWithTag("widget_${widget.id}").assertIsDisplayed()
         rule.onNodeWithTag("home_widgets").performClick()
-        rule.onNodeWithTag("widget_remove_${widget.id}").performClick()
+        rule.onNodeWithTag("widget_remove_${widget.id}").performScrollTo().performClick()
         rule.waitUntil(5_000) {
-            container.widgets.loaded.value?.layouts?.get(normalId)?.widgets?.isEmpty() == true &&
-                container.widgetHost.appWidgetIds.isEmpty()
+            layout().widgets == listOf(HostedWidget.clock) && container.widgetHost.appWidgetIds.isEmpty()
         }
-        assertThat(container.widgetHost.appWidgetIds).isEmpty()
     }
 
     @Test
-    fun AC_38_2_panelHeightAndClockPositionBelongToTheCurrentSpace() {
-        val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }
+    fun AC_39_2_standardRowColumnAndDragPersist() {
+        val widgets = seedWidgets(2)
+        rule.onNodeWithTag("home_edit").performClick()
+        val first = rule.onNodeWithTag("widget_${widgets[0].id}")
+        val second = rule.onNodeWithTag("widget_${widgets[1].id}")
+        val a = first.fetchSemanticsNode().boundsInRoot
+        val b = second.fetchSemanticsNode().boundsInRoot
+        assertThat(a.top).isEqualTo(b.top)
+        screenshot("standard-row")
+        val timeout = android.view.ViewConfiguration.getLongPressTimeout().toLong()
+        first.performTouchInput {
+            down(center)
+            advanceEventTime(timeout + 100)
+            moveBy(b.center - a.center, 300)
+            up()
+        }
+        rule.waitUntil(5_000) { layout().widgets.first().id == widgets[1].id }
+        rule.runOnIdle {
+            rule.activity.launcher.widgets.panels.resize(WidgetPanelMode.STANDARD, WidgetArrangement.COLUMN)
+        }
+        rule.waitUntil(5_000) {
+            rule.activity.launcher.home.value.widgetPanels.top.arrangement ==
+                WidgetArrangement.COLUMN
+        }
+        val upper = second.fetchSemanticsNode().boundsInRoot
+        val lower = first.fetchSemanticsNode().boundsInRoot
+        assertThat(upper.left).isEqualTo(lower.left)
+        assertThat(lower.top).isGreaterThan(upper.bottom)
+        screenshot("standard-column")
+        rule.activityRule.scenario.recreate()
+        rule.waitUntil(5_000) { layout().arrangement == WidgetArrangement.COLUMN }
+        assertThat(layout().widgets.first().id).isEqualTo(widgets[1].id)
+    }
+
+    @Test
+    fun AC_39_2_expandedGridHasFourCellsAndCannotOverflow() {
+        val widgets = seedWidgets(4)
+        rule.onNodeWithTag("home_edit").performClick()
+        val cells = widgets.map {
+            rule.onNodeWithTag("widget_${it.id}").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        }
+        assertThat(cells[0].top).isEqualTo(cells[1].top)
+        assertThat(cells[2].top).isEqualTo(cells[3].top)
+        assertThat(cells[2].top).isGreaterThan(cells[0].bottom)
+        rule.onNodeWithTag("add_widget_TOP").assertDoesNotExist()
+        screenshot("expanded-edit")
+        rule.runOnIdle {
+            rule.activity.launcher.widgets.panels.resize(WidgetPanelMode.STANDARD, WidgetArrangement.ROW)
+            rule.activity.launcher.widgets.add()
+        }
+        rule.waitForIdle()
+        assertThat(layout().mode).isEqualTo(WidgetPanelMode.EXPANDED)
+        assertThat(rule.activity.launcher.widgets.choices).isNull()
+        rule.onNodeWithTag("home_widgets").performClick()
+        screenshot("panel-settings")
+        androidx.test.espresso.Espresso.pressBack()
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("row_2").assertIsDisplayed()
+        screenshot("expanded-home")
+        val row = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot
+        val bitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+        val pixels = IntArray(row.width.toInt() * row.height.toInt())
+        bitmap.getPixels(
+            pixels,
+            0,
+            row.width.toInt(),
+            row.left.toInt(),
+            row.top.toInt(),
+            row.width.toInt(),
+            row.height.toInt(),
+        )
+        assertThat(pixels.toSet().size).isGreaterThan(2)
+    }
+
+    @Test
+    fun AC_39_3_cancelProviderConfigurationReleasesId() {
+        val providers = compactProviders(rule.activity)
+        val index = providers.indexOfFirst { it.configure != null }
+        assertThat(index).isAtLeast(0)
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("add_widget_TOP").performClick()
+        rule.onNodeWithTag("widget_choice_$index").performScrollTo().performClick()
+        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        rule.waitUntil(10_000) {
+            automation.rootInActiveWindow?.packageName?.toString() == providers[index].configure.packageName
+        }
+        automation.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK)
+        rule.waitUntil(5_000) { container.widgets.loaded.value?.pending == null }
+        assertThat(layout().widgets).containsExactly(HostedWidget.clock)
+        assertThat(container.widgetHost.appWidgetIds).isEmpty()
+    }
+
+    private fun seedWidgets(count: Int): List<HostedWidget> {
+        val manager = AppWidgetManager.getInstance(rule.activity)
+        val providers = compactProviders(rule.activity).filter { it.configure == null }
+        assertThat(providers).isNotEmpty()
+        val widgets = (0 until count).map { index ->
+            val info = providers[index % providers.size]
+            val id = container.widgetHost.allocateAppWidgetId()
+            assertThat(manager.bindAppWidgetIdIfAllowed(id, info.provider)).isTrue()
+            HostedWidget(id, info.loadLabel(rule.activity.packageManager).toString())
+        }
         runBlocking {
-            container.spaces.setItems(work.id, spaceItems())
             container.widgets.update {
                 WidgetState(
                     mapOf(
-                        normalId to WidgetLayout(topSize = WidgetPanelSize.SMALL),
-                        work.id to WidgetLayout(
-                            clockPanel = WidgetPanelPosition.BOTTOM,
-                            bottomSize = WidgetPanelSize.LARGE,
+                        normalId to WidgetLayout(
+                            mode = if (count > 2) WidgetPanelMode.EXPANDED else WidgetPanelMode.STANDARD,
+                            widgets = widgets,
                         ),
                     ),
                 )
             }
         }
-        rule.waitUntil(5_000) { rule.activity.launcher.home.value.widgetPanels.top.size == WidgetPanelSize.SMALL }
-        rule.onNodeWithTag("widget_panel_TOP").assertHeightIsEqualTo(120.dp)
-        runBlocking { container.settings.update { it.copy(currentSpaceId = work.id) } }
-        rule.waitUntil(5_000) { rule.activity.launcher.home.value.widgetPanels.bottom.clock }
-        rule.onNodeWithTag("widget_panel_TOP").assertDoesNotExist()
-        rule.onNodeWithTag("widget_panel_BOTTOM").assertIsDisplayed()
-        runBlocking { container.settings.update { it.copy(currentSpaceId = normalId) } }
-        rule.waitUntil(5_000) { rule.activity.launcher.home.value.widgetPanels.top.clock }
-        rule.onNodeWithTag("widget_panel_TOP").assertHeightIsEqualTo(120.dp)
+        rule.waitUntil(5_000) { rule.activity.launcher.home.value.widgetPanels.top.widgets.size == count }
+        return widgets
     }
 
-    @Test
-    fun AC_38_4_cancellingProviderConfigurationReleasesItsBoundId() {
-        val manager = AppWidgetManager.getInstance(rule.activity)
-        val provider = manager.installedProviders.first { it.configure != null }
-        rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("add_widget_TOP").performClick()
-        chooseSystemWidget(provider.loadLabel(rule.activity.packageManager))
+    private fun layout(): WidgetLayout = container.widgets.loaded.value?.layouts?.get(normalId) ?: WidgetLayout()
+
+    private fun screenshot(name: String) {
+        rule.mainClock.advanceTimeBy(400)
+        rule.waitForIdle()
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
-        rule.waitUntil(5_000) {
-            val root = automation.rootInActiveWindow
-            val pending = container.widgets.loaded.value?.pending
-            pending != null && manager.getAppWidgetInfo(pending.id) != null &&
-                root?.packageName?.toString() == provider.configure.packageName &&
-                root.findAccessibilityNodeInfosByText("Choose widget").isEmpty()
+        automation.waitForIdle(300, 3_000)
+        val file = java.io.File(rule.activity.getExternalFilesDir(null), "widgets-$name.png")
+        file.outputStream().use {
+            automation.takeScreenshot().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
         }
-        automation.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK)
-        rule.waitUntil(5_000) { container.widgets.loaded.value?.pending == null }
-        assertThat(container.widgets.loaded.value?.layouts?.get(normalId)?.widgets.orEmpty()).isEmpty()
-        assertThat(container.widgetHost.appWidgetIds).isEmpty()
-    }
-
-    @Test
-    fun AC_38_2_twoLargePanelsKeepEveryAppListRowReachable() {
-        val apps = runBlocking { container.catalog.apps.first { it.size >= 7 } }.take(7)
-        val folder = runBlocking {
-            val id = (container.folders.create(normalId, 20) as SpaceOutcome.Ok).value
-            container.folders.rename(id, "Scrollable folder")
-            container.folders.setApps(id, apps.take(2).map { it.key })
-            container.spaces.setItems(normalId, apps.map { it.key } + FolderKeys.of(id))
-            id
-        }
-        val provider = AppWidgetManager.getInstance(rule.activity).installedProviders.first { it.configure == null }
-        rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("add_widget_BOTTOM").performClick()
-        chooseSystemWidget(provider.loadLabel(rule.activity.packageManager))
-        rule.waitUntil(5_000) { container.widgets.loaded.value?.layouts?.get(normalId)?.widgets?.isNotEmpty() == true }
-        rule.runOnIdle {
-            rule.activity.launcher.widgets.resize(WidgetPanelPosition.TOP, WidgetPanelSize.LARGE)
-            rule.activity.launcher.widgets.resize(WidgetPanelPosition.BOTTOM, WidgetPanelSize.LARGE)
-        }
-        rule.waitUntil(5_000) { rule.activity.launcher.home.value.widgetPanels.bottom.size == WidgetPanelSize.LARGE }
-        rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("row_7").performScrollTo().performTouchInput { click() }
-        rule.waitUntil(5_000) { (rule.activity.launcher.navigator.overlay as? Overlay.Folder)?.id == folder }
-        rule.runOnIdle { rule.activity.launcher.navigator.handleBack() }
-        rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("row_7").performScrollTo().performTouchInput { click() }
-        rule.onNodeWithTag("edit_item_sheet").assertIsDisplayed()
-    }
-
-    private fun chooseSystemWidget(label: String) {
-        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
-        var node: AccessibilityNodeInfo? = null
-        rule.waitUntil(5_000) {
-            node = automation.rootInActiveWindow?.findAccessibilityNodeInfosByText(label)?.firstOrNull {
-                it.text?.toString() == label && it.isVisibleToUser
-            }
-            if (node == null) {
-                automation.rootInActiveWindow?.let(::scrollableNode)
-                    ?.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
-                automation.waitForIdle(100, 1_000)
-            }
-            node != null
-        }
-        automation.waitForIdle(200, 2_000)
-        node = automation.rootInActiveWindow?.findAccessibilityNodeInfosByText(label)?.firstOrNull {
-            it.text?.toString() == label && it.isVisibleToUser
-        }
-        val bounds = android.graphics.Rect()
-        (node ?: error("Missing system widget row after scrolling")).getBoundsInScreen(bounds)
-        val time = android.os.SystemClock.uptimeMillis()
-        listOf(android.view.MotionEvent.ACTION_DOWN, android.view.MotionEvent.ACTION_UP).forEach { action ->
-            val event = android.view.MotionEvent.obtain(
-                time,
-                time,
-                action,
-                bounds.exactCenterX(),
-                bounds.exactCenterY(),
-                0,
-            )
-            event.source = android.view.InputDevice.SOURCE_TOUCHSCREEN
-            automation.injectInputEvent(event, true)
-            event.recycle()
-        }
-    }
-
-    private fun scrollableNode(node: AccessibilityNodeInfo): AccessibilityNodeInfo? {
-        if (node.isScrollable) return node
-        return (0 until node.childCount).firstNotNullOfOrNull { node.getChild(it)?.let(::scrollableNode) }
     }
 }

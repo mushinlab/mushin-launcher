@@ -2,9 +2,9 @@ package com.mushinlab.launcher.core.data.widgets
 
 import com.mushinlab.launcher.core.model.HostedWidget
 import com.mushinlab.launcher.core.model.PendingWidget
+import com.mushinlab.launcher.core.model.WidgetArrangement
 import com.mushinlab.launcher.core.model.WidgetLayout
-import com.mushinlab.launcher.core.model.WidgetPanelPosition
-import com.mushinlab.launcher.core.model.WidgetPanelSize
+import com.mushinlab.launcher.core.model.WidgetPanelMode
 import com.mushinlab.launcher.core.model.WidgetState
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -20,20 +20,17 @@ internal object WidgetStateCodec {
             out.writeInt(state.layouts.size)
             state.layouts.forEach { (id, layout) ->
                 out.writeLong(id)
-                out.writeUTF(layout.clockPanel?.name.orEmpty())
-                out.writeUTF(layout.topSize.name)
-                out.writeUTF(layout.bottomSize.name)
+                out.writeUTF(layout.mode.name)
+                out.writeUTF(layout.arrangement.name)
                 out.writeInt(layout.widgets.size)
                 layout.widgets.forEach {
                     out.writeInt(it.id)
-                    out.writeUTF(it.panel.name)
                     out.writeUTF(it.label)
                 }
             }
             out.writeBoolean(state.pending != null)
             state.pending?.let {
                 out.writeLong(it.spaceId)
-                out.writeUTF(it.panel.name)
                 out.writeInt(it.id)
             }
         }
@@ -43,21 +40,19 @@ internal object WidgetStateCodec {
     fun decode(raw: String?): WidgetState = runCatching {
         if (raw == null) return WidgetState()
         DataInputStream(ByteArrayInputStream(Base64.getDecoder().decode(raw))).use { input ->
-            require(input.readInt() == VERSION)
+            val version = input.readInt()
+            require(version in 1..VERSION)
+            val legacy = version < VERSION
             val layouts = buildMap {
                 repeat(input.count()) {
                     val id = input.readLong()
-                    val clock = input.readUTF().takeIf { it.isNotEmpty() }?.let(WidgetPanelPosition::valueOf)
-                    val top = WidgetPanelSize.valueOf(input.readUTF())
-                    val bottom = WidgetPanelSize.valueOf(input.readUTF())
-                    val widgets = List(input.count()) {
-                        HostedWidget(input.readInt().also { require(it > 0) }, input.panel(), input.readUTF())
-                    }
-                    put(id, WidgetLayout(clock, top, bottom, widgets))
+                    put(id, if (legacy) input.legacyLayout(version) else input.layout())
                 }
             }
             val pending = if (input.readBoolean()) {
-                PendingWidget(input.readLong(), input.panel(), input.readInt().also { require(it > 0) })
+                val space = input.readLong()
+                if (legacy) input.readUTF()
+                PendingWidget(space, input.readInt().also { require(it > HostedWidget.CLOCK_ID) })
             } else {
                 null
             }
@@ -65,10 +60,33 @@ internal object WidgetStateCodec {
         }
     }.getOrDefault(WidgetState())
 
-    private fun DataInputStream.panel(): WidgetPanelPosition = WidgetPanelPosition.valueOf(readUTF())
+    private fun DataInputStream.layout(): WidgetLayout {
+        val mode = WidgetPanelMode.valueOf(readUTF())
+        val arrangement = WidgetArrangement.valueOf(readUTF())
+        val widgets = List(count()) { HostedWidget(readInt().also { require(it >= 0) }, readUTF()) }
+        return WidgetLayout(mode, arrangement, widgets)
+    }
+
+    private fun DataInputStream.legacyLayout(version: Int): WidgetLayout {
+        val clock = readUTF().isNotEmpty()
+        val mode = readUTF()
+        val arrangement = readUTF()
+        val hosted = List(count()) {
+            val id = readInt().also { require(it > HostedWidget.CLOCK_ID) }
+            readUTF()
+            HostedWidget(id, readUTF())
+        }
+        val widgets = if (clock) listOf(HostedWidget.clock) + hosted else hosted
+        val stored = if (version == 1) WidgetPanelMode.STANDARD else WidgetPanelMode.valueOf(mode)
+        return WidgetLayout(
+            mode = if (widgets.size > stored.capacity) WidgetPanelMode.EXPANDED else stored,
+            arrangement = if (version == 1) WidgetArrangement.ROW else WidgetArrangement.valueOf(arrangement),
+            widgets = widgets,
+        )
+    }
 
     private fun DataInputStream.count(): Int = readInt().also { require(it in 0..MAX_ENTRIES) }
 
-    private const val VERSION = 1
+    private const val VERSION = 3
     private const val MAX_ENTRIES = 512
 }

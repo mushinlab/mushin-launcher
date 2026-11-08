@@ -79,7 +79,6 @@
     <string name="home_clock_system">System</string>
     <string name="home_clock_24">24-hour</string>
     <string name="home_clock_12">12-hour</string>
-    <string name="clock_show">Show time</string>
     <string name="clock_size">Clock size</string>
     <string name="home_show_date">Show date</string>
     <string name="home_text_size">Text size</string>
@@ -174,7 +173,7 @@
     <string name="weight_medium">Medium</string>
     <string name="memory_usefulness">Usefulness in “%1$s”</string>
     <string name="memory_usefulness_note">A score from 1 to 100: how often and how recently you opened the app in this space. If an app that is not on the home screen scores clearly higher than one that is, a “?” with a suggestion appears in the bottom right corner.</string>
-    <string name="home_clock_note">Tap the clock to open the Clock app. To move it, tap the pencil at the bottom of the home screen and drag the clock left, centre or right.</string>
+    <string name="home_clock_note">Tap the clock to open the Clock app. The clock is a widget panel slot: drag or remove it like any other widget.</string>
     <string name="settings_back">Back</string>
     <string name="style_theme">Theme of “%1$s”</string>
     <string name="style_text">Text</string>
@@ -250,7 +249,7 @@
     <string name="edit_tip_list_title">Apps and folders</string>
     <string name="edit_tip_list">Tap an app or folder to remove it from the list or replace it. For a folder, Replace opens its editor. Add apps and folders below the list. Drag the handle above the list to move it; scroll the list to reach more apps.</string>
     <string name="edit_tip_widgets_title">Widgets</string>
-    <string name="edit_tip_widgets">Use the widgets button next to the palette to manage the panels above and below your apps. Add time or a widget from an installed app, and choose a small, medium or large panel.</string>
+    <string name="edit_tip_widgets">The top panel holds up to two small widgets in a row or column, or four in Expanded mode. Hold and drag to rearrange them. The clock stays fixed.</string>
     <string name="edit_tip_font_title">Font</string>
     <string name="edit_tip_font">Tap the text button to choose the font, weight, size and alignment of app names.</string>
     <string name="edit_tip_theme_title">Theme</string>
@@ -261,6 +260,16 @@
     <string name="widgets_height">Panel height</string>
     <string name="widgets_add">Add widget</string>
     <string name="widgets_remove">Remove %1$s</string>
-    <string name="widgets_time">Time</string>
-    <string name="widgets_note">Empty panels take no space. Swipe a panel horizontally to see more widgets.</string>
+    <string name="widgets_time">Clock</string>
+    <string name="widgets_note">Hold and drag a widget in edit mode to change its position.</string>
+    <string name="widgets_mode">Panel</string>
+    <string name="widgets_standard">Standard · up to 2</string>
+    <string name="widgets_expanded">Expanded · 2 × 2</string>
+    <string name="widgets_arrangement">Arrangement</string>
+    <string name="widgets_row">Row</string>
+    <string name="widgets_column">Column</string>
+    <string name="widgets_reduce">Remove extra widgets to switch to Standard.</string>
+    <string name="widgets_small_only">Only small widgets that fit a panel cell are shown.</string>
+    <string name="widgets_empty">No small widgets available from installed apps.</string>
+    <string name="widgets_saved_hidden">Widgets beyond the panel limit are kept in this list. Remove them to free a slot.</string>
 </resources>

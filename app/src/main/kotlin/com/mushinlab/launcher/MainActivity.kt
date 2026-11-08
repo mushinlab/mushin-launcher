@@ -124,7 +124,7 @@ class MainActivity : ComponentActivity() {
 
     private fun perform(effect: LauncherEffect) {
         when (effect) {
-            is LauncherEffect.PickWidget -> widgetScreens.pick(effect.id)
+            is LauncherEffect.BindWidget -> widgetScreens.bind(effect.id, effect.info)
 
             is LauncherEffect.ConfigureWidget -> widgetScreens.configure(effect.id)
 

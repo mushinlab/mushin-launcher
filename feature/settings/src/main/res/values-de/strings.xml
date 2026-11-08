@@ -79,7 +79,6 @@
     <string name="home_clock_system">System</string>
     <string name="home_clock_24">24 Stunden</string>
     <string name="home_clock_12">12 Stunden</string>
-    <string name="clock_show">Uhrzeit anzeigen</string>
     <string name="clock_size">Uhrgröße</string>
     <string name="home_show_date">Datum anzeigen</string>
     <string name="home_text_size">Textgröße</string>
@@ -174,7 +173,7 @@
     <string name="weight_medium">Mittel</string>
     <string name="memory_usefulness">Nützlichkeit in „%1$s“</string>
     <string name="memory_usefulness_note">Ein Wert von 1 bis 100: wie oft und wie kürzlich du die App in diesem Bereich geöffnet hast. Hat eine App, die nicht auf dem Startbildschirm ist, einen deutlich höheren Wert als eine, die dort ist, erscheint unten rechts ein „?“ mit einem Vorschlag.</string>
-    <string name="home_clock_note">Tippe auf die Uhr, um die Uhr-App zu öffnen. Zum Verschieben tippe unten auf dem Startbildschirm auf den Stift und ziehe die Uhr nach links, in die Mitte oder nach rechts.</string>
+    <string name="home_clock_note">Tippe auf die Uhr, um die Uhr-App zu öffnen. Die Uhr ist ein Feld im Widget-Bereich: Verschiebe oder entferne sie wie jedes andere Widget.</string>
     <string name="settings_back">Zurück</string>
     <string name="style_theme">Design von „%1$s“</string>
     <string name="style_text">Text</string>
@@ -249,7 +248,7 @@
     <string name="edit_tip_list_title">Apps und Ordner</string>
     <string name="edit_tip_list">Tippe auf eine App oder einen Ordner, um sie aus der Liste zu entfernen oder zu ersetzen. Bei Ordnern öffnet „Ersetzen“ den Editor. Füge Apps und Ordner unter der Liste hinzu. Ziehe den Griff über der Liste, um sie zu verschieben. Scrolle, um weitere Apps zu sehen.</string>
     <string name="edit_tip_widgets_title">Widgets</string>
-    <string name="edit_tip_widgets">Verwalte mit der Schaltfläche neben der Palette die Bereiche über und unter deinen Apps. Füge die Uhrzeit oder ein Widget einer installierten App hinzu und wähle einen kleinen, mittleren oder großen Bereich.</string>
+    <string name="edit_tip_widgets">Oben passen zwei kleine Widgets nebeneinander oder untereinander, im erweiterten Bereich vier. Zum Verschieben gedrückt halten. Die Uhr bleibt fest.</string>
     <string name="edit_tip_font_title">Schrift</string>
     <string name="edit_tip_font">Tippe auf die Textschaltfläche, um Schriftart, Stärke, Größe und Ausrichtung der App-Namen auszuwählen.</string>
     <string name="edit_tip_theme_title">Thema</string>
@@ -260,6 +259,16 @@
     <string name="widgets_height">Bereichshöhe</string>
     <string name="widgets_add">Widget hinzufügen</string>
     <string name="widgets_remove">%1$s entfernen</string>
-    <string name="widgets_time">Uhrzeit</string>
-    <string name="widgets_note">Leere Bereiche belegen keinen Platz. Wische horizontal, um weitere Widgets zu sehen.</string>
+    <string name="widgets_time">Uhr</string>
+    <string name="widgets_note">Halte ein Widget im Bearbeitungsmodus gedrückt und ziehe es.</string>
+    <string name="widgets_mode">Bereich</string>
+    <string name="widgets_standard">Standard · bis zu 2</string>
+    <string name="widgets_expanded">Erweitert · 2 × 2</string>
+    <string name="widgets_arrangement">Anordnung</string>
+    <string name="widgets_row">Nebeneinander</string>
+    <string name="widgets_column">Untereinander</string>
+    <string name="widgets_reduce">Entferne zusätzliche Widgets, um Standard zu wählen.</string>
+    <string name="widgets_small_only">Nur kleine Widgets, die in eine Zelle passen, werden angezeigt.</string>
+    <string name="widgets_empty">Keine passenden kleinen Widgets in installierten Apps.</string>
+    <string name="widgets_saved_hidden">Widgets über dem Limit des Bereichs bleiben in dieser Liste. Entferne sie, um Platz zu schaffen.</string>
 </resources>

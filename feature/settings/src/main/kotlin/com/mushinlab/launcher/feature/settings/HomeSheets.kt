@@ -37,10 +37,7 @@ internal fun ClockSheet(state: SettingsUiState, actions: SettingsActions, back: 
     val s = state.settings
     val preferences = actions.preferences
     HomeSheet(stringResource(R.string.clock_sheet), "clock_sheet", back) {
-        ToggleRow(stringResource(R.string.clock_show), s.showClock, tag = "show_clock") { value ->
-            preferences.updateSettings { it.copy(showClock = value) }
-        }
-        if (s.showClock) ClockRows(s, preferences)
+        ClockRows(s, preferences)
         NoteText(stringResource(R.string.home_clock_note))
     }
 }

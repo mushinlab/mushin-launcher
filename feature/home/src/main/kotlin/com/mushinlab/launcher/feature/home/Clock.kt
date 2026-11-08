@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -76,6 +76,11 @@ object ClockText {
         return raw.replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
     }
 
+    fun shortDate(epochMs: Long, zone: ZoneId, locale: Locale): String {
+        val raw = DateTimeFormatter.ofPattern("EEE, d MMM", locale).format(Instant.ofEpochMilli(epochMs).atZone(zone))
+        return raw.replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
+    }
+
     fun is24h(format: ClockFormat, systemIs24h: Boolean): Boolean = when (format) {
         ClockFormat.SYSTEM -> systemIs24h
         ClockFormat.H24 -> true
@@ -98,208 +103,61 @@ object ClockSlots {
 }
 
 @Composable
-fun ClockArea(
+internal fun ClockTile(
     minute: State<Long>,
     format: ClockFormat,
     size: ClockSize,
     showDate: Boolean,
-    position: ClockPosition,
-    drag: ClockDrag?,
-    editing: Boolean,
     pressed: Boolean,
     onBounds: (Rect) -> Unit,
-    onTap: () -> Unit,
-    onMeasured: (area: Int, block: Int) -> Unit,
-    onEdit: ClockEdit? = null,
 ) {
-    val density = LocalDensity.current
-    val inset = with(density) { HomeDimens.rowPadding.roundToPx() }
-    var area by remember { mutableIntStateOf(0) }
-    var block by remember { mutableIntStateOf(0) }
-    var height by remember { mutableIntStateOf(0) }
-    val home = ClockSlots.left(position, area, block, inset)
-    val left = if (drag == null) {
-        home
-    } else {
-        (home + drag.x - drag.startX).roundToInt().coerceIn(0, maxOf(0, area - block))
-    }
-    Box(
+    Column(
         Modifier
-            .fillMaxWidth()
-            .onSizeChanged {
-                area = it.width
-                onMeasured(area, block)
-            },
+            .fillMaxSize()
+            .onGloballyPositioned { onBounds(it.boundsInRoot()) }
+            .clip(RoundedCornerShape(TILE_RADIUS))
+            .pressFeedback(pressed)
+            .padding(horizontal = TILE_PADDING)
+            .testTag("clock_block"),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
-        if ((editing || drag != null) && block > 0) {
-            ClockSlotMarks(ClockSlots.nearest(left, area, block, inset), area, block, height, inset)
-        }
-        if (editing && onEdit != null && block > 0) {
-            ClockEditButton(onEdit, left, block, height, besideStart = position == ClockPosition.END)
-        }
-        Column(
-            Modifier
-                .offset { IntOffset(left, 0) }
-                .onSizeChanged {
-                    block = it.width
-                    height = it.height
-                    onMeasured(area, block)
-                }
-                .onGloballyPositioned { onBounds(it.boundsInRoot()) }
-                .clip(RoundedCornerShape(SLOT_RADIUS))
-                .pressFeedback(pressed)
-                .semantics {
-                    role = Role.Button
-                    onClick {
-                        onTap()
-                        true
-                    }
-                }
-                .testTag("clock_block"),
-            horizontalAlignment = position.horizontalAlignment(),
-        ) {
-            ClockTime(minute, format, size, position)
-            if (showDate) {
-                Spacer(Modifier.height(4.dp))
-                ClockDate(minute, position)
-            }
-        }
+        ClockTime(minute, format, size)
+        if (showDate) ClockDate(minute)
     }
 }
 
-@Immutable
-class ClockEdit(val onClick: () -> Unit, val onBounds: (Rect?) -> Unit)
-
 @Composable
-private fun ClockEditButton(edit: ClockEdit, left: Int, block: Int, height: Int, besideStart: Boolean) {
-    val density = LocalDensity.current
-    val size = with(density) { CLOCK_EDIT_SIZE.roundToPx() }
-    val gap = with(density) { CLOCK_EDIT_GAP.roundToPx() }
-    val x = if (besideStart) left - gap - size else left + block + gap
-    DisposableEffect(Unit) { onDispose { edit.onBounds(null) } }
-    GlyphButton(
-        Glyph.EDIT,
-        stringResource(R.string.home_edit_clock),
-        LocalMushinColors.current.textPrimary,
-        tag = "clock_edit",
-        size = CLOCK_EDIT_SIZE,
-        glyphSize = CLOCK_EDIT_GLYPH,
-        modifier = Modifier
-            .offset { IntOffset(x, (height - size) / 2) }
-            .onGloballyPositioned { edit.onBounds(it.boundsInRoot()) },
-        onClick = edit.onClick,
-    )
-}
-
-@Composable
-private fun ClockSlotMarks(nearest: ClockPosition, area: Int, block: Int, height: Int, inset: Int) {
-    val colors = LocalMushinColors.current
-    val density = LocalDensity.current
-    val markWidth = with(density) { SLOT_MARK_WIDTH.roundToPx() }
-    Box(
-        Modifier
-            .offset { IntOffset(ClockSlots.left(nearest, area, block, inset), 0) }
-            .size(with(density) { block.toDp() }, with(density) { height.toDp() })
-            .background(colors.accent.copy(alpha = SLOT_ALPHA), RoundedCornerShape(SLOT_RADIUS))
-            .border(1.dp, colors.accent.copy(alpha = SLOT_BORDER_ALPHA), RoundedCornerShape(SLOT_RADIUS)),
-    )
-    ClockPosition.entries.forEach { slot ->
-        val slotLeft = ClockSlots.left(slot, area, block, inset)
-        val x = when (slot) {
-            ClockPosition.START -> slotLeft
-            ClockPosition.CENTER -> slotLeft + (block - markWidth) / 2
-            ClockPosition.END -> slotLeft + block - markWidth
-        }
-        Box(
-            Modifier
-                .offset { IntOffset(x, height + SLOT_MARK_GAP.roundToPx()) }
-                .size(SLOT_MARK_WIDTH, SLOT_MARK_HEIGHT)
-                .background(
-                    colors.accent.copy(alpha = if (slot == nearest) 1f else SLOT_MARK_ALPHA),
-                    RoundedCornerShape(SLOT_MARK_HEIGHT),
-                )
-                .testTag("clock_slot_$slot"),
-        )
-    }
-}
-
-private fun ClockPosition.horizontalAlignment(): Alignment.Horizontal = when (this) {
-    ClockPosition.START -> Alignment.Start
-    ClockPosition.CENTER -> Alignment.CenterHorizontally
-    ClockPosition.END -> Alignment.End
-}
-
-private fun ClockPosition.textAlign(): TextAlign = when (this) {
-    ClockPosition.START -> TextAlign.Start
-    ClockPosition.CENTER -> TextAlign.Center
-    ClockPosition.END -> TextAlign.End
-}
-
-@Composable
-private fun ClockTime(minute: State<Long>, format: ClockFormat, size: ClockSize, position: ClockPosition) {
+private fun ClockTime(minute: State<Long>, format: ClockFormat, size: ClockSize) {
     val context = LocalContext.current
-    val colors = LocalMushinColors.current
-    val style = MushinType.style(size.sp.sp, colors.textPrimary, FontWeight.Light).copy(
-        textAlign = position.textAlign(),
-    )
+    val style = MushinType.style(size.tileSp.sp, LocalMushinColors.current.textPrimary, FontWeight.Light)
     val use24h = ClockText.is24h(format, DateFormat.is24HourFormat(context))
-    BasicText(
-        text = ClockText.time(minute.value, ZoneId.systemDefault(), use24h),
-        style = style,
-        modifier = Modifier.testTag("clock"),
+    SingleLineText(
+        ClockText.time(minute.value, ZoneId.systemDefault(), use24h),
+        style,
+        Modifier.testTag("clock"),
     )
 }
 
 @Composable
-private fun ClockDate(minute: State<Long>, position: ClockPosition) {
-    val colors = LocalMushinColors.current
+private fun ClockDate(minute: State<Long>) {
     val locale = LocalConfiguration.current.locales[0]
-    val style = MushinType.style(MushinType.dateSize, colors.textSecondary).copy(textAlign = position.textAlign())
-    BasicText(
-        text = ClockText.date(minute.value, ZoneId.systemDefault(), locale),
-        style = style,
-        modifier = Modifier.testTag("date"),
+    SingleLineText(
+        ClockText.shortDate(minute.value, ZoneId.systemDefault(), locale),
+        MushinType.style(MushinType.secondarySize, LocalMushinColors.current.textSecondary),
+        Modifier.testTag("date"),
     )
 }
 
-@Composable
-internal fun AddClockBar(registry: RowRegistry, onClick: () -> Unit) {
-    val colors = LocalMushinColors.current
-    val shape = RoundedCornerShape(SLOT_RADIUS)
-    DisposableEffect(Unit) { onDispose { registry.block(ADD_CLOCK, null) } }
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = HomeDimens.rowPadding)
-            .height(ADD_CLOCK_HEIGHT)
-            .clip(shape)
-            .background(colors.surface)
-            .border(GlyphWrapper.outline, PopupStyle.outline(colors), shape)
-            .onGloballyPositioned { registry.block(ADD_CLOCK, it.boundsInRoot()) }
-            .pressable(onClick = onClick)
-            .testTag(ADD_CLOCK),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        SingleLineText(
-            stringResource(R.string.home_add_clock),
-            MushinType.style(MushinType.secondarySize, colors.textPrimary),
-        )
-        Spacer(Modifier.width(8.dp))
-        GlyphBadge(Glyph.ADD, ADD_CLOCK_ICON)
+private val ClockSize.tileSp: Int
+    get() = when (this) {
+        ClockSize.S -> TILE_SMALL_SP
+        ClockSize.M -> TILE_MEDIUM_SP
+        ClockSize.L -> TILE_LARGE_SP
     }
-}
 
-private const val ADD_CLOCK = "home_add_clock"
-private val ADD_CLOCK_HEIGHT = 48.dp
-private val ADD_CLOCK_ICON = 24.dp
-private val SLOT_RADIUS = 12.dp
-private val CLOCK_EDIT_SIZE = 44.dp
-private val CLOCK_EDIT_GLYPH = 20.dp
-private val CLOCK_EDIT_GAP = 8.dp
-private val SLOT_MARK_WIDTH = 40.dp
-private val SLOT_MARK_HEIGHT = 4.dp
-private val SLOT_MARK_GAP = 6.dp
-private const val SLOT_ALPHA = 0.08f
-private const val SLOT_BORDER_ALPHA = 0.5f
-private const val SLOT_MARK_ALPHA = 0.35f
+private val TILE_RADIUS = 12.dp
+private val TILE_PADDING = 12.dp
+private const val TILE_SMALL_SP = 40
+private const val TILE_MEDIUM_SP = 48
+private const val TILE_LARGE_SP = 56

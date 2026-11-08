@@ -65,10 +65,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.HomeListOffset
 import com.mushinlab.launcher.core.model.SwipeDirection
-import com.mushinlab.launcher.core.model.WidgetPanelPosition
 import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
@@ -104,29 +102,28 @@ internal fun HomeColumn(
     }
     val placement = rememberListPlacement(state, rowHeight)
     BoxWithConstraints(Modifier.fillMaxSize()) {
-        val topPanel = state.widgetPanels.top
-        val bottomPanel = state.widgetPanels.bottom
-        val top = if (topPanel.hasContent(state.showClock)) topPanel.size.heightDp.toFloat() else 0f
-        val bottom = if (bottomPanel.hasContent(state.showClock)) bottomPanel.size.heightDp.toFloat() else 0f
-        val chrome = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + HomeDimens.topGap +
-            HomeDimens.listGap + HANDLE_LIST_GAP + HomeDimens.barHeight +
-            WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() +
-            (if (state.roleMissing) HomeDimens.roleCardHeight + 24.dp else 0.dp) +
-            (if (editing) ADD_WIDGET_HEIGHT * 2 + rowHeight else 0.dp)
-        val heights = panelHeights(top, bottom, (maxHeight - chrome - rowHeight * 2).value)
-        val topHeight = heights.first.dp
-        val bottomHeight = heights.second.dp
         val panelWidth = maxWidth
         val listCapacity = ((maxHeight - HomeDimens.barHeight) / rowHeight).toInt().coerceAtLeast(state.rows.size)
         Layout(
             content = {
                 HomeHeader(state, registry, actions) {
                     HomeWidgetPanel(
-                        topPanel, WidgetPanelPosition.TOP, topHeight, panelWidth, state.showClock, editing,
-                        registry, { actions.value.onAddWidget(WidgetPanelPosition.TOP) }, widgets,
-                    ) {
-                        HomeClock(state, minute, registry, gestures, actions, editing)
-                    }
+                        state.widgetPanels.top,
+                        panelWidth,
+                        editing,
+                        registry,
+                        remember(actions) {
+                            PanelEdits(
+                                onAdd = { actions.value.onAddWidget() },
+                                onMove = { id, index -> actions.value.onMoveWidget(id, index) },
+                                onRemove = { actions.value.onRemoveWidget(it) },
+                                onEditClock = { actions.value.onEditClock() },
+                            )
+                        },
+                        PanelSlots(widgets) { tileEditing ->
+                            HomeClock(state, minute, registry, gestures, tileEditing)
+                        },
+                    )
                 }
                 HomeFavorites(
                     state,
@@ -137,12 +134,6 @@ internal fun HomeColumn(
                     ListEditing(editing, gestures.handle.active),
                     listCapacity,
                 )
-                HomeWidgetPanel(
-                    bottomPanel, WidgetPanelPosition.BOTTOM, bottomHeight, panelWidth, state.showClock, editing,
-                    registry, { actions.value.onAddWidget(WidgetPanelPosition.BOTTOM) }, widgets,
-                ) {
-                    HomeClock(state, minute, registry, gestures, actions, editing)
-                }
                 Column(Modifier.fillMaxWidth()) {
                     HomeBar(state.suggestion, editing, registry, actions.value)
                     Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
@@ -202,28 +193,17 @@ private fun HomeClock(
     minute: State<Long>,
     registry: RowRegistry,
     gestures: HomeGestureHandler,
-    actions: State<HomeActions>,
     editing: Boolean,
 ) {
-    if (state.showClock) {
-        DisposableEffect(Unit) { onDispose { registry.clock.set(null) } }
-        ClockArea(
-            minute = minute,
-            format = state.clockFormat,
-            size = state.clockSize,
-            showDate = state.showDate,
-            position = gestures.clock.shown,
-            drag = gestures.clock.drag,
-            editing = editing,
-            pressed = gestures.pressedClock,
-            onBounds = registry.clock::set,
-            onTap = { actions.value.onClockTap() },
-            onMeasured = gestures.clock::measured,
-            onEdit = remember(registry, actions) {
-                ClockEdit(onClick = { actions.value.onEditClock() }, onBounds = { registry.block(CLOCK_EDIT, it) })
-            },
-        )
-    }
+    DisposableEffect(editing) { onDispose { registry.clock.set(null) } }
+    ClockTile(
+        minute = minute,
+        format = state.clockFormat,
+        size = state.clockSize,
+        showDate = state.showDate,
+        pressed = gestures.pressedClock,
+        onBounds = { if (!editing) registry.clock.set(it) },
+    )
 }
 
 @Composable

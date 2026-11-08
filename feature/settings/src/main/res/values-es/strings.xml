@@ -79,7 +79,6 @@
     <string name="home_clock_system">Sistema</string>
     <string name="home_clock_24">24 horas</string>
     <string name="home_clock_12">12 horas</string>
-    <string name="clock_show">Mostrar hora</string>
     <string name="clock_size">Tamaño del reloj</string>
     <string name="home_show_date">Mostrar fecha</string>
     <string name="home_text_size">Tamaño del texto</string>
@@ -175,7 +174,7 @@
     <string name="weight_medium">Media</string>
     <string name="memory_usefulness">Utilidad en «%1$s»</string>
     <string name="memory_usefulness_note">Una puntuación de 1 a 100: con qué frecuencia y qué tan recientemente abriste la app en este espacio. Si una app que no está en la pantalla de inicio puntúa claramente más alto que otra que sí está, aparece un «?» con una sugerencia en la esquina inferior derecha.</string>
-    <string name="home_clock_note">Toca el reloj para abrir la app Reloj. Para moverlo, toca el lápiz en la parte inferior de la pantalla de inicio y arrastra el reloj a la izquierda, al centro o a la derecha.</string>
+    <string name="home_clock_note">Toca el reloj para abrir la app Reloj. El reloj es una celda del panel de widgets: arrástralo o quítalo como cualquier otro widget.</string>
     <string name="settings_back">Atrás</string>
     <string name="style_theme">Tema de «%1$s»</string>
     <string name="style_text">Texto</string>
@@ -250,7 +249,7 @@
     <string name="edit_tip_list_title">Aplicaciones y carpetas</string>
     <string name="edit_tip_list">Toca una aplicación o carpeta para quitarla de la lista o reemplazarla. En una carpeta, Reemplazar abre su editor. Añade aplicaciones y carpetas debajo de la lista. Arrastra el control sobre la lista para moverla; desplázate para ver más aplicaciones.</string>
     <string name="edit_tip_widgets_title">Widgets</string>
-    <string name="edit_tip_widgets">Usa el botón de widgets junto a la paleta para gestionar los paneles sobre y bajo tus aplicaciones. Añade la hora o un widget de una aplicación instalada y elige un panel pequeño, mediano o grande.</string>
+    <string name="edit_tip_widgets">El panel superior admite dos widgets pequeños en fila o columna, o cuatro en modo ampliado. Mantén pulsado para moverlos. El reloj queda fijo.</string>
     <string name="edit_tip_font_title">Fuente</string>
     <string name="edit_tip_font">Toca el botón de texto para elegir la fuente, el grosor, el tamaño y la alineación de los nombres de las aplicaciones.</string>
     <string name="edit_tip_theme_title">Tema</string>
@@ -261,6 +260,16 @@
     <string name="widgets_height">Altura del panel</string>
     <string name="widgets_add">Añadir widget</string>
     <string name="widgets_remove">Quitar %1$s</string>
-    <string name="widgets_time">Hora</string>
-    <string name="widgets_note">Los paneles vacíos no ocupan espacio. Desliza horizontalmente para ver más widgets.</string>
+    <string name="widgets_time">Reloj</string>
+    <string name="widgets_note">Mantén pulsado y arrastra un widget al editar.</string>
+    <string name="widgets_mode">Panel</string>
+    <string name="widgets_standard">Estándar · hasta 2</string>
+    <string name="widgets_expanded">Ampliado · 2 × 2</string>
+    <string name="widgets_arrangement">Distribución</string>
+    <string name="widgets_row">En fila</string>
+    <string name="widgets_column">En columna</string>
+    <string name="widgets_reduce">Elimina los widgets adicionales para elegir Estándar.</string>
+    <string name="widgets_small_only">Solo se muestran widgets pequeños que caben en una celda.</string>
+    <string name="widgets_empty">No hay widgets pequeños compatibles en las apps instaladas.</string>
+    <string name="widgets_saved_hidden">Los widgets que superan el límite del panel se conservan en esta lista. Elimínalos para liberar espacio.</string>
 </resources>
