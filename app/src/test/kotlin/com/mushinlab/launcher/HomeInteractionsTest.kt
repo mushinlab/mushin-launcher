@@ -2,9 +2,14 @@ package com.mushinlab.launcher
 
 import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.apps.LaunchResult
+import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.GestureAction
+import com.mushinlab.launcher.core.model.LearnedGesture
+import com.mushinlab.launcher.core.model.ShapeVertex
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.search.GesturePoint
+import com.mushinlab.launcher.core.search.KeyboardLayouts
+import com.mushinlab.launcher.feature.search.KeyboardDimens
 import com.mushinlab.launcher.feature.search.SearchController
 import com.mushinlab.launcher.feature.search.SearchMode
 import com.mushinlab.launcher.feature.settings.SettingsRoute
@@ -115,6 +120,36 @@ class HomeInteractionsTest {
         assertThat(home.learnHint).isFalse()
         assertThat(navigator.settings.routes).containsExactly(SettingsRoute.Gestures, SettingsRoute.MemoryPickApp)
         assertThat(navigator.settings.draft).isNotEmpty()
+    }
+
+    @Test
+    fun AC_37_9_aDrawingMatchingOnlyOneAppLaunchesIt() {
+        model.settings = model.settings.copy(gestureInput = true)
+        model.learnedGestures = listOf(learned(slack))
+
+        home.onDrawing(scribble, width = 1080f, density = 2.6f)
+
+        assertThat(model.launched).containsExactly(slack to false)
+        assertThat(navigator.overlay).isEqualTo(Overlay.None)
+    }
+
+    @Test
+    fun AC_37_9_aDrawingMatchingSeveralAppsOpensSuggestionsInstead() {
+        val notes = key("notes")
+        model.apps = mapOf(slack to entry(slack), notes to entry(notes))
+        model.settings = model.settings.copy(gestureInput = true)
+        model.learnedGestures = listOf(learned(slack), learned(notes))
+
+        home.onDrawing(scribble, width = 1080f, density = 2.6f)
+
+        assertThat(model.launched).isEmpty()
+        assertThat(navigator.overlay).isEqualTo(Overlay.Search)
+    }
+
+    private fun learned(key: AppKey): LearnedGesture {
+        val areaWidth = 1080f * model.settings.keyboardWidth
+        val areaHeight = KeyboardDimens.rowHeight.value * 2.6f * KeyboardLayouts.LETTER_ROWS
+        return LearnedGesture("", key, 1.0, scribble.map { ShapeVertex(it.x / areaWidth, it.y / areaHeight) })
     }
 
     @Test

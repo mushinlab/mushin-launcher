@@ -250,7 +250,7 @@
     <string name="edit_tip_list_title">Список приложений и папки</string>
     <string name="edit_tip_list">Нажмите на приложение или папку, чтобы убрать из списка или заменить. У папки «Заменить» открывает её редактор. Добавляйте приложения и папки под списком. Тяните линию над списком, чтобы передвинуть его; прокручивайте список, чтобы увидеть остальные приложения.</string>
     <string name="edit_tip_widgets_title">Виджеты</string>
-    <string name="edit_tip_widgets">В верхней панели — до двух маленьких виджетов в ряд или колонку, в расширенной — до четырёх. Для перестановки удерживайте и перетаскивайте виджет. Часы неподвижны.</string>
+    <string name="edit_tip_widgets">Верхняя панель — сетка 2 × 2. В режиме редактирования удерживайте виджет, чтобы перенести его, тяните полоски на его краях, чтобы растянуть на соседние ячейки, и нажмите пустую ячейку, чтобы добавить виджет.</string>
     <string name="edit_tip_font_title">Шрифт</string>
     <string name="edit_tip_font">Кнопка текста открывает выбор шрифта, насыщенности, размера и выравнивания названий приложений.</string>
     <string name="edit_tip_theme_title">Тема</string>
@@ -262,15 +262,7 @@
     <string name="widgets_add">Добавить виджет</string>
     <string name="widgets_remove">Убрать %1$s</string>
     <string name="widgets_time">Часы</string>
-    <string name="widgets_note">Удерживайте и перетаскивайте виджеты в режиме редактирования.</string>
-    <string name="widgets_mode">Панель</string>
-    <string name="widgets_standard">Стандартная · до 2</string>
-    <string name="widgets_expanded">Расширенная · 2 × 2</string>
-    <string name="widgets_arrangement">Расположение</string>
-    <string name="widgets_row">В ряд</string>
-    <string name="widgets_column">В колонку</string>
-    <string name="widgets_reduce">Чтобы выбрать стандартную панель, оставьте не более двух виджетов.</string>
+    <string name="widgets_note">Удерживайте виджет, чтобы перенести его; тяните полоски на краях, чтобы растянуть или сжать.</string>
     <string name="widgets_small_only">Здесь только маленькие виджеты, которые помещаются в ячейку панели.</string>
     <string name="widgets_empty">В установленных приложениях нет подходящих маленьких виджетов.</string>
-    <string name="widgets_saved_hidden">Виджеты сверх лимита панели сохранены в этом списке. Уберите их, чтобы освободить место.</string>
 </resources>

@@ -177,15 +177,8 @@ internal fun SpaceError.code(): String = when (this) {
 }
 
 internal fun widgetPanels(layout: WidgetLayout): HomeWidgetPanels = HomeWidgetPanels(
-    HomeWidgetPanel(
-        mode = layout.mode,
-        arrangement = layout.arrangement,
-        widgets = layout.widgets.map { HomeWidgetTile(it.id, it.label) }.toImmutableList(),
-    ),
+    HomeWidgetPanel(layout.widgets.map { HomeWidgetTile(it.id, it.label, it.cell) }.toImmutableList()),
 )
 
-private fun widgetLayout(panels: HomeWidgetPanels): WidgetLayout = WidgetLayout(
-    mode = panels.top.mode,
-    arrangement = panels.top.arrangement,
-    widgets = panels.top.widgets.map { HostedWidget(it.id, it.label) },
-)
+private fun widgetLayout(panels: HomeWidgetPanels): WidgetLayout =
+    WidgetLayout(panels.top.widgets.map { HostedWidget(it.id, it.label, it.cell) })

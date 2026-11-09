@@ -31,4 +31,6 @@
     <string name="widget_remove">Убрать виджет</string>
     <string name="widget_move_before">Переместить раньше</string>
     <string name="widget_move_after">Переместить позже</string>
+    <string name="widget_grow">Увеличить</string>
+    <string name="widget_shrink">Уменьшить</string>
 </resources>

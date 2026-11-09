@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.HomeListOffset
 import com.mushinlab.launcher.core.model.SwipeDirection
+import com.mushinlab.launcher.core.model.WidgetCell
 import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
@@ -118,11 +119,11 @@ interface HomeControlActions {
 }
 
 interface HomeWidgetActions {
-    fun onMoveWidget(id: Int, index: Int) {}
+    fun onPlaceWidget(id: Int, cell: WidgetCell) {}
 
     fun onRemoveWidget(id: Int) {}
 
-    fun onAddWidget()
+    fun onAddWidget(cell: WidgetCell)
 }
 
 interface HomeEditActions : HomeWidgetActions {

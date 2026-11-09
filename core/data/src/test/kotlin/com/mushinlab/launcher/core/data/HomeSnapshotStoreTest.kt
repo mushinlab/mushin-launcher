@@ -39,10 +39,13 @@ class HomeSnapshotStoreTest {
             showClock = false,
             clockSize = ClockSize.L,
             widgetLayout = com.mushinlab.launcher.core.model.WidgetLayout(
-                mode = com.mushinlab.launcher.core.model.WidgetPanelMode.EXPANDED,
-                widgets = listOf(
+                listOf(
                     com.mushinlab.launcher.core.model.HostedWidget.clock,
-                    com.mushinlab.launcher.core.model.HostedWidget(21, "Calendar"),
+                    com.mushinlab.launcher.core.model.HostedWidget(
+                        21,
+                        "Calendar",
+                        com.mushinlab.launcher.core.model.WidgetCell(0, 1, 2, 1),
+                    ),
                 ),
             ),
         )

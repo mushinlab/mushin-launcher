@@ -75,8 +75,13 @@ class HomeInteractions(
             .filter { model.entry(it) != null }
         if (matches.isEmpty()) {
             onMissedDrawing(points)
+            return
+        }
+        missedDrawings = emptyList()
+        val only = matches.singleOrNull()
+        if (only != null) {
+            launches.launch(only, fromSearch = false)
         } else {
-            missedDrawings = emptyList()
             navigator.openSearch(SearchMode.TYPING)
             navigator.search.suggest(matches)
         }

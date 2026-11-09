@@ -7,8 +7,8 @@ import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.data.widgets.WidgetRepository
 import com.mushinlab.launcher.core.model.HostedWidget
 import com.mushinlab.launcher.core.model.PendingWidget
+import com.mushinlab.launcher.core.model.WidgetCell
 import com.mushinlab.launcher.core.model.WidgetLayout
-import com.mushinlab.launcher.core.model.WidgetPanelMode
 import com.mushinlab.launcher.core.model.WidgetState
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
@@ -28,14 +28,14 @@ class WidgetRepositoryTest {
     val tmp = TemporaryFolder()
 
     @Test
-    fun AC_39_1_defaultLayoutIsAStandardPanelWithTheClockInTheFirstSlot() = runTest {
+    fun AC_39_1_defaultLayoutHasTheClockInTheTopLeftCell() = runTest {
         val store = PreferenceDataStoreFactory.create(scope = backgroundScope) {
             File(tmp.root, "widgets.preferences_pb")
         }
         val repository = WidgetRepository(store, backgroundScope)
         assertThat(repository.loaded.filterNotNull().first()).isEqualTo(WidgetState())
-        assertThat(WidgetLayout().mode).isEqualTo(WidgetPanelMode.STANDARD)
         assertThat(WidgetLayout().widgets).containsExactly(HostedWidget.clock)
+        assertThat(HostedWidget.clock.cell).isEqualTo(WidgetCell(0, 0))
     }
 
     @Test
@@ -45,11 +45,12 @@ class WidgetRepositoryTest {
         val store = PreferenceDataStoreFactory.create(scope = firstScope) { file }
         val repo = WidgetRepository(store, firstScope)
         val layout = WidgetLayout(
-            arrangement = com.mushinlab.launcher.core.model.WidgetArrangement.COLUMN,
-            mode = WidgetPanelMode.EXPANDED,
-            widgets = listOf(HostedWidget(12, "Calendar"), HostedWidget.clock),
+            listOf(
+                HostedWidget(12, "Calendar", WidgetCell(0, 0, 1, 2)),
+                HostedWidget.clock.copy(cell = WidgetCell(1, 1)),
+            ),
         )
-        val pending = PendingWidget(2, 13)
+        val pending = PendingWidget(2, 13, WidgetCell(1, 0))
         try {
             repo.update { it.copy(layouts = mapOf(1L to layout), pending = pending) }
             repo.update { it.copy(layouts = it.layouts + (2L to WidgetLayout())) }
@@ -68,7 +69,7 @@ class WidgetRepositoryTest {
     }
 
     @Test
-    fun AC_39_4_legacyPanelsMigrateWithoutDroppingOverflowOrPendingIds() = runTest {
+    fun AC_39_4_legacyPanelsFillTheGridRowByRowDroppingTheClockBeforeHostedWidgets() = runTest {
         val bytes = java.io.ByteArrayOutputStream()
         java.io.DataOutputStream(bytes).use { out ->
             out.writeInt(1)
@@ -97,15 +98,15 @@ class WidgetRepositoryTest {
         val repository = WidgetRepository(store, backgroundScope)
         val migrated = repository.loaded.filterNotNull().first()
         val layout = requireNotNull(migrated.layouts[7])
-        assertThat(layout.mode).isEqualTo(WidgetPanelMode.EXPANDED)
-        assertThat(layout.widgets.map { it.id }).containsExactly(HostedWidget.CLOCK_ID, 10, 11, 12, 13, 14).inOrder()
+        assertThat(layout.widgets.map { it.id }).containsExactly(10, 11, 12, 13).inOrder()
+        assertThat(layout.widgets.map { it.cell }).containsExactlyElementsIn(WidgetCell.singles).inOrder()
         assertThat(migrated.pending?.id).isEqualTo(20)
         repository.update { it }
         assertThat(repository.loaded.filterNotNull().first()).isEqualTo(migrated)
     }
 
     @Test
-    fun AC_39_4_versionTwoClockBecomesTheFirstSlotAndWidensAFullStandardPanel() = runTest {
+    fun AC_39_4_versionTwoClockBecomesTheFirstSlotAndAColumnStaysAColumn() = runTest {
         fun layout(out: java.io.DataOutputStream, space: Long, clock: String) {
             out.writeLong(space)
             out.writeUTF(clock)
@@ -134,12 +135,70 @@ class WidgetRepositoryTest {
         }
         val layouts = WidgetRepository(store, backgroundScope).loaded.filterNotNull().first().layouts
         assertThat(layouts.getValue(1).widgets.map { it.id }).containsExactly(HostedWidget.CLOCK_ID, 30, 31).inOrder()
-        assertThat(layouts.getValue(1).mode).isEqualTo(WidgetPanelMode.EXPANDED)
+        assertThat(layouts.getValue(1).widgets.map { it.cell })
+            .containsExactly(WidgetCell(0, 0), WidgetCell(1, 0), WidgetCell(0, 1)).inOrder()
         assertThat(layouts.getValue(2).widgets.map { it.id }).containsExactly(30, 31).inOrder()
-        assertThat(layouts.getValue(2).mode).isEqualTo(WidgetPanelMode.STANDARD)
         assertThat(
-            layouts.getValue(2).arrangement,
-        ).isEqualTo(com.mushinlab.launcher.core.model.WidgetArrangement.COLUMN)
+            layouts.getValue(2).widgets.map {
+                it.cell
+            },
+        ).containsExactly(WidgetCell(0, 0), WidgetCell(0, 1)).inOrder()
+    }
+
+    @Test
+    fun AC_39_4_versionThreePanelsBecomeGridCells() = runTest {
+        val bytes = java.io.ByteArrayOutputStream()
+        java.io.DataOutputStream(bytes).use { out ->
+            out.writeInt(3)
+            out.writeInt(1)
+            out.writeLong(4)
+            out.writeUTF("STANDARD")
+            out.writeUTF("ROW")
+            out.writeInt(2)
+            out.writeInt(HostedWidget.CLOCK_ID)
+            out.writeUTF("")
+            out.writeInt(40)
+            out.writeUTF("Calendar")
+            out.writeBoolean(true)
+            out.writeLong(4)
+            out.writeInt(41)
+        }
+        val store = PreferenceDataStoreFactory.create(scope = backgroundScope) {
+            File(tmp.root, "v3.preferences_pb")
+        }
+        store.edit {
+            it[stringPreferencesKey("widget_state")] = java.util.Base64.getEncoder().encodeToString(bytes.toByteArray())
+        }
+        val state = WidgetRepository(store, backgroundScope).loaded.filterNotNull().first()
+        assertThat(state.layouts.getValue(4).widgets)
+            .containsExactly(HostedWidget.clock, HostedWidget(40, "Calendar", WidgetCell(1, 0))).inOrder()
+        assertThat(state.pending).isEqualTo(PendingWidget(4, 41))
+    }
+
+    @Test
+    fun legacyPanelWithARepeatedIdIsTreatedAsCorrupt() = runTest {
+        val bytes = java.io.ByteArrayOutputStream()
+        java.io.DataOutputStream(bytes).use { out ->
+            out.writeInt(3)
+            out.writeInt(1)
+            out.writeLong(4)
+            out.writeUTF("STANDARD")
+            out.writeUTF("ROW")
+            out.writeInt(2)
+            repeat(2) {
+                out.writeInt(40)
+                out.writeUTF("Calendar")
+            }
+            out.writeBoolean(false)
+        }
+        val store = PreferenceDataStoreFactory.create(scope = backgroundScope) {
+            File(tmp.root, "duplicate.preferences_pb")
+        }
+        store.edit {
+            it[stringPreferencesKey("widget_state")] = java.util.Base64.getEncoder().encodeToString(bytes.toByteArray())
+        }
+        val state = WidgetRepository(store, backgroundScope).loaded.filterNotNull().first()
+        assertThat(state).isEqualTo(WidgetState())
     }
 
     @Test

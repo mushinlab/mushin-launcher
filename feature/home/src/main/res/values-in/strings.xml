@@ -31,4 +31,6 @@
     <string name="widget_remove">Hapus widget</string>
     <string name="widget_move_before">Pindahkan ke awal</string>
     <string name="widget_move_after">Pindahkan ke akhir</string>
+    <string name="widget_grow">Perbesar</string>
+    <string name="widget_shrink">Perkecil</string>
 </resources>

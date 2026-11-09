@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.1 — 2026-11-09
+
+### Changed
+- The widget panel is a 2 × 2 grid. A widget or the clock can cover one cell, a full row, a full column or the whole grid: in edit mode drag the bars on its edges to stretch or shrink it, and hold it to move it. Widgets in the way move to free cells; dropping on another widget swaps them. The Standard/Expanded and Row/Column options are gone.
+- Every free cell in edit mode is an “Add widget” cell, and the new widget goes into that cell. Empty rows still take no space outside edit mode.
+- Widget storage moves to format v4 with each widget's cell and size. Earlier layouts are laid out row by row; a Standard column stays a column. If an old layout holds more than four entries, the built-in clock goes first, then widgets beyond four are dropped.
+- With gesture input on, a home-screen drawing that matches the learned gesture of exactly one app opens that app right away. Several matching apps still open search with them as suggestions.
+
 ## 0.9.0 — 2026-11-08
 
 ### Changed

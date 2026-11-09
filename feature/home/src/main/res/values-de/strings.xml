@@ -31,4 +31,6 @@
     <string name="widget_remove">Widget entfernen</string>
     <string name="widget_move_before">Nach vorne verschieben</string>
     <string name="widget_move_after">Nach hinten verschieben</string>
+    <string name="widget_grow">Vergrößern</string>
+    <string name="widget_shrink">Verkleinern</string>
 </resources>

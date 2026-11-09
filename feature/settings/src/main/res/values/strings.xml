@@ -249,7 +249,7 @@
     <string name="edit_tip_list_title">Apps and folders</string>
     <string name="edit_tip_list">Tap an app or folder to remove it from the list or replace it. For a folder, Replace opens its editor. Add apps and folders below the list. Drag the handle above the list to move it; scroll the list to reach more apps.</string>
     <string name="edit_tip_widgets_title">Widgets</string>
-    <string name="edit_tip_widgets">The top panel holds up to two small widgets in a row or column, or four in Expanded mode. Hold and drag to rearrange them. The clock stays fixed.</string>
+    <string name="edit_tip_widgets">The top panel is a 2 × 2 grid. In edit mode hold a widget to move it, drag the bars on its edges to stretch it over neighbouring cells, and tap an empty cell to add a widget.</string>
     <string name="edit_tip_font_title">Font</string>
     <string name="edit_tip_font">Tap the text button to choose the font, weight, size and alignment of app names.</string>
     <string name="edit_tip_theme_title">Theme</string>
@@ -261,15 +261,7 @@
     <string name="widgets_add">Add widget</string>
     <string name="widgets_remove">Remove %1$s</string>
     <string name="widgets_time">Clock</string>
-    <string name="widgets_note">Hold and drag a widget in edit mode to change its position.</string>
-    <string name="widgets_mode">Panel</string>
-    <string name="widgets_standard">Standard · up to 2</string>
-    <string name="widgets_expanded">Expanded · 2 × 2</string>
-    <string name="widgets_arrangement">Arrangement</string>
-    <string name="widgets_row">Row</string>
-    <string name="widgets_column">Column</string>
-    <string name="widgets_reduce">Remove extra widgets to switch to Standard.</string>
+    <string name="widgets_note">Hold a widget to move it; drag the bars on its edges to stretch or shrink it.</string>
     <string name="widgets_small_only">Only small widgets that fit a panel cell are shown.</string>
     <string name="widgets_empty">No small widgets available from installed apps.</string>
-    <string name="widgets_saved_hidden">Widgets beyond the panel limit are kept in this list. Remove them to free a slot.</string>
 </resources>

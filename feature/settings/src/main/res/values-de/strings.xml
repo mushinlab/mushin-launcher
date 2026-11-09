@@ -248,7 +248,7 @@
     <string name="edit_tip_list_title">Apps und Ordner</string>
     <string name="edit_tip_list">Tippe auf eine App oder einen Ordner, um sie aus der Liste zu entfernen oder zu ersetzen. Bei Ordnern öffnet „Ersetzen“ den Editor. Füge Apps und Ordner unter der Liste hinzu. Ziehe den Griff über der Liste, um sie zu verschieben. Scrolle, um weitere Apps zu sehen.</string>
     <string name="edit_tip_widgets_title">Widgets</string>
-    <string name="edit_tip_widgets">Oben passen zwei kleine Widgets nebeneinander oder untereinander, im erweiterten Bereich vier. Zum Verschieben gedrückt halten. Die Uhr bleibt fest.</string>
+    <string name="edit_tip_widgets">Die obere Leiste ist ein 2 × 2-Raster. Halte im Bearbeitungsmodus ein Widget, um es zu verschieben, ziehe die Balken an seinen Rändern, um es über Nachbarzellen zu dehnen, und tippe auf eine leere Zelle, um ein Widget hinzuzufügen.</string>
     <string name="edit_tip_font_title">Schrift</string>
     <string name="edit_tip_font">Tippe auf die Textschaltfläche, um Schriftart, Stärke, Größe und Ausrichtung der App-Namen auszuwählen.</string>
     <string name="edit_tip_theme_title">Thema</string>
@@ -260,15 +260,7 @@
     <string name="widgets_add">Widget hinzufügen</string>
     <string name="widgets_remove">%1$s entfernen</string>
     <string name="widgets_time">Uhr</string>
-    <string name="widgets_note">Halte ein Widget im Bearbeitungsmodus gedrückt und ziehe es.</string>
-    <string name="widgets_mode">Bereich</string>
-    <string name="widgets_standard">Standard · bis zu 2</string>
-    <string name="widgets_expanded">Erweitert · 2 × 2</string>
-    <string name="widgets_arrangement">Anordnung</string>
-    <string name="widgets_row">Nebeneinander</string>
-    <string name="widgets_column">Untereinander</string>
-    <string name="widgets_reduce">Entferne zusätzliche Widgets, um Standard zu wählen.</string>
+    <string name="widgets_note">Halte ein Widget, um es zu verschieben; ziehe die Balken an den Rändern, um es zu dehnen oder zu verkleinern.</string>
     <string name="widgets_small_only">Nur kleine Widgets, die in eine Zelle passen, werden angezeigt.</string>
     <string name="widgets_empty">Keine passenden kleinen Widgets in installierten Apps.</string>
-    <string name="widgets_saved_hidden">Widgets über dem Limit des Bereichs bleiben in dieser Liste. Entferne sie, um Platz zu schaffen.</string>
 </resources>

@@ -1,11 +1,13 @@
 package com.mushinlab.launcher.feature.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,12 +15,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,12 +41,12 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.mushinlab.launcher.core.model.HostedWidget
-import com.mushinlab.launcher.core.model.WidgetArrangement
-import com.mushinlab.launcher.core.model.WidgetPanelMode
+import com.mushinlab.launcher.core.model.WidgetCell
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.GlyphWrapper
@@ -58,17 +61,20 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
 @Immutable
-data class HomeWidgetTile(val id: Int, val label: String) {
+data class HomeWidgetTile(val id: Int, val label: String, val cell: WidgetCell = WidgetCell(0, 0)) {
     val isClock: Boolean get() = id == HostedWidget.CLOCK_ID
 }
 
 @Immutable
 data class HomeWidgetPanel(
-    val mode: WidgetPanelMode = WidgetPanelMode.STANDARD,
-    val arrangement: WidgetArrangement = WidgetArrangement.ROW,
     val widgets: ImmutableList<HomeWidgetTile> = persistentListOf(HomeWidgetTile(HostedWidget.CLOCK_ID, "")),
 ) {
-    val columns: Int get() = if (mode == WidgetPanelMode.STANDARD && arrangement == WidgetArrangement.COLUMN) 1 else 2
+    val freeCells: List<WidgetCell>
+        get() = WidgetCell.singles.filter { cell -> widgets.none { it.cell.overlaps(cell) } }
+
+    fun visibleRows(editing: Boolean): List<Int> = (0 until WidgetCell.ROWS).filter { row ->
+        editing || widgets.any { row in it.cell.row until it.cell.row + it.cell.rowSpan }
+    }
 }
 
 @Immutable
@@ -84,11 +90,24 @@ internal class PanelSlots(
 
 @Immutable
 internal class PanelEdits(
-    val onAdd: () -> Unit,
-    val onMove: (Int, Int) -> Unit,
+    val onAdd: (WidgetCell) -> Unit,
+    val onPlace: (Int, WidgetCell) -> Unit,
     val onRemove: (Int) -> Unit,
     val onEditClock: () -> Unit,
 )
+
+@Immutable
+private class PanelGrid(val cellWidth: Dp, val rows: List<Int>) {
+    val height: Dp get() = WIDGET_HEIGHT * rows.size + WIDGET_GAP * (rows.size - 1)
+
+    fun offset(cell: WidgetCell): DpSize =
+        DpSize((cellWidth + WIDGET_GAP) * cell.column, (WIDGET_HEIGHT + WIDGET_GAP) * rows.indexOf(cell.row))
+
+    fun size(cell: WidgetCell): DpSize = DpSize(
+        cellWidth * cell.columnSpan + WIDGET_GAP * (cell.columnSpan - 1),
+        WIDGET_HEIGHT * cell.rowSpan + WIDGET_GAP * (cell.rowSpan - 1),
+    )
+}
 
 @Composable
 internal fun HomeWidgetPanel(
@@ -99,116 +118,163 @@ internal fun HomeWidgetPanel(
     edits: PanelEdits,
     slots: PanelSlots,
 ) {
-    val tiles = panel.widgets.take(panel.mode.capacity)
-    val canAdd = editing && panel.widgets.size < panel.mode.capacity
-    val count = tiles.size + if (canAdd) 1 else 0
-    if (count == 0) return
-    val width = (maxWidth - HomeDimens.rowPadding * 2 - WIDGET_GAP) / 2
-    var dragging by remember(editing) { mutableStateOf<Int?>(null) }
-    Column(
+    val rows = panel.visibleRows(editing)
+    if (rows.isEmpty()) return
+    val grid = PanelGrid((maxWidth - HomeDimens.rowPadding * 2 - WIDGET_GAP) / WidgetCell.COLUMNS, rows)
+    var preview by remember(editing) { mutableStateOf<WidgetCell?>(null) }
+    Box(
         Modifier.fillMaxWidth().padding(horizontal = HomeDimens.rowPadding, vertical = WIDGET_GAP)
+            .height(grid.height)
             .testTag("widget_panel_TOP"),
-        verticalArrangement = Arrangement.spacedBy(WIDGET_GAP),
     ) {
-        for (row in (0 until count).chunked(panel.columns)) {
-            Row(
-                Modifier.zIndex(if (dragging in row) 1f else 0f),
-                horizontalArrangement = Arrangement.spacedBy(WIDGET_GAP),
-            ) {
-                row.forEach { index ->
-                    if (index < tiles.size) {
-                        WidgetTile(
-                            TilePlace(tiles[index], index, tiles.size, panel.columns, width),
-                            editing,
-                            registry,
-                            edits,
-                            slots,
-                        ) { dragging = it }
-                    } else {
-                        AddWidgetCell(width, registry, edits.onAdd)
-                    }
-                }
-            }
+        if (editing) panel.freeCells.forEach { key(it) { AddWidgetCell(it, grid, registry, edits.onAdd) } }
+        panel.widgets.forEach { tile ->
+            key(tile.id) { WidgetTile(tile, grid, editing, registry, edits, slots) { preview = it } }
         }
+        preview?.let { PreviewFrame(it, grid) }
     }
 }
 
-@Immutable
-private class TilePlace(val tile: HomeWidgetTile, val index: Int, val count: Int, val columns: Int, val width: Dp)
-
 @Composable
 private fun WidgetTile(
-    place: TilePlace,
+    tile: HomeWidgetTile,
+    grid: PanelGrid,
     editing: Boolean,
     registry: RowRegistry,
     edits: PanelEdits,
     slots: PanelSlots,
-    onDragging: (Int?) -> Unit,
+    onPreview: (WidgetCell?) -> Unit,
 ) {
-    val tile = place.tile
     val key = "widget_${tile.id}"
-    var drag by remember(tile.id, editing) { mutableStateOf<Offset?>(null) }
+    var drag by remember(tile.cell, editing) { mutableStateOf<Offset?>(null) }
     val blocks = editing || !tile.isClock
+    val origin = grid.offset(tile.cell)
+    val size = grid.size(tile.cell)
     DisposableEffect(key, blocks) { onDispose { registry.block(key, null) } }
     Box(
-        Modifier.width(place.width).height(WIDGET_HEIGHT).zIndex(if (drag != null) 1f else 0f)
+        Modifier.offset(origin.width, origin.height).size(size)
+            .zIndex(if (drag != null) 1f else 0f)
             .offset { drag?.let { IntOffset(it.x.roundToInt(), it.y.roundToInt()) } ?: IntOffset.Zero }
             .onGloballyPositioned { if (blocks) registry.block(key, it.boundsInRoot()) }
             .testTag(key),
     ) {
         Box(Modifier.fillMaxSize().clipToBounds().alpha(if (editing) EDIT_CONTENT_ALPHA else 1f)) {
-            if (tile.isClock) slots.clock(editing) else slots.widgets(tile.id, WIDGET_HEIGHT, place.width)
+            if (tile.isClock) slots.clock(editing) else slots.widgets(tile.id, size.height, size.width)
         }
         if (editing) {
+            val step = with(LocalDensity.current) {
+                Offset((grid.cellWidth + WIDGET_GAP).toPx(), (WIDGET_HEIGHT + WIDGET_GAP).toPx())
+            }
+            val place: (WidgetCell) -> Unit = { if (it != tile.cell) edits.onPlace(tile.id, it) }
             Box(
                 Modifier.fillMaxSize()
                     .border(1.dp, LocalMushinColors.current.accent, TILE_SHAPE)
-                    .widgetMoveActions(place.index, place.count, tile.id, edits.onMove)
-                    .dragToReorder(place, onDragging, { drag = it }, edits.onMove),
+                    .widgetMoveActions(tile.cell, place)
+                    .dragToMove(tile.cell, step, { drag = it }, onPreview, place),
             )
+            WidgetEdge.entries.filter { tile.cell.canResize(it) }.forEach { edge ->
+                ResizeHandle(tile, edge, step, onPreview, place)
+            }
             if (tile.isClock) EditClockButton(tile, edits, Modifier.align(Alignment.Center))
             RemoveTileButton(tile, edits, Modifier.align(Alignment.TopEnd))
         }
     }
 }
 
-@Composable
-private fun Modifier.dragToReorder(
-    place: TilePlace,
-    onDragging: (Int?) -> Unit,
+private fun Modifier.dragToMove(
+    cell: WidgetCell,
+    step: Offset,
     onOffset: (Offset?) -> Unit,
-    onMove: (Int, Int) -> Unit,
-): Modifier {
-    val step = with(LocalDensity.current) {
-        Offset((place.width + WIDGET_GAP).toPx(), (WIDGET_HEIGHT + WIDGET_GAP).toPx())
+    onPreview: (WidgetCell?) -> Unit,
+    onDrop: (WidgetCell) -> Unit,
+): Modifier = pointerInput(cell, step) {
+    var delta = Offset.Zero
+    fun target() = cell.moved((delta.x / step.x).roundToInt(), (delta.y / step.y).roundToInt())
+    fun reset() {
+        delta = Offset.Zero
+        onOffset(null)
+        onPreview(null)
     }
-    return pointerInput(place.tile.id, place.index, place.columns, place.count, step) {
-        var delta = Offset.Zero
-        fun reset() {
+    detectDragGesturesAfterLongPress(
+        onDragStart = {
             delta = Offset.Zero
-            onOffset(null)
-            onDragging(null)
+            onOffset(delta)
+            onPreview(cell)
+        },
+        onDragCancel = ::reset,
+        onDragEnd = {
+            val target = target()
+            reset()
+            onDrop(target)
+        },
+        onDrag = { change, amount ->
+            change.consume()
+            delta += amount
+            onOffset(delta)
+            onPreview(target())
+        },
+    )
+}
+
+@Composable
+private fun BoxScope.ResizeHandle(
+    tile: HomeWidgetTile,
+    edge: WidgetEdge,
+    step: Offset,
+    onPreview: (WidgetCell?) -> Unit,
+    onResize: (WidgetCell) -> Unit,
+) {
+    fun along(across: Dp, length: Dp) = if (edge.horizontal) DpSize(across, length) else DpSize(length, across)
+    val touch = along(HANDLE_TOUCH, HANDLE_LENGTH + HANDLE_BACKING)
+    val backing = along(HANDLE_BACKING, HANDLE_LENGTH + HANDLE_BACKING)
+    val bar = along(HANDLE_BAR, HANDLE_LENGTH)
+    Box(
+        Modifier.align(edge.alignment).size(touch)
+            .pointerInput(tile.cell, edge, step) {
+                var total = 0f
+                var target = tile.cell
+                detectDragGestures(
+                    onDragStart = {
+                        total = 0f
+                        target = tile.cell
+                        onPreview(target)
+                    },
+                    onDragCancel = { onPreview(null) },
+                    onDragEnd = {
+                        onPreview(null)
+                        onResize(target)
+                    },
+                ) { change, amount ->
+                    change.consume()
+                    total += if (edge.horizontal) amount.x else amount.y
+                    target = tile.cell.resized(edge, (total / if (edge.horizontal) step.x else step.y).roundToInt())
+                    onPreview(target)
+                }
+            }
+            .testTag("tile_resize_${edge.name.lowercase()}_${tile.id}"),
+        contentAlignment = edge.alignment,
+    ) {
+        val colors = LocalMushinColors.current
+        Box(
+            Modifier.size(backing).background(colors.keyBackground, CircleShape)
+                .border(PopupStyle.outlineWidth, PopupStyle.outline(colors), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(Modifier.size(bar).background(colors.accent, CircleShape))
         }
-        detectDragGesturesAfterLongPress(
-            onDragStart = {
-                delta = Offset.Zero
-                onOffset(delta)
-                onDragging(place.index)
-            },
-            onDragCancel = ::reset,
-            onDragEnd = {
-                val target =
-                    widgetDropIndex(place.index, delta.x / step.x, delta.y / step.y, place.columns, place.count)
-                if (target != place.index) onMove(place.tile.id, target)
-                reset()
-            },
-            onDrag = { change, amount ->
-                change.consume()
-                delta += amount
-                onOffset(delta)
-            },
-        )
     }
+}
+
+@Composable
+private fun PreviewFrame(cell: WidgetCell, grid: PanelGrid) {
+    val origin = grid.offset(cell)
+    val accent = LocalMushinColors.current.accent
+    Box(
+        Modifier.offset(origin.width, origin.height).size(grid.size(cell)).zIndex(2f)
+            .background(accent.copy(alpha = PREVIEW_ALPHA), TILE_SHAPE)
+            .border(2.dp, accent, TILE_SHAPE)
+            .testTag("widget_preview"),
+    )
 }
 
 @Composable
@@ -237,34 +303,32 @@ private fun RemoveTileButton(tile: HomeWidgetTile, edits: PanelEdits, modifier: 
 }
 
 @Composable
-private fun Modifier.widgetMoveActions(index: Int, count: Int, id: Int, onMove: (Int, Int) -> Unit): Modifier {
-    val moveBefore = stringResource(R.string.widget_move_before)
-    val moveAfter = stringResource(R.string.widget_move_after)
+private fun Modifier.widgetMoveActions(cell: WidgetCell, onMove: (WidgetCell) -> Unit): Modifier {
+    val actions = listOf(
+        stringResource(R.string.widget_move_before) to cell.stepped(-1),
+        stringResource(R.string.widget_move_after) to cell.stepped(1),
+        stringResource(R.string.widget_grow) to cell.grown(),
+        stringResource(R.string.widget_shrink) to cell.shrunk(),
+    )
     return semantics {
-        customActions = buildList {
-            if (index > 0) add(CustomAccessibilityAction(moveBefore) { onMove(id, index - 1).let { true } })
-            if (index + 1 < count) add(CustomAccessibilityAction(moveAfter) { onMove(id, index + 1).let { true } })
+        customActions = actions.mapNotNull { (label, target) ->
+            target?.let { CustomAccessibilityAction(label) { onMove(it).let { true } } }
         }
     }
 }
 
-internal fun widgetDropIndex(index: Int, dx: Float, dy: Float, columns: Int, count: Int): Int {
-    val column = (index % columns + dx.roundToInt()).coerceIn(0, columns - 1)
-    val row = (index / columns + dy.roundToInt()).coerceIn(0, (count - 1) / columns)
-    return (row * columns + column).coerceIn(0, count - 1)
-}
-
 @Composable
-private fun AddWidgetCell(width: Dp, registry: RowRegistry, onClick: () -> Unit) {
-    val key = "add_widget_TOP"
+private fun AddWidgetCell(cell: WidgetCell, grid: PanelGrid, registry: RowRegistry, onAdd: (WidgetCell) -> Unit) {
+    val key = "add_widget_${cell.column}_${cell.row}"
     val colors = LocalMushinColors.current
+    val origin = grid.offset(cell)
     DisposableEffect(key) { onDispose { registry.block(key, null) } }
     Column(
-        Modifier.width(width).height(WIDGET_HEIGHT)
+        Modifier.offset(origin.width, origin.height).size(grid.size(cell))
             .clip(TILE_SHAPE)
             .border(GlyphWrapper.outline, PopupStyle.outline(colors), TILE_SHAPE)
             .onGloballyPositioned { registry.block(key, it.boundsInRoot()) }
-            .pressable(onClick = onClick)
+            .pressable(onClick = { onAdd(cell) })
             .testTag(key),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -285,4 +349,9 @@ private val TILE_BUTTON = 36.dp
 private val TILE_GLYPH = 18.dp
 private val TILE_BUTTON_INSET = 4.dp
 private val ADD_BADGE = 32.dp
+private val HANDLE_TOUCH = 24.dp
+private val HANDLE_LENGTH = 32.dp
+private val HANDLE_BAR = 4.dp
+private val HANDLE_BACKING = 12.dp
 private const val EDIT_CONTENT_ALPHA = 0.5f
+private const val PREVIEW_ALPHA = 0.15f

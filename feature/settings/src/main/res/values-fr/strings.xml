@@ -249,7 +249,7 @@
     <string name="edit_tip_list_title">Applications et dossiers</string>
     <string name="edit_tip_list">Touchez une application ou un dossier pour le retirer de la liste ou le remplacer. Pour un dossier, Remplacer ouvre son éditeur. Ajoutez des applications et des dossiers sous la liste. Faites glisser la poignée au-dessus de la liste pour la déplacer ; faites défiler pour voir les autres applications.</string>
     <string name="edit_tip_widgets_title">Widgets</string>
-    <string name="edit_tip_widgets">Le panneau supérieur accueille deux petits widgets en ligne ou en colonne, ou quatre en mode étendu. Maintenez pour déplacer. L’horloge reste fixe.</string>
+    <string name="edit_tip_widgets">Le panneau du haut est une grille de 2 × 2. En mode édition, maintenez un widget pour le déplacer, faites glisser les barres de ses bords pour l’étendre sur les cellules voisines et touchez une cellule vide pour ajouter un widget.</string>
     <string name="edit_tip_font_title">Police</string>
     <string name="edit_tip_font">Touchez le bouton de texte pour choisir la police, la graisse, la taille et l’alignement des noms des applications.</string>
     <string name="edit_tip_theme_title">Thème</string>
@@ -261,15 +261,7 @@
     <string name="widgets_add">Ajouter un widget</string>
     <string name="widgets_remove">Retirer %1$s</string>
     <string name="widgets_time">Horloge</string>
-    <string name="widgets_note">Maintenez un widget et faites-le glisser en mode édition.</string>
-    <string name="widgets_mode">Panneau</string>
-    <string name="widgets_standard">Standard · jusqu’à 2</string>
-    <string name="widgets_expanded">Étendu · 2 × 2</string>
-    <string name="widgets_arrangement">Disposition</string>
-    <string name="widgets_row">En ligne</string>
-    <string name="widgets_column">En colonne</string>
-    <string name="widgets_reduce">Retirez les widgets supplémentaires pour choisir Standard.</string>
+    <string name="widgets_note">Maintenez un widget pour le déplacer ; faites glisser les barres des bords pour l’agrandir ou le réduire.</string>
     <string name="widgets_small_only">Seuls les petits widgets qui tiennent dans une cellule sont affichés.</string>
     <string name="widgets_empty">Aucun petit widget compatible dans les applications installées.</string>
-    <string name="widgets_saved_hidden">Les widgets au-delà de la limite du panneau restent dans cette liste. Retirez-les pour libérer une place.</string>
 </resources>

@@ -11,7 +11,6 @@ import com.mushinlab.launcher.feature.settings.EditItemSheet
 import com.mushinlab.launcher.feature.settings.EditTipsSheet
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 import com.mushinlab.launcher.feature.settings.WidgetLabel
-import com.mushinlab.launcher.feature.settings.WidgetPanelUi
 import com.mushinlab.launcher.feature.settings.WidgetPickerSheet
 import com.mushinlab.launcher.feature.settings.WidgetsSheet
 import kotlinx.collections.immutable.toImmutableList
@@ -23,15 +22,10 @@ internal fun HomeEditLayer(vm: LauncherViewModel) {
         Overlay.Widgets -> {
             val home by vm.home.collectAsStateWithLifecycle()
             val panel = home.widgetPanels.top
-            val ui = WidgetPanelUi(
-                panel.mode,
-                panel.arrangement,
-                panel.widgets.map { WidgetLabel(it.id, it.label, clock = it.isClock) }.toImmutableList(),
-            )
             WidgetsSheet(
-                ui,
-                vm.widgets.panels::resize,
-                vm.widgets::add,
+                panel.widgets.map { WidgetLabel(it.id, it.label, clock = it.isClock) }.toImmutableList(),
+                panel.freeCells.isNotEmpty(),
+                { vm.widgets.add() },
                 vm.widgets.panels::remove,
                 { navigator.openSettings(SettingsRoute.ClockSheet) },
                 { navigator.overlay = Overlay.None },

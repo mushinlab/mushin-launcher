@@ -114,8 +114,8 @@ internal fun HomeColumn(
                         registry,
                         remember(actions) {
                             PanelEdits(
-                                onAdd = { actions.value.onAddWidget() },
-                                onMove = { id, index -> actions.value.onMoveWidget(id, index) },
+                                onAdd = { actions.value.onAddWidget(it) },
+                                onPlace = { id, cell -> actions.value.onPlaceWidget(id, cell) },
                                 onRemove = { actions.value.onRemoveWidget(it) },
                                 onEditClock = { actions.value.onEditClock() },
                             )

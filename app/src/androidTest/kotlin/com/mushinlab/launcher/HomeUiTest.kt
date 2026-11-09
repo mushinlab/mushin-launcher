@@ -290,7 +290,7 @@ class HomeUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("tile_remove_${com.mushinlab.launcher.core.model.HostedWidget.CLOCK_ID}").performClick()
         rule.waitUntil(5_000) { rule.activity.launcher.home.value.widgetPanels.top.widgets.isEmpty() }
         rule.onNodeWithTag("clock").assertDoesNotExist()
-        rule.onNodeWithTag("add_widget_TOP").assertIsDisplayed()
+        rule.onNodeWithTag("add_widget_0_0").assertIsDisplayed()
         runBlocking { container.widgets.update { com.mushinlab.launcher.core.model.WidgetState() } }
         rule.waitUntil(5_000) { rule.activity.launcher.home.value.widgetPanels.top.widgets.isNotEmpty() }
     }

@@ -249,7 +249,7 @@
     <string name="edit_tip_list_title">Aplicativos e pastas</string>
     <string name="edit_tip_list">Toque em um aplicativo ou pasta para remover da lista ou substituir. Para pastas, Substituir abre o editor. Adicione aplicativos e pastas abaixo da lista. Arraste a alça acima da lista para movê-la; role para ver mais aplicativos.</string>
     <string name="edit_tip_widgets_title">Widgets</string>
-    <string name="edit_tip_widgets">O painel superior comporta dois widgets pequenos em linha ou coluna, ou quatro no modo expandido. Toque e segure para mover. O relógio fica fixo.</string>
+    <string name="edit_tip_widgets">O painel superior é uma grade de 2 × 2. No modo de edição, segure um widget para movê-lo, arraste as barras nas bordas para estendê-lo às células vizinhas e toque em uma célula vazia para adicionar um widget.</string>
     <string name="edit_tip_font_title">Fonte</string>
     <string name="edit_tip_font">Toque no botão de texto para escolher a fonte, a espessura, o tamanho e o alinhamento dos nomes dos aplicativos.</string>
     <string name="edit_tip_theme_title">Tema</string>
@@ -261,15 +261,7 @@
     <string name="widgets_add">Adicionar widget</string>
     <string name="widgets_remove">Remover %1$s</string>
     <string name="widgets_time">Relógio</string>
-    <string name="widgets_note">Toque e segure para arrastar um widget no modo de edição.</string>
-    <string name="widgets_mode">Painel</string>
-    <string name="widgets_standard">Padrão · até 2</string>
-    <string name="widgets_expanded">Expandido · 2 × 2</string>
-    <string name="widgets_arrangement">Disposição</string>
-    <string name="widgets_row">Em linha</string>
-    <string name="widgets_column">Em coluna</string>
-    <string name="widgets_reduce">Remova os widgets extras para escolher Padrão.</string>
+    <string name="widgets_note">Segure um widget para movê-lo; arraste as barras nas bordas para aumentá-lo ou reduzi-lo.</string>
     <string name="widgets_small_only">Apenas widgets pequenos que cabem em uma célula são exibidos.</string>
     <string name="widgets_empty">Nenhum widget pequeno compatível nos apps instalados.</string>
-    <string name="widgets_saved_hidden">Widgets além do limite do painel ficam nesta lista. Remova-os para liberar espaço.</string>
 </resources>

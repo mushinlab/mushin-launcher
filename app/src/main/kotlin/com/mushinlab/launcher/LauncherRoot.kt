@@ -27,6 +27,7 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.SwipeDirection
+import com.mushinlab.launcher.core.model.WidgetCell
 import com.mushinlab.launcher.core.search.GesturePoint
 import com.mushinlab.launcher.core.ui.LocalIconProvider
 import com.mushinlab.launcher.core.ui.LocalMushinColors
@@ -203,9 +204,9 @@ private fun homeActions(vm: LauncherViewModel, density: Density) = object : Home
         navigator.overlay = Overlay.Widgets
     }
 
-    override fun onMoveWidget(id: Int, index: Int) = vm.widgets.panels.move(id, index)
+    override fun onPlaceWidget(id: Int, cell: WidgetCell) = vm.widgets.panels.place(id, cell)
 
-    override fun onAddWidget() = vm.widgets.add()
+    override fun onAddWidget(cell: WidgetCell) = vm.widgets.add(cell)
 
     override fun onRemoveWidget(id: Int) = vm.widgets.panels.remove(id)
 

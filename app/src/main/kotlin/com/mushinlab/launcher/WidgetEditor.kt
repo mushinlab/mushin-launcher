@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.mushinlab.launcher.core.model.HostedWidget
 import com.mushinlab.launcher.core.model.PendingWidget
+import com.mushinlab.launcher.core.model.WidgetCell
 import com.mushinlab.launcher.core.model.WidgetLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -27,6 +28,7 @@ class WidgetEditor(
     var choices by mutableStateOf<List<WidgetChoice>?>(null)
         private set
     private var choosing = false
+    private var target: WidgetCell? = null
     private val manager = AppWidgetManager.getInstance(context)
     private val initialized = scope.async {
         val state = repository.loaded.filterNotNull().first()
@@ -39,11 +41,12 @@ class WidgetEditor(
         }
     }
 
-    fun add() {
+    fun add(cell: WidgetCell? = null) {
         val spaceId = currentSpace() ?: return
         if (choosing) return
         val layout = repository.loaded.value?.layouts?.get(spaceId) ?: WidgetLayout()
-        if (layout.widgets.size >= layout.mode.capacity) return
+        val free = layout.freeCells
+        target = cell?.takeIf { it in free } ?: free.firstOrNull() ?: return
         val clock = if (layout.widgets.none { it.isClock }) listOf(WidgetChoice.Clock) else emptyList()
         choices = clock + compactProviders(context).map { WidgetChoice.Hosted(it) }
     }
@@ -56,19 +59,19 @@ class WidgetEditor(
         val spaceId = currentSpace() ?: return
         choices = null
         when (choice) {
-            WidgetChoice.Clock -> panels.append(spaceId, HostedWidget.clock)
-            is WidgetChoice.Hosted -> bind(spaceId, choice.info)
+            WidgetChoice.Clock -> panels.append(spaceId, HostedWidget.clock, target)
+            is WidgetChoice.Hosted -> bind(spaceId, info = choice.info, cell = target)
         }
     }
 
-    private fun bind(spaceId: Long, info: AppWidgetProviderInfo) {
+    private fun bind(spaceId: Long, info: AppWidgetProviderInfo, cell: WidgetCell?) {
         if (choosing || !fitsCompactWidget(context, info)) return
         choosing = true
         scope.launch {
             initialized.await()
             cancelPending()
             val id = host.allocateAppWidgetId()
-            repository.update { it.copy(pending = PendingWidget(spaceId, id)) }
+            repository.update { it.copy(pending = PendingWidget(spaceId, id, cell)) }
             emit(LauncherEffect.BindWidget(id, info))
         }
     }
@@ -129,14 +132,14 @@ class WidgetEditor(
             return
         }
         val widget = HostedWidget(pending.id, info.loadLabel(context.packageManager))
+        var added = false
         repository.update { state ->
             val layout = state.layouts[pending.spaceId] ?: WidgetLayout()
-            val widgets = if (layout.widgets.size < layout.mode.capacity) layout.widgets + widget else layout.widgets
-            state.copy(layouts = state.layouts + (pending.spaceId to layout.copy(widgets = widgets)), pending = null)
+            val next = layout.add(widget, pending.cell)
+            added = next != null
+            state.copy(layouts = state.layouts + (pending.spaceId to (next ?: layout)), pending = null)
         }
-        if (repository.loaded.value?.layouts?.get(pending.spaceId)?.widgets?.none { it.id == pending.id } == true) {
-            host.deleteAppWidgetId(pending.id)
-        }
+        if (!added) host.deleteAppWidgetId(pending.id)
     }
 
     private suspend fun cancelPending() {

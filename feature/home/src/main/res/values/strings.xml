@@ -31,4 +31,6 @@
     <string name="widget_remove">Remove widget</string>
     <string name="widget_move_before">Move earlier</string>
     <string name="widget_move_after">Move later</string>
+    <string name="widget_grow">Make larger</string>
+    <string name="widget_shrink">Make smaller</string>
 </resources>

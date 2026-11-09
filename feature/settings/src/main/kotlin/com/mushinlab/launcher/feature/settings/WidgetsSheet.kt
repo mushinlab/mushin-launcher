@@ -6,68 +6,29 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mushinlab.launcher.core.model.WidgetArrangement
-import com.mushinlab.launcher.core.model.WidgetPanelMode
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
 import kotlinx.collections.immutable.ImmutableList
 
-@Immutable
-data class WidgetLabel(val id: Int, val label: String, val app: String? = null, val clock: Boolean = false)
-
-@Immutable
-data class WidgetPanelUi(
-    val mode: WidgetPanelMode,
-    val arrangement: WidgetArrangement,
-    val widgets: ImmutableList<WidgetLabel>,
-)
-
 @Composable
 fun WidgetsSheet(
-    panel: WidgetPanelUi,
-    onResize: (WidgetPanelMode, WidgetArrangement) -> Unit,
+    widgets: ImmutableList<WidgetLabel>,
+    canAdd: Boolean,
     onAdd: () -> Unit,
     onRemove: (Int) -> Unit,
     onClock: () -> Unit,
     onClose: () -> Unit,
 ) {
     HomeSheet(stringResource(R.string.widgets_title), "widgets_sheet", onClose) {
-        val modes = listOfNotNull(
-            if (panel.widgets.size <= WidgetPanelMode.STANDARD.capacity) {
-                WidgetPanelMode.STANDARD to stringResource(R.string.widgets_standard)
-            } else {
-                null
-            },
-            WidgetPanelMode.EXPANDED to stringResource(R.string.widgets_expanded),
-        )
-        DropdownRow(stringResource(R.string.widgets_mode), modes, panel.mode, "widget_mode") {
-            onResize(it, panel.arrangement)
-        }
-        if (panel.mode == WidgetPanelMode.STANDARD) {
-            DropdownRow(
-                stringResource(R.string.widgets_arrangement),
-                listOf(
-                    WidgetArrangement.ROW to stringResource(R.string.widgets_row),
-                    WidgetArrangement.COLUMN to stringResource(R.string.widgets_column),
-                ),
-                panel.arrangement,
-                "widget_arrangement",
-            ) { onResize(panel.mode, it) }
-        }
-        if (panel.widgets.size > WidgetPanelMode.STANDARD.capacity) NoteText(stringResource(R.string.widgets_reduce))
-        if (panel.widgets.size > panel.mode.capacity) NoteText(stringResource(R.string.widgets_saved_hidden))
-        panel.widgets.forEach { WidgetRemoveRow(it, onRemove, onClock) }
-        if (panel.widgets.size < panel.mode.capacity) {
-            NavRow(stringResource(R.string.widgets_add), tag = "widgets_add_TOP", onClick = onAdd)
-        }
+        widgets.forEach { WidgetRemoveRow(it, onRemove, onClock) }
+        if (canAdd) NavRow(stringResource(R.string.widgets_add), tag = "widgets_add_TOP", onClick = onAdd)
         NoteText(stringResource(R.string.widgets_note))
     }
 }

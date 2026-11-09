@@ -249,7 +249,7 @@
     <string name="edit_tip_list_title">Aplicaciones y carpetas</string>
     <string name="edit_tip_list">Toca una aplicación o carpeta para quitarla de la lista o reemplazarla. En una carpeta, Reemplazar abre su editor. Añade aplicaciones y carpetas debajo de la lista. Arrastra el control sobre la lista para moverla; desplázate para ver más aplicaciones.</string>
     <string name="edit_tip_widgets_title">Widgets</string>
-    <string name="edit_tip_widgets">El panel superior admite dos widgets pequeños en fila o columna, o cuatro en modo ampliado. Mantén pulsado para moverlos. El reloj queda fijo.</string>
+    <string name="edit_tip_widgets">El panel superior es una cuadrícula de 2 × 2. En el modo de edición, mantén pulsado un widget para moverlo, arrastra las barras de sus bordes para extenderlo a las celdas vecinas y toca una celda vacía para añadir un widget.</string>
     <string name="edit_tip_font_title">Fuente</string>
     <string name="edit_tip_font">Toca el botón de texto para elegir la fuente, el grosor, el tamaño y la alineación de los nombres de las aplicaciones.</string>
     <string name="edit_tip_theme_title">Tema</string>
@@ -261,15 +261,7 @@
     <string name="widgets_add">Añadir widget</string>
     <string name="widgets_remove">Quitar %1$s</string>
     <string name="widgets_time">Reloj</string>
-    <string name="widgets_note">Mantén pulsado y arrastra un widget al editar.</string>
-    <string name="widgets_mode">Panel</string>
-    <string name="widgets_standard">Estándar · hasta 2</string>
-    <string name="widgets_expanded">Ampliado · 2 × 2</string>
-    <string name="widgets_arrangement">Distribución</string>
-    <string name="widgets_row">En fila</string>
-    <string name="widgets_column">En columna</string>
-    <string name="widgets_reduce">Elimina los widgets adicionales para elegir Estándar.</string>
+    <string name="widgets_note">Mantén pulsado un widget para moverlo; arrastra las barras de los bordes para ampliarlo o reducirlo.</string>
     <string name="widgets_small_only">Solo se muestran widgets pequeños que caben en una celda.</string>
     <string name="widgets_empty">No hay widgets pequeños compatibles en las apps instaladas.</string>
-    <string name="widgets_saved_hidden">Los widgets que superan el límite del panel se conservan en esta lista. Elimínalos para liberar espacio.</string>
 </resources>
