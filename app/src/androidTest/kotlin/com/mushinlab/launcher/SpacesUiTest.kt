@@ -220,5 +220,5 @@ class SpacesUiTest : LauncherUiTestBase() {
     }
 }
 
-private const val DONE_SCALE_NUMERATOR = 88f
+private const val DONE_SCALE_NUMERATOR = 56f
 private const val DONE_SCALE_DENOMINATOR = 48f

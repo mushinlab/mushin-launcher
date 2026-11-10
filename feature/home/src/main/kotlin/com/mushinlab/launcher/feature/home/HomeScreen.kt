@@ -145,7 +145,6 @@ interface HomeEditActions : HomeWidgetActions {
 }
 
 object HomeDimens {
-    val rowHeight: Dp = 64.dp
     val rowPadding: Dp = 24.dp
     val iconSize: Dp = 28.dp
     val iconGap: Dp = 16.dp
@@ -153,6 +152,8 @@ object HomeDimens {
     val listGap: Dp = 32.dp
     val roleCardHeight: Dp = 56.dp
     val barHeight: Dp = 56.dp
+    val barGap: Dp = 16.dp
+    val minRowHeight: Dp = 48.dp
     const val BADGE_TO_ICON = 0.55f
     const val BADGE_TO_TEXT = 0.75f
 }

@@ -87,8 +87,6 @@ internal fun PopupLayer(vm: LauncherViewModel) {
         PopupApp(
             key = key,
             label = vm.model.override(key)?.customLabel ?: entry.label,
-            hidden = vm.model.override(key)?.hidden == true,
-            inSpace = vm.model.isInCurrentSpace(key),
             canUninstall = !entry.isSystem,
         )
     }
@@ -117,16 +115,6 @@ private fun popupActions(vm: LauncherViewModel) = object : PopupActions {
     override fun onRename(key: AppKey) {
         vm.navigator.overlay = Overlay.None
         vm.navigator.renameTarget = key
-    }
-
-    override fun onToggleHidden(key: AppKey, hidden: Boolean) {
-        vm.navigator.overlay = Overlay.None
-        vm.apps.setHidden(key, hidden)
-    }
-
-    override fun onRemoveFromSpace(key: AppKey) {
-        vm.navigator.overlay = Overlay.None
-        vm.model.removeFromCurrentSpace(key)
     }
 
     override fun onUninstall(key: AppKey) {

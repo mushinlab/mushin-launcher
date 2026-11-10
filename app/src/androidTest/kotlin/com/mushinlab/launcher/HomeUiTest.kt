@@ -34,6 +34,7 @@ import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.ClockSize
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.HomeTextAlign
+import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.Usefulness
@@ -82,8 +83,23 @@ class HomeUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("row_0").performTouchInput { longClick() }
         rule.onNodeWithTag("popup_about").assertIsDisplayed()
         rule.onNodeWithTag("popup_rename").assertIsDisplayed()
-        rule.onNodeWithTag("popup_hide").assertIsDisplayed()
-        rule.onNodeWithTag("popup_remove").assertIsDisplayed()
+        rule.onNodeWithTag("popup_hide").assertDoesNotExist()
+        rule.onNodeWithTag("popup_remove").assertDoesNotExist()
+        val info = rule.onNodeWithTag("popup_about").fetchSemanticsNode().boundsInRoot
+        val rename = rule.onNodeWithTag("popup_rename").fetchSemanticsNode().boundsInRoot
+        assertThat(rename.center.y).isWithin(1f).of(info.center.y)
+        assertThat(rename.left).isAtLeast(info.right)
+    }
+
+    @Test
+    fun AC_03_2_rowHeightFollowsTheTextSize() {
+        val height = { rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.height }
+        val medium = height()
+        assertThat(medium).isWithin(with(rule.density) { 4.dp.toPx() }).of(with(rule.density) { 64.dp.toPx() })
+        runBlocking { container.settings.update { it.copy(homeTextSize = HomeTextSize.S) } }
+        rule.waitUntil(5_000) { height() < medium }
+        runBlocking { container.settings.update { it.copy(homeTextSize = HomeTextSize.L) } }
+        rule.waitUntil(5_000) { height() > medium }
     }
 
     @Test

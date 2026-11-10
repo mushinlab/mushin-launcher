@@ -3,9 +3,6 @@
     <string name="home_make_default">Als Standard-Launcher festlegen</string>
     <string name="popup_about">App-Info</string>
     <string name="popup_rename">Umbenennen</string>
-    <string name="popup_hide">Ausblenden</string>
-    <string name="popup_show">Einblenden</string>
-    <string name="popup_remove_from_space">Aus Bereich entfernen</string>
     <string name="popup_uninstall">Deinstallieren</string>
     <string name="home_suggestion">Vorschlag: eine App, die du öfter öffnest</string>
     <string name="home_edit">Startbildschirm bearbeiten</string>

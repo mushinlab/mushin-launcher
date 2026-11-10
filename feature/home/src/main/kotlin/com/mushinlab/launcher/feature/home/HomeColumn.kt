@@ -103,7 +103,8 @@ internal fun HomeColumn(
     val placement = rememberListPlacement(state, rowHeight)
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val panelWidth = maxWidth
-        val listCapacity = ((maxHeight - HomeDimens.barHeight) / rowHeight).toInt().coerceAtLeast(state.rows.size)
+        val listSpace = maxHeight - HomeDimens.barHeight - HomeDimens.barGap
+        val listCapacity = (listSpace / rowHeight).toInt().coerceAtLeast(state.rows.size)
         Layout(
             content = {
                 HomeHeader(state, registry, actions) {
@@ -135,6 +136,7 @@ internal fun HomeColumn(
                     listCapacity,
                 )
                 Column(Modifier.fillMaxWidth()) {
+                    Spacer(Modifier.height(HomeDimens.barGap))
                     HomeBar(state.suggestion, editing, registry, actions.value)
                     Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
                 }

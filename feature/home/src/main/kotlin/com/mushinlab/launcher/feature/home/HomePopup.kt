@@ -1,5 +1,6 @@
 package com.mushinlab.launcher.feature.home
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.ui.AnchoredPanel
 import com.mushinlab.launcher.core.ui.AppIcon
+import com.mushinlab.launcher.core.ui.Glyph
+import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.HorizontalDivider
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
@@ -34,8 +37,6 @@ data class PopupSpace(val id: Long, val name: String, val current: Boolean)
 data class PopupApp(
     val key: AppKey,
     val label: String,
-    val hidden: Boolean,
-    val inSpace: Boolean,
     val canUninstall: Boolean,
 )
 
@@ -47,10 +48,6 @@ interface PopupActions {
     fun onAbout(key: AppKey)
 
     fun onRename(key: AppKey)
-
-    fun onToggleHidden(key: AppKey, hidden: Boolean)
-
-    fun onRemoveFromSpace(key: AppKey)
 
     fun onUninstall(key: AppKey)
 
@@ -115,22 +112,28 @@ private const val DIMMED_ITEM = 0.5f
 
 @Composable
 private fun AppSection(app: PopupApp, actions: PopupActions) {
+    val tint = LocalMushinColors.current.textPrimary
     PanelHeader(app.label)
-    PanelItem(stringResource(R.string.popup_about), tag = "popup_about") { actions.onAbout(app.key) }
-    PanelItem(stringResource(R.string.popup_rename), tag = "popup_rename") { actions.onRename(app.key) }
-    PanelItem(
-        stringResource(if (app.hidden) R.string.popup_show else R.string.popup_hide),
-        tag = "popup_hide",
-    ) { actions.onToggleHidden(app.key, !app.hidden) }
-    if (app.inSpace) {
-        PanelItem(stringResource(R.string.popup_remove_from_space), tag = "popup_remove") {
-            actions.onRemoveFromSpace(app.key)
+    Row(
+        Modifier.padding(start = APP_ACTIONS_INSET, end = APP_ACTIONS_INSET, bottom = APP_ACTIONS_INSET),
+        horizontalArrangement = Arrangement.spacedBy(APP_ACTIONS_GAP),
+    ) {
+        GlyphButton(Glyph.INFO, stringResource(R.string.popup_about), tint, tag = "popup_about") {
+            actions.onAbout(app.key)
+        }
+        GlyphButton(Glyph.EDIT, stringResource(R.string.popup_rename), tint, tag = "popup_rename") {
+            actions.onRename(app.key)
+        }
+        if (app.canUninstall) {
+            GlyphButton(Glyph.DELETE, stringResource(R.string.popup_uninstall), tint, tag = "popup_uninstall") {
+                actions.onUninstall(app.key)
+            }
         }
     }
-    if (app.canUninstall) {
-        PanelItem(stringResource(R.string.popup_uninstall), tag = "popup_uninstall") { actions.onUninstall(app.key) }
-    }
 }
+
+private val APP_ACTIONS_INSET = 12.dp
+private val APP_ACTIONS_GAP = 8.dp
 
 interface SuggestionActions {
     fun onReplace(suggestion: HomeSuggestion)

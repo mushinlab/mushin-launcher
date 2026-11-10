@@ -52,10 +52,11 @@ internal fun rememberRowHeight(textStyle: TextStyle): Dp {
     val density = LocalDensity.current
     return remember(textStyle, density) {
         val textHeight = with(density) { measurer.measure("Ag", textStyle).size.height.toDp() }
-        max(HomeDimens.rowHeight.value, (textHeight + 16.dp).value).dp
+        max(HomeDimens.minRowHeight.value, textHeight.value * ROW_TO_TEXT).dp
     }
 }
 
+private const val ROW_TO_TEXT = 2.1f
 private const val AUTO_DEPTH = 3
 private const val MIN_VISIBLE_ROWS = 4
 

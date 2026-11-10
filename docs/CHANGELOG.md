@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.2 — 2026-11-11
+
+### Changed
+- The app menu on the home screen shows App info, Rename and Uninstall as a row of icons. Hide and Remove from space are no longer in this menu: hide apps from search and remove them from a space in edit mode.
+- More room between the end of the app list and the buttons at the bottom of the home screen.
+- App rows follow the text size: smaller text gives shorter rows, larger text taller ones. The default size keeps its height.
+
 ## 0.9.1 — 2026-11-09
 
 ### Changed

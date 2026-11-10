@@ -3,9 +3,6 @@
     <string name="home_make_default">Jadikan launcher default</string>
     <string name="popup_about">Info aplikasi</string>
     <string name="popup_rename">Ganti nama</string>
-    <string name="popup_hide">Sembunyikan</string>
-    <string name="popup_show">Tampilkan</string>
-    <string name="popup_remove_from_space">Keluarkan dari ruang</string>
     <string name="popup_uninstall">Uninstal</string>
     <string name="home_suggestion">Saran: aplikasi yang lebih sering Anda buka</string>
     <string name="home_edit">Ubah layar utama</string>

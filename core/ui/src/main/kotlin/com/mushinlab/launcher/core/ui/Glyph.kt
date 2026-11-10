@@ -32,6 +32,7 @@ enum class Glyph(@param:DrawableRes val res: Int) {
     FOLDER(R.drawable.ic_folder),
     HELP(R.drawable.ic_help),
     IMAGE(R.drawable.ic_image),
+    INFO(R.drawable.ic_info),
     PALETTE(R.drawable.ic_palette),
     SETTINGS(R.drawable.ic_settings),
     TEXT(R.drawable.ic_text),

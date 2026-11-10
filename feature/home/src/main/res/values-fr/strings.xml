@@ -3,9 +3,6 @@
     <string name="home_make_default">Définir comme launcher par défaut</string>
     <string name="popup_about">Infos sur l’appli</string>
     <string name="popup_rename">Renommer</string>
-    <string name="popup_hide">Masquer</string>
-    <string name="popup_show">Afficher</string>
-    <string name="popup_remove_from_space">Retirer de l’espace</string>
     <string name="popup_uninstall">Désinstaller</string>
     <string name="home_suggestion">Suggestion : une appli que vous ouvrez plus souvent</string>
     <string name="home_edit">Modifier l’écran d’accueil</string>

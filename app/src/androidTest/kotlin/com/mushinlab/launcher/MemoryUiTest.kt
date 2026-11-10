@@ -39,15 +39,19 @@ class MemoryUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun drawingALearnedShapeOnTheHomeScreenFindsTheAppAtAnotherScale() {
-        val key = spaceItems().first()
-        runBlocking { container.gestureLearning.update { listOf(LearnedGesture("mapsdfghjkl", key, 1.0)) } }
+    fun drawingALearnedShapeOnTheHomeScreenFindsTheAppsAtAnotherScale() {
+        val (key, other) = spaceItems().take(2)
+        runBlocking {
+            container.gestureLearning.update {
+                listOf(LearnedGesture("mapsdfghjkl", key, 1.0), LearnedGesture("mapsdfghjkl", other, 1.0))
+            }
+        }
         rule.waitUntil(5_000) { container.gestureLearning.samples.value.isNotEmpty() }
         drawOnHome("mapsdfghjkl".filterIndexed { i, _ -> i in listOf(0, 1, 2, 3, 10) }, scale = 1.5f)
         rule.waitUntil(5_000) { rule.activity.launcher.navigator.overlay == Overlay.Search }
         rule.runOnIdle {
             assertThat(rule.activity.launcher.navigator.search.suggesting).isTrue()
-            assertThat(rule.activity.launcher.navigator.search.rows.map { it.key }).containsExactly(key)
+            assertThat(rule.activity.launcher.navigator.search.rows.map { it.key }).containsExactly(key, other)
         }
     }
 
