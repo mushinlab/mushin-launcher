@@ -13,7 +13,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.HomeListOffset
@@ -133,10 +132,6 @@ internal class HomeGestureHandler(
         actions.value.onLongPress(position, rowIndex?.let { state.value.rows.getOrNull(it) })
     }
 
-    override fun onDoubleTap() {
-        actions.value.onDoubleTap()
-    }
-
     override fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean) {
         view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
         actions.value.onSwipe(direction, fromShadeZone)
@@ -186,13 +181,10 @@ internal fun rememberHomeGestures(
 @Composable
 internal fun rememberGestureArbiter(): GestureArbiter {
     val density = LocalDensity.current
-    val viewConfiguration = LocalViewConfiguration.current
-    return remember(density, viewConfiguration) {
+    return remember(density) {
         with(density) {
             GestureArbiter(
                 GestureConfig(
-                    doubleTapTimeoutMs = viewConfiguration.doubleTapTimeoutMillis,
-                    doubleTapSlopPx = 100.dp.toPx(),
                     swipeDistancePx = 96.dp.toPx(),
                     flingDistancePx = 48.dp.toPx(),
                     flingVelocityPxPerSec = 1000.dp.toPx(),

@@ -4,6 +4,7 @@
     <string name="popup_about">О приложении</string>
     <string name="popup_rename">Переименовать</string>
     <string name="popup_uninstall">Удалить</string>
+    <string name="popup_remove_from_space">Убрать из спейса</string>
     <string name="home_suggestion">Подсказка: приложение, которое вы открываете чаще</string>
     <string name="home_edit">Изменить главный экран</string>
     <string name="home_edit_done">Готово</string>
@@ -23,7 +24,6 @@
     <string name="suggest_add">Добавить на главный экран</string>
     <string name="suggest_dismiss">Не предлагать</string>
     <string name="home_edit_tips">Советы по редактированию</string>
-    <string name="home_widgets">Виджеты</string>
     <string name="home_add_widget">Добавить виджет</string>
     <string name="widget_remove">Убрать виджет</string>
     <string name="widget_move_before">Переместить раньше</string>

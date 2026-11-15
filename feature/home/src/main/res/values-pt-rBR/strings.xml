@@ -4,6 +4,7 @@
     <string name="popup_about">Informações do app</string>
     <string name="popup_rename">Renomear</string>
     <string name="popup_uninstall">Desinstalar</string>
+    <string name="popup_remove_from_space">Remover do espaço</string>
     <string name="home_suggestion">Sugestão: um app que você abre com mais frequência</string>
     <string name="home_edit">Editar tela inicial</string>
     <string name="home_edit_done">Concluir</string>
@@ -23,7 +24,6 @@
     <string name="suggest_add">Adicionar à tela inicial</string>
     <string name="suggest_dismiss">Não sugerir</string>
     <string name="home_edit_tips">Dicas de edição</string>
-    <string name="home_widgets">Widgets</string>
     <string name="home_add_widget">Adicionar widget</string>
     <string name="widget_remove">Remover widget</string>
     <string name="widget_move_before">Mover para antes</string>

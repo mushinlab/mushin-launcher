@@ -6,11 +6,7 @@ import androidx.compose.ui.geometry.Offset
 import com.mushinlab.launcher.core.model.AppKey
 
 sealed interface Overlay {
-    data class EditItem(val row: com.mushinlab.launcher.feature.home.HomeRow) : Overlay
-
     data object EditTips : Overlay
-
-    data object Widgets : Overlay
 
     data object None : Overlay
 

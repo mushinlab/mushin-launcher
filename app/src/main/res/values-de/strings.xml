@@ -5,9 +5,6 @@
     <string name="notice_launch_failed">App konnte nicht geöffnet werden</string>
     <string name="notice_remove_from_space">Aus Bereich entfernen</string>
     <string name="notice_shade_unavailable">Die Benachrichtigungsleiste ist in dieser Android-Version nicht verfügbar</string>
-    <string name="notice_added_to_space">Zu „%1$s“ hinzugefügt</string>
-    <string name="notice_removed_from_space">Aus „%1$s“ entfernt</string>
-    <string name="notice_space_full">„%1$s“ ist voll</string>
     <string name="rename_title">„%1$s“ umbenennen</string>
     <string name="rename_save">Speichern</string>
     <string name="rename_reset">Zurücksetzen</string>

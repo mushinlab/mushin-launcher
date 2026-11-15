@@ -22,7 +22,7 @@ Mushin Launcher — главный экран, который за одно ка
 • переключение — долгим нажатием на фоне.
 
 Мгновенный поиск:
-• двойной тап по фону — и встроенная клавиатура уже на экране, без задержки системной;
+• свайп вверх по главному экрану — и встроенная клавиатура уже на экране, без задержки системной;
 • находит по началу и середине названия, по первым буквам слов, с опечатками, в неправильной раскладке и транслитом («слак» найдёт Slack);
 • справа — недавние приложения текущего спейса.
 
@@ -58,7 +58,7 @@ Spaces are app sets for each part of your life:
 • long-press the background to switch.
 
 Instant search:
-• double-tap the background and the built-in keyboard is already on screen, with no system keyboard lag;
+• swipe up on the home screen and the built-in keyboard is already on screen, with no system keyboard lag;
 • finds apps by prefix, by substring, by the initials of their words, with typos, in the wrong keyboard layout and in transliteration;
 • your recent apps for the current space sit on the right.
 

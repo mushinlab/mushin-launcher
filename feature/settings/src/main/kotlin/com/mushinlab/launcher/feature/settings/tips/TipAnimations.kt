@@ -21,6 +21,8 @@ import com.mushinlab.launcher.core.ui.LocalMushinFont
 internal fun TipAnimation(tip: Tip, modifier: Modifier = Modifier) {
     when (tip) {
         Tip.SPACE -> SpaceTipAnimation(modifier)
+        Tip.SEARCH -> SearchTipAnimation(modifier)
+        Tip.ARRANGE -> ArrangeTipAnimation(modifier)
         Tip.STYLE -> StyleTipAnimation(modifier)
         Tip.MEMORY -> MemoryTipAnimation(modifier)
     }

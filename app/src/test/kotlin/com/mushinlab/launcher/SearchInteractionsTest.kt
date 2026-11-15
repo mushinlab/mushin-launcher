@@ -36,29 +36,8 @@ class SearchInteractionsTest {
         search.openMenu(camera, "Camera", Offset.Zero)
 
         val menu = navigator.search.panels.menu
-        assertThat(menu?.inSpace).isFalse()
+        assertThat(menu?.label).isEqualTo("Camera")
         assertThat(menu?.canUninstall).isFalse()
-    }
-
-    @Test
-    fun addingToAFullSpaceIsRefused() {
-        model.capacity = 0
-
-        search.toggleInSpace(slack, add = true)
-
-        assertThat(navigator.notice?.text).isEqualTo(R.string.notice_space_full)
-        assertThat(navigator.notice?.arg).isEqualTo("s1")
-    }
-
-    @Test
-    fun addingAndRemovingUpdateTheSpaceAndNotify() {
-        search.toggleInSpace(slack, add = true)
-        assertThat(model.items).containsExactly(slack)
-        assertThat(navigator.notice?.text).isEqualTo(R.string.notice_added_to_space)
-
-        search.toggleInSpace(slack, add = false)
-        assertThat(model.items).isEmpty()
-        assertThat(navigator.notice?.text).isEqualTo(R.string.notice_removed_from_space)
     }
 
     @Test

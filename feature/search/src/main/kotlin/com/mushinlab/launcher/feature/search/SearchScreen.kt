@@ -40,16 +40,15 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.Glyph
@@ -96,7 +95,7 @@ fun SearchScreen(
                 .popupBackdrop(controller.panels.open),
         ) {
             Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
-            SearchHeader(controller)
+            SearchHeader(controller, actions)
             Spacer(Modifier.height(SearchDimens.headerGap))
             ResultsPane(
                 controller,
@@ -108,31 +107,37 @@ fun SearchScreen(
             Spacer(Modifier.height(gap))
             val typing = mode == SearchMode.TYPING
             InputPane(controller, chrome, actions, typing, active, inputPane)
-            Spacer(Modifier.height(if (typing) KeyboardDimens.bottomLift else gap))
+            Spacer(Modifier.height(gap))
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
-        val panels = controller.panels
-        panels.menu?.let { SearchMenuPanel(it, actions) }
-        panels.options?.let { OptionsPanel(it, chrome, controller.showHidden, actions, panels::closeOptions) }
+        controller.panels.menu?.let { SearchMenuPanel(it, actions) }
     }
 }
 
 @Composable
-private fun SearchHeader(controller: SearchController) {
+private fun SearchHeader(controller: SearchController, actions: SearchOptionsActions) {
     val colors = LocalMushinColors.current
-    var anchor by remember { mutableStateOf(Offset.Zero) }
+    val showHidden = controller.showHidden
     Row(
         Modifier.fillMaxWidth().height(SearchDimens.headerHeight).testTag("search_header"),
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         GlyphButton(
+            if (showHidden) Glyph.SHOW else Glyph.HIDE,
+            stringResource(R.string.search_show_hidden),
+            if (showHidden) colors.accent else colors.textSecondary,
+            tag = "search_show_hidden",
+            modifier = Modifier.semantics { selected = showHidden },
+            onClick = actions::onToggleShowHidden,
+        )
+        GlyphButton(
             Glyph.SETTINGS,
-            stringResource(R.string.search_options),
+            stringResource(R.string.search_all_settings),
             colors.textSecondary,
-            tag = "search_options",
-            modifier = Modifier.onGloballyPositioned { anchor = it.boundsInRoot().bottomCenter },
-        ) { controller.panels.openOptions(anchor) }
+            tag = "search_settings",
+            onClick = actions::onOpenSettings,
+        )
     }
 }
 
@@ -199,7 +204,12 @@ private fun InputPane(
                 .align(BiasAlignment(shift, 0f))
                 .then(pane)
                 .testTag("input_pane")
-                .padding(top = SearchDimens.paneTop),
+                .padding(
+                    start = SearchDimens.panePadding,
+                    top = SearchDimens.paneTop,
+                    end = SearchDimens.panePadding,
+                    bottom = if (typing) SearchDimens.panePadding else 0.dp,
+                ),
         ) {
             QueryRow(controller, chrome.haptics, actions)
             if (typing) {
@@ -256,7 +266,7 @@ private fun QueryRow(controller: SearchController, haptics: Boolean, actions: Se
                     maxLines = 1,
                     modifier = Modifier.weight(1f, fill = false).testTag("query"),
                 )
-                BasicText("▏", style = MushinType.style(SearchDimens.queryTextSize, colors.accent, FontWeight.Light))
+                Caret()
             }
         }
         if (controller.query.isNotEmpty() || controller.suggesting) {

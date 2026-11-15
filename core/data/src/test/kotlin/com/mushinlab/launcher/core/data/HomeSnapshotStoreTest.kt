@@ -48,6 +48,7 @@ class HomeSnapshotStoreTest {
                     ),
                 ),
             ),
+            spaceName = "Работа",
         )
         store.write(snapshot)
         assertThat(store.read()).isEqualTo(snapshot)

@@ -34,7 +34,7 @@ class OnboardingPager(val count: Int, initial: Int = 0) {
     }
 
     companion object {
-        const val SLIDES = 4
+        val SLIDES = Tip.entries.size + 1
 
         fun saver(count: Int): Saver<OnboardingPager, Int> = Saver(save = {
             it.page

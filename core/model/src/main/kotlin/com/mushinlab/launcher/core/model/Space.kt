@@ -64,3 +64,10 @@ object SpaceLimits {
     const val NAME_MAX_LENGTH = 24
     const val RECENTS_PER_SPACE = 50
 }
+
+/** This home list with [key] moved to the place of [target]; unchanged when either is missing. */
+fun List<AppKey>.moving(key: AppKey, target: AppKey): List<AppKey> {
+    val to = indexOf(target)
+    if (key !in this || to < 0) return this
+    return (this - key).toMutableList().apply { add(to, key) }
+}

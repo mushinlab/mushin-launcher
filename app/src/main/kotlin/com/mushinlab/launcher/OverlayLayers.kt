@@ -88,6 +88,7 @@ internal fun PopupLayer(vm: LauncherViewModel) {
             key = key,
             label = vm.model.override(key)?.customLabel ?: entry.label,
             canUninstall = !entry.isSystem,
+            inSpace = vm.model.isInCurrentSpace(key),
         )
     }
     val actions = remember(vm) { popupActions(vm) }
@@ -120,6 +121,11 @@ private fun popupActions(vm: LauncherViewModel) = object : PopupActions {
     override fun onUninstall(key: AppKey) {
         vm.navigator.overlay = Overlay.None
         vm.apps.uninstall(key)
+    }
+
+    override fun onRemoveFromSpace(key: AppKey) {
+        vm.navigator.overlay = Overlay.None
+        vm.model.removeFromCurrentSpace(key)
     }
 
     override fun onDismiss() {

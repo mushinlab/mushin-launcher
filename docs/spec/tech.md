@@ -146,6 +146,9 @@ CREATE TABLE gesture_binding (
       <action android:name="android.intent.action.MAIN"/>
       <category android:name="android.intent.category.LAUNCHER"/>
     </intent>
+    <intent>
+      <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/> <!-- ADR-0044 -->
+    </intent>
   </queries>
   <application android:name=".EnvApp" android:label="@string/app_name"
       android:theme="@style/Theme.Env.Starting" android:allowBackup="false"

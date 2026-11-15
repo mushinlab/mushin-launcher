@@ -31,7 +31,6 @@ import com.mushinlab.launcher.core.ui.LocalIconProvider
 import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.feature.search.SearchActions
 import com.mushinlab.launcher.feature.search.SearchChrome
-import com.mushinlab.launcher.feature.search.SearchOption
 import com.mushinlab.launcher.feature.search.SearchScreen
 import kotlinx.coroutines.launch
 
@@ -64,10 +63,7 @@ internal fun SearchLayer(vm: LauncherViewModel, settings: LauncherSettings, icon
                 if (active) vm.navigator.onSearchDrawn()
             },
     ) {
-        val provider = LocalIconProvider.current
-        val searchIcons = remember(provider, settings.searchColoredIcons) {
-            if (settings.searchColoredIcons) iconProvider.withColors(true) else provider
-        }
+        val searchIcons = remember(iconProvider) { iconProvider.withColors(true) }
         CompositionLocalProvider(LocalIconProvider provides searchIcons) {
             SearchScreen(vm.navigator.search, vm.navigator.searchMode, chrome, actions, active = active)
         }
@@ -79,7 +75,6 @@ private fun SearchSourcesEffect(vm: LauncherViewModel) {
     val sources = vm.navigator.search.sources
     val index by vm.searchIndex.collectAsStateWithLifecycle()
     val usage by vm.usage.collectAsStateWithLifecycle()
-    val engine by vm.searchEngine.collectAsStateWithLifecycle()
     val learned by vm.learnedGestures.collectAsStateWithLifecycle()
     val settings by vm.settings.collectAsStateWithLifecycle()
     val recents by vm.recents.collectAsStateWithLifecycle()
@@ -90,7 +85,6 @@ private fun SearchSourcesEffect(vm: LauncherViewModel) {
     }
     val bindings by vm.gestureBindings.collectAsStateWithLifecycle()
     LaunchedEffect(bindings) { sources.setSwipes(bindings.swipesByApp()) }
-    LaunchedEffect(engine) { sources.setEngine(engine) }
 }
 
 @Composable
@@ -110,10 +104,6 @@ internal fun rememberSearchChrome(settings: LauncherSettings): SearchChrome {
             haptics = settings.keyboardHaptics,
             gestureShiftPenalty = settings.gestureShiftPenalty,
             gestureSuggestMargin = settings.gestureSuggestMargin,
-            fuzzy = settings.searchFuzzy,
-            layoutSwap = settings.searchLayoutSwap,
-            translit = settings.searchTranslit,
-            coloredIcons = settings.searchColoredIcons,
             keyboardWidth = settings.keyboardWidth,
             keyboardShift = settings.keyboardShift,
         )
@@ -140,10 +130,6 @@ private fun searchActions(vm: LauncherViewModel) = object : SearchActions {
         vm.searchInput.openMenu(key, label, anchor)
     }
 
-    override fun onToggleInSpace(key: AppKey, add: Boolean) {
-        vm.searchInput.toggleInSpace(key, add)
-    }
-
     override fun onAppInfo(key: AppKey) {
         vm.navigator.search.panels.closeMenu()
         vm.apps.openDetails(key)
@@ -164,17 +150,6 @@ private fun searchActions(vm: LauncherViewModel) = object : SearchActions {
 
     override fun onDismissMenu() {
         vm.navigator.search.panels.closeMenu()
-    }
-
-    override fun onSearchOption(option: SearchOption, enabled: Boolean) {
-        vm.preferences.update {
-            when (option) {
-                SearchOption.FUZZY -> it.copy(searchFuzzy = enabled)
-                SearchOption.LAYOUT_SWAP -> it.copy(searchLayoutSwap = enabled)
-                SearchOption.TRANSLIT -> it.copy(searchTranslit = enabled)
-                SearchOption.COLORED_ICONS -> it.copy(searchColoredIcons = enabled)
-            }
-        }
     }
 
     override fun onOpenSettings() {

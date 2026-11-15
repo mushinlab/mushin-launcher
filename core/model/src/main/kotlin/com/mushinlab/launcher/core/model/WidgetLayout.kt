@@ -41,12 +41,33 @@ data class WidgetLayout(val widgets: List<HostedWidget> = listOf(HostedWidget.cl
     val freeCells: List<WidgetCell>
         get() = WidgetCell.singles.filter { cell -> widgets.none { it.cell.overlaps(cell) } }
 
-    /** Adds [widget] at [preferred] when that cell is free, otherwise at the first free cell; null when full. */
-    fun add(widget: HostedWidget, preferred: WidgetCell? = null): WidgetLayout? {
+    /**
+     * Adds [widget] at [preferred] when that cell is free, otherwise at the first free cell; null when full.
+     * A widget that needs [columnSpan] by [rowSpan] cells takes a free rectangle of that size, first around its
+     * cell, or pushes the widgets it covers to free space. Without room it keeps its width in one row, then its
+     * height in one column, then one cell.
+     */
+    fun add(
+        widget: HostedWidget,
+        preferred: WidgetCell? = null,
+        columnSpan: Int = 1,
+        rowSpan: Int = 1,
+    ): WidgetLayout? {
         if (widgets.any { it.id == widget.id }) return null
         val free = freeCells
         val cell = preferred?.takeIf { it in free } ?: free.firstOrNull() ?: return null
-        return copy(widgets = widgets + widget.copy(cell = cell))
+        val added = copy(widgets = widgets + widget.copy(cell = cell))
+        return listOf(WidgetCell(0, 0, columnSpan, rowSpan), WidgetCell(0, 0, columnSpan), WidgetCell(0, 0, 1, rowSpan))
+            .firstNotNullOfOrNull { added.spread(widget.id, cell, it) } ?: added
+    }
+
+    private fun spread(id: Int, cell: WidgetCell, span: WidgetCell): WidgetLayout? {
+        val around = span.at(
+            minOf(cell.column, WidgetCell.COLUMNS - span.columnSpan),
+            minOf(cell.row, WidgetCell.ROWS - span.rowSpan),
+        )
+        val others = widgets.filter { it.id != id }.map { it.cell }
+        return place(id, spot(span, listOf(around) + WidgetCell.singles, others) ?: around)
     }
 
     /**

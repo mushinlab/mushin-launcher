@@ -48,6 +48,7 @@ internal object Scene {
     const val CLOCK_SIZE = 30f
     const val DATE_GAP = 4f
     val back = Offset(16f, HEADER_Y)
+    val save = Offset(WIDTH - 18f, HEADER_Y)
     val pencil = Offset(WIDTH - 20f, HEIGHT - 16f)
     val rest = Offset(WIDTH * 0.66f, HEIGHT * 0.84f)
     val clock = Offset(MARGIN, 20f)
@@ -162,6 +163,7 @@ internal fun DrawScope.zebraRows(
     colors: MushinColors,
     top: Float,
     labels: List<TextLayoutResult>,
+    inset: Float = 0f,
     alphas: (Int) -> Float = { 1f },
 ) {
     labels.forEachIndexed { index, label ->
@@ -177,7 +179,7 @@ internal fun DrawScope.zebraRows(
             drawText(
                 label,
                 colors.textPrimary,
-                Offset(Scene.MARGIN, y + (Scene.ROW_HEIGHT - label.size.height) / 2),
+                Offset(Scene.MARGIN + inset, y + (Scene.ROW_HEIGHT - label.size.height) / 2),
                 alpha = alpha,
             )
         }

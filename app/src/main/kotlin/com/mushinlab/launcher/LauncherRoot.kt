@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.WidgetCell
@@ -39,7 +40,6 @@ import com.mushinlab.launcher.core.ui.popupBackdrop
 import com.mushinlab.launcher.feature.home.HomeActions
 import com.mushinlab.launcher.feature.home.HomeRow
 import com.mushinlab.launcher.feature.home.HomeScreen
-import com.mushinlab.launcher.feature.search.SearchMode
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 
 @Composable
@@ -169,8 +169,6 @@ private fun homeActions(vm: LauncherViewModel, density: Density) = object : Home
         navigator.overlay = Overlay.Popup(position, row?.key)
     }
 
-    override fun onDoubleTap() = navigator.openSearch(SearchMode.TYPING)
-
     override fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean) =
         vm.homeInput.onSwipe(direction, fromShadeZone)
 
@@ -200,10 +198,6 @@ private fun homeActions(vm: LauncherViewModel, density: Density) = object : Home
 
     override fun onOpenSettings() = navigator.openSettings()
 
-    override fun onEditWidgets() {
-        navigator.overlay = Overlay.Widgets
-    }
-
     override fun onPlaceWidget(id: Int, cell: WidgetCell) = vm.widgets.panels.place(id, cell)
 
     override fun onAddWidget(cell: WidgetCell) = vm.widgets.add(cell)
@@ -214,8 +208,22 @@ private fun homeActions(vm: LauncherViewModel, density: Density) = object : Home
         navigator.overlay = Overlay.EditTips
     }
 
-    override fun onEditRow(row: HomeRow) {
-        navigator.overlay = Overlay.EditItem(row)
+    override fun onReplaceRow(row: HomeRow) {
+        val space = vm.model.currentSpace ?: return
+        val folder = row.folderId
+        navigator.openSettings(
+            if (folder != null) SettingsRoute.HomeFolder(folder) else SettingsRoute.ReplaceApp(space.id, row.key),
+        )
+    }
+
+    override fun onRemoveRow(row: HomeRow) {
+        val folder = row.folderId
+        if (folder != null) vm.folders.delete(folder) else vm.model.removeFromCurrentSpace(row.key)
+    }
+
+    override fun onMoveRow(key: AppKey, target: AppKey) {
+        val space = vm.model.currentSpace ?: return
+        vm.spaces.moveItem(space.id, key, target)
     }
 
     override fun onSuggestion(anchor: Offset) {

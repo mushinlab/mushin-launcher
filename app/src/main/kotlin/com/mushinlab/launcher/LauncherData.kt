@@ -105,6 +105,7 @@ internal fun homeState(
         backgroundBlur = d.current?.backgroundBlur ?: 0f,
         backgroundRowAlpha = d.current?.backgroundRowAlpha ?: SpaceBackground.ROW_ALPHA_DEFAULT,
         roleMissing = !roleHeld,
+        spaceName = d.current?.name.orEmpty(),
     )
 }
 
@@ -124,6 +125,7 @@ internal fun snapshotState(snapshot: HomeSnapshot?, roleHeld: Boolean): HomeUiSt
         homeListOffset = snapshot.listOffset,
         roleMissing = !roleHeld,
         widgetPanels = widgetPanels(snapshot.widgetLayout),
+        spaceName = snapshot.spaceName,
     )
 }
 
@@ -143,6 +145,7 @@ internal fun homeSnapshot(d: LauncherData, state: HomeUiState): HomeSnapshot? {
         showClock = state.showClock,
         clockSize = state.clockSize,
         widgetLayout = widgetLayout(state.widgetPanels),
+        spaceName = space.name,
     )
 }
 

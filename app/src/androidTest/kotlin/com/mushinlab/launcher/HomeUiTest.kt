@@ -84,11 +84,47 @@ class HomeUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("popup_about").assertIsDisplayed()
         rule.onNodeWithTag("popup_rename").assertIsDisplayed()
         rule.onNodeWithTag("popup_hide").assertDoesNotExist()
-        rule.onNodeWithTag("popup_remove").assertDoesNotExist()
         val info = rule.onNodeWithTag("popup_about").fetchSemanticsNode().boundsInRoot
         val rename = rule.onNodeWithTag("popup_rename").fetchSemanticsNode().boundsInRoot
+        val remove = rule.onNodeWithTag("popup_remove").fetchSemanticsNode().boundsInRoot
         assertThat(rename.center.y).isWithin(1f).of(info.center.y)
         assertThat(rename.left).isAtLeast(info.right)
+        assertThat(remove.left).isAtLeast(rename.right)
+    }
+
+    @Test
+    fun AC_06_3_removeFromSpaceInTheAppMenuRemovesTheRow() {
+        val key = spaceItems().first()
+        rule.onNodeWithTag("row_0").performTouchInput { longClick() }
+        rule.onNodeWithTag("popup_remove").performClick()
+        rule.onNodeWithTag("popup").assertDoesNotExist()
+        rule.waitUntil(5_000) { key !in spaceItems() }
+    }
+
+    @Test
+    fun AC_37_10_draggingARowByItsHandleInEditModeReordersTheList() {
+        val (first, second, third) = spaceItems()
+        rule.onNodeWithTag("home_edit").performClick()
+        val row = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot
+        rule.onNodeWithTag("row_drag_0").performTouchInput {
+            down(center)
+            repeat(4) { moveBy(Offset(0f, row.height * 0.55f)) }
+            up()
+        }
+        rule.waitUntil(5_000) { spaceItems() == listOf(second, third, first) }
+        assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None)
+    }
+
+    @Test
+    fun AC_37_1_tappingOrHoldingARowInEditModeDoesNothing() {
+        val items = spaceItems()
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("row_0").performClick()
+        rule.onNodeWithTag("row_0").performTouchInput { longClick() }
+        rule.waitForIdle()
+        assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None)
+        assertThat(rule.activity.launcher.navigator.settings.isOpen).isFalse()
+        assertThat(spaceItems()).isEqualTo(items)
     }
 
     @Test
@@ -282,8 +318,8 @@ class HomeUiTest : LauncherUiTestBase() {
         assertThat(list.height).isAtLeast(row.height * 2)
         rule.onNodeWithTag("row_7").assertIsNotDisplayed()
         rule.onNodeWithTag("edit_list").performTouchInput { swipeUp() }
-        rule.onNodeWithTag("row_7").assertIsDisplayed().performClick()
-        rule.onNodeWithTag("edit_item_replace").performClick()
+        rule.onNodeWithTag("row_7").assertIsDisplayed()
+        rule.onNodeWithTag("row_edit_7").performClick()
         rule.waitUntil(5_000) {
             rule.activity.launcher.navigator.settings.top == SettingsRoute.ReplaceApp(normalId, apps[7].key)
         }
@@ -329,21 +365,19 @@ class HomeUiTest : LauncherUiTestBase() {
     @Test
     fun editModeRowsCanBeReplacedAndRemoved() {
         val first = spaceItems().first()
-        rule.onNodeWithTag("row_edit_0", useUnmergedTree = true).assertDoesNotExist()
+        rule.onNodeWithTag("row_edit_0").assertDoesNotExist()
         rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("row_0").performClick()
-        rule.onNodeWithTag("edit_item_replace").performClick()
+        rule.onNodeWithTag("row_edit_0").performClick()
         rule.waitUntil(5_000) {
             rule.activity.launcher.navigator.settings.top == SettingsRoute.ReplaceApp(normalId, first)
         }
         rule.runOnIdle { rule.activity.launcher.navigator.settings.close() }
-        rule.onNodeWithTag("row_0").performClick()
-        rule.onNodeWithTag("edit_item_remove").performClick()
+        rule.onNodeWithTag("row_remove_0").performClick()
         rule.waitUntil(5_000) { first !in spaceItems() }
     }
 
     @Test
-    fun AC_37_1_folderTapInEditModeOffersItsEditorAndRemoval() {
+    fun AC_37_1_folderRowInEditModeOffersItsEditorAndRemoval() {
         val originalApps = spaceItems()
         rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("home_add_folder").performClick()
@@ -352,12 +386,10 @@ class HomeUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("folder_name").performTextInput("Folder")
         rule.waitUntil(5_000) { container.folders.folders.value[id]?.name == "Folder" }
         rule.runOnIdle { rule.activity.launcher.navigator.settings.close() }
-        rule.onNodeWithTag("row_${originalApps.size}").performClick()
-        rule.onNodeWithTag("edit_item_replace").performClick()
+        rule.onNodeWithTag("row_edit_${originalApps.size}").performClick()
         rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.HomeFolder(id) }
         rule.runOnIdle { rule.activity.launcher.navigator.settings.close() }
-        rule.onNodeWithTag("row_${originalApps.size}").performClick()
-        rule.onNodeWithTag("edit_item_remove").performClick()
+        rule.onNodeWithTag("row_remove_${originalApps.size}").performClick()
         rule.waitUntil(5_000) { id !in container.folders.folders.value }
         assertThat(spaceItems()).containsExactlyElementsIn(originalApps).inOrder()
     }

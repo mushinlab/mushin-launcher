@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.10.0 — 2026-11-16
+
+### Added
+- Reorder apps and folders right on the home screen: in edit mode, drag a row by the handle on its left. The row lifts and follows your finger, the others slide out of the way, and the new order is saved for the space. TalkBack gets Move earlier/Move later actions.
+- The name of the current space at the bottom of the home screen, on a translucent panel shared with the buttons so they stay readable over a wallpaper.
+- An empty home list shows Add folder and Add app right away, without entering edit mode.
+- A Save button at the top right of the app picker once the selection has changed.
+- Two new tips: Find any app and Arrange the list.
+
+### Changed
+- Edit mode rows carry their controls: a drag handle on the left, Replace and Remove from list on the right. Tapping a row no longer opens a sheet.
+- Search opens with a swipe up (or whichever swipe is set to Search). Double tap on the background no longer opens it.
+- Keyboard: no empty strip below it, inner padding around the keys, and a softly blinking caret. The resize mode keeps only the side handles.
+- Tips and onboarding are redrawn for the current interface.
+- The app menu on the home screen has Remove from space again, as an icon; Uninstall is red and comes first.
+- The app menu in search is a row of icons: Uninstall, App info, Rename and Hide. Adding to or removing from a space is done on the home screen.
+- Search header: an eye button shows hidden apps and the gear opens Settings directly.
+- The widget picker offers every widget that fits the 2×2 panel, not only the ones that fit a single cell. A larger widget is added over the cells it needs.
+
+### Fixed
+- Widgets of apps without a launcher icon, such as system services, were missing from the widget picker.
+
+### Removed
+- Search switches for typo fixing, keyboard layout fixing, transliteration and color icons: all four are always on.
+- The Widgets button in edit mode: add, set up and remove widgets in the grid itself.
+
 ## 0.9.2 — 2026-11-11
 
 ### Changed

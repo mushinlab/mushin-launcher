@@ -1,24 +1,21 @@
 package com.mushinlab.launcher.feature.search
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.ui.AnchoredPanel
-import com.mushinlab.launcher.core.ui.HorizontalDivider
+import com.mushinlab.launcher.core.ui.Glyph
+import com.mushinlab.launcher.core.ui.GlyphButton
+import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.PanelHeader
-import com.mushinlab.launcher.core.ui.PanelItem
-
-enum class SearchOption { FUZZY, LAYOUT_SWAP, TRANSLIT, COLORED_ICONS }
 
 interface SearchMenuActions {
     fun onRename(key: AppKey)
-
-    fun onToggleInSpace(key: AppKey, add: Boolean)
 
     fun onAppInfo(key: AppKey)
 
@@ -32,60 +29,42 @@ interface SearchMenuActions {
 interface SearchOptionsActions {
     fun onToggleShowHidden()
 
-    fun onSearchOption(option: SearchOption, enabled: Boolean)
-
     fun onOpenSettings()
 }
 
 @Composable
-internal fun OptionsPanel(
-    anchor: Offset,
-    chrome: SearchChrome,
-    showHidden: Boolean,
-    actions: SearchOptionsActions,
-    onDismiss: () -> Unit,
-) {
-    AnchoredPanel(anchor = anchor, onDismiss = onDismiss) {
-        PanelHeader(stringResource(R.string.search_options))
-        listOf(
-            Triple(SearchOption.FUZZY, R.string.search_fuzzy, chrome.fuzzy),
-            Triple(SearchOption.LAYOUT_SWAP, R.string.search_layout_swap, chrome.layoutSwap),
-            Triple(SearchOption.TRANSLIT, R.string.search_translit, chrome.translit),
-            Triple(SearchOption.COLORED_ICONS, R.string.search_colored_icons, chrome.coloredIcons),
-        ).forEach { (option, label, on) ->
-            PanelItem(
-                (if (on) "✓  " else "     ") + stringResource(label),
-                tag = "search_option_$option",
-            ) { actions.onSearchOption(option, !on) }
-        }
-        PanelItem(
-            (if (showHidden) "✓  " else "     ") + stringResource(R.string.search_show_hidden),
-            tag = "search_option_show_hidden",
-        ) { actions.onToggleShowHidden() }
-        HorizontalDivider()
-        PanelItem(stringResource(R.string.search_all_settings), tag = "search_all_settings") {
-            onDismiss()
-            actions.onOpenSettings()
+internal fun SearchMenuPanel(menu: SearchMenu, actions: SearchMenuActions) {
+    val colors = LocalMushinColors.current
+    val tint = colors.textPrimary
+    AnchoredPanel(anchor = menu.anchor, onDismiss = actions::onDismissMenu) {
+        PanelHeader(menu.label)
+        Row(
+            Modifier.padding(start = MENU_ACTIONS_INSET, end = MENU_ACTIONS_INSET, bottom = MENU_ACTIONS_INSET),
+            horizontalArrangement = Arrangement.spacedBy(MENU_ACTIONS_GAP),
+        ) {
+            if (menu.canUninstall) {
+                GlyphButton(
+                    Glyph.DELETE,
+                    stringResource(R.string.menu_uninstall),
+                    colors.danger,
+                    tag = "menu_uninstall",
+                ) { actions.onUninstall(menu.key) }
+            }
+            GlyphButton(Glyph.INFO, stringResource(R.string.menu_app_info), tint, tag = "menu_info") {
+                actions.onAppInfo(menu.key)
+            }
+            GlyphButton(Glyph.EDIT, stringResource(R.string.menu_rename), tint, tag = "menu_rename") {
+                actions.onRename(menu.key)
+            }
+            GlyphButton(
+                if (menu.hidden) Glyph.SHOW else Glyph.HIDE,
+                stringResource(if (menu.hidden) R.string.menu_unhide else R.string.menu_hide),
+                tint,
+                tag = "menu_hide",
+            ) { actions.onToggleHidden(menu.key, !menu.hidden) }
         }
     }
 }
 
-@Composable
-internal fun SearchMenuPanel(menu: SearchMenu, actions: SearchMenuActions) {
-    AnchoredPanel(anchor = menu.anchor, onDismiss = actions::onDismissMenu) {
-        PanelHeader(menu.label)
-        PanelItem(
-            stringResource(if (menu.inSpace) R.string.menu_remove_from_space else R.string.menu_add_to_space),
-            tag = "menu_env",
-        ) { actions.onToggleInSpace(menu.key, add = !menu.inSpace) }
-        PanelItem(
-            stringResource(if (menu.hidden) R.string.menu_unhide else R.string.menu_hide),
-            tag = "menu_hide",
-        ) { actions.onToggleHidden(menu.key, !menu.hidden) }
-        PanelItem(stringResource(R.string.menu_rename), tag = "menu_rename") { actions.onRename(menu.key) }
-        PanelItem(stringResource(R.string.menu_app_info), tag = "menu_info") { actions.onAppInfo(menu.key) }
-        if (menu.canUninstall) {
-            PanelItem(stringResource(R.string.menu_uninstall), tag = "menu_uninstall") { actions.onUninstall(menu.key) }
-        }
-    }
-}
+private val MENU_ACTIONS_INSET = 12.dp
+private val MENU_ACTIONS_GAP = 8.dp

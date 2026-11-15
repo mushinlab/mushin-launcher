@@ -70,7 +70,7 @@ private fun DrawScope.drawMemoryTip(time: Float, colors: MushinColors, labels: M
             else -> Finger.at(time)
         }
         val press = maxOf(
-            pulse(time, TAP_ADD, TAP_PICK, TAP_SAVE, TAP_SUGGESTION),
+            pulse(time, TAP_ADD, TAP_PICK, TAP_SAVE),
             hold(time, KEYBOARD_FROM - PRESS_LEAD, KEYBOARD_TO),
             hold(time, HOME_FROM - PRESS_LEAD, HOME_TO),
         )
@@ -153,28 +153,9 @@ private fun DrawScope.drawMemoryHome(time: Float, colors: MushinColors, labels: 
     pencil(Scene.pencil, colors.textSecondary)
     val fade = 1f - ease(time, TRAIL_FADE_FROM, TRAIL_FADE_FROM + FADE_MS)
     trail(HomeTrail, phase(time, HOME_FROM, HOME_TO), look, fade)
-    val panel = ease(time, PANEL_FROM, PANEL_FROM + SLIDE_MS)
-    if (panel > 0f) {
-        translate(top = (Scene.HEIGHT - MemoryGeometry.PANEL_TOP) * (1f - panel)) {
-            drawRect(colors.surface, Offset(0f, MemoryGeometry.PANEL_TOP), Size(Scene.WIDTH, Scene.HEIGHT))
-            val rows = listOf(labels.awesome) + labels.apps.drop(HOME_APPS).take(2)
-            rows.forEachIndexed { index, label ->
-                val top = MemoryGeometry.SUGGESTION_TOP + Scene.ROW_HEIGHT * index
-                if (index == 0) {
-                    drawRect(
-                        colors.accent,
-                        Offset(0f, top),
-                        Size(Scene.WIDTH, Scene.ROW_HEIGHT),
-                        alpha = HIGHLIGHT_ALPHA,
-                    )
-                }
-                textCenteredY(label, colors.textPrimary, Scene.MARGIN, top + Scene.ROW_HEIGHT / 2)
-            }
-        }
-    }
-    val open = ease(time, TAP_SUGGESTION + SLIDE_DELAY, TAP_SUGGESTION + SLIDE_DELAY + SLIDE_MS)
+    val open = ease(time, LAUNCH_FROM, LAUNCH_FROM + SLIDE_MS)
     if (open > 0f) {
-        val bounds = lerp(MemoryGeometry.suggestion, MemoryGeometry.full, open)
+        val bounds = lerp(MemoryGeometry.drawn, MemoryGeometry.full, open)
         drawRect(colors.accent, bounds.topLeft, bounds.size)
         val title = labels.awesomeTitle
         drawText(
@@ -188,8 +169,6 @@ private fun DrawScope.drawMemoryHome(time: Float, colors: MushinColors, labels: 
 
 private object MemoryGeometry {
     const val SHEET_TOP = 170f
-    const val PANEL_TOP = 236f
-    const val SUGGESTION_TOP = 244f
     const val KEYS_TOP = 204f
     const val KEY_STEP_X = (Scene.WIDTH - 8f) / 10f
     const val KEY_STEP_Y = 28f
@@ -202,7 +181,8 @@ private object MemoryGeometry {
     val sheetTitle = Offset(Scene.MARGIN, SHEET_TOP + 10f)
     val save = Offset(Scene.WIDTH - 52f, Scene.HEIGHT - 34f) to Size(42f, 18f)
     val saveCenter = save.first + Offset(save.second.width / 2, save.second.height / 2)
-    val suggestion = Rect(0f, SUGGESTION_TOP, Scene.WIDTH, SUGGESTION_TOP + Scene.ROW_HEIGHT)
+    val homeCenter = Offset(Scene.WIDTH / 2, 200f)
+    val drawn = Rect(homeCenter, 0f)
     val full = Rect(0f, 0f, Scene.WIDTH, Scene.HEIGHT)
     val rowShift = listOf(0f, 0.5f, 1.5f)
 
@@ -219,10 +199,9 @@ private object MemoryGeometry {
 
 private val KeyRows = listOf("qwertyuiop", "asdfghjkl", "zxcvbnm")
 private val KeyboardTrail = Polyline("awesome".map(MemoryGeometry::key))
-private val HomeTrail = KeyboardTrail.moved(Offset(Scene.WIDTH / 2, 200f))
+private val HomeTrail = KeyboardTrail.moved(MemoryGeometry.homeCenter)
 private val AddCard = Scene.cardCenter(1)
 private val PickRow = Offset(Scene.WIDTH / 3, Scene.rowCenterY(Scene.CARD_TOP, 0))
-private val SuggestionRow = Offset(Scene.WIDTH / 3, MemoryGeometry.suggestion.center.y)
 
 private val Finger = Track(
     listOf(
@@ -238,12 +217,11 @@ private val Finger = Track(
         Key(4350, MemoryGeometry.saveCenter),
         Key(4700, HomeTrail.first),
         Key(5850, HomeTrail.last),
-        Key(6550, SuggestionRow),
     ),
 )
 
 private const val CLOCK_TEXT = "12:45"
-private const val LOOP_MS = 8000
+private const val LOOP_MS = 7600
 private const val STILL_MS = 6400
 private const val SLIDE_MS = 300
 private const val SLIDE_DELAY = 100
@@ -257,10 +235,9 @@ private const val KEYBOARD_TO = 3500
 private const val TAP_SAVE = 3950
 private const val HOME_FROM = 4800
 private const val HOME_TO = 5800
-private const val PANEL_FROM = 5950
-private const val TRAIL_FADE_FROM = 6300
-private const val TAP_SUGGESTION = 6650
-private const val FINGER_OUT = 6800
+private const val TRAIL_FADE_FROM = 5900
+private const val LAUNCH_FROM = 6000
+private const val FINGER_OUT = 5900
 private const val PICKER_APPS = 5
 private const val HOME_APPS = 4
 private const val KEY_TEXT = 7f
@@ -269,4 +246,3 @@ private const val STROKE_SCALE = 0.6f
 private const val BAR_HEIGHT = 5f
 private const val BAR_ALPHA = 0.3f
 private const val SCRIM_ALPHA = 0.25f
-private const val HIGHLIGHT_ALPHA = 0.3f

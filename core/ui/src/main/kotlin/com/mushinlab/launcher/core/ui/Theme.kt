@@ -36,6 +36,9 @@ data class MushinColors(
     val keyPressed: Color,
     val isDark: Boolean,
 ) {
+    /** Color of destructive actions, the same in every palette. */
+    val danger: Color get() = DANGER
+
     fun zebra(index: Int): Color = if (index % 2 == 0) zebraA else zebraB
 
     /**
@@ -62,6 +65,8 @@ data class MushinColors(
         )
     }
 }
+
+private val DANGER = Color(0xFFE5534B)
 
 /** Current palette colors; Graphite outside [MushinTheme]. */
 val LocalMushinColors = staticCompositionLocalOf { MushinColors.from(Palettes.Graphite) }

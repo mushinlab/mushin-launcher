@@ -54,4 +54,5 @@ data class HomeUiState(
     val roleMissing: Boolean = false,
     val suggestion: HomeSuggestion? = null,
     val widgetPanels: HomeWidgetPanels = HomeWidgetPanels(),
+    val spaceName: String = "",
 )

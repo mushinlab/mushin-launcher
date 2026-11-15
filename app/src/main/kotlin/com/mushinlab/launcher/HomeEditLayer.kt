@@ -3,62 +3,18 @@ package com.mushinlab.launcher
 import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mushinlab.launcher.feature.settings.EditItemSheet
 import com.mushinlab.launcher.feature.settings.EditTipsSheet
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 import com.mushinlab.launcher.feature.settings.WidgetLabel
 import com.mushinlab.launcher.feature.settings.WidgetPickerSheet
-import com.mushinlab.launcher.feature.settings.WidgetsSheet
 import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 internal fun HomeEditLayer(vm: LauncherViewModel) {
     val navigator = vm.navigator
-    when (val overlay = navigator.overlay) {
-        Overlay.Widgets -> {
-            val home by vm.home.collectAsStateWithLifecycle()
-            val panel = home.widgetPanels.top
-            WidgetsSheet(
-                panel.widgets.map { WidgetLabel(it.id, it.label, clock = it.isClock) }.toImmutableList(),
-                panel.freeCells.isNotEmpty(),
-                { vm.widgets.add() },
-                vm.widgets.panels::remove,
-                { navigator.openSettings(SettingsRoute.ClockSheet) },
-                { navigator.overlay = Overlay.None },
-            )
-        }
-
-        Overlay.EditTips -> EditTipsSheet { navigator.overlay = Overlay.None }
-
-        is Overlay.EditItem -> EditItemSheet(
-            label = overlay.row.label,
-            onClose = { navigator.overlay = Overlay.None },
-            onRemove = {
-                val folder = overlay.row.folderId
-                if (folder != null) vm.folders.delete(folder) else vm.model.removeFromCurrentSpace(overlay.row.key)
-                navigator.overlay = Overlay.None
-            },
-            onReplace = {
-                val space = vm.model.currentSpace
-                val folder = overlay.row.folderId
-                if (space != null) {
-                    navigator.openSettings(
-                        if (folder != null) {
-                            SettingsRoute.HomeFolder(folder)
-                        } else {
-                            SettingsRoute.ReplaceApp(space.id, overlay.row.key)
-                        },
-                    )
-                }
-            },
-        )
-
-        else -> Unit
-    }
+    if (navigator.overlay == Overlay.EditTips) EditTipsSheet { navigator.overlay = Overlay.None }
     vm.widgets.choices?.let { WidgetPicker(vm, it) }
 }
 

@@ -25,10 +25,6 @@ data class SearchChrome(
     val gestureSuggestMargin: Float,
     val keyboardWidth: Float = 1f,
     val keyboardShift: Float = 0f,
-    val fuzzy: Boolean = true,
-    val layoutSwap: Boolean = true,
-    val translit: Boolean = true,
-    val coloredIcons: Boolean = false,
 )
 
 interface SearchActions : KeyboardActions, SearchMenuActions, SearchOptionsActions {
@@ -61,6 +57,7 @@ object SearchDimens {
     val headerHeight: Dp = 48.dp
     val headerGap: Dp = 6.dp
     val paneGap: Dp = 8.dp
+    val panePadding: Dp = 8.dp
     val paneRadius: Dp = 16.dp
     val closeSwipe: Dp = 72.dp
 }

@@ -25,20 +25,15 @@ class PopupUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun searchMenuAndOptionsHaveScrimAndTapOnItDismisses() {
+    fun searchMenuHasScrimAndTapOnItDismisses() {
         openSearch()
         rule.onNodeWithTag("result_0").performTouchInput { longClick() }
         rule.onNodeWithTag("menu_info").assertIsDisplayed()
         tapScrimOutsidePopup()
         rule.onNodeWithTag("popup").assertDoesNotExist()
-        rule.runOnIdle { assertThat(rule.activity.launcher.navigator.search.panels.menu).isNull() }
-        rule.onNodeWithTag("search_options").performClick()
-        rule.onNodeWithTag("search_option_FUZZY").assertIsDisplayed()
-        tapScrimOutsidePopup()
-        rule.onNodeWithTag("popup").assertDoesNotExist()
         rule.onNodeWithTag("popup_scrim").assertDoesNotExist()
         rule.runOnIdle {
-            assertThat(rule.activity.launcher.navigator.search.panels.options).isNull()
+            assertThat(rule.activity.launcher.navigator.search.panels.menu).isNull()
             assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.Search)
         }
     }

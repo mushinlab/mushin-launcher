@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -33,24 +34,20 @@ import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.GlyphStyle
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.Motion
+import com.mushinlab.launcher.core.ui.MushinType
+import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.feature.home.gesture.RowRegistry
 
 @Composable
-internal fun HomeBar(suggestion: HomeSuggestion?, editing: Boolean, registry: RowRegistry, actions: HomeActions) {
+internal fun HomeBar(state: HomeUiState, editing: Boolean, registry: RowRegistry, actions: HomeActions) {
+    val suggestion = state.suggestion
     val colors = LocalMushinColors.current
     val toggle by animateDpAsState(if (editing) DONE_SIZE else EDIT_SIZE, tween(Motion.TRANSITION_MS), label = "toggle")
     Row(
         Modifier.fillMaxWidth().height(HomeDimens.barHeight).padding(horizontal = BAR_PADDING),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AnimatedVisibility(
-            visible = editing,
-            enter = fadeIn(tween(Motion.TRANSITION_MS)),
-            exit = fadeOut(tween(Motion.TRANSITION_MS)),
-        ) {
-            EditTools(registry, actions)
-        }
-        Spacer(Modifier.weight(1f))
+        BarStart(state.spaceName, editing, registry, actions, Modifier.weight(1f))
         if (suggestion != null && !editing) {
             var anchor by remember { mutableStateOf(Offset.Zero) }
             DisposableEffect(Unit) { onDispose { registry.block(BAR_SUGGEST, null) } }
@@ -86,6 +83,31 @@ internal fun HomeBar(suggestion: HomeSuggestion?, editing: Boolean, registry: Ro
             onClick = actions::onOpenSettings,
         )
         Spacer(Modifier.width(toggle))
+    }
+}
+
+@Composable
+private fun BarStart(space: String, editing: Boolean, registry: RowRegistry, actions: HomeActions, modifier: Modifier) {
+    val colors = LocalMushinColors.current
+    Box(modifier, contentAlignment = Alignment.CenterStart) {
+        AnimatedVisibility(
+            visible = editing,
+            enter = fadeIn(tween(Motion.TRANSITION_MS)),
+            exit = fadeOut(tween(Motion.TRANSITION_MS)),
+        ) {
+            EditTools(registry, actions)
+        }
+        AnimatedVisibility(
+            visible = !editing,
+            enter = fadeIn(tween(Motion.TRANSITION_MS)),
+            exit = fadeOut(tween(Motion.TRANSITION_MS)),
+        ) {
+            SingleLineText(
+                space,
+                MushinType.style(MushinType.secondarySize, colors.textPrimary.copy(alpha = SPACE_ALPHA)),
+                Modifier.padding(start = SPACE_PADDING).testTag("home_space"),
+            )
+        }
     }
 }
 
@@ -141,13 +163,6 @@ private fun EditTools(registry: RowRegistry, actions: HomeActions) {
             tag = "home_edit_theme",
             onClick = actions::onEditTheme,
         )
-        GlyphButton(
-            Glyph.WIDGETS,
-            stringResource(R.string.home_widgets),
-            tint,
-            tag = "home_widgets",
-            onClick = actions::onEditWidgets,
-        )
     }
 }
 
@@ -157,6 +172,8 @@ private const val BAR_SUGGEST = "bar_suggest"
 private const val BAR_TOOLS = "bar_tools"
 private const val BAR_SETTINGS = "bar_settings"
 private const val BAR_ALPHA = 0.7f
+private const val SPACE_ALPHA = 0.8f
+private val SPACE_PADDING = 16.dp
 private val BAR_PADDING = 8.dp
 private val EDIT_SIZE = 48.dp
 private val EDIT_GLYPH = 22.dp

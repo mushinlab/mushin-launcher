@@ -4,6 +4,7 @@
     <string name="popup_about">App-Info</string>
     <string name="popup_rename">Umbenennen</string>
     <string name="popup_uninstall">Deinstallieren</string>
+    <string name="popup_remove_from_space">Aus Bereich entfernen</string>
     <string name="home_suggestion">Vorschlag: eine App, die du öfter öffnest</string>
     <string name="home_edit">Startbildschirm bearbeiten</string>
     <string name="home_edit_done">Fertig</string>
@@ -23,7 +24,6 @@
     <string name="suggest_add">Zum Startbildschirm hinzufügen</string>
     <string name="suggest_dismiss">Nicht vorschlagen</string>
     <string name="home_edit_tips">Tipps zum Bearbeiten</string>
-    <string name="home_widgets">Widgets</string>
     <string name="home_add_widget">Widget hinzufügen</string>
     <string name="widget_remove">Widget entfernen</string>
     <string name="widget_move_before">Nach vorne verschieben</string>

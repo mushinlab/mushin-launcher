@@ -7,17 +7,13 @@ import org.junit.Test
 
 class SearchPanelsTest {
     @Test
-    fun openWhileTheAppMenuOrTheOptionsAreShown() {
+    fun openWhileTheAppMenuIsShown() {
         val panels = SearchPanels()
         assertThat(panels.open).isFalse()
-        panels.openMenu(SearchMenu(AppKey("p", "A", 0), "App", Offset.Zero, inSpace = false, canUninstall = true))
-        assertThat(panels.open).isTrue()
-        panels.closeMenu()
-        assertThat(panels.open).isFalse()
-        panels.openOptions(Offset.Zero)
+        panels.openMenu(SearchMenu(AppKey("p", "A", 0), "App", Offset.Zero, canUninstall = true))
         assertThat(panels.open).isTrue()
         panels.toggleResize()
-        panels.closeOptions()
+        panels.closeMenu()
         assertThat(panels.open).isFalse()
     }
 }

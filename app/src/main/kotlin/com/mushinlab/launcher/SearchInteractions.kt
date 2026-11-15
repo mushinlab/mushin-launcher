@@ -28,7 +28,6 @@ class SearchInteractions(
                 key = key,
                 label = label,
                 anchor = anchor,
-                inSpace = model.isInCurrentSpace(key),
                 canUninstall = !entry.isSystem,
                 hidden = override?.hidden == true,
             ),
@@ -41,22 +40,6 @@ class SearchInteractions(
         model.setHidden(key, hidden)
         navigator.notice =
             Notice(if (hidden) R.string.notice_hidden else R.string.notice_unhidden, label)
-    }
-
-    fun toggleInSpace(key: AppKey, add: Boolean) {
-        search.panels.closeMenu()
-        val space = model.currentSpace ?: return
-        val names = space.name
-        navigator.notice = when {
-            !add -> {
-                model.removeFromCurrentSpace(key)
-                Notice(R.string.notice_removed_from_space, names)
-            }
-
-            model.addToCurrentSpace(key) -> Notice(R.string.notice_added_to_space, names)
-
-            else -> Notice(R.string.notice_space_full, names)
-        }
     }
 
     fun switchLayout() {

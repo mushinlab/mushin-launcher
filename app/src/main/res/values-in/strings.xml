@@ -5,9 +5,6 @@
     <string name="notice_launch_failed">Tidak dapat membuka aplikasi</string>
     <string name="notice_remove_from_space">Keluarkan dari ruang</string>
     <string name="notice_shade_unavailable">Panel notifikasi tidak tersedia di versi Android ini</string>
-    <string name="notice_added_to_space">Ditambahkan ke “%1$s”</string>
-    <string name="notice_removed_from_space">Dikeluarkan dari “%1$s”</string>
-    <string name="notice_space_full">“%1$s” sudah penuh</string>
     <string name="rename_title">Ganti nama “%1$s”</string>
     <string name="rename_save">Simpan</string>
     <string name="rename_reset">Reset</string>

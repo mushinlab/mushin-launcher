@@ -64,12 +64,8 @@ class SettingsRepositoryTest {
         assertThat(settings.keyboardWidth).isEqualTo(1f)
         assertThat(settings.keyboardShift).isEqualTo(0f)
         assertThat(settings.homeListOffset).isNull()
-        assertThat(settings.searchColoredIcons).isFalse()
         assertThat(settings.gestureShiftPenalty).isEqualTo(0.5f)
         assertThat(settings.gestureSuggestMargin).isEqualTo(0.3f)
-        assertThat(settings.searchFuzzy).isTrue()
-        assertThat(settings.searchLayoutSwap).isTrue()
-        assertThat(settings.searchTranslit).isTrue()
         assertThat(settings.onboardingDone).isFalse()
         assertThat(settings.gestureInput).isFalse()
         assertThat(settings.learnHints).isTrue()
@@ -89,7 +85,6 @@ class SettingsRepositoryTest {
                 keyboardWidth = 0.1f,
                 keyboardShift = -0.5f,
                 homeListOffset = 10_000,
-                searchColoredIcons = true,
                 notificationCounts = true,
                 pressFeedback = PressFeedback.DIM,
                 gestureShiftPenalty = 0.8f,
@@ -109,7 +104,6 @@ class SettingsRepositoryTest {
         assertThat(settings.keyboardWidth).isEqualTo(0.6f)
         assertThat(settings.keyboardShift).isEqualTo(-0.5f)
         assertThat(settings.homeListOffset).isEqualTo(480)
-        assertThat(settings.searchColoredIcons).isTrue()
         assertThat(settings.notificationCounts).isTrue()
         assertThat(settings.pressFeedback).isEqualTo(PressFeedback.DIM)
         assertThat(settings.gestureShiftPenalty).isEqualTo(0.8f)

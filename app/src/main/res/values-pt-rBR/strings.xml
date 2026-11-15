@@ -5,9 +5,6 @@
     <string name="notice_launch_failed">Não foi possível abrir o app</string>
     <string name="notice_remove_from_space">Remover do espaço</string>
     <string name="notice_shade_unavailable">A aba de notificações não está disponível nesta versão do Android</string>
-    <string name="notice_added_to_space">Adicionado a “%1$s”</string>
-    <string name="notice_removed_from_space">Removido de “%1$s”</string>
-    <string name="notice_space_full">“%1$s” está cheio</string>
     <string name="rename_title">Renomear “%1$s”</string>
     <string name="rename_save">Salvar</string>
     <string name="rename_reset">Redefinir</string>

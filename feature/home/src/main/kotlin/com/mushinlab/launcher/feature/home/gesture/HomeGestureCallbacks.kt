@@ -14,8 +14,6 @@ interface HomeGestureCallbacks {
 
     fun onLongPress(position: Offset, rowIndex: Int?)
 
-    fun onDoubleTap()
-
     fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean)
 
     fun onClockTap()

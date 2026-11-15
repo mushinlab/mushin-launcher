@@ -62,7 +62,7 @@ class WidgetsUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun AC_39_3_pickerFiltersSmallWidgetsAndCancellationAllocatesNothing() {
+    fun AC_39_3_pickerFiltersWidgetsThatFitThePanelAndCancellationAllocatesNothing() {
         rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("add_widget_1_0").performClick()
         rule.onNodeWithTag("widget_picker").assertIsDisplayed()
@@ -92,11 +92,27 @@ class WidgetsUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("widget_${widget.id}").assertIsDisplayed()
         rule.activityRule.scenario.recreate()
         rule.onNodeWithTag("widget_${widget.id}").assertIsDisplayed()
-        rule.onNodeWithTag("home_widgets").performClick()
-        rule.onNodeWithTag("widget_remove_${widget.id}").performScrollTo().performClick()
+        rule.onNodeWithTag("tile_remove_${widget.id}").performClick()
         rule.waitUntil(5_000) {
             layout().widgets == listOf(HostedWidget.clock) && container.widgetHost.appWidgetIds.isEmpty()
         }
+    }
+
+    @Test
+    fun AC_39_3_widgetLargerThanACellTakesTheCellsItNeeds() {
+        val providers = compactProviders(rule.activity)
+        val index = providers.indexOfFirst {
+            it.configure == null && compactSpan(rule.activity, it) != WidgetCell(0, 0)
+        }
+        assertThat(index).isAtLeast(0)
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("add_widget_1_0").performClick()
+        rule.onNodeWithTag("widget_choice_$index").performScrollTo().performClick()
+        rule.waitUntil(10_000) { layout().widgets.any { !it.isClock } }
+        val cell = layout().widgets.first { !it.isClock }.cell
+        assertThat(cell.columnSpan * cell.rowSpan).isGreaterThan(1)
+        assertThat(cell.overlaps(layout().widgets.first { it.isClock }.cell)).isFalse()
+        screenshot("larger-than-a-cell")
     }
 
     @Test
@@ -146,9 +162,6 @@ class WidgetsUiTest : LauncherUiTestBase() {
         rule.runOnIdle { rule.activity.launcher.widgets.add() }
         rule.waitForIdle()
         assertThat(rule.activity.launcher.widgets.choices).isNull()
-        rule.onNodeWithTag("home_widgets").performClick()
-        screenshot("panel-settings")
-        androidx.test.espresso.Espresso.pressBack()
         rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("row_2").assertIsDisplayed()
         screenshot("expanded-home")

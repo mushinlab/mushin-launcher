@@ -29,13 +29,12 @@ import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinColors
 import kotlin.math.abs
 
-private enum class Anchor { START, END, MOVE }
+private enum class Anchor { START, END }
 
 private class Grip(val inset: Float, val touch: Float) {
-    fun anchorAt(p: Offset, frame: KeyboardFrame, height: Float): Anchor? = when {
+    fun anchorAt(p: Offset, frame: KeyboardFrame): Anchor? = when {
         abs(p.x - frame.left - inset) < touch -> Anchor.START
         abs(p.x - frame.right + inset) < touch -> Anchor.END
-        abs(p.y - height + inset) < touch && p.x in frame.left..frame.right -> Anchor.MOVE
         else -> null
     }
 }
@@ -66,7 +65,7 @@ internal fun ResizeOverlay(
                     val down = awaitFirstDown()
                     down.consume()
                     val start = current
-                    val anchor = grip.anchorAt(down.position, start, size.height.toFloat())
+                    val anchor = grip.anchorAt(down.position, start)
                     if (anchor != null) {
                         grabbed = anchor
                         view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
@@ -108,7 +107,6 @@ private suspend fun AwaitPointerEventScope.trackDrag(
 private fun KeyboardFrame.dragged(anchor: Anchor?, dx: Float, total: Float): KeyboardFrame = when (anchor) {
     Anchor.START -> dragStart(dx, total)
     Anchor.END -> dragEnd(dx, total)
-    Anchor.MOVE -> move(dx, total)
     null -> this
 }
 
@@ -137,15 +135,6 @@ private fun DrawScope.drawFrame(frame: KeyboardFrame, grabbed: Anchor?, colors: 
             StrokeCap.Round,
         )
     }
-    val center = frame.left + frame.width / 2
-    val bottom = size.height - inset
-    drawLine(
-        anchorColor(Anchor.MOVE),
-        Offset(center - length / 2, bottom),
-        Offset(center + length / 2, bottom),
-        anchorWidth(Anchor.MOVE),
-        StrokeCap.Round,
-    )
 }
 
 private const val RESIZE_SCRIM = 0.55f

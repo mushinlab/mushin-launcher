@@ -132,10 +132,11 @@ class WidgetEditor(
             return
         }
         val widget = HostedWidget(pending.id, info.loadLabel(context.packageManager))
+        val span = compactSpan(context, info) ?: WidgetCell(0, 0)
         var added = false
         repository.update { state ->
             val layout = state.layouts[pending.spaceId] ?: WidgetLayout()
-            val next = layout.add(widget, pending.cell)
+            val next = layout.add(widget, pending.cell, span.columnSpan, span.rowSpan)
             added = next != null
             state.copy(layouts = state.layouts + (pending.spaceId to (next ?: layout)), pending = null)
         }

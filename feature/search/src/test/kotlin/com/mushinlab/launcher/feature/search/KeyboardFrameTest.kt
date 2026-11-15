@@ -34,12 +34,4 @@ class KeyboardFrameTest {
         assertThat(frame.dragStart(-100f, total).left).isEqualTo(0f)
         assertThat(frame.dragEnd(100f, total).right).isEqualTo(1000f)
     }
-
-    @Test
-    fun bottomAnchorMovesWithinTheScreen() {
-        val frame = KeyboardFrame.of(0.6f, 0f, total)
-        assertThat(frame.move(-500f, total).shift(total)).isEqualTo(-1f)
-        assertThat(frame.move(500f, total).shift(total)).isEqualTo(1f)
-        assertThat(frame.move(100f, total).width).isEqualTo(600f)
-    }
 }

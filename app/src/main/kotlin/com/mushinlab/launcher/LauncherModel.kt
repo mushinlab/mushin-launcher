@@ -27,8 +27,6 @@ interface LauncherModel {
 
     fun expandShade(): Boolean
 
-    fun addToCurrentSpace(key: AppKey): Boolean
-
     fun removeFromCurrentSpace(key: AppKey)
 
     fun setHidden(key: AppKey, hidden: Boolean)

@@ -137,8 +137,10 @@ internal fun HomeColumn(
                 )
                 Column(Modifier.fillMaxWidth()) {
                     Spacer(Modifier.height(HomeDimens.barGap))
-                    HomeBar(state.suggestion, editing, registry, actions.value)
-                    Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
+                    Column(Modifier.fillMaxWidth().background(colors.background.copy(alpha = BAR_PANEL_ALPHA))) {
+                        HomeBar(state, editing, registry, actions.value)
+                        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
+                    }
                 }
             },
             modifier = Modifier.fillMaxSize(),
@@ -218,3 +220,5 @@ private fun rememberListPlacement(state: HomeUiState, rowHeight: Dp): ListPlacem
         handleHeightPx = (HANDLE_HEIGHT + HANDLE_LIST_GAP).roundToPx(),
     )
 }
+
+private const val BAR_PANEL_ALPHA = 0.5f

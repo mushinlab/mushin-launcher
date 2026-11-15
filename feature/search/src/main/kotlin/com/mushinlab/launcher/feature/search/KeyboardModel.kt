@@ -37,7 +37,6 @@ interface KeyboardActions {
 object KeyboardDimens {
     val rowHeight = 66.dp
     val verticalPadding = 4.dp
-    val bottomLift = rowHeight
     val gap = 4.dp
     val radius = 6.dp
     val digitSwipe = 24.dp

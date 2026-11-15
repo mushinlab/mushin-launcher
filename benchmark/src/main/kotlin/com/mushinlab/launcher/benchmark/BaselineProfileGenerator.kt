@@ -16,7 +16,7 @@ class BaselineProfileGenerator {
         pressHome()
         startLauncher()
         waitForHome()
-        doubleTapBackground()
+        swipeUpForSearch()
         typeKeys("sl")
         closeOverlay()
         longPressBackground()

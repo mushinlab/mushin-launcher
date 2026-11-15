@@ -38,6 +38,7 @@ data class PopupApp(
     val key: AppKey,
     val label: String,
     val canUninstall: Boolean,
+    val inSpace: Boolean,
 )
 
 interface PopupActions {
@@ -50,6 +51,8 @@ interface PopupActions {
     fun onRename(key: AppKey)
 
     fun onUninstall(key: AppKey)
+
+    fun onRemoveFromSpace(key: AppKey)
 
     fun onDismiss()
 }
@@ -112,22 +115,34 @@ private const val DIMMED_ITEM = 0.5f
 
 @Composable
 private fun AppSection(app: PopupApp, actions: PopupActions) {
-    val tint = LocalMushinColors.current.textPrimary
+    val colors = LocalMushinColors.current
+    val tint = colors.textPrimary
     PanelHeader(app.label)
     Row(
         Modifier.padding(start = APP_ACTIONS_INSET, end = APP_ACTIONS_INSET, bottom = APP_ACTIONS_INSET),
         horizontalArrangement = Arrangement.spacedBy(APP_ACTIONS_GAP),
     ) {
+        if (app.canUninstall) {
+            GlyphButton(
+                Glyph.DELETE,
+                stringResource(R.string.popup_uninstall),
+                colors.danger,
+                tag = "popup_uninstall",
+            ) { actions.onUninstall(app.key) }
+        }
         GlyphButton(Glyph.INFO, stringResource(R.string.popup_about), tint, tag = "popup_about") {
             actions.onAbout(app.key)
         }
         GlyphButton(Glyph.EDIT, stringResource(R.string.popup_rename), tint, tag = "popup_rename") {
             actions.onRename(app.key)
         }
-        if (app.canUninstall) {
-            GlyphButton(Glyph.DELETE, stringResource(R.string.popup_uninstall), tint, tag = "popup_uninstall") {
-                actions.onUninstall(app.key)
-            }
+        if (app.inSpace) {
+            GlyphButton(
+                Glyph.CLOSE,
+                stringResource(R.string.popup_remove_from_space),
+                tint,
+                tag = "popup_remove",
+            ) { actions.onRemoveFromSpace(app.key) }
         }
     }
 }

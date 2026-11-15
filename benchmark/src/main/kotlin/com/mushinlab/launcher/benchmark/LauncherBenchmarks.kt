@@ -43,7 +43,7 @@ class LauncherBenchmarks {
             waitForHome()
         },
     ) {
-        doubleTapBackground()
+        swipeUpForSearch()
         closeOverlay()
     }
 
@@ -56,7 +56,7 @@ class LauncherBenchmarks {
         setupBlock = {
             startLauncher()
             waitForHome()
-            doubleTapBackground()
+            swipeUpForSearch()
         },
     ) {
         typeKeys("slackmapsx")

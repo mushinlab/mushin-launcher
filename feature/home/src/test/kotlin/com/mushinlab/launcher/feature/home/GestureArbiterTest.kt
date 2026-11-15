@@ -10,8 +10,6 @@ import org.junit.Test
 class GestureArbiterTest {
     private val dp = 2.625f
     private val config = GestureConfig(
-        doubleTapTimeoutMs = 300,
-        doubleTapSlopPx = 100 * dp,
         swipeDistancePx = 96 * dp,
         flingDistancePx = 48 * dp,
         flingVelocityPxPerSec = 1000 * dp,
@@ -25,68 +23,6 @@ class GestureArbiterTest {
         leftLimitPx = 80f,
         rightLimitPx = 1000f,
     )
-
-    @Test
-    fun AC_07_1_secondBackgroundDownWithinTimeoutAndDistanceIsDoubleTap() {
-        arbiter.onTapUp(500f, 1500f, 1000, onRow = false)
-        assertThat(arbiter.isDoubleTap(520f, 1510f, 1250, onRow = false)).isTrue()
-    }
-
-    @Test
-    fun doubleTapResetsAfterRecognition() {
-        arbiter.onTapUp(500f, 1500f, 1000, onRow = false)
-        assertThat(arbiter.isDoubleTap(500f, 1500f, 1100, onRow = false)).isTrue()
-        assertThat(arbiter.isDoubleTap(500f, 1500f, 1200, onRow = false)).isFalse()
-    }
-
-    @Test
-    fun noDoubleTapWithoutPreviousTap() {
-        assertThat(arbiter.isDoubleTap(500f, 1500f, 1000, onRow = false)).isFalse()
-    }
-
-    @Test
-    fun noDoubleTapAfterTimeout() {
-        arbiter.onTapUp(500f, 1500f, 1000, onRow = false)
-        assertThat(arbiter.isDoubleTap(500f, 1500f, 1301, onRow = false)).isFalse()
-    }
-
-    @Test
-    fun timeoutBoundaryIsInclusive() {
-        arbiter.onTapUp(500f, 1500f, 1000, onRow = false)
-        assertThat(arbiter.isDoubleTap(500f, 1500f, 1300, onRow = false)).isTrue()
-    }
-
-    @Test
-    fun noDoubleTapWhenTooFar() {
-        arbiter.onTapUp(100f, 1500f, 1000, onRow = false)
-        assertThat(arbiter.isDoubleTap(100f + 101 * dp, 1500f, 1100, onRow = false)).isFalse()
-    }
-
-    @Test
-    fun AC_07_4_noDoubleTapOnRows() {
-        arbiter.onTapUp(500f, 1500f, 1000, onRow = false)
-        assertThat(arbiter.isDoubleTap(500f, 1500f, 1100, onRow = true)).isFalse()
-    }
-
-    @Test
-    fun rowTapClearsPendingBackgroundTap() {
-        arbiter.onTapUp(500f, 1500f, 1000, onRow = false)
-        arbiter.onTapUp(500f, 1500f, 1050, onRow = true)
-        assertThat(arbiter.isDoubleTap(500f, 1500f, 1100, onRow = false)).isFalse()
-    }
-
-    @Test
-    fun resetClearsPendingTap() {
-        arbiter.onTapUp(500f, 1500f, 1000, onRow = false)
-        arbiter.reset()
-        assertThat(arbiter.isDoubleTap(500f, 1500f, 1100, onRow = false)).isFalse()
-    }
-
-    @Test
-    fun timeGoingBackwardsIsNotDoubleTap() {
-        arbiter.onTapUp(500f, 1500f, 1000, onRow = false)
-        assertThat(arbiter.isDoubleTap(500f, 1500f, 900, onRow = false)).isFalse()
-    }
 
     @Test
     fun C_4_longSwipesInFourDirections() {

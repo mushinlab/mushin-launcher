@@ -7,6 +7,7 @@ class WidgetLayoutTest {
     private val a = HostedWidget(1, "a", WidgetCell(0, 0))
     private val b = HostedWidget(2, "b", WidgetCell(1, 0))
     private val c = HostedWidget(3, "c", WidgetCell(0, 1))
+    private val d = HostedWidget(4, "d")
 
     @Test
     fun cellsStayInsideTheTwoByTwoGrid() {
@@ -31,6 +32,40 @@ class WidgetLayoutTest {
         assertThat(layout.add(b, WidgetCell(0, 0))?.widgets?.last()?.cell).isEqualTo(WidgetCell(1, 0))
         assertThat(WidgetLayout(listOf(a.copy(cell = WidgetCell(0, 0, 2, 2)))).add(b)).isNull()
         assertThat(layout.add(a)).isNull()
+    }
+
+    @Test
+    fun addingAWideWidgetTakesAFreeRowBeforeDisplacingAnything() {
+        val layout = WidgetLayout(listOf(a)).add(d, WidgetCell(1, 0), columnSpan = 2)
+        assertThat(layout?.widgets?.map { it.cell }).containsExactly(WidgetCell(0, 0), WidgetCell(0, 1, 2, 1)).inOrder()
+    }
+
+    @Test
+    fun addingATallWidgetCoversTheColumnOfTheChosenCell() {
+        val layout = WidgetLayout(listOf(a)).add(d, WidgetCell(1, 1), rowSpan = 2)
+        assertThat(layout?.widgets?.last()?.cell).isEqualTo(WidgetCell(1, 0, 1, 2))
+    }
+
+    @Test
+    fun addingAWideWidgetIntoABusyGridPushesItsNeighbourAside() {
+        val layout = WidgetLayout(listOf(a, c)).add(d, WidgetCell(1, 0), columnSpan = 2)
+        assertThat(layout?.widgets?.map { it.cell })
+            .containsExactly(WidgetCell(1, 1), WidgetCell(0, 1), WidgetCell(0, 0, 2, 1))
+            .inOrder()
+    }
+
+    @Test
+    fun addingAWidgetWithoutRoomForItsSpanKeepsItInOneCell() {
+        val layout = WidgetLayout(listOf(a, b, c)).add(d, columnSpan = 2, rowSpan = 2)
+        assertThat(layout?.widgets?.map { it.cell })
+            .containsExactly(WidgetCell(0, 0), WidgetCell(1, 0), WidgetCell(0, 1), WidgetCell(1, 1))
+            .inOrder()
+    }
+
+    @Test
+    fun addingAWidgetWithoutRoomForItsHeightKeepsItsWidthInAFreeRow() {
+        val layout = WidgetLayout(listOf(a)).add(d, WidgetCell(1, 0), columnSpan = 2, rowSpan = 2)
+        assertThat(layout?.widgets?.map { it.cell }).containsExactly(WidgetCell(0, 0), WidgetCell(0, 1, 2, 1)).inOrder()
     }
 
     @Test

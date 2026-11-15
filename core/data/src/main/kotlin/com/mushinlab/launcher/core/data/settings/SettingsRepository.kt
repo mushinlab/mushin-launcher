@@ -110,12 +110,8 @@ class SettingsRepository(
         internal val KB_WIDTH = floatPreferencesKey("kb_width")
         internal val KB_SHIFT = floatPreferencesKey("kb_shift")
         internal val HOME_LIST_OFFSET = intPreferencesKey("home_list_offset")
-        internal val SEARCH_COLORED_ICONS = booleanPreferencesKey("search_colored_icons")
         internal val GESTURE_SHIFT_PENALTY = floatPreferencesKey("gesture_shift_penalty")
         internal val GESTURE_SUGGEST_MARGIN = floatPreferencesKey("gesture_suggest_margin")
-        internal val SEARCH_FUZZY = booleanPreferencesKey("search_fuzzy")
-        internal val SEARCH_LAYOUT_SWAP = booleanPreferencesKey("search_layout_swap")
-        internal val SEARCH_TRANSLIT = booleanPreferencesKey("search_translit")
         internal val ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
         internal val GESTURE_INPUT = booleanPreferencesKey("gesture_input")
         internal val LEARN_HINTS = booleanPreferencesKey("learn_hints")
@@ -150,14 +146,10 @@ class SettingsRepository(
                 keyboardShift = prefs.finiteOr(KB_SHIFT, defaults.keyboardShift)
                     .coerceIn(KeyboardFit.SHIFT_MIN, KeyboardFit.SHIFT_MAX),
                 homeListOffset = prefs[HOME_LIST_OFFSET]?.coerceIn(0, HomeListOffset.MAX_DP),
-                searchColoredIcons = prefs.valueOr(SEARCH_COLORED_ICONS, defaults.searchColoredIcons),
                 gestureShiftPenalty = prefs.finiteOr(GESTURE_SHIFT_PENALTY, defaults.gestureShiftPenalty)
                     .coerceIn(GestureTuning.SHIFT_PENALTY_MIN, GestureTuning.SHIFT_PENALTY_MAX),
                 gestureSuggestMargin = prefs.finiteOr(GESTURE_SUGGEST_MARGIN, defaults.gestureSuggestMargin)
                     .coerceIn(GestureTuning.SUGGEST_MARGIN_MIN, GestureTuning.SUGGEST_MARGIN_MAX),
-                searchFuzzy = prefs.valueOr(SEARCH_FUZZY, defaults.searchFuzzy),
-                searchLayoutSwap = prefs.valueOr(SEARCH_LAYOUT_SWAP, defaults.searchLayoutSwap),
-                searchTranslit = prefs.valueOr(SEARCH_TRANSLIT, defaults.searchTranslit),
                 onboardingDone = prefs.valueOr(ONBOARDING_DONE, defaults.onboardingDone),
                 gestureInput = prefs.valueOr(GESTURE_INPUT, defaults.gestureInput),
                 learnHints = prefs.valueOr(LEARN_HINTS, defaults.learnHints),
@@ -190,12 +182,8 @@ class SettingsRepository(
             prefs[KB_SHIFT] = settings.keyboardShift
             val listOffset = settings.homeListOffset
             if (listOffset == null) prefs.remove(HOME_LIST_OFFSET) else prefs[HOME_LIST_OFFSET] = listOffset
-            prefs[SEARCH_COLORED_ICONS] = settings.searchColoredIcons
             prefs[GESTURE_SHIFT_PENALTY] = settings.gestureShiftPenalty
             prefs[GESTURE_SUGGEST_MARGIN] = settings.gestureSuggestMargin
-            prefs[SEARCH_FUZZY] = settings.searchFuzzy
-            prefs[SEARCH_LAYOUT_SWAP] = settings.searchLayoutSwap
-            prefs[SEARCH_TRANSLIT] = settings.searchTranslit
             prefs[ONBOARDING_DONE] = settings.onboardingDone
             prefs[GESTURE_INPUT] = settings.gestureInput
             prefs[LEARN_HINTS] = settings.learnHints

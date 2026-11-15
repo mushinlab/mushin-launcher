@@ -55,7 +55,7 @@ private class SpaceLabels(text: MiniText, strings: List<String>, apps: List<Stri
 
 private fun DrawScope.drawSpaceTip(time: Float, base: MushinColors, swatches: List<MushinColors>, labels: SpaceLabels) {
     val colors = base.mixedWith(swatches[TARGET], ease(time, PALETTE_FROM, PALETTE_TO))
-    val picker = slide(time, TAP_ADD) - slide(time, TAP_BACK)
+    val picker = slide(time, TAP_ADD) - slide(time, TAP_SAVE)
     val sheet = sheetOffset(
         SpaceGeometry.SHEET_TOP,
         open = slide(time, TAP_THEME),
@@ -69,7 +69,7 @@ private fun DrawScope.drawSpaceTip(time: Float, base: MushinColors, swatches: Li
         }
         if (picker > 0f) drawPicker(time, colors, labels, Scene.WIDTH * (1f - picker))
         val press = maxOf(
-            pulse(time, TAP_EDIT, TAP_THEME, TAP_SWATCH, TAP_ADD, TAP_MAPS, TAP_MUSIC, TAP_BACK, TAP_DONE),
+            pulse(time, TAP_EDIT, TAP_THEME, TAP_SWATCH, TAP_ADD, TAP_MAPS, TAP_MUSIC, TAP_SAVE, TAP_DONE),
             hold(time, DRAG_FROM - PRESS_LEAD, DRAG_TO),
         )
         finger(
@@ -88,10 +88,14 @@ private fun DrawScope.drawSpaceHome(time: Float, colors: MushinColors, labels: S
         ease(time, TAP_DONE + EDIT_DELAY, TAP_DONE + EDIT_DELAY + EDIT_MS)
     val added = ease(time, ROWS_FROM, ROWS_FROM + SLIDE_MS)
     drawRect(colors.background, size = Size(Scene.WIDTH, Scene.HEIGHT))
-    editableClock(colors, labels.clock, 0f, edit)
+    clockCell(colors, labels.clock, edit)
     listHandle(colors, MiniHome.handle(MiniHome.LIST_TOP), edit, 0f)
-    zebraRows(colors, MiniHome.LIST_TOP, labels.apps.take(HOME_APPS_AFTER)) { index ->
+    zebraRows(colors, MiniHome.LIST_TOP, labels.apps.take(HOME_APPS_AFTER), MiniHome.ROW_INSET * edit) { index ->
         if (index < HOME_APPS_BEFORE) 1f else added
+    }
+    repeat(HOME_APPS_AFTER) { index ->
+        val shown = if (index < HOME_APPS_BEFORE) 1f else added
+        rowControls(colors, MiniHome.LIST_TOP + Scene.ROW_HEIGHT * index, edit * shown)
     }
     val rows = mix(HOME_APPS_BEFORE.toFloat(), HOME_APPS_AFTER.toFloat(), added)
     addRow(colors, MiniHome.LIST_TOP + Scene.ROW_HEIGHT * rows, HOME_APPS_BEFORE, labels.add, edit)
@@ -144,30 +148,21 @@ private fun DrawScope.drawPicker(time: Float, colors: MushinColors, labels: Spac
             }
             checkbox(colors, SpaceGeometry.checkbox(index), checked)
         }
-        pickerKeyboard(colors)
+        saveButton(colors, Scene.save, ease(time, TAP_MAPS + CHECK_DELAY, TAP_MAPS + CHECK_DELAY + CHECK_MS))
+        miniKeyboard(colors, SpaceGeometry.PICKER_BOTTOM)
     }
 }
 
-private fun DrawScope.pickerKeyboard(colors: MushinColors) {
-    val top = SpaceGeometry.PICKER_BOTTOM
-    drawRoundRect(colors.surface, Offset(0f, top), Size(Scene.WIDTH, Scene.HEIGHT - top), CornerRadius(CARD_CORNER))
-    drawLine(
+private fun DrawScope.saveButton(colors: MushinColors, center: Offset, alpha: Float) {
+    if (alpha <= 0f) return
+    drawRoundRect(
         colors.accent,
-        Offset(Scene.MARGIN, top + CARET_TOP),
-        Offset(Scene.MARGIN, top + CARET_TOP + CARET_HEIGHT),
-        strokeWidth = 1f,
+        Offset(center.x - SAVE_HALF, center.y - SAVE_HALF),
+        Size(SAVE_HALF * 2, SAVE_HALF * 2),
+        CornerRadius(SAVE_CORNER),
+        alpha = alpha,
     )
-    KeyCounts.forEachIndexed { row, count ->
-        val width = if (row == KeyCounts.lastIndex) SPACE_WIDTH else KEY_STEP * count
-        repeat(count) { column ->
-            drawRoundRect(
-                colors.keyBackground,
-                Offset((Scene.WIDTH - width) / 2 + KEY_STEP * column + KEY_GAP / 2, top + KEYS_TOP + KEY_ROW * row),
-                Size(if (row == KeyCounts.lastIndex) SPACE_WIDTH else KEY_STEP - KEY_GAP, KEY_ROW - KEY_GAP),
-                CornerRadius(KEY_CORNER),
-            )
-        }
-    }
+    checkGlyph(center, colors.background, alpha)
 }
 
 private fun DrawScope.checkbox(colors: MushinColors, center: Offset, checked: Float) {
@@ -225,7 +220,6 @@ private object SpaceGeometry {
 private val SwatchPalettes = listOf(Palettes.Lagoon, Palettes.Sand, Palettes.Plum, Palettes.Mist, Palettes.Moss)
 private val Grip = MiniHome.grip(SpaceGeometry.SHEET_TOP)
 private val AddRow = MiniHome.addButton(MiniHome.LIST_TOP + Scene.ROW_HEIGHT * HOME_APPS_BEFORE, 1)
-private val KeyCounts = listOf(10, 9, 7, 1)
 
 private val Finger = Track(
     listOf(
@@ -246,8 +240,8 @@ private val Finger = Track(
         Key(5150, SpaceGeometry.checkbox(MAPS)),
         Key(5450, SpaceGeometry.checkbox(MUSIC)),
         Key(5650, SpaceGeometry.checkbox(MUSIC)),
-        Key(6000, Scene.back),
-        Key(6200, Scene.back),
+        Key(6000, Scene.save),
+        Key(6200, Scene.save),
         Key(6800, MiniHome.edit),
         Key(7100, MiniHome.edit),
         Key(7600, Scene.rest),
@@ -274,7 +268,7 @@ private const val DRAG_TO = 3650
 private const val TAP_ADD = 4250
 private const val TAP_MAPS = 4950
 private const val TAP_MUSIC = 5500
-private const val TAP_BACK = 6050
+private const val TAP_SAVE = 6050
 private const val ROWS_FROM = 6450
 private const val TAP_DONE = 6850
 private const val FINGER_IN = 200
@@ -297,14 +291,8 @@ private const val SWITCH_HEIGHT = 11f
 private const val SWITCH_GAP = 1.5f
 private const val CHECKBOX = 10f
 private const val ADD_TEXT = 7f
-private const val CARET_TOP = 8f
-private const val CARET_HEIGHT = 12f
-private const val KEYS_TOP = 26f
-private const val KEY_ROW = 22f
-private const val KEY_STEP = 17f
-private const val KEY_GAP = 2f
-private const val KEY_CORNER = 3f
-private const val SPACE_WIDTH = 90f
+private const val SAVE_HALF = 9f
+private const val SAVE_CORNER = 5f
 private const val CHECK_LEFT = 0.55f
 private const val CHECK_BOTTOM_X = 0.1f
 private const val CHECK_BOTTOM_Y = 0.45f

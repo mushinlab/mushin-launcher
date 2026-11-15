@@ -4,8 +4,6 @@ import com.mushinlab.launcher.core.model.SwipeDirection
 import kotlin.math.abs
 
 data class GestureConfig(
-    val doubleTapTimeoutMs: Long,
-    val doubleTapSlopPx: Float,
     val swipeDistancePx: Float,
     val flingDistancePx: Float,
     val flingVelocityPxPerSec: Float,
@@ -27,39 +25,6 @@ data class StartZone(
 )
 
 class GestureArbiter(private val config: GestureConfig) {
-    private var lastBackgroundTapTime: Long = NO_TAP
-    private var lastBackgroundTapX = 0f
-    private var lastBackgroundTapY = 0f
-
-    fun isDoubleTap(x: Float, y: Float, timeMs: Long, onRow: Boolean): Boolean {
-        if (onRow || lastBackgroundTapTime == NO_TAP) return false
-        val dt = timeMs - lastBackgroundTapTime
-        val dx = x - lastBackgroundTapX
-        val dy = y - lastBackgroundTapY
-        val near = dx * dx + dy * dy <= config.doubleTapSlopPx * config.doubleTapSlopPx
-        val inTime = dt in 0..config.doubleTapTimeoutMs
-        return if (near && inTime) {
-            reset()
-            true
-        } else {
-            false
-        }
-    }
-
-    fun onTapUp(x: Float, y: Float, timeMs: Long, onRow: Boolean) {
-        if (onRow) {
-            reset()
-        } else {
-            lastBackgroundTapTime = timeMs
-            lastBackgroundTapX = x
-            lastBackgroundTapY = y
-        }
-    }
-
-    fun reset() {
-        lastBackgroundTapTime = NO_TAP
-    }
-
     fun swipeDirection(dx: Float, dy: Float, velocityX: Float, velocityY: Float): SwipeDirection? {
         val ax = abs(dx)
         val ay = abs(dy)
@@ -88,8 +53,4 @@ class GestureArbiter(private val config: GestureConfig) {
 
     fun isShadeSwipe(direction: SwipeDirection, startY: Float, zone: StartZone): Boolean =
         direction == SwipeDirection.DOWN && startY < zone.shadeLimitPx
-
-    private companion object {
-        const val NO_TAP = Long.MIN_VALUE
-    }
 }

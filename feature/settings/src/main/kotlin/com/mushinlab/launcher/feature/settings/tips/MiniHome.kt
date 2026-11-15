@@ -7,11 +7,11 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.TextLayoutResult
 import com.mushinlab.launcher.core.ui.MushinColors
-import kotlin.math.roundToInt
 
 internal object MiniHome {
     const val LIST_TOP = 100f
@@ -23,6 +23,10 @@ internal object MiniHome {
     const val TOOL_THEME = 2
     const val GRIP_Y = 8f
     const val ADD_GLYPH_Y = 8f
+    const val ROW_INSET = 16f
+    const val ROW_HANDLE_X = 16f
+    const val ROW_EDIT_X = Scene.WIDTH - 36f
+    const val ROW_REMOVE_X = Scene.WIDTH - 16f
     val edit = Scene.pencil
 
     fun tool(index: Int) = Offset(TOOL_LEFT + TOOL_STEP * index, edit.y)
@@ -31,6 +35,12 @@ internal object MiniHome {
 
     fun grip(sheetTop: Float) = Offset(Scene.WIDTH / 2, sheetTop + GRIP_Y)
 
+    fun rowHandle(centerY: Float) = Offset(ROW_HANDLE_X, centerY)
+
+    fun rowEdit(centerY: Float) = Offset(ROW_EDIT_X, centerY)
+
+    fun rowRemove(centerY: Float) = Offset(ROW_REMOVE_X, centerY)
+
     fun addButton(rowTop: Float, half: Int) = Offset(Scene.WIDTH * (half * 2 + 1) / 2 / 2, rowTop + ADD_GLYPH_Y)
 }
 
@@ -38,22 +48,6 @@ internal object MiniHome {
 internal class MiniClock(val layout: TextLayoutResult) {
     val width = layout.size.width.toFloat()
     val height = layout.size.height + Scene.DATE_GAP + Scene.dateSize.height
-    private val slots = listOf(Scene.MARGIN, (Scene.WIDTH - width) / 2, Scene.WIDTH - Scene.MARGIN - width)
-
-    fun left(slot: Float): Float = if (slot <= 1f) {
-        mix(slots[0], slots[1], slot)
-    } else {
-        mix(slots[1], slots[2], slot - 1f)
-    }
-
-    fun slotLeft(index: Int): Float = slots[index]
-
-    fun center(slot: Float) = Offset(left(slot) + width / 2, Scene.clock.y + height / 2)
-
-    companion object {
-        const val SLOTS = 3
-        const val LAST_SLOT = 2f
-    }
 }
 
 internal fun sheetOffset(top: Float, open: Float, dragged: Float, closed: Float): Float {
@@ -96,10 +90,9 @@ internal fun DrawScope.listHandle(colors: MushinColors, center: Offset, visible:
     )
 }
 
-internal fun DrawScope.editableClock(colors: MushinColors, clock: MiniClock, slot: Float, edit: Float) {
+internal fun DrawScope.clockCell(colors: MushinColors, clock: MiniClock, edit: Float) {
     if (edit > 0f) {
-        val nearest = slot.roundToInt()
-        val boxLeft = Offset(clock.slotLeft(nearest) - SLOT_PAD, Scene.clock.y - SLOT_PAD)
+        val boxLeft = Offset(Scene.clock.x - SLOT_PAD, Scene.clock.y - SLOT_PAD)
         val box = Size(clock.width + SLOT_PAD * 2, clock.height + SLOT_PAD * 2)
         drawRoundRect(colors.accent, boxLeft, box, CornerRadius(SLOT_CORNER), alpha = edit * SLOT_FILL)
         drawRoundRect(
@@ -110,18 +103,20 @@ internal fun DrawScope.editableClock(colors: MushinColors, clock: MiniClock, slo
             alpha = edit * SLOT_BORDER,
             style = Stroke(width = OUTLINE_WIDTH),
         )
-        val markY = Scene.clock.y + clock.height + SLOT_PAD + MARK_GAP
-        repeat(MiniClock.SLOTS) { index ->
-            drawRoundRect(
-                colors.accent,
-                Offset(clock.slotLeft(index) + (clock.width - MARK_WIDTH) * index / 2, markY),
-                Size(MARK_WIDTH, MARK_HEIGHT),
-                CornerRadius(MARK_HEIGHT / 2),
-                alpha = edit * if (index == nearest) 1f else MARK_ALPHA,
-            )
-        }
     }
-    clockFace(colors, clock.layout, Offset(clock.left(slot), Scene.clock.y))
+    clockFace(colors, clock.layout, Scene.clock)
+}
+
+internal fun DrawScope.rowControls(colors: MushinColors, top: Float, edit: Float) {
+    if (edit <= 0f) return
+    val centerY = top + Scene.ROW_HEIGHT / 2
+    dragGlyph(MiniHome.rowHandle(centerY), colors.textSecondary, edit)
+    val change = MiniHome.rowEdit(centerY)
+    val remove = MiniHome.rowRemove(centerY)
+    glyphCircle(colors, change, ROW_GLYPH_RADIUS, edit)
+    glyphCircle(colors, remove, ROW_GLYPH_RADIUS, edit)
+    scale(ROW_PENCIL_SCALE, pivot = change) { pencil(change, colors.textPrimary, edit) }
+    crossGlyph(remove, colors.textPrimary, edit)
 }
 
 internal fun DrawScope.addRow(colors: MushinColors, top: Float, index: Int, labels: AddLabels, alpha: Float) {
@@ -186,10 +181,8 @@ private const val SLOT_PAD = 3f
 private const val SLOT_CORNER = 6f
 private const val SLOT_FILL = 0.08f
 private const val SLOT_BORDER = 0.5f
-private const val MARK_GAP = 3f
-private const val MARK_WIDTH = 20f
-private const val MARK_HEIGHT = 2f
-private const val MARK_ALPHA = 0.35f
+private const val ROW_GLYPH_RADIUS = 8f
+private const val ROW_PENCIL_SCALE = 0.7f
 private const val PLUS_RADIUS = 6f
 private const val PLUS_ARM = 2.6f
 private const val ADD_LABEL_GAP = 6f

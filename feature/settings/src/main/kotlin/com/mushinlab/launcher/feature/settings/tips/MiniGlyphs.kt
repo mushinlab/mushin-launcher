@@ -53,6 +53,32 @@ internal fun DrawScope.plusGlyph(center: Offset, color: Color, arm: Float) {
     drawLine(color, Offset(center.x, center.y - arm), Offset(center.x, center.y + arm), GLYPH_WIDTH, StrokeCap.Round)
 }
 
+internal fun DrawScope.dragGlyph(center: Offset, color: Color, alpha: Float) {
+    listOf(-DRAG_STEP, 0f, DRAG_STEP).forEach { y ->
+        drawLine(
+            color,
+            Offset(center.x - DRAG_HALF, center.y + y),
+            Offset(center.x + DRAG_HALF, center.y + y),
+            GLYPH_WIDTH,
+            StrokeCap.Round,
+            alpha = alpha,
+        )
+    }
+}
+
+internal fun DrawScope.crossGlyph(center: Offset, color: Color, alpha: Float) {
+    listOf(1f, -1f).forEach { side ->
+        drawLine(
+            color,
+            Offset(center.x - CROSS_HALF, center.y - CROSS_HALF * side),
+            Offset(center.x + CROSS_HALF, center.y + CROSS_HALF * side),
+            GLYPH_WIDTH,
+            StrokeCap.Round,
+            alpha = alpha,
+        )
+    }
+}
+
 internal fun DrawScope.folderGlyph(center: Offset, color: Color) {
     drawPath(shape(center, Folder).apply { close() }, color, style = GlyphStroke)
 }
@@ -90,3 +116,6 @@ private const val FRAME_HALF = 5f
 private const val FRAME_CORNER = 1.5f
 private const val PALETTE_RADIUS = 5.2f
 private const val DOT_RADIUS = 0.9f
+private const val DRAG_HALF = 4f
+private const val DRAG_STEP = 3f
+private const val CROSS_HALF = 2.8f

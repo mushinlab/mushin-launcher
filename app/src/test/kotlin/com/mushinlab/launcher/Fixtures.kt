@@ -63,12 +63,6 @@ class FakeLauncherModel(
         return shadeAvailable
     }
 
-    override fun addToCurrentSpace(key: AppKey): Boolean {
-        if (items.size >= capacity) return false
-        items += key
-        return true
-    }
-
     override fun removeFromCurrentSpace(key: AppKey) {
         items -= key
     }

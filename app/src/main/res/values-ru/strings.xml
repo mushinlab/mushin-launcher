@@ -5,9 +5,6 @@
     <string name="notice_launch_failed">Не удалось открыть</string>
     <string name="notice_remove_from_space">Убрать из спейса</string>
     <string name="notice_shade_unavailable">Шторка недоступна на этой версии Android</string>
-    <string name="notice_added_to_space">Добавлено в «%1$s»</string>
-    <string name="notice_removed_from_space">Убрано из «%1$s»</string>
-    <string name="notice_space_full">В «%1$s» больше не поместится</string>
     <string name="rename_title">Переименовать «%1$s»</string>
     <string name="rename_save">Сохранить</string>
     <string name="rename_reset">Сбросить</string>

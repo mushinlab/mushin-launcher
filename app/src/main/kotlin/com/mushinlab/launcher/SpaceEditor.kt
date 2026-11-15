@@ -4,13 +4,14 @@ import com.mushinlab.launcher.core.data.repo.SpaceOutcome
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.PalettePreset
 import com.mushinlab.launcher.core.model.SpaceType
+import com.mushinlab.launcher.core.model.moving
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SpaceEditor(
     private val container: AppContainer,
-    private val items: (Long) -> List<AppKey>,
+    val items: (Long) -> List<AppKey>,
     private val capacity: () -> Int,
 ) {
     private val repository get() = container.spaces
@@ -56,3 +57,5 @@ private fun <T> SpaceOutcome<T>.errorCode(): String? = when (this) {
 private fun AppContainer.inBackground(block: suspend () -> Unit) {
     scope.launch { block() }
 }
+
+fun SpaceEditor.moveItem(id: Long, key: AppKey, target: AppKey) = setItems(id, items(id).moving(key, target))

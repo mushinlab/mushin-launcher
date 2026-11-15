@@ -19,9 +19,7 @@ import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.Palette
 import com.mushinlab.launcher.core.model.Palettes
 import com.mushinlab.launcher.core.model.swipesByApp
-import com.mushinlab.launcher.core.search.SearchEngine
 import com.mushinlab.launcher.core.search.SearchIndex
-import com.mushinlab.launcher.core.search.SearchOptions
 import com.mushinlab.launcher.feature.home.HomeRow
 import com.mushinlab.launcher.feature.home.HomeSuggestion
 import com.mushinlab.launcher.feature.home.HomeUiState
@@ -208,12 +206,6 @@ class LauncherViewModel(
         .distinctUntilChanged { a, b -> a === b }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.Eagerly, SearchIndex.EMPTY)
-
-    val searchEngine: StateFlow<SearchEngine> = container.settings.settings
-        .map { SearchOptions(fuzzy = it.searchFuzzy, layoutSwap = it.searchLayoutSwap, translit = it.searchTranslit) }
-        .distinctUntilChanged()
-        .map { SearchEngine(it) }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, SearchEngine())
 
     val recents = combine(data, container.history.recents, ::recentKeys)
         .distinctUntilChanged()

@@ -30,13 +30,12 @@ class HomeGestureDetector(
     }
 
     private suspend fun AwaitPointerEventScope.onEditDown(down: PointerInputChange, callbacks: HomeGestureCallbacks) {
-        arbiter.reset()
         val drag = when {
             registry.handle.contains(down.position) -> EditDrag(callbacks.handle) { it.y }
             else -> null
         }
         if (drag == null) {
-            consumeUntilUp(down.id)
+            if (registry.hit(down.position) == null) consumeUntilUp(down.id)
             return
         }
         val moved = awaitMoveBeyondSlop(down.id, down.position) ?: return
@@ -48,13 +47,6 @@ class HomeGestureDetector(
 
     private suspend fun AwaitPointerEventScope.onDown(down: PointerInputChange, callbacks: HomeGestureCallbacks) {
         val target = targetAt(down.position)
-        val doubleTap = target != PressTarget.Clock &&
-            arbiter.isDoubleTap(down.position.x, down.position.y, down.uptimeMillis, target is PressTarget.Row)
-        if (doubleTap) {
-            callbacks.onDoubleTap()
-            consumeUntilUp(down.id)
-            return
-        }
         val tracker = VelocityTracker()
         tracker.addPointerInputChange(down)
         callbacks.onPressed(target.rowIndex, target == PressTarget.Clock)
@@ -69,7 +61,7 @@ class HomeGestureDetector(
             null -> onHold(down, target, callbacks)
             is PressOutcome.Up -> onTap(outcome, target, callbacks)
             PressOutcome.Slop -> onMove(down, tracker, callbacks)
-            PressOutcome.Cancelled -> arbiter.reset()
+            PressOutcome.Cancelled -> Unit
         }
     }
 
@@ -87,17 +79,14 @@ class HomeGestureDetector(
         target: PressTarget,
         callbacks: HomeGestureCallbacks,
     ) {
-        arbiter.reset()
         callbacks.onLongPress(down.position, target.rowIndex)
         consumeUntilUp(down.id)
     }
 
     private fun onTap(up: PressOutcome.Up, target: PressTarget, callbacks: HomeGestureCallbacks) {
         if (target == PressTarget.Clock) {
-            arbiter.reset()
             callbacks.onClockTap()
         } else {
-            arbiter.onTapUp(up.position.x, up.position.y, up.timeMs, target is PressTarget.Row)
             target.rowIndex?.let { callbacks.onRowTap(it, up.position) }
         }
     }
@@ -107,7 +96,6 @@ class HomeGestureDetector(
         tracker: VelocityTracker,
         callbacks: HomeGestureCallbacks,
     ) {
-        arbiter.reset()
         callbacks.onTrace(down.position, down.uptimeMillis)
         val points = mutableListOf(down.position)
         val end = trackUntilUp(down.id, tracker) { position, time ->
@@ -146,7 +134,7 @@ private val PressTarget.rowIndex: Int?
     get() = (this as? PressTarget.Row)?.index
 
 private sealed interface PressOutcome {
-    data class Up(val position: Offset, val timeMs: Long) : PressOutcome
+    data class Up(val position: Offset) : PressOutcome
 
     data object Slop : PressOutcome
 
@@ -171,7 +159,7 @@ private fun AwaitPointerEventScope.outcomeOf(
     if (change == null || change.isConsumed) return PressOutcome.Cancelled
     tracker.addPointerInputChange(change)
     return when {
-        !change.pressed -> PressOutcome.Up(change.position, change.uptimeMillis)
+        !change.pressed -> PressOutcome.Up(change.position)
         (change.position - start).getDistance() > viewConfiguration.touchSlop -> PressOutcome.Slop
         else -> null
     }

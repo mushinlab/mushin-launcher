@@ -4,7 +4,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -16,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.feature.search.KeyboardDimens
+import com.mushinlab.launcher.feature.search.SearchDimens
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -25,7 +25,7 @@ import org.junit.runner.RunWith
 class KeyboardUiTest : LauncherUiTestBase() {
     @Test
     fun AC_08_typingOnLauncherKeyboardUpdatesQuery() {
-        backgroundPoint().performTouchInput { doubleClick(bottomCenter.copy(y = bottom - height * 0.15f)) }
+        openSearch()
         rule.onNodeWithTag("key_c").performClick()
         rule.onNodeWithTag("key_a").performClick()
         rule.onNodeWithTag("query", useUnmergedTree = true).assertTextEquals("ca")
@@ -63,7 +63,7 @@ class KeyboardUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun spaceRowIsHalfAsTallAndKeyboardSitsAKeyAboveTheBottom() {
+    fun spaceRowIsHalfAsTallAndKeyboardSitsAtTheBottomWithInnerPadding() {
         openSearch()
         val q = rule.onNodeWithTag("key_q").fetchSemanticsNode().boundsInRoot
         val space = rule.onNodeWithTag("key_SPACE").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
@@ -74,7 +74,8 @@ class KeyboardUiTest : LauncherUiTestBase() {
         with(rule.density) {
             assertThat(space.height + KeyboardDimens.gap.toPx())
                 .isWithin(2f).of((q.height + KeyboardDimens.gap.toPx()) / 2)
-            assertThat(search.bottom - navBar - keyboard.bottom).isWithin(2f).of(KeyboardDimens.rowHeight.toPx())
+            assertThat(search.bottom - navBar - keyboard.bottom)
+                .isWithin(2f).of((SearchDimens.paneGap + SearchDimens.panePadding).toPx())
         }
         rule.onNodeWithTag("key_s").performClick()
         rule.onNodeWithTag("key_SPACE").performClick()
@@ -138,7 +139,8 @@ class KeyboardUiTest : LauncherUiTestBase() {
         val results = rule.onNodeWithTag("results").fetchSemanticsNode().boundsInRoot
         assertThat(pane.width).isWithin(3f).of(results.width * 0.6f)
         assertThat(pane.right).isWithin(3f).of(results.right)
-        assertThat(keyboard.width).isWithin(2f).of(pane.width)
+        val padding = with(rule.density) { SearchDimens.panePadding.toPx() }
+        assertThat(keyboard.width).isWithin(2f).of(pane.width - padding * 2)
     }
 
     @Test

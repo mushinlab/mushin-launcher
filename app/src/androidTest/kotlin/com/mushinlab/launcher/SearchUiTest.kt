@@ -58,19 +58,22 @@ class SearchUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun longPressOnResultTogglesAppInCurrentSpace() {
+    fun longPressOnResultShowsAppActionsAsARowOfIcons() {
         openSearch()
-        val key = rule.runOnIdle { rule.activity.launcher.navigator.search.rows.first().key }
-        val before = key in spaceItems()
         rule.onNodeWithTag("result_0").performTouchInput { longClick() }
-        rule.onNodeWithTag("menu_info").assertIsDisplayed()
-        rule.onNodeWithTag("menu_env").performClick()
-        rule.onNodeWithTag("popup").assertDoesNotExist()
-        rule.waitUntil(5_000) { (key in spaceItems()) != before }
+        rule.onNodeWithTag("menu_env").assertDoesNotExist()
+        val info = rule.onNodeWithTag("menu_info").fetchSemanticsNode().boundsInRoot
+        val rename = rule.onNodeWithTag("menu_rename").fetchSemanticsNode().boundsInRoot
+        val hide = rule.onNodeWithTag("menu_hide").fetchSemanticsNode().boundsInRoot
+        assertThat(rename.center.y).isWithin(1f).of(info.center.y)
+        assertThat(hide.center.y).isWithin(1f).of(info.center.y)
+        assertThat(rename.left).isAtLeast(info.right)
+        assertThat(hide.left).isAtLeast(rename.right)
+        Espresso.pressBack()
     }
 
     @Test
-    fun searchMenuHidesAppAndOptionsShowHiddenApps() {
+    fun searchMenuHidesAppAndTheHeaderToggleShowsHiddenApps() {
         openSearch()
         rule.onNodeWithTag("result_0").performTouchInput { longClick() }
         val key = rule.activity.launcher.navigator.search.panels.menu!!.key
@@ -79,15 +82,14 @@ class SearchUiTest : LauncherUiTestBase() {
         try {
             rule.waitUntil(5_000) { container.overrides.overrides.value[key]?.hidden == true }
             rule.waitUntil(5_000) { rule.activity.launcher.navigator.search.rows.none { it.key == key } }
-            rule.onNodeWithTag("search_options").performClick()
-            rule.onNodeWithTag("search_option_show_hidden").performClick()
+            rule.onNodeWithTag("search_show_hidden").performClick()
             rule.waitUntil(5_000) {
                 rule.activity.launcher.navigator.search.rows.any {
                     it.key == key && it.hidden &&
                         it.label == label
                 }
             }
-            rule.onNodeWithTag("search_option_show_hidden").performClick()
+            rule.onNodeWithTag("search_show_hidden").performClick()
             rule.waitUntil(5_000) { rule.activity.launcher.navigator.search.rows.none { it.key == key } }
         } finally {
             runBlocking { container.overrides.setHidden(key, false) }
@@ -95,17 +97,16 @@ class SearchUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun searchHeaderHoldsOnlySearchOptions() {
+    fun searchHeaderHoldsTheHiddenToggleLeftOfSettings() {
         openSearch()
-        rule.onNodeWithTag("toggle_hidden").assertDoesNotExist()
+        rule.onNodeWithTag("search_options").assertDoesNotExist()
         val header = rule.onNodeWithTag("search_header").fetchSemanticsNode().boundsInRoot
-        val options = rule.onNodeWithTag("search_options").fetchSemanticsNode().boundsInRoot
+        val hidden = rule.onNodeWithTag("search_show_hidden").fetchSemanticsNode().boundsInRoot
+        val settings = rule.onNodeWithTag("search_settings").fetchSemanticsNode().boundsInRoot
         val results = rule.onNodeWithTag("results").fetchSemanticsNode().boundsInRoot
-        assertThat(options.bottom).isAtMost(header.bottom + 1f)
-        assertThat(options.bottom).isAtMost(results.top)
-        rule.onNodeWithTag("search_options").performClick()
-        rule.onNodeWithTag("search_option_FUZZY").performClick()
-        rule.waitUntil(5_000) { !container.settings.settings.value.searchFuzzy }
+        assertThat(hidden.right).isAtMost(settings.left + 1f)
+        assertThat(settings.bottom).isAtMost(header.bottom + 1f)
+        assertThat(settings.bottom).isAtMost(results.top)
     }
 
     @Test
@@ -131,18 +132,9 @@ class SearchUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun searchOptionsTurnOnColouredIcons() {
+    fun settingsButtonInSearchOpensSettingsAndClosesSearch() {
         openSearch()
-        rule.onNodeWithTag("search_options").performClick()
-        rule.onNodeWithTag("search_option_COLORED_ICONS").performClick()
-        rule.waitUntil(5_000) { container.settings.settings.value.searchColoredIcons }
-    }
-
-    @Test
-    fun allSettingsInSearchOptionsOpensSettingsAndClosesSearch() {
-        openSearch()
-        rule.onNodeWithTag("search_options").performClick()
-        rule.onNodeWithTag("search_all_settings").performClick()
+        rule.onNodeWithTag("search_settings").performClick()
         rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.Root }
         assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None)
         rule.onNodeWithTag("nav_keyboard").assertIsDisplayed()

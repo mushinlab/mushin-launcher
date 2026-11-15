@@ -42,6 +42,7 @@ data class HomeSnapshot(
     val showClock: Boolean = true,
     val clockSize: ClockSize = ClockSize.M,
     val widgetLayout: WidgetLayout = WidgetLayout(),
+    val spaceName: String = "",
 )
 
 /**
@@ -50,8 +51,8 @@ data class HomeSnapshot(
  * Writes go to a temporary file and are renamed into place. [read] returns null for a missing or corrupt file
  * and for versions before 3; a version 3 file has no text alignment and reads as [HomeTextAlign.START], and
  * files before version 5 have no clock visibility and size and read as a shown medium clock. Version 6 adds widget
- * panel layouts; older snapshots use the built-in time in the top panel. Both methods block on
- * file I/O.
+ * panel layouts; older snapshots use the built-in time in the top panel. Version 7 adds the space name; older
+ * snapshots read it as empty. Both methods block on file I/O.
  */
 class HomeSnapshotStore(directory: File) {
     private val file = File(directory, FILE_NAME)
@@ -94,6 +95,7 @@ class HomeSnapshotStore(directory: File) {
             } else {
                 WidgetLayout()
             }
+            val spaceName = if (version >= NAME_VERSION) input.readUTF() else ""
             HomeSnapshot(
                 spaceId,
                 palette,
@@ -108,6 +110,7 @@ class HomeSnapshotStore(directory: File) {
                 showClock,
                 clockSize,
                 widgetLayout,
+                spaceName,
             )
         }
     }.getOrNull()
@@ -143,6 +146,7 @@ class HomeSnapshotStore(directory: File) {
                     out.writeBoolean(row.work)
                 }
                 out.writeUTF(WidgetStateCodec.encode(WidgetState(mapOf(snapshot.spaceId to snapshot.widgetLayout))))
+                out.writeUTF(snapshot.spaceName)
             }
             temp.renameTo(file)
         }
@@ -166,7 +170,8 @@ class HomeSnapshotStore(directory: File) {
     private companion object {
         const val MAX_ROWS = 512
         const val FILE_NAME = "home_snapshot.bin"
-        const val VERSION = 6
+        const val VERSION = 7
+        const val NAME_VERSION = 7
         const val WIDGET_VERSION = 6
         const val CLOCK_VERSION = 5
         const val NO_ALIGN_VERSION = 3

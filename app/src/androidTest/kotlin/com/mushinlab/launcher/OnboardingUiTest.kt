@@ -1,7 +1,6 @@
 package com.mushinlab.launcher
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -9,6 +8,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeUp
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -27,7 +27,7 @@ class OnboardingUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun firstRunShowsFourSlidesAndDoneClosesThemForGood() {
+    fun firstRunShowsEveryTipThenTheHintAndDoneClosesThemForGood() {
         showOnboarding()
         repeat(SLIDES) { page ->
             rule.onNodeWithTag("onboarding_slide_$page").assertIsDisplayed()
@@ -60,7 +60,7 @@ class OnboardingUiTest : LauncherUiTestBase() {
     @Test
     fun onboardingTakesSwipesAndKeepsHomeGesturesAway() {
         showOnboarding()
-        rule.onNodeWithTag("onboarding").performTouchInput { doubleClick(center) }
+        rule.onNodeWithTag("onboarding").performTouchInput { swipeUp() }
         rule.onNodeWithTag("keyboard").assertDoesNotExist()
         assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None)
 
@@ -69,11 +69,11 @@ class OnboardingUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun settingsTipsListsThreeTipsAndPlaysOne() {
+    fun settingsTipsListsEveryTipAndPlaysOne() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         rule.onNodeWithTag("nav_tips").performScrollTo().performClick()
         Tip.entries.forEach { rule.onNodeWithTag("tip_${it.id}").assertIsDisplayed() }
-        assertThat(Tip.entries).hasSize(3)
+        assertThat(Tip.entries).hasSize(5)
 
         rule.onNodeWithTag("tip_memory").performClick()
 
@@ -91,6 +91,6 @@ class OnboardingUiTest : LauncherUiTestBase() {
     private fun exists(tag: String) = rule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
 
     private companion object {
-        const val SLIDES = 4
+        val SLIDES = Tip.entries.size + 1
     }
 }

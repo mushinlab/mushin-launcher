@@ -10,10 +10,10 @@ class OnboardingPagerTest {
 
         repeat(OnboardingPager.SLIDES - 1) { assertThat(pager.next()).isTrue() }
 
-        assertThat(pager.page).isEqualTo(3)
+        assertThat(pager.page).isEqualTo(OnboardingPager.SLIDES - 1)
         assertThat(pager.isLast).isTrue()
         assertThat(pager.next()).isFalse()
-        assertThat(pager.page).isEqualTo(3)
+        assertThat(pager.page).isEqualTo(OnboardingPager.SLIDES - 1)
     }
 
     @Test

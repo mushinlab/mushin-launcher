@@ -21,8 +21,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavigationUiTest : LauncherUiTestBase() {
     @Test
-    fun AC_07_1_doubleTapOpensKeyboardWithoutIme() {
-        backgroundPoint().performTouchInput { doubleClick(bottomCenter.copy(y = bottom - height * 0.15f)) }
+    fun AC_07_1_searchOpensTheLauncherKeyboardWithoutIme() {
+        openSearch()
         rule.onNodeWithTag("keyboard").assertIsDisplayed()
         val insets = ViewCompat.getRootWindowInsets(rule.activity.window.decorView)
         assertThat(insets?.isVisible(WindowInsetsCompat.Type.ime())).isFalse()
@@ -34,11 +34,19 @@ class NavigationUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("popup").assertIsDisplayed()
         Espresso.pressBack()
         rule.onNodeWithTag("popup").assertDoesNotExist()
-        backgroundPoint().performTouchInput { doubleClick(bottomCenter.copy(y = bottom - height * 0.15f)) }
+        openSearch()
         rule.onNodeWithTag("keyboard").assertIsDisplayed()
         Espresso.pressBack()
         rule.onNodeWithTag("keyboard").assertDoesNotExist()
         rule.onNodeWithTag("home").assertIsDisplayed()
+    }
+
+    @Test
+    fun AC_07_1_doubleTapOnTheBackgroundOpensNothing() {
+        backgroundPoint().performTouchInput { doubleClick(bottomCenter.copy(y = bottom - height * 0.15f)) }
+        rule.waitForIdle()
+        rule.onNodeWithTag("search").assertDoesNotExist()
+        assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None)
     }
 
     @Test
@@ -79,7 +87,7 @@ class NavigationUiTest : LauncherUiTestBase() {
 
     @Test
     fun AC_13_1_homeIntentClosesEverything() {
-        backgroundPoint().performTouchInput { doubleClick(bottomCenter.copy(y = bottom - height * 0.15f)) }
+        openSearch()
         rule.onNodeWithTag("keyboard").assertIsDisplayed()
         rule.runOnUiThread {
             rule.activity.handleHomeIntent(

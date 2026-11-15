@@ -2,10 +2,10 @@ package com.mushinlab.launcher
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import androidx.test.core.app.ApplicationProvider
 import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
@@ -74,14 +74,12 @@ abstract class LauncherUiTestBase {
                 keyboardWidth = KeyboardFit.WIDTH_MAX,
                 keyboardShift = 0f,
                 homeListOffset = null,
-                searchColoredIcons = false,
                 pressFeedback = PressFeedback.FLASH,
                 gestureShiftPenalty = GestureTuning.SHIFT_PENALTY,
                 gestureSuggestMargin = GestureTuning.SUGGEST_MARGIN,
                 clockPosition = ClockPosition.START,
                 font = AppFont.SYSTEM,
                 fontWeight = AppFontWeight.REGULAR,
-                searchFuzzy = true,
                 strokeColor = StrokeColor.ACCENT,
             )
         }
@@ -93,7 +91,9 @@ abstract class LauncherUiTestBase {
     protected fun backgroundPoint() = rule.onNodeWithTag("home")
 
     protected fun openSearch() {
-        backgroundPoint().performTouchInput { doubleClick(bottomCenter.copy(y = bottom - height * 0.15f)) }
+        backgroundPoint().performTouchInput {
+            swipeUp(startY = bottom - height * 0.2f, endY = bottom - height * 0.6f, durationMillis = 150)
+        }
         rule.onNodeWithTag("search").assertIsDisplayed()
     }
 

@@ -34,6 +34,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -65,6 +66,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.HomeListOffset
 import com.mushinlab.launcher.core.model.SwipeDirection
@@ -83,6 +85,7 @@ import com.mushinlab.launcher.core.ui.pressable
 import com.mushinlab.launcher.feature.home.gesture.HomeGestureDetector
 import com.mushinlab.launcher.feature.home.gesture.RowRegistry
 import com.mushinlab.launcher.feature.home.gesture.StartZone
+import kotlinx.collections.immutable.toImmutableList
 
 interface HomeActions : HomeGestureActions, HomeControlActions, HomeEditActions
 
@@ -90,8 +93,6 @@ interface HomeGestureActions {
     fun onRowTap(row: HomeRow, index: Int, position: Offset)
 
     fun onLongPress(position: Offset, row: HomeRow?)
-
-    fun onDoubleTap()
 
     fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean)
 
@@ -137,11 +138,13 @@ interface HomeEditActions : HomeWidgetActions {
 
     fun onEditTheme()
 
-    fun onEditWidgets()
-
     fun onEditTips()
 
-    fun onEditRow(row: HomeRow)
+    fun onReplaceRow(row: HomeRow)
+
+    fun onRemoveRow(row: HomeRow)
+
+    fun onMoveRow(key: AppKey, target: AppKey)
 }
 
 object HomeDimens {
@@ -277,7 +280,10 @@ internal fun FavoritesList(
     BoxWithConstraints(modifier) {
         val capacity = listCapacity
         LaunchedEffect(capacity) { onCapacity(capacity) }
-        val visible = state.rows
+        val reorder = remember { RowReorder() }
+        LaunchedEffect(state.rows) { reorder.sync(state.rows.map { it.key }) }
+        LaunchedEffect(editing.editing) { if (!editing.editing) reorder.cancel() }
+        val visible = reorder.arrange(state.rows) { it.key }
         val availableHeight = maxHeight
         val viewport = availableHeight - if (editing.editing) rowStyle.height else 0.dp
         val scrolls =
@@ -291,30 +297,10 @@ internal fun FavoritesList(
                 registry,
                 availableHeight - if (editing.editing) rowStyle.height else 0.dp,
             ) {
-                visible.forEachIndexed { index, row ->
-                    FavoriteRow(
-                        index,
-                        row,
-                        RowLayout(state.iconMode, state.textAlign),
-                        rowStyle,
-                        registry,
-                        pressedRow() == index,
-                        onClick = if (editing.editing) {
-                            { actions.value.onEditRow(row) }
-                        } else {
-                            { actions.value.onRowTap(row, index, registry.boundsOf(index)?.center ?: Offset.Zero) }
-                        },
-                        clickable = editing.editing || scrolls,
-                        onHold = if (editing.editing) {
-                            null
-                        } else {
-                            { actions.value.onLongPress(registry.boundsOf(index)?.center ?: Offset.Zero, row) }
-                        },
-                    )
-                }
+                HomeRows(visible, state, reorder, rowStyle, registry, pressedRow, editing.editing, scrolls, actions)
             }
             AnimatedVisibility(
-                visible = editing.editing && state.rows.size < capacity,
+                visible = (editing.editing || state.rows.isEmpty()) && state.rows.size < capacity,
                 enter = fadeIn(tween(Motion.TRANSITION_MS)),
                 exit = fadeOut(tween(Motion.TRANSITION_MS)),
             ) {
@@ -331,6 +317,52 @@ internal fun FavoritesList(
 }
 
 @Composable
+private fun HomeRows(
+    visible: List<HomeRow>,
+    state: HomeUiState,
+    reorder: RowReorder,
+    rowStyle: RowStyle,
+    registry: RowRegistry,
+    pressedRow: () -> Int?,
+    editing: Boolean,
+    scrolls: Boolean,
+    actions: State<HomeActions>,
+) {
+    val rowHeightPx = with(LocalDensity.current) { rowStyle.height.toPx() }
+    val keys = visible.map { it.key }.toImmutableList()
+    val layout = RowLayout(state.iconMode, state.textAlign)
+    visible.forEachIndexed { index, row ->
+        key(row.key) {
+            if (editing) {
+                val move = RowMove(row.key, keys, rowHeightPx)
+                EditRow(
+                    Modifier.reorderableRow(move, reorder, actions.value::onMoveRow),
+                    Modifier.reorderHandle(move, reorder, actions.value::onMoveRow),
+                    index,
+                    row,
+                    layout,
+                    rowStyle,
+                    registry,
+                    actions,
+                )
+            } else {
+                FavoriteRow(
+                    index,
+                    row,
+                    layout,
+                    rowStyle,
+                    registry,
+                    pressedRow() == index,
+                    onClick = { actions.value.onRowTap(row, index, registry.boundsOf(index)?.center ?: Offset.Zero) },
+                    clickable = scrolls,
+                    onHold = { actions.value.onLongPress(registry.boundsOf(index)?.center ?: Offset.Zero, row) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun FavoriteRow(
     index: Int,
     row: HomeRow,
@@ -340,10 +372,8 @@ private fun FavoriteRow(
     pressed: Boolean,
     onClick: () -> Unit,
     clickable: Boolean,
-    onHold: (() -> Unit)?,
+    onHold: () -> Unit,
 ) {
-    val colors = LocalMushinColors.current
-    val textStyle = rowStyle.text
     Row(
         Modifier
             .fillMaxWidth()
@@ -368,35 +398,41 @@ private fun FavoriteRow(
                     true
                 }
                 onLongClick {
-                    onHold?.invoke()
-                    onHold != null
+                    onHold()
+                    true
                 }
             }
             .testTag("row_$index")
             .padding(horizontal = HomeDimens.rowPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val badgeOnIcon = layout.icons && row.notifications > 0
-        val icon: (@Composable () -> Unit)? = if (layout.icons) {
-            { BadgedIcon(row, index, badgeOnIcon, Modifier.testTag("icon_$index")) }
-        } else {
-            null
+        RowLabel(row, index, layout, rowStyle.text, Modifier.weight(1f))
+    }
+}
+
+@Composable
+internal fun RowLabel(row: HomeRow, index: Int, layout: RowLayout, textStyle: TextStyle, modifier: Modifier) {
+    val colors = LocalMushinColors.current
+    val badgeOnIcon = layout.icons && row.notifications > 0
+    val icon: (@Composable () -> Unit)? = if (layout.icons) {
+        { BadgedIcon(row, index, badgeOnIcon, Modifier.testTag("icon_$index")) }
+    } else {
+        null
+    }
+    LabelWithIcon(layout.align, modifier.alpha(if (row.dimmed) DIMMED_ALPHA else 1f), icon) {
+        SingleLineText(row.label, textStyle, Modifier.weight(1f, fill = false))
+        if (row.work) {
+            Spacer(Modifier.width(6.dp))
+            Briefcase(colors.textSecondary)
         }
-        LabelWithIcon(layout.align, Modifier.weight(1f).alpha(if (row.dimmed) DIMMED_ALPHA else 1f), icon) {
-            SingleLineText(row.label, textStyle, Modifier.weight(1f, fill = false))
-            if (row.work) {
-                Spacer(Modifier.width(6.dp))
-                Briefcase(colors.textSecondary)
-            }
-            if (row.notifications > 0 && !badgeOnIcon) {
-                Spacer(Modifier.width(8.dp))
-                val diameter = with(LocalDensity.current) { textStyle.fontSize.toDp() } * HomeDimens.BADGE_TO_TEXT
-                CountBadge(row.notifications, diameter, Modifier.testTag("badge_$index"))
-            }
-            if (row.swipes.isNotEmpty()) {
-                Spacer(Modifier.width(8.dp))
-                SwipeMarks(row.swipes, textStyle.fontSize, colors.textSecondary, Modifier.testTag("swipe_$index"))
-            }
+        if (row.notifications > 0 && !badgeOnIcon) {
+            Spacer(Modifier.width(8.dp))
+            val diameter = with(LocalDensity.current) { textStyle.fontSize.toDp() } * HomeDimens.BADGE_TO_TEXT
+            CountBadge(row.notifications, diameter, Modifier.testTag("badge_$index"))
+        }
+        if (row.swipes.isNotEmpty()) {
+            Spacer(Modifier.width(8.dp))
+            SwipeMarks(row.swipes, textStyle.fontSize, colors.textSecondary, Modifier.testTag("swipe_$index"))
         }
     }
 }

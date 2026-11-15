@@ -8,6 +8,7 @@ import androidx.test.uiautomator.Until
 
 const val TARGET_PACKAGE = "com.mushinlab.launcher"
 private const val WAIT_MS = 3_000L
+private const val SWIPE_STEPS = 10
 
 fun MacrobenchmarkScope.startLauncher() {
     startActivityAndWait(
@@ -21,11 +22,9 @@ fun MacrobenchmarkScope.waitForHome() {
     device.wait(Until.hasObject(By.res("home")), WAIT_MS)
 }
 
-fun MacrobenchmarkScope.doubleTapBackground() {
+fun MacrobenchmarkScope.swipeUpForSearch() {
     val x = device.displayWidth / 2
-    val y = device.displayHeight * 85 / 100
-    device.click(x, y)
-    device.click(x, y)
+    device.swipe(x, device.displayHeight * 80 / 100, x, device.displayHeight * 40 / 100, SWIPE_STEPS)
     device.wait(Until.hasObject(By.res("keyboard")), WAIT_MS)
 }
 

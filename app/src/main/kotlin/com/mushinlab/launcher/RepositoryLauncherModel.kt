@@ -51,8 +51,6 @@ class RepositoryLauncherModel(
 
     override fun expandShade(): Boolean = container.shade.expand()
 
-    override fun addToCurrentSpace(key: AppKey): Boolean = currentSpace?.let { spaces.addItem(it.id, key) } == true
-
     override fun removeFromCurrentSpace(key: AppKey) {
         currentSpace?.let { spaces.removeItem(it.id, key) }
     }

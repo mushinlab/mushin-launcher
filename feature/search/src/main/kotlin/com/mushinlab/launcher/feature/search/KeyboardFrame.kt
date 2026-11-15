@@ -17,8 +17,6 @@ data class KeyboardFrame(val left: Float, val width: Float) {
         return KeyboardFrame(left, end - left)
     }
 
-    fun move(dx: Float, total: Float): KeyboardFrame = copy(left = (left + dx).coerceIn(0f, total - width))
-
     fun fraction(total: Float): Float = (width / total).coerceIn(KeyboardFit.WIDTH_MIN, KeyboardFit.WIDTH_MAX)
 
     fun shift(total: Float): Float {

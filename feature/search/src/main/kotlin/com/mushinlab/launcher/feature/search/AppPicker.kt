@@ -1,5 +1,9 @@
 package com.mushinlab.launcher.feature.search
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -51,11 +55,12 @@ import com.mushinlab.launcher.core.search.KeyboardLayout
 import com.mushinlab.launcher.core.search.SearchEngine
 import com.mushinlab.launcher.core.search.SearchIndex
 import com.mushinlab.launcher.core.search.SearchItem
-import com.mushinlab.launcher.core.search.SearchOptions
 import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
+import com.mushinlab.launcher.core.ui.GlyphStyle
 import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.pressable
@@ -122,19 +127,13 @@ private fun pickerIndex(entries: List<PickerEntry>): SearchIndex =
 fun AppPickerScreen(state: AppPickerState, chrome: SearchChrome, actions: AppPickerActions) {
     val colors = LocalMushinColors.current
     val query = remember { PickerQuery() }
-    val engine = remember(chrome.fuzzy, chrome.layoutSwap, chrome.translit) {
-        SearchEngine(
-            SearchOptions(
-                fuzzy = chrome.fuzzy,
-                layoutSwap = chrome.layoutSwap,
-                translit = chrome.translit,
-            ),
-        )
-    }
+    val engine = remember { SearchEngine() }
     val results = remember(state.entries, query.text, engine) {
         pickerResults(state.entries, query.text, engine).toImmutableList()
     }
     val pane = Modifier.clip(RoundedCornerShape(SearchDimens.paneRadius)).background(colors.surface)
+    val chosen = remember(state.entries) { state.entries.filter { it.checked }.map { it.key }.toSet() }
+    val opened = remember(state.entries.isEmpty()) { chosen }
     Column(
         Modifier
             .fillMaxSize()
@@ -143,25 +142,25 @@ fun AppPickerScreen(state: AppPickerState, chrome: SearchChrome, actions: AppPic
             .testTag("app_picker"),
     ) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
-        PickerHeader(state, actions::onBack)
+        PickerHeader(state, changed = chosen != opened, actions::onBack)
         Spacer(Modifier.height(SearchDimens.headerGap))
         PickerList(results, state.full, actions, Modifier.weight(1f).fillMaxWidth().then(pane))
         Spacer(Modifier.height(SearchDimens.paneGap))
         PickerInput(query, state.entries, chrome, actions)
-        Spacer(Modifier.height(KeyboardDimens.bottomLift))
+        Spacer(Modifier.height(SearchDimens.paneGap))
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
 }
 
 @Composable
-private fun PickerHeader(state: AppPickerState, onBack: () -> Unit) {
+private fun PickerHeader(state: AppPickerState, changed: Boolean, onBack: () -> Unit) {
     val colors = LocalMushinColors.current
     Row(Modifier.fillMaxWidth().height(PICKER_HEADER), verticalAlignment = Alignment.CenterVertically) {
         GlyphButton(Glyph.BACK, stringResource(R.string.picker_back), colors.textPrimary, tag = "picker_back") {
             onBack()
         }
         Spacer(Modifier.width(8.dp))
-        Column {
+        Column(Modifier.weight(1f)) {
             SingleLineText(state.title, MushinType.style(20.sp, colors.textPrimary, FontWeight.Medium))
             state.note?.let { note ->
                 SingleLineText(
@@ -170,6 +169,20 @@ private fun PickerHeader(state: AppPickerState, onBack: () -> Unit) {
                     Modifier.testTag("picker_note"),
                 )
             }
+        }
+        AnimatedVisibility(
+            visible = changed,
+            enter = fadeIn(tween(Motion.TRANSITION_MS)),
+            exit = fadeOut(tween(Motion.TRANSITION_MS)),
+        ) {
+            GlyphButton(
+                Glyph.CHECK,
+                stringResource(R.string.picker_save),
+                colors.accent,
+                tag = "picker_save",
+                style = GlyphStyle.FILLED,
+                onClick = onBack,
+            )
         }
     }
 }
@@ -261,7 +274,12 @@ private fun PickerInput(
                 .align(BiasAlignment(chrome.keyboardShift, 0f))
                 .background(colors.surface, RoundedCornerShape(SearchDimens.paneRadius))
                 .testTag("picker_input")
-                .padding(top = SearchDimens.paneTop),
+                .padding(
+                    start = SearchDimens.panePadding,
+                    top = SearchDimens.paneTop,
+                    end = SearchDimens.panePadding,
+                    bottom = SearchDimens.panePadding,
+                ),
         ) {
             Row(
                 Modifier
@@ -278,10 +296,7 @@ private fun PickerInput(
                         maxLines = 1,
                         modifier = Modifier.weight(1f, fill = false).testTag("picker_query"),
                     )
-                    BasicText(
-                        "▏",
-                        style = MushinType.style(SearchDimens.queryTextSize, colors.accent, FontWeight.Light),
-                    )
+                    Caret()
                 }
                 if (query.text.isNotEmpty()) DeleteButton(drawn = false, chrome.haptics, keys)
             }
