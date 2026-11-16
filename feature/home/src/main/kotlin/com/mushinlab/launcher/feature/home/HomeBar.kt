@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +30,9 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
@@ -39,7 +41,6 @@ import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
-import com.mushinlab.launcher.core.ui.pressable
 import com.mushinlab.launcher.feature.home.gesture.RowRegistry
 
 @Composable
@@ -48,19 +49,22 @@ internal fun HomeBar(state: HomeUiState, editing: Boolean, registry: RowRegistry
     val colors = LocalMushinColors.current
     val toggle by animateDpAsState(if (editing) DONE_SIZE else EDIT_SIZE, tween(Motion.TRANSITION_MS), label = "toggle")
     var bounds by remember { mutableStateOf<Rect?>(null) }
-    DisposableEffect(Unit) { onDispose { registry.block(BAR_PANEL, null) } }
-    LaunchedEffect(editing, bounds) { registry.block(BAR_PANEL, bounds.takeIf { editing }) }
+    DisposableEffect(Unit) { onDispose { registry.bar.set(null) } }
     Row(
         Modifier
             .fillMaxWidth()
             .height(HomeDimens.barHeight)
-            .onGloballyPositioned { bounds = it.boundsInRoot() }
-            .then(spacesTap(editing, bounds, actions::onOpenSpaces))
+            .onGloballyPositioned {
+                bounds = it.boundsInRoot()
+                registry.bar.set(bounds)
+            }
             .testTag("home_bar")
             .padding(horizontal = BAR_PADDING),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        BarStart(state.spaceName, editing, registry, actions, Modifier.weight(1f))
+        BarStart(state.spaceName, editing, registry, actions, Modifier.weight(1f)) {
+            actions.onOpenSpaces(bounds?.topCenter ?: Offset.Zero)
+        }
         if (suggestion != null && !editing) {
             var anchor by remember { mutableStateOf(Offset.Zero) }
             DisposableEffect(Unit) { onDispose { registry.block(BAR_SUGGEST, null) } }
@@ -100,13 +104,27 @@ internal fun HomeBar(state: HomeUiState, editing: Boolean, registry: RowRegistry
 }
 
 @Composable
-private fun spacesTap(editing: Boolean, bounds: Rect?, onClick: (Offset) -> Unit): Modifier =
-    if (editing) Modifier else Modifier.pressable(role = Role.Button) { onClick(bounds?.topCenter ?: Offset.Zero) }
-
-@Composable
-private fun BarStart(space: String, editing: Boolean, registry: RowRegistry, actions: HomeActions, modifier: Modifier) {
+private fun BarStart(
+    space: String,
+    editing: Boolean,
+    registry: RowRegistry,
+    actions: HomeActions,
+    modifier: Modifier,
+    onSpaces: () -> Unit,
+) {
     val colors = LocalMushinColors.current
-    Box(modifier, contentAlignment = Alignment.CenterStart) {
+    val tap = if (editing) {
+        Modifier
+    } else {
+        Modifier.semantics(mergeDescendants = true) {
+            role = Role.Button
+            onClick {
+                onSpaces()
+                true
+            }
+        }
+    }
+    Box(modifier.then(tap), contentAlignment = Alignment.CenterStart) {
         AnimatedVisibility(
             visible = editing,
             enter = fadeIn(tween(Motion.TRANSITION_MS)),
@@ -184,7 +202,6 @@ private fun EditTools(registry: RowRegistry, actions: HomeActions) {
 }
 
 private const val BAR_TIPS = "bar_tips"
-private const val BAR_PANEL = "bar_panel"
 private const val BAR_EDIT = "bar_edit"
 private const val BAR_SUGGEST = "bar_suggest"
 private const val BAR_TOOLS = "bar_tools"

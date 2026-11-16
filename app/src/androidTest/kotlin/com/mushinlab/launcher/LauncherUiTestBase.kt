@@ -13,6 +13,7 @@ import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.ClockSize
 import com.mushinlab.launcher.core.model.GestureTuning
 import com.mushinlab.launcher.core.model.HomeTextAlign
+import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.KeyboardFit
 import com.mushinlab.launcher.core.model.PressFeedback
@@ -44,6 +45,7 @@ abstract class LauncherUiTestBase {
                 homeListOffset = 0,
                 iconMode = IconMode.NONE,
                 homeTextAlign = HomeTextAlign.START,
+                homeTextSize = HomeTextSize.M,
                 gestureInput = true,
                 learnHints = true,
                 keyboardLayouts = listOf("en", "ru"),

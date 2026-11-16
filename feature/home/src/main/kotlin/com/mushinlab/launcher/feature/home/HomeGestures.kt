@@ -141,6 +141,10 @@ internal class HomeGestureHandler(
         actions.value.onClockTap()
     }
 
+    override fun onBarTap(anchor: Offset) {
+        actions.value.onOpenSpaces(anchor)
+    }
+
     override fun onTrace(position: Offset, timeMs: Long) {
         if (state.value.drawing) trace.add(position, timeMs)
     }

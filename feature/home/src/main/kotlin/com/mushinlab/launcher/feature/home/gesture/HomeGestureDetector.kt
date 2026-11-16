@@ -51,7 +51,7 @@ class HomeGestureDetector(
         tracker.addPointerInputChange(down)
         callbacks.onPressed(target.rowIndex, target == PressTarget.Clock)
         val outcome = try {
-            if (target == PressTarget.Background) {
+            if (target == PressTarget.Background || target == PressTarget.Bar) {
                 awaitSlopOrUp(down.id, down.position, tracker)
             } else {
                 withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
@@ -74,6 +74,7 @@ class HomeGestureDetector(
         return when {
             row != null -> PressTarget.Row(row)
             registry.clock.contains(position) -> PressTarget.Clock
+            registry.bar.contains(position) -> PressTarget.Bar
             else -> PressTarget.Background
         }
     }
@@ -88,10 +89,11 @@ class HomeGestureDetector(
     }
 
     private fun onTap(up: PressOutcome.Up, target: PressTarget, callbacks: HomeGestureCallbacks) {
-        if (target == PressTarget.Clock) {
-            callbacks.onClockTap()
-        } else {
-            target.rowIndex?.let { callbacks.onRowTap(it, up.position) }
+        when (target) {
+            PressTarget.Clock -> callbacks.onClockTap()
+            PressTarget.Bar -> callbacks.onBarTap(registry.bar.topCenter() ?: up.position)
+            is PressTarget.Row -> callbacks.onRowTap(target.index, up.position)
+            PressTarget.Background -> Unit
         }
     }
 
@@ -128,6 +130,8 @@ private sealed interface PressTarget {
     data class Row(val index: Int) : PressTarget
 
     data object Clock : PressTarget
+
+    data object Bar : PressTarget
 
     data object Background : PressTarget
 }

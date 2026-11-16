@@ -8,6 +8,7 @@ class RowRegistry {
     private val blocked = HashMap<String, Rect>()
     val clock = HitArea()
     val handle = HitArea()
+    val bar = HitArea()
 
     fun update(index: Int, bounds: Rect) {
         rows[index] = bounds
@@ -40,4 +41,6 @@ class HitArea {
     }
 
     fun contains(position: Offset): Boolean = bounds?.contains(position) == true
+
+    fun topCenter(): Offset? = bounds?.topCenter
 }

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.10.2 — 2026-11-17
+
+### Fixed
+- Swiping up from the bottom bar opens search again; tapping the bar opens the space menu, and its buttons stay separate nodes for TalkBack.
+- The clock no longer flashes the palette colour while a wallpaper is being measured, and ignores blur until it knows where its text is.
+- A second tap on an open edit-mode row no longer starts a competing animation that could close the row mid-swipe.
+
 ## 0.10.1 — 2026-11-16
 
 ### Changed

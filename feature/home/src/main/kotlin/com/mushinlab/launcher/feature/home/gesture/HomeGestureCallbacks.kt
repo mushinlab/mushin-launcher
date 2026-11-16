@@ -18,6 +18,8 @@ interface HomeGestureCallbacks {
 
     fun onClockTap()
 
+    fun onBarTap(anchor: Offset)
+
     fun onTrace(position: Offset, timeMs: Long)
 
     fun onDraw(points: List<Offset>)

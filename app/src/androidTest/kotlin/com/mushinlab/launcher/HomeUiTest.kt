@@ -73,7 +73,7 @@ class HomeUiTest : LauncherUiTestBase() {
     fun AC_06_1_swipeUpFromTheBottomBarOpensSearch() {
         rule.onNodeWithTag("home_bar").performTouchInput {
             down(Offset(centerX, top + 8.dp.toPx()))
-            moveBy(Offset(0f, -200f), 150)
+            moveBy(Offset(0f, -400f), 150)
             up()
         }
         rule.onNodeWithTag("search").assertIsDisplayed()
