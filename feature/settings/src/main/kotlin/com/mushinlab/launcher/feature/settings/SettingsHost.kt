@@ -22,7 +22,7 @@ import com.mushinlab.launcher.feature.settings.tips.TipsScreen
 @Immutable
 private data class SettingsEntry(val route: SettingsRoute, val depth: Int)
 
-/** Draws the app pickers ([SettingsRoute.PickApps], [SettingsRoute.PickFolderApps], [SettingsRoute.ReplaceApp]). */
+/** Draws the app pickers ([SettingsRoute.PickApps], [SettingsRoute.PickFolderApps]). */
 typealias AppPickerSlot = @Composable (route: SettingsRoute, back: () -> Unit) -> Unit
 
 @Composable
@@ -101,7 +101,7 @@ private fun SettingsRouteScreen(
 
         is SettingsRoute.HomeFolder -> FolderSheet(route.folderId, state, actions, push, back)
 
-        is SettingsRoute.PickApps, is SettingsRoute.PickFolderApps, is SettingsRoute.ReplaceApp -> pickers(route, back)
+        is SettingsRoute.PickApps, is SettingsRoute.PickFolderApps -> pickers(route, back)
     }
 }
 

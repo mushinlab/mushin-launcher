@@ -32,12 +32,6 @@ internal fun pickerModel(route: SettingsRoute, state: SettingsUiState): PickerMo
         PickerModel(entries(state) { it in inFolder }, null, folder.name)
     }
 
-    is SettingsRoute.ReplaceApp -> PickerModel(
-        entries(state) { it == route.key },
-        null,
-        state.spaceItems[route.spaceId]?.firstOrNull { it.key == route.key }?.label.orEmpty(),
-    )
-
     else -> null
 }
 
@@ -54,7 +48,6 @@ internal fun SettingsAppPicker(vm: LauncherViewModel, route: SettingsRoute, stat
     val full = limit != null && selected >= limit
     val picker = AppPickerState(
         title = when (route) {
-            is SettingsRoute.ReplaceApp -> stringResource(SettingsR.string.replace_title, model.name)
             is SettingsRoute.PickFolderApps -> stringResource(SettingsR.string.folder_add_apps)
             else -> stringResource(SettingsR.string.picker_title)
         },
@@ -65,8 +58,6 @@ internal fun SettingsAppPicker(vm: LauncherViewModel, route: SettingsRoute, stat
                 selected,
                 limit,
             )
-
-            route is SettingsRoute.ReplaceApp -> null
 
             else -> model.name.takeIf { it.isNotBlank() }
         },
@@ -94,14 +85,6 @@ private fun pickerActions(vm: LauncherViewModel, route: SettingsRoute, back: () 
                 } else {
                     vm.folders.addApp(route.folderId, key)
                 }
-
-            is SettingsRoute.ReplaceApp -> {
-                vm.spaces.setItems(
-                    route.spaceId,
-                    state.spaceItems[route.spaceId].orEmpty().map { if (it.key == route.key) key else it.key },
-                )
-                back()
-            }
 
             else -> Unit
         }

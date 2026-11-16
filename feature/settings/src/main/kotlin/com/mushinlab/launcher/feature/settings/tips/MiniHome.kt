@@ -7,7 +7,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.TextLayoutResult
@@ -25,8 +24,8 @@ internal object MiniHome {
     const val ADD_GLYPH_Y = 8f
     const val ROW_INSET = 16f
     const val ROW_HANDLE_X = 16f
-    const val ROW_EDIT_X = Scene.WIDTH - 36f
     const val ROW_REMOVE_X = Scene.WIDTH - 16f
+    const val ROW_REVEAL = 32f
     val edit = Scene.pencil
 
     fun tool(index: Int) = Offset(TOOL_LEFT + TOOL_STEP * index, edit.y)
@@ -36,8 +35,6 @@ internal object MiniHome {
     fun grip(sheetTop: Float) = Offset(Scene.WIDTH / 2, sheetTop + GRIP_Y)
 
     fun rowHandle(centerY: Float) = Offset(ROW_HANDLE_X, centerY)
-
-    fun rowEdit(centerY: Float) = Offset(ROW_EDIT_X, centerY)
 
     fun rowRemove(centerY: Float) = Offset(ROW_REMOVE_X, centerY)
 
@@ -111,12 +108,20 @@ internal fun DrawScope.rowControls(colors: MushinColors, top: Float, edit: Float
     if (edit <= 0f) return
     val centerY = top + Scene.ROW_HEIGHT / 2
     dragGlyph(MiniHome.rowHandle(centerY), colors.textSecondary, edit)
-    val change = MiniHome.rowEdit(centerY)
-    val remove = MiniHome.rowRemove(centerY)
-    glyphCircle(colors, change, ROW_GLYPH_RADIUS, edit)
-    glyphCircle(colors, remove, ROW_GLYPH_RADIUS, edit)
-    scale(ROW_PENCIL_SCALE, pivot = change) { pencil(change, colors.textPrimary, edit) }
-    crossGlyph(remove, colors.textPrimary, edit)
+}
+
+internal fun DrawScope.removeStrip(colors: MushinColors, top: Float, swiped: Float) {
+    if (swiped <= 0f) return
+    val width = MiniHome.ROW_REVEAL * swiped
+    drawRect(
+        colors.danger,
+        Offset(Scene.WIDTH - width, top),
+        Size(width, Scene.ROW_HEIGHT),
+        alpha = STRIP_ALPHA * swiped,
+    )
+    val remove = MiniHome.rowRemove(top + Scene.ROW_HEIGHT / 2)
+    glyphCircle(colors, remove, ROW_GLYPH_RADIUS, swiped)
+    trashGlyph(remove, colors.danger, swiped)
 }
 
 internal fun DrawScope.addRow(colors: MushinColors, top: Float, index: Int, labels: AddLabels, alpha: Float) {
@@ -182,7 +187,7 @@ private const val SLOT_CORNER = 6f
 private const val SLOT_FILL = 0.08f
 private const val SLOT_BORDER = 0.5f
 private const val ROW_GLYPH_RADIUS = 8f
-private const val ROW_PENCIL_SCALE = 0.7f
+private const val STRIP_ALPHA = 0.28f
 private const val PLUS_RADIUS = 6f
 private const val PLUS_ARM = 2.6f
 private const val ADD_LABEL_GAP = 6f

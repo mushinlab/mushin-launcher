@@ -30,6 +30,7 @@
     <string name="space_type_custom">personalizado</string>
     <string name="space_name">Nombre</string>
     <string name="space_rename_title">Nombre del espacio</string>
+    <string name="space_rename">Renombrar</string>
     <string name="space_palette">Paleta</string>
     <string name="space_items">Apps</string>
     <string name="space_add">+ Añadir</string>
@@ -71,7 +72,6 @@
     <string name="folder_name_hint">Nombre de la carpeta</string>
     <string name="folder_add_apps">Añadir apps</string>
     <string name="folder_remove_app">Quitar %1$s</string>
-    <string name="replace_title">Reemplazar %1$s</string>
 
     <string name="home_icons">Iconos</string>
     <string name="clock_sheet">Reloj</string>
@@ -139,7 +139,7 @@
     <string name="system_language_default">Idioma del sistema</string>
     <string name="system_version">Versión</string>
     <string name="system_privacy">Privacidad</string>
-    <string name="system_privacy_text">Mushin no recopila ni comparte datos: la app no tiene acceso a internet, ni anuncios, ni analíticas. Tus espacios y sus imágenes de fondo, el historial de aperturas, los gestos aprendidos y los ajustes se guardan solo en este dispositivo, no se incluyen en las copias de seguridad y se eliminan junto con la app. Mushin obtiene del sistema la lista de apps instaladas para mostrarlas en la pantalla de inicio y en la búsqueda. Si activas el contador de notificaciones, Mushin solo ve cuántas notificaciones tiene cada app; su texto nunca se lee ni se guarda. Preguntas: mushin-lab@proton.me</string>
+    <string name="system_privacy_text">Mushin no recopila ni comparte datos: la app no tiene acceso a internet, ni anuncios, ni analíticas. Tus espacios y sus imágenes de fondo, el historial de aperturas, los gestos aprendidos y los ajustes se guardan solo en este dispositivo, no se incluyen en las copias de seguridad y se eliminan junto con la app. Mushin obtiene del sistema la lista de apps instaladas para mostrarlas en la pantalla de inicio y en la búsqueda, y la lista de sus widgets para que puedas añadir uno. Si activas el contador de notificaciones, Mushin solo ve cuántas notificaciones tiene cada app; su texto nunca se lee ni se guarda. Preguntas: mushin-lab@proton.me</string>
     <string name="system_licenses">Licencias</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, iconos Material Symbols — Apache License 2.0. Fuentes Inter, Open Sans y Montserrat — SIL Open Font License 1.1 (los textos de las licencias están dentro de la app, assets/licenses).</string>
     <string name="settings_memory">Memoria</string>
@@ -224,7 +224,7 @@
     <string name="tip_search_title">Encuentra cualquier app</string>
     <string name="tip_search_text">Desliza hacia arriba en la pantalla de inicio para abrir la búsqueda con el teclado propio del launcher. Escribe unas letras y toca la app.</string>
     <string name="tip_arrange_title">Ordena la lista</string>
-    <string name="tip_arrange_text">Toca el lápiz y arrastra una fila por el control de su izquierda para moverla. El lápiz de la fila reemplaza la app y la cruz la quita de la lista.</string>
+    <string name="tip_arrange_text">Toca el lápiz y arrastra una fila por el control de su izquierda para moverla. Desliza una fila hacia la izquierda y toca la papelera para quitarla de la lista.</string>
     <string name="tip_style_title">Personaliza el launcher</string>
     <string name="tip_style_text">Toca el lápiz y luego Tt para cambiar la fuente, el tamaño y la alineación. Mientras editas, arrastra la línea sobre la lista para mover la lista.</string>
     <string name="tip_memory_title">Enseña al launcher</string>
@@ -249,7 +249,7 @@
     <string name="onboarding_position">Diapositiva %1$d de %2$d</string>
     <string name="edit_tips">Consejos de edición</string>
     <string name="edit_tip_list_title">Aplicaciones y carpetas</string>
-    <string name="edit_tip_list">Arrastra una fila por el control de su izquierda para cambiar el orden. El lápiz de la fila reemplaza la app o abre el editor de la carpeta, y la cruz quita la fila de la lista. Añade aplicaciones y carpetas debajo de la lista. Arrastra el control sobre la lista para moverla; desplázate para ver más aplicaciones.</string>
+    <string name="edit_tip_list">Arrastra una fila por el control de su izquierda para cambiar el orden. Desliza una fila hacia la izquierda y toca la papelera para quitarla de la lista; el lápiz de una carpeta abre su editor. Añade aplicaciones y carpetas debajo de la lista. Arrastra el control sobre la lista para moverla; desplázate para ver más aplicaciones.</string>
     <string name="edit_tip_widgets_title">Widgets</string>
     <string name="edit_tip_widgets">El panel superior es una cuadrícula de 2 × 2. En el modo de edición, mantén pulsado un widget para moverlo, arrastra las barras de sus bordes para extenderlo a las celdas vecinas y toca una celda vacía para añadir un widget.</string>
     <string name="edit_tip_font_title">Fuente</string>

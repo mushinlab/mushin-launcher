@@ -20,9 +20,9 @@ Make it yours:
 • five fonts, three text sizes, labels on the left, in the centre or on the right;
 • swipes in four directions launch an app, open the notification shade or open search;
 • rename or hide apps, show icons next to the names or no icons at all;
-• five press-feedback styles and optional notification counts next to app names.
+• optional notification counts next to app names.
 
-Privacy. Mushin has no internet access, no analytics and no ads. All data stays on your device, and Settings → System → Privacy erases it in one tap.
+Privacy. Mushin has no internet access, no analytics and no ads. All data stays on your device. Settings → System → Privacy shows what is stored and erases the launch history and learned gestures.
 
 Languages: English, Español, Português (Brasil), Deutsch, Français, Bahasa Indonesia and Русский, with native keyboard layouts.
 

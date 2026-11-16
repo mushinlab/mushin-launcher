@@ -57,9 +57,7 @@ internal fun SpaceEditorScreen(
         return
     }
     var renaming by remember { mutableStateOf(false) }
-    var renameError by remember { mutableStateOf<String?>(null) }
     var deleting by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     Box {
         SpaceEditorPage(
             space,
@@ -67,27 +65,11 @@ internal fun SpaceEditorScreen(
             actions,
             push,
             back,
-            onRename = {
-                renameError = null
-                renaming = true
-            },
+            onRename = { renaming = true },
             onDelete = { deleting = true },
         )
         if (renaming) {
-            TextInputDialog(
-                title = stringResource(R.string.space_rename_title),
-                initial = space.name,
-                maxLength = SpaceLimits.NAME_MAX_LENGTH + 8,
-                error = spaceErrorText(renameError),
-                confirm = stringResource(R.string.settings_save),
-                onConfirm = { name ->
-                    scope.launch {
-                        val result = actions.spaces.renameSpace(spaceId, name)
-                        if (result == null) renaming = false else renameError = result
-                    }
-                },
-                onDismiss = { renaming = false },
-            )
+            RenameSpaceDialog(space, actions.spaces) { renaming = false }
         }
         if (deleting) {
             ConfirmDialog(
@@ -102,6 +84,26 @@ internal fun SpaceEditorScreen(
             )
         }
     }
+}
+
+@Composable
+internal fun RenameSpaceDialog(space: SpaceSummary, actions: SpaceActions, onClose: () -> Unit) {
+    var error by remember(space.id) { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+    TextInputDialog(
+        title = stringResource(R.string.space_rename_title),
+        initial = space.name,
+        maxLength = SpaceLimits.NAME_MAX_LENGTH + 8,
+        error = spaceErrorText(error),
+        confirm = stringResource(R.string.settings_save),
+        onConfirm = { name ->
+            scope.launch {
+                val result = actions.renameSpace(space.id, name)
+                if (result == null) onClose() else error = result
+            }
+        },
+        onDismiss = onClose,
+    )
 }
 
 @Composable

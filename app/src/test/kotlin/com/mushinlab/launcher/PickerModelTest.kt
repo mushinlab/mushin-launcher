@@ -42,12 +42,9 @@ class PickerModelTest {
     }
 
     @Test
-    fun folderPickerHasNoLimitAndReplacePickerMarksTheReplacedApp() {
+    fun folderPickerHasNoLimit() {
         assertThat(pickerModel(SettingsRoute.PickFolderApps(4), state)?.let { it.limit to it.name })
             .isEqualTo(null to "Banks")
-        val replace = pickerModel(SettingsRoute.ReplaceApp(1, slack), state)
-        assertThat(replace?.entries?.single { it.checked }?.key).isEqualTo(slack)
-        assertThat(replace?.name).isEqualTo("Slack")
         assertThat(pickerModel(SettingsRoute.PickFolderApps(9), state)).isNull()
     }
 }

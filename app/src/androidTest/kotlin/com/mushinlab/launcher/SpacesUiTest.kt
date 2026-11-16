@@ -6,9 +6,11 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
@@ -53,7 +55,7 @@ class SpacesUiTest : LauncherUiTestBase() {
 
     @Test
     fun holdingASpaceInThePopupForOneSecondOpensItsSettings() {
-        backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
+        rule.onNodeWithTag("home_bar").performClick()
         rule.onNodeWithTag("popup_env_$normalId").performTouchInput { longClick(durationMillis = 1_200) }
         rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.SpaceEditor(normalId) }
         assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None)
@@ -168,14 +170,52 @@ class SpacesUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun longPressOnTheNormalSpaceOpensNoPanel() {
+    fun AC_49_2_normalSpaceCanBeRenamedButNotDeleted() {
+        val original = container.spaces.spaces.value.first { it.id == normalId }.name
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         rule.onNodeWithTag("space_chip_$normalId").performTouchInput { longClick() }
-        rule.waitForIdle()
-        rule.onNodeWithTag("popup").assertDoesNotExist()
+        rule.onNodeWithTag("popup").assertIsDisplayed()
         rule.onNodeWithTag("space_delete").assertDoesNotExist()
-        rule.onNodeWithTag("space_chip_$normalId").assertIsSelected()
-        assertThat(container.spaces.spaces.value.any { it.id == normalId }).isTrue()
+        try {
+            rule.onNodeWithTag("space_rename").performClick()
+            rule.onNodeWithTag("text_input").assertTextEquals(original).performTextReplacement("Renamed default")
+            rule.onNodeWithTag("dialog_button_1").performClick()
+            rule.waitUntil(5_000) {
+                container.spaces.spaces.value.any {
+                    it.id == normalId &&
+                        it.name == "Renamed default"
+                }
+            }
+            rule.onNodeWithTag("space_chip_$normalId").assertTextEquals("Renamed default").assertIsSelected()
+            rule.onNodeWithTag("dialog").assertDoesNotExist()
+        } finally {
+            runBlocking { container.spaces.rename(normalId, original) }
+        }
+    }
+
+    @Test
+    fun AC_49_2_spaceMenuHasTwoIconsAndRenameRejectsDuplicates() {
+        val id = createCustomSpace("Rename me")
+        val duplicate = container.spaces.spaces.value.first { it.id == normalId }.name
+        try {
+            rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
+            rule.onNodeWithTag("space_chip_$id").performScrollTo().performTouchInput { longClick() }
+            val delete = rule.onNodeWithTag("space_delete").fetchSemanticsNode().boundsInRoot
+            val rename = rule.onNodeWithTag("space_rename").fetchSemanticsNode().boundsInRoot
+            assertThat(rename.center.y).isWithin(1f).of(delete.center.y)
+            assertThat(rename.left).isAtLeast(delete.right)
+            rule.onNodeWithTag("space_rename").performClick()
+            rule.onNodeWithTag("text_input").performTextReplacement(duplicate)
+            rule.onNodeWithTag("dialog_button_1").performClick()
+            rule.onNodeWithText(rule.activity.getString(SettingsR.string.error_name_taken)).assertIsDisplayed()
+            rule.onNodeWithTag("text_input").performTextReplacement("Renamed space")
+            rule.onNodeWithTag("dialog_button_1").performClick()
+            rule.waitUntil(5_000) { container.spaces.spaces.value.any { it.id == id && it.name == "Renamed space" } }
+            rule.onNodeWithTag("dialog").assertDoesNotExist()
+            rule.onNodeWithTag("space_chip_$id").performScrollTo().assertTextEquals("Renamed space")
+        } finally {
+            runBlocking { container.spaces.delete(id) }
+        }
     }
 
     private fun createCustomSpace(name: String): Long {
@@ -201,7 +241,7 @@ class SpacesUiTest : LauncherUiTestBase() {
 
     @Test
     fun popupListsSpacesAsVerticalRadioButtons() {
-        backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
+        rule.onNodeWithTag("home_bar").performClick()
         val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }.id
         rule.onNodeWithTag("popup_env_$normalId").assertIsSelected()
         rule.onNodeWithTag("popup_env_$work").assertIsNotSelected()

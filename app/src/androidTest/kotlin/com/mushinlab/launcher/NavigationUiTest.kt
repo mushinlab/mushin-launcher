@@ -4,7 +4,6 @@ import android.view.KeyEvent
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.doubleClick
-import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
@@ -30,7 +29,7 @@ class NavigationUiTest : LauncherUiTestBase() {
 
     @Test
     fun AC_13_3_backClosesPopupThenSearch() {
-        backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
+        rule.onNodeWithTag("home_bar").performClick()
         rule.onNodeWithTag("popup").assertIsDisplayed()
         Espresso.pressBack()
         rule.onNodeWithTag("popup").assertDoesNotExist()

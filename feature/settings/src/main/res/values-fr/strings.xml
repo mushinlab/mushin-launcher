@@ -30,6 +30,7 @@
     <string name="space_type_custom">personnalisé</string>
     <string name="space_name">Nom</string>
     <string name="space_rename_title">Nom de l’espace</string>
+    <string name="space_rename">Renommer</string>
     <string name="space_palette">Palette</string>
     <string name="space_items">Applis</string>
     <string name="space_add">+ Ajouter</string>
@@ -71,7 +72,6 @@
     <string name="folder_name_hint">Nom du dossier</string>
     <string name="folder_add_apps">Ajouter des applis</string>
     <string name="folder_remove_app">Retirer %1$s</string>
-    <string name="replace_title">Remplacer %1$s</string>
 
     <string name="home_icons">Icônes</string>
     <string name="clock_sheet">Horloge</string>
@@ -139,7 +139,7 @@
     <string name="system_language_default">Langue du système</string>
     <string name="system_version">Version</string>
     <string name="system_privacy">Confidentialité</string>
-    <string name="system_privacy_text">Mushin ne collecte ni ne partage aucune donnée : l’appli n’a pas accès à Internet, ni publicité, ni statistiques. Vos espaces et leurs images de fond, l’historique des lancements, les gestes appris et les paramètres sont stockés uniquement sur cet appareil, exclus des sauvegardes et supprimés avec l’appli. Mushin lit la liste des applis installées auprès du système pour les afficher sur l’écran d’accueil et dans la recherche. Si vous activez le compteur de notifications, Mushin voit seulement combien de notifications a chaque appli — leur texte n’est jamais lu ni stocké. Questions : mushin-lab@proton.me</string>
+    <string name="system_privacy_text">Mushin ne collecte ni ne partage aucune donnée : l’appli n’a pas accès à Internet, ni publicité, ni statistiques. Vos espaces et leurs images de fond, l’historique des lancements, les gestes appris et les paramètres sont stockés uniquement sur cet appareil, exclus des sauvegardes et supprimés avec l’appli. Mushin lit la liste des applis installées auprès du système pour les afficher sur l’écran d’accueil et dans la recherche, et la liste de leurs widgets pour que vous puissiez en ajouter un. Si vous activez le compteur de notifications, Mushin voit seulement combien de notifications a chaque appli — leur texte n’est jamais lu ni stocké. Questions : mushin-lab@proton.me</string>
     <string name="system_licenses">Licences</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, icônes Material Symbols — Apache License 2.0. Polices Inter, Open Sans et Montserrat — SIL Open Font License 1.1 (les textes des licences sont dans l’appli, assets/licenses).</string>
     <string name="settings_memory">Mémoire</string>
@@ -224,7 +224,7 @@
     <string name="tip_search_title">Trouvez n’importe quelle appli</string>
     <string name="tip_search_text">Balayez vers le haut sur l’écran d’accueil pour ouvrir la recherche avec le clavier du launcher. Saisissez quelques lettres et touchez l’appli.</string>
     <string name="tip_arrange_title">Organisez la liste</string>
-    <string name="tip_arrange_text">Touchez le crayon, puis faites glisser une ligne par la poignée à sa gauche pour la déplacer. Le crayon de la ligne remplace l’appli, la croix la retire de la liste.</string>
+    <string name="tip_arrange_text">Touchez le crayon, puis faites glisser une ligne par la poignée à sa gauche pour la déplacer. Balayez une ligne vers la gauche et touchez la corbeille pour la retirer de la liste.</string>
     <string name="tip_style_title">Personnalisez le launcher</string>
     <string name="tip_style_text">Touchez le crayon, puis Tt pour changer la police, la taille et l’alignement. Pendant la modification, faites glisser le trait au-dessus de la liste pour déplacer la liste.</string>
     <string name="tip_memory_title">Entraînez le launcher</string>
@@ -249,7 +249,7 @@
     <string name="onboarding_position">Diapositive %1$d sur %2$d</string>
     <string name="edit_tips">Conseils de modification</string>
     <string name="edit_tip_list_title">Applications et dossiers</string>
-    <string name="edit_tip_list">Faites glisser une ligne par la poignée à sa gauche pour changer l’ordre. Le crayon de la ligne remplace l’appli ou ouvre l’éditeur du dossier, la croix retire la ligne de la liste. Ajoutez des applications et des dossiers sous la liste. Faites glisser la poignée au-dessus de la liste pour la déplacer ; faites défiler pour voir les autres applications.</string>
+    <string name="edit_tip_list">Faites glisser une ligne par la poignée à sa gauche pour changer l’ordre. Balayez une ligne vers la gauche et touchez la corbeille pour la retirer de la liste ; le crayon d’un dossier ouvre son éditeur. Ajoutez des applications et des dossiers sous la liste. Faites glisser la poignée au-dessus de la liste pour la déplacer ; faites défiler pour voir les autres applications.</string>
     <string name="edit_tip_widgets_title">Widgets</string>
     <string name="edit_tip_widgets">Le panneau du haut est une grille de 2 × 2. En mode édition, maintenez un widget pour le déplacer, faites glisser les barres de ses bords pour l’étendre sur les cellules voisines et touchez une cellule vide pour ajouter un widget.</string>
     <string name="edit_tip_font_title">Police</string>

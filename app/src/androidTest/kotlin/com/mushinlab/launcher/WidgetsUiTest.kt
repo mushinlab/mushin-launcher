@@ -148,6 +148,20 @@ class WidgetsUiTest : LauncherUiTestBase() {
     }
 
     @Test
+    fun AC_39_2_hostedWidgetGetsTheExactSizeOfItsRectangle() {
+        val exact = { size: Int ->
+            android.view.View.MeasureSpec.makeMeasureSpec(size, android.view.View.MeasureSpec.EXACTLY)
+        }
+        val measured = rule.runOnIdle {
+            val widget = android.appwidget.AppWidgetHostView(rule.activity)
+            widget.addView(android.view.View(rule.activity), 10, 10)
+            WidgetFrame(rule.activity, widget).measure(exact(400), exact(200))
+            widget.measuredWidth to widget.measuredHeight
+        }
+        assertThat(measured).isEqualTo(400 to 200)
+    }
+
+    @Test
     fun AC_39_2_fullGridHasNoAddCellsAndCannotOverflow() {
         val widgets = seedWidgets(4)
         rule.onNodeWithTag("home_edit").performClick()

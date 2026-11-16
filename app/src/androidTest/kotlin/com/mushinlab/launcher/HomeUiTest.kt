@@ -11,6 +11,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -59,8 +60,8 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun AC_06_1_longPressOnBackgroundShowsPopupInsideWindow() {
-        backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
+    fun AC_06_1_tappingTheBottomBarShowsPopupInsideWindow() {
+        rule.onNodeWithTag("home_bar").performTouchInput { click(centerLeft + Offset(20f, 0f)) }
         val popup = rule.onNodeWithTag("popup").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
         val root = rule.onNodeWithTag("home").fetchSemanticsNode().boundsInRoot
         assertThat(popup.top).isAtLeast(root.top)
@@ -69,12 +70,45 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
+    fun AC_06_1_swipeUpFromTheBottomBarOpensSearch() {
+        rule.onNodeWithTag("home_bar").performTouchInput {
+            down(Offset(centerX, top + 8.dp.toPx()))
+            moveBy(Offset(0f, -200f), 150)
+            up()
+        }
+        rule.onNodeWithTag("search").assertIsDisplayed()
+    }
+
+    @Test
+    fun AC_49_3_holdingTheBackgroundOpensNothing() {
+        val home = rule.onNodeWithTag("home").fetchSemanticsNode().boundsInRoot
+        val barTop = rule.onNodeWithTag("home_bar").fetchSemanticsNode().boundsInRoot.top - home.top
+        backgroundPoint().performTouchInput { longClick(Offset(centerX, barTop - 8.dp.toPx())) }
+        rule.onNodeWithTag("popup").assertDoesNotExist()
+        rule.onNodeWithTag("search").assertDoesNotExist()
+        assertThat(rule.activity.launcher.navigator.overlay).isEqualTo(Overlay.None)
+    }
+
+    @Test
+    fun AC_49_3_bottomBarSelectsASpaceAndDoesNotOpenPopupWhileEditing() {
+        val work = container.spaces.spaces.value.first { it.id != normalId }
+        rule.onNodeWithTag("home_bar").performClick()
+        rule.onNodeWithTag("popup_env_${work.id}").performClick()
+        rule.waitUntil(5_000) { container.settings.settings.value.currentSpaceId == work.id }
+        rule.onNodeWithTag("popup").assertDoesNotExist()
+        rule.onNodeWithTag("home_space", useUnmergedTree = true).assertTextEquals(work.name)
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("home_bar").performTouchInput { click(center) }
+        rule.onNodeWithTag("popup").assertDoesNotExist()
+    }
+
+    @Test
     fun settingsButtonNextToTheEditButtonOpensSettings() {
         val settings = rule.onNodeWithTag("home_settings").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
         val edit = rule.onNodeWithTag("home_edit").fetchSemanticsNode().boundsInRoot
         assertThat(settings.right).isAtMost(edit.left)
         assertThat(settings.center.y).isWithin(2f).of(edit.center.y)
-        rule.onNodeWithTag("home_settings").performClick()
+        rule.onNodeWithTag("home_settings").performTouchInput { click() }
         rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.Root }
     }
 
@@ -319,11 +353,9 @@ class HomeUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("row_7").assertIsNotDisplayed()
         rule.onNodeWithTag("edit_list").performTouchInput { swipeUp() }
         rule.onNodeWithTag("row_7").assertIsDisplayed()
-        rule.onNodeWithTag("row_edit_7").performClick()
-        rule.waitUntil(5_000) {
-            rule.activity.launcher.navigator.settings.top == SettingsRoute.ReplaceApp(normalId, apps[7].key)
-        }
-        rule.onNodeWithTag("app_picker").assertIsDisplayed()
+        pullRowOpen(7)
+        rule.onNodeWithTag("row_remove_7").assertIsDisplayed().performClick()
+        rule.waitUntil(5_000) { apps[7].key !in spaceItems() }
     }
 
     @Test
@@ -363,17 +395,45 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun editModeRowsCanBeReplacedAndRemoved() {
+    fun AC_37_11_swipingARowLeftRevealsRemoveAndATapOnItRemovesTheRow() {
         val first = spaceItems().first()
-        rule.onNodeWithTag("row_edit_0").assertDoesNotExist()
         rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("row_edit_0").performClick()
-        rule.waitUntil(5_000) {
-            rule.activity.launcher.navigator.settings.top == SettingsRoute.ReplaceApp(normalId, first)
-        }
-        rule.runOnIdle { rule.activity.launcher.navigator.settings.close() }
-        rule.onNodeWithTag("row_remove_0").performClick()
+        rule.onNodeWithTag("row_edit_0").assertDoesNotExist()
+        rule.onNodeWithTag("row_remove_0").assertDoesNotExist()
+        pullRowOpen(0)
+        assertThat(first).isIn(spaceItems())
+        rule.onNodeWithTag("row_remove_0").assertIsDisplayed().performClick()
         rule.waitUntil(5_000) { first !in spaceItems() }
+    }
+
+    @Test
+    fun AC_37_11_aShortSwipeClosesAgainAndPullingAnotherRowClosesTheOpenOne() {
+        val items = spaceItems()
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("row_0").performTouchInput {
+            down(Offset(width * 0.7f, centerY))
+            moveBy(Offset(-viewConfiguration.touchSlop - 4f, 0f), 50)
+            moveBy(Offset(-20.dp.toPx(), 0f), 100)
+            up()
+        }
+        rule.onNodeWithTag("row_remove_0").assertDoesNotExist()
+        pullRowOpen(0)
+        rule.onNodeWithTag("row_remove_0").assertIsDisplayed()
+        pullRowOpen(1)
+        rule.onNodeWithTag("row_remove_0").assertDoesNotExist()
+        rule.onNodeWithTag("row_remove_1").assertIsDisplayed()
+        assertThat(spaceItems()).containsExactlyElementsIn(items).inOrder()
+    }
+
+    private fun pullRowOpen(index: Int) {
+        rule.onNodeWithTag("row_$index").performTouchInput {
+            down(Offset(width * 0.7f, centerY))
+            moveBy(Offset(-viewConfiguration.touchSlop - 4f, 0f), 50)
+            moveBy(Offset(-width * 0.25f, 0f), 100)
+            moveBy(Offset(-width * 0.25f, 0f), 100)
+            up()
+        }
+        rule.waitForIdle()
     }
 
     @Test
@@ -389,6 +449,7 @@ class HomeUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("row_edit_${originalApps.size}").performClick()
         rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.HomeFolder(id) }
         rule.runOnIdle { rule.activity.launcher.navigator.settings.close() }
+        pullRowOpen(originalApps.size)
         rule.onNodeWithTag("row_remove_${originalApps.size}").performClick()
         rule.waitUntil(5_000) { id !in container.folders.folders.value }
         assertThat(spaceItems()).containsExactlyElementsIn(originalApps).inOrder()

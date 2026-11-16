@@ -1,8 +1,6 @@
 # Политика конфиденциальности Mushin Launcher / Mushin Launcher Privacy Policy
 
-Вступает в силу: 2026-10-24. Разработчик: Mushin Lab. Контакт: mushin-lab@proton.me.
-
-Эту страницу нужно опубликовать по постоянному публичному адресу и указать этот адрес в Play Console («Политика и программы → Контент приложения → Политика конфиденциальности»). Тот же текст есть в приложении: «Настройки → Система → Конфиденциальность»; там же можно посмотреть сохранённые данные и стереть память. Выученные жесты — в «Настройки → Жесты».
+Вступает в силу: 2026-11-16. Разработчик: Mushin Lab. Контакт: mushin-lab@proton.me.
 
 ## Русский
 
@@ -19,7 +17,9 @@
 
 Эти данные хранятся только в личной папке приложения и не включаются в резервные копии и перенос на другое устройство. Они удаляются при удалении Mushin Launcher. Данные приложения можно удалить вручную: «Настройки → Приложения → Mushin Launcher → Хранилище → Очистить хранилище».
 
-**Список приложений.** Mushin Launcher получает от системы список установленных приложений, у которых есть значок запуска. Список нужен, чтобы показывать приложения на главном экране и в поиске. Он никуда не передаётся.
+**Список приложений и виджетов.** Mushin Launcher получает от системы список установленных приложений, у которых есть значок запуска, и список приложений, которые предлагают виджеты, вместе с самими виджетами. Первый нужен, чтобы показывать приложения на главном экране и в поиске, второй — чтобы вы могли выбрать виджет. Эти списки никуда не передаются.
+
+**Где посмотреть и стереть.** Краткий текст этой политики есть в приложении: «Настройки → Система → Конфиденциальность». Там же можно посмотреть сохранённые данные и стереть память. Выученные жесты — в «Настройки → Жесты».
 
 **Уведомления.** Счётчик уведомлений выключен по умолчанию. Если его включить и выдать доступ в системных настройках, Mushin Launcher видит только, сколько уведомлений есть у каждого приложения. Текст, заголовки и вложения уведомлений не читаются и не сохраняются. Числа живут только в памяти, пока лаунчер работает. Доступ можно отозвать в любой момент: «Настройки → Уведомления → Доступ к уведомлениям».
 
@@ -42,7 +42,9 @@
 
 This data is kept only in the app's private storage. It is excluded from backups and device-to-device transfer, and it is deleted when you uninstall Mushin Launcher. You can also delete it manually in Settings → Apps → Mushin Launcher → Storage → Clear storage.
 
-**App list.** Mushin Launcher reads the list of installed apps that have a launcher icon from the system. It uses the list only to show those apps on the home screen and in search, and never transmits it.
+**App and widget list.** Mushin Launcher reads from the system the list of installed apps that have a launcher icon, and the list of apps that offer widgets together with those widgets. It uses the first only to show apps on the home screen and in search, and the second only to let you pick a widget. It never transmits these lists.
+
+**Where to see and erase it.** A short version of this policy is in the app under Settings → System → Privacy. The same screen shows the stored data and lets you delete memory. Learned gestures are listed in Settings → Gestures.
 
 **Notifications.** Notification counts are off by default. If you turn them on and grant access in system settings, Mushin Launcher sees only how many notifications each app has. Notification text, titles and attachments are never read or stored. The counts live only in memory while the launcher is running. You can revoke access at any time in Settings → Notifications → Notification access.
 

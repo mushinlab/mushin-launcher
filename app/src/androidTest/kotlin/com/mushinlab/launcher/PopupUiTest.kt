@@ -16,7 +16,7 @@ import org.junit.runner.RunWith
 class PopupUiTest : LauncherUiTestBase() {
     @Test
     fun homePopupHasScrimAndTapOnItDismisses() {
-        backgroundPoint().performTouchInput { longClick(bottomCenter.copy(y = bottom - height * 0.1f)) }
+        rule.onNodeWithTag("home_bar").performClick()
         rule.onNodeWithTag("popup").assertIsDisplayed()
         tapScrimOutsidePopup()
         rule.onNodeWithTag("popup").assertDoesNotExist()

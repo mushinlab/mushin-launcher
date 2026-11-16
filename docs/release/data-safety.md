@@ -13,7 +13,7 @@
 | Раздел | Ответ |
 |---|---|
 | Политика конфиденциальности | Публичный URL страницы из `privacy-policy.md` |
-| Доступ к приложению | Все функции доступны без входа в аккаунт |
+| Доступ к приложению | Все функции доступны без входа в аккаунт. В поле инструкций для проверяющих: «Mushin Launcher is a home screen app and has no icon in the app list. To open it, tap Open on its Google Play page (or press Home) and choose Mushin Launcher; the card “Make default launcher” sets it as the home app. No account or special access is needed.» |
 | Реклама | Нет рекламы |
 | Возрастной рейтинг (анкета IARC) | Категория «Утилиты / продуктивность»; насилия, азартных игр, общения между пользователями, покупок и геолокации нет |
 | Целевая аудитория | 18+ (или 13+). Не ниже 13: иначе действует политика Families |
@@ -29,7 +29,7 @@
 
 Фон спейса из галереи выбирается системным Photo Picker: `READ_MEDIA_IMAGES` не запрашивается, снимки остаются на устройстве и в Data safety не указываются.
 
-`QUERY_ALL_PACKAGES`, `INTERNET` и Accessibility API не используются. Видимость приложений обеспечивают `<queries>` с MAIN/LAUNCHER и `LauncherApps`.
+`QUERY_ALL_PACKAGES`, `INTERNET` и Accessibility API не используются. Видимость приложений обеспечивают `<queries>` с MAIN/LAUNCHER и `LauncherApps`; приложения с виджетами видны через `<queries>` с `APPWIDGET_UPDATE` (ADR-0044). Оба списка описаны в политике и остаются на устройстве.
 
 ## Риски ревью
 - **Шторка уведомлений открывается скрытым методом `StatusBarManager.expandNotificationsPanel`** (рефлексия, ADR-0001 D.13). Это не нарушение политики, но pre-launch report может отметить non-SDK interface. Если вызов не сработает, остальные функции продолжают работать.

@@ -44,7 +44,7 @@ import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
-import com.mushinlab.launcher.core.ui.PanelItem
+import com.mushinlab.launcher.core.ui.PanelHeader
 import com.mushinlab.launcher.core.ui.RadioMark
 import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.pressable
@@ -55,6 +55,7 @@ internal class SpaceBarState {
     var creating by mutableStateOf(false)
     var menu by mutableStateOf<SpaceMenu?>(null)
     var deleting by mutableStateOf<SpaceSummary?>(null)
+    var renaming by mutableStateOf<SpaceSummary?>(null)
 }
 
 @Immutable
@@ -80,7 +81,7 @@ internal fun SpaceBar(spaces: List<SpaceSummary>, actions: SpaceActions, bar: Sp
         ) {
             spaces.forEach { space ->
                 SpaceChip(space, onSelect = { actions.switchSpace(space.id) }) { anchor ->
-                    if (space.type == SpaceType.NORMAL) reject() else bar.menu = SpaceMenu(space, anchor)
+                    bar.menu = SpaceMenu(space, anchor)
                 }
             }
         }
@@ -124,11 +125,36 @@ internal fun SpaceBarOverlays(spaces: List<SpaceSummary>, actions: SpaceActions,
     if (bar.creating && types.isNotEmpty()) CreateSpaceDialog(types, actions) { bar.creating = false }
     bar.menu?.let { menu ->
         AnchoredPanel(anchor = menu.anchor, onDismiss = { bar.menu = null }) {
-            PanelItem(stringResource(R.string.space_delete), tag = "space_delete") {
-                bar.menu = null
-                bar.deleting = menu.space
+            PanelHeader(menu.space.name)
+            Row(
+                Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                if (menu.space.type != SpaceType.NORMAL) {
+                    GlyphButton(
+                        Glyph.DELETE,
+                        stringResource(R.string.space_delete),
+                        LocalMushinColors.current.danger,
+                        tag = "space_delete",
+                    ) {
+                        bar.menu = null
+                        bar.deleting = menu.space
+                    }
+                }
+                GlyphButton(
+                    Glyph.EDIT,
+                    stringResource(R.string.space_rename),
+                    LocalMushinColors.current.textPrimary,
+                    tag = "space_rename",
+                ) {
+                    bar.menu = null
+                    bar.renaming = menu.space
+                }
             }
         }
+    }
+    bar.renaming?.let { space ->
+        RenameSpaceDialog(space, actions) { bar.renaming = null }
     }
     bar.deleting?.let { space ->
         DeleteSpaceDialog(space, onConfirm = { actions.deleteSpace(space.id) }, onDismiss = { bar.deleting = null })

@@ -20,8 +20,8 @@ class WidgetFrame(context: Context, private val widget: AppWidgetHostView) : Fra
         val contentWidth = width.coerceAtLeast(1)
         val contentHeight = height.coerceAtLeast(1)
         widget.measure(
-            View.MeasureSpec.makeMeasureSpec(contentWidth, View.MeasureSpec.AT_MOST),
-            View.MeasureSpec.makeMeasureSpec(contentHeight, View.MeasureSpec.AT_MOST),
+            View.MeasureSpec.makeMeasureSpec(contentWidth, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(contentHeight, View.MeasureSpec.EXACTLY),
         )
         val density = resources.displayMetrics.density
         val size = SizeF(contentWidth / density, contentHeight / density)
@@ -30,11 +30,5 @@ class WidgetFrame(context: Context, private val widget: AppWidgetHostView) : Fra
             widget.updateAppWidgetSize(Bundle(), listOf(size))
         }
         setMeasuredDimension(width, height)
-    }
-
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        val left = (width - widget.measuredWidth) / 2
-        val top = (height - widget.measuredHeight) / 2
-        widget.layout(left, top, left + widget.measuredWidth, top + widget.measuredHeight)
     }
 }

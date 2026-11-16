@@ -123,9 +123,14 @@ internal class RowReorder {
 internal class RowMove(val key: AppKey, val keys: ImmutableList<AppKey>, val rowHeight: Float)
 
 @Composable
-internal fun Modifier.reorderableRow(move: RowMove, reorder: RowReorder, onMove: (AppKey, AppKey) -> Unit): Modifier {
+internal fun Modifier.reorderableRow(
+    move: RowMove,
+    reorder: RowReorder,
+    remove: CustomAccessibilityAction,
+    onMove: (AppKey, AppKey) -> Unit,
+): Modifier {
     val accent = LocalMushinColors.current.accent
-    val steps = rememberSteps(move, onMove)
+    val steps = rememberSteps(move, onMove) + remove
     val dragged = reorder.dragged == move.key
     val lift by animateFloatAsState(if (dragged) LIFT_SCALE else 1f, tween(Motion.TRANSITION_MS), label = "lift")
     return slideOnMove(!dragged)

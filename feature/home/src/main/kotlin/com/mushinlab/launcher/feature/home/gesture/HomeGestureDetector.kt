@@ -51,8 +51,12 @@ class HomeGestureDetector(
         tracker.addPointerInputChange(down)
         callbacks.onPressed(target.rowIndex, target == PressTarget.Clock)
         val outcome = try {
-            withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+            if (target == PressTarget.Background) {
                 awaitSlopOrUp(down.id, down.position, tracker)
+            } else {
+                withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+                    awaitSlopOrUp(down.id, down.position, tracker)
+                }
             }
         } finally {
             callbacks.onPressed(null, clock = false)

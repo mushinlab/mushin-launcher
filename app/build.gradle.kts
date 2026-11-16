@@ -16,8 +16,8 @@ android {
     namespace = "com.mushinlab.launcher"
     defaultConfig {
         applicationId = "com.mushinlab.launcher"
-        versionCode = 15
-        versionName = "0.10.0"
+        versionCode = 16
+        versionName = "0.10.1"
     }
     signingConfigs {
         if (uploadKeystore != null) {
@@ -44,6 +44,11 @@ android {
     }
     dependenciesInfo {
         includeInApk = false
+    }
+    bundle {
+        language {
+            enableSplit = false
+        }
     }
 }
 

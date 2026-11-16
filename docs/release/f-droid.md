@@ -18,6 +18,7 @@ Categories:
   - Launcher
 License: Apache-2.0
 AuthorName: Mushin Lab
+AuthorEmail: mushin-lab@proton.me
 SourceCode: https://github.com/mushinlab/mushin-launcher
 IssueTracker: https://github.com/mushinlab/mushin-launcher/issues
 Changelog: https://github.com/mushinlab/mushin-launcher/blob/main/docs/CHANGELOG.md

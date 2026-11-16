@@ -35,10 +35,8 @@ fun MacrobenchmarkScope.typeKeys(text: String) {
     device.waitForIdle()
 }
 
-fun MacrobenchmarkScope.longPressBackground() {
-    val x = device.displayWidth / 2
-    val y = device.displayHeight * 85 / 100
-    device.swipe(x, y, x, y, 120)
+fun MacrobenchmarkScope.openSpacePopup() {
+    device.wait(Until.findObject(By.res("home_bar")), WAIT_MS)?.click()
     device.wait(Until.hasObject(By.res("popup")), WAIT_MS)
 }
 

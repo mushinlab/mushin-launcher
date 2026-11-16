@@ -29,20 +29,24 @@ import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -56,6 +60,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
@@ -72,6 +77,7 @@ import com.mushinlab.launcher.core.model.HomeListOffset
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.WidgetCell
 import com.mushinlab.launcher.core.ui.AppIcon
+import com.mushinlab.launcher.core.ui.BackgroundLook
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.LocalMushinColors
@@ -114,6 +120,8 @@ interface HomeControlActions {
 
     fun onOpenSettings()
 
+    fun onOpenSpaces(anchor: Offset)
+
     fun onSuggestion(anchor: Offset)
 
     fun onListOffset(dp: Int)
@@ -140,7 +148,7 @@ interface HomeEditActions : HomeWidgetActions {
 
     fun onEditTips()
 
-    fun onReplaceRow(row: HomeRow)
+    fun onEditFolder(folderId: Long)
 
     fun onRemoveRow(row: HomeRow)
 
@@ -181,11 +189,17 @@ fun HomeScreen(
     val trace = remember { Trace() }
     val gestures = rememberHomeGestures(currentState, currentActions, trace)
     val currentEditing = rememberUpdatedState(editing)
+    var frame by remember { mutableStateOf(Rect.Zero) }
+    val pixels by rememberBackdropPixels(background)
+    val blurPx = with(LocalDensity.current) { BackgroundLook.blurRadius(state.backgroundBlur).toPx() }
+    val loading = background != null && pixels == null
+    val backdrop = ClockBackdrop(pixels, colors.background, state.backgroundBrightness, blurPx, frame, loading)
     Box(
         modifier
             .fillMaxSize()
             .background(colors.background)
             .onSizeChanged { gestures.width = it.width.toFloat() }
+            .onGloballyPositioned { frame = it.boundsInRoot() }
             .testTag("home")
             .pointerInput(arbiter) {
                 HomeGestureDetector(arbiter, registry, { zone.value }, gesturesEnabled, { currentEditing.value })
@@ -200,16 +214,18 @@ fun HomeScreen(
                 Modifier.fillMaxSize().testTag("home_background"),
             )
         }
-        HomeColumn(
-            state,
-            minute,
-            registry,
-            gestures,
-            currentActions,
-            editing,
-            hasBackground = background != null,
-            widgets,
-        )
+        CompositionLocalProvider(LocalClockBackdrop provides backdrop) {
+            HomeColumn(
+                state,
+                minute,
+                registry,
+                gestures,
+                currentActions,
+                editing,
+                hasBackground = background != null,
+                widgets,
+            )
+        }
         EditToggle(editing, registry, actions, Modifier.align(Alignment.BottomEnd))
         TraceLayer(trace)
     }
@@ -283,6 +299,8 @@ internal fun FavoritesList(
         val reorder = remember { RowReorder() }
         LaunchedEffect(state.rows) { reorder.sync(state.rows.map { it.key }) }
         LaunchedEffect(editing.editing) { if (!editing.editing) reorder.cancel() }
+        val swipe = remember { RowSwipe() }
+        SwipeEffects(swipe, reorder, state.rows, editing.editing)
         val visible = reorder.arrange(state.rows) { it.key }
         val availableHeight = maxHeight
         val viewport = availableHeight - if (editing.editing) rowStyle.height else 0.dp
@@ -297,7 +315,16 @@ internal fun FavoritesList(
                 registry,
                 availableHeight - if (editing.editing) rowStyle.height else 0.dp,
             ) {
-                HomeRows(visible, state, reorder, rowStyle, registry, pressedRow, editing.editing, scrolls, actions)
+                HomeRows(
+                    visible,
+                    state,
+                    RowEdits(reorder, swipe, editing.editing),
+                    rowStyle,
+                    registry,
+                    pressedRow,
+                    scrolls,
+                    actions,
+                )
             }
             AnimatedVisibility(
                 visible = (editing.editing || state.rows.isEmpty()) && state.rows.size < capacity,
@@ -320,11 +347,10 @@ internal fun FavoritesList(
 private fun HomeRows(
     visible: List<HomeRow>,
     state: HomeUiState,
-    reorder: RowReorder,
+    edits: RowEdits,
     rowStyle: RowStyle,
     registry: RowRegistry,
     pressedRow: () -> Int?,
-    editing: Boolean,
     scrolls: Boolean,
     actions: State<HomeActions>,
 ) {
@@ -333,16 +359,19 @@ private fun HomeRows(
     val layout = RowLayout(state.iconMode, state.textAlign)
     visible.forEachIndexed { index, row ->
         key(row.key) {
-            if (editing) {
+            if (edits.editing) {
                 val move = RowMove(row.key, keys, rowHeightPx)
+                val remove = CustomAccessibilityAction(stringResource(R.string.home_row_remove, row.label)) {
+                    actions.value.onRemoveRow(row).let { true }
+                }
                 EditRow(
-                    Modifier.reorderableRow(move, reorder, actions.value::onMoveRow),
-                    Modifier.reorderHandle(move, reorder, actions.value::onMoveRow),
+                    Modifier.reorderableRow(move, edits.reorder, remove, actions.value::onMoveRow),
+                    Modifier.reorderHandle(move, edits.reorder, actions.value::onMoveRow),
                     index,
                     row,
-                    layout,
-                    rowStyle,
+                    EditRowStyle(layout, rowStyle),
                     registry,
+                    edits.swipe,
                     actions,
                 )
             } else {

@@ -32,7 +32,7 @@ class SpaceRepositoryTest {
         val repo = SpaceRepository(rule.db, backgroundScope, rule.clock)
         val spaces = repo.spaces.first { it.isNotEmpty() }
         assertThat(spaces.map { it.name to it.type }).containsExactly(
-            "Обычный" to SpaceType.NORMAL,
+            "Default" to SpaceType.NORMAL,
             "Работа" to SpaceType.WORK,
         ).inOrder()
         assertThat(spaces[0].palette).isEqualTo(Palettes.Graphite)
@@ -80,7 +80,7 @@ class SpaceRepositoryTest {
         ).isEqualTo(SpaceOutcome.Failed(SpaceError.NameEmpty))
         assertThat(repo.create("x".repeat(25), SpaceType.CUSTOM, PalettePreset.MOSS))
             .isEqualTo(SpaceOutcome.Failed(SpaceError.NameTooLong))
-        assertThat(repo.create("  ОБЫЧНЫЙ ", SpaceType.CUSTOM, PalettePreset.MOSS))
+        assertThat(repo.create("  DEFAULT ", SpaceType.CUSTOM, PalettePreset.MOSS))
             .isEqualTo(SpaceOutcome.Failed(SpaceError.NameTaken))
         val created = repo.create("  Спорт  ", SpaceType.CUSTOM, PalettePreset.MOSS)
         assertThat(created).isInstanceOf(SpaceOutcome.Ok::class.java)
@@ -96,7 +96,7 @@ class SpaceRepositoryTest {
         val repo = SpaceRepository(rule.db, backgroundScope, rule.clock)
         val spaces = repo.spaces.first { it.isNotEmpty() }
         val work = spaces.first { it.type == SpaceType.WORK }
-        assertThat(repo.rename(work.id, "обычный")).isEqualTo(SpaceOutcome.Failed(SpaceError.NameTaken))
+        assertThat(repo.rename(work.id, "default")).isEqualTo(SpaceOutcome.Failed(SpaceError.NameTaken))
         assertThat(repo.rename(work.id, "РАБОТА")).isEqualTo(SpaceOutcome.Ok(Unit))
     }
 

@@ -169,6 +169,10 @@ private fun homeActions(vm: LauncherViewModel, density: Density) = object : Home
         navigator.overlay = Overlay.Popup(position, row?.key)
     }
 
+    override fun onOpenSpaces(anchor: Offset) {
+        navigator.overlay = Overlay.Popup(anchor, null)
+    }
+
     override fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean) =
         vm.homeInput.onSwipe(direction, fromShadeZone)
 
@@ -208,12 +212,8 @@ private fun homeActions(vm: LauncherViewModel, density: Density) = object : Home
         navigator.overlay = Overlay.EditTips
     }
 
-    override fun onReplaceRow(row: HomeRow) {
-        val space = vm.model.currentSpace ?: return
-        val folder = row.folderId
-        navigator.openSettings(
-            if (folder != null) SettingsRoute.HomeFolder(folder) else SettingsRoute.ReplaceApp(space.id, row.key),
-        )
+    override fun onEditFolder(folderId: Long) {
+        navigator.openSettings(SettingsRoute.HomeFolder(folderId))
     }
 
     override fun onRemoveRow(row: HomeRow) {

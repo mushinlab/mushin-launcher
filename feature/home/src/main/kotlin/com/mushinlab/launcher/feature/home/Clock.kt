@@ -1,6 +1,8 @@
 package com.mushinlab.launcher.feature.home
 
 import android.text.format.DateFormat
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -19,9 +21,11 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,6 +44,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -52,6 +57,7 @@ import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.GlyphWrapper
 import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.PopupStyle
 import com.mushinlab.launcher.core.ui.SingleLineText
@@ -132,20 +138,36 @@ private fun ClockTime(minute: State<Long>, format: ClockFormat, size: ClockSize)
     val context = LocalContext.current
     val style = MushinType.style(size.tileSp.sp, LocalMushinColors.current.textPrimary, FontWeight.Light)
     val use24h = ClockText.is24h(format, DateFormat.is24HourFormat(context))
-    SingleLineText(
+    ClockLabel(
         ClockText.time(minute.value, ZoneId.systemDefault(), use24h),
         style,
-        Modifier.testTag("clock"),
+        "clock",
     )
 }
 
 @Composable
 private fun ClockDate(minute: State<Long>) {
     val locale = LocalConfiguration.current.locales[0]
-    SingleLineText(
+    ClockLabel(
         ClockText.shortDate(minute.value, ZoneId.systemDefault(), locale),
         MushinType.style(MushinType.secondarySize, LocalMushinColors.current.textSecondary),
-        Modifier.testTag("date"),
+        "date",
+    )
+}
+
+@Composable
+private fun ClockLabel(text: String, style: TextStyle, tag: String) {
+    var bounds by remember { mutableStateOf(Rect.Zero) }
+    val backdrop = LocalClockBackdrop.current
+    var target by remember { mutableStateOf(backdrop.ink(Rect.Zero)) }
+    LaunchedEffect(backdrop, bounds) {
+        if (!bounds.isEmpty && !backdrop.loading) target = backdrop.ink(bounds)
+    }
+    val color by animateColorAsState(target, tween(Motion.TRANSITION_MS), label = "clock_ink")
+    SingleLineText(
+        text,
+        style.copy(color = color),
+        Modifier.onGloballyPositioned { bounds = it.boundsInRoot() }.testTag(tag),
     )
 }
 

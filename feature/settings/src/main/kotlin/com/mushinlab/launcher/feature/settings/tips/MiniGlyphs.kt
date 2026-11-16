@@ -66,17 +66,22 @@ internal fun DrawScope.dragGlyph(center: Offset, color: Color, alpha: Float) {
     }
 }
 
-internal fun DrawScope.crossGlyph(center: Offset, color: Color, alpha: Float) {
-    listOf(1f, -1f).forEach { side ->
-        drawLine(
-            color,
-            Offset(center.x - CROSS_HALF, center.y - CROSS_HALF * side),
-            Offset(center.x + CROSS_HALF, center.y + CROSS_HALF * side),
-            GLYPH_WIDTH,
-            StrokeCap.Round,
-            alpha = alpha,
-        )
-    }
+internal fun DrawScope.trashGlyph(center: Offset, color: Color, alpha: Float) {
+    drawLine(
+        color,
+        Offset(center.x - TRASH_LID, center.y - TRASH_HALF),
+        Offset(center.x + TRASH_LID, center.y - TRASH_HALF),
+        GLYPH_WIDTH,
+        StrokeCap.Round,
+        alpha = alpha,
+    )
+    drawRect(
+        color,
+        Offset(center.x - TRASH_BODY, center.y - TRASH_HALF + TRASH_GAP),
+        Size(TRASH_BODY * 2, TRASH_HALF * 2 - TRASH_GAP),
+        alpha = alpha,
+        style = Stroke(width = GLYPH_WIDTH),
+    )
 }
 
 internal fun DrawScope.folderGlyph(center: Offset, color: Color) {
@@ -118,4 +123,7 @@ private const val PALETTE_RADIUS = 5.2f
 private const val DOT_RADIUS = 0.9f
 private const val DRAG_HALF = 4f
 private const val DRAG_STEP = 3f
-private const val CROSS_HALF = 2.8f
+private const val TRASH_HALF = 3.6f
+private const val TRASH_LID = 3.4f
+private const val TRASH_BODY = 2.4f
+private const val TRASH_GAP = 1.8f

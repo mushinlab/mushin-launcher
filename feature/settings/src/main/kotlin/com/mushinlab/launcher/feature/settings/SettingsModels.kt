@@ -60,8 +60,6 @@ sealed interface SettingsRoute {
 
     data class PickFolderApps(val folderId: Long) : SettingsRoute
 
-    data class ReplaceApp(val spaceId: Long, val key: AppKey) : SettingsRoute
-
     data class Tip(val id: String) : SettingsRoute
 }
 

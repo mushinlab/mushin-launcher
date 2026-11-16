@@ -19,7 +19,7 @@ class BaselineProfileGenerator {
         swipeUpForSearch()
         typeKeys("sl")
         closeOverlay()
-        longPressBackground()
+        openSpacePopup()
         closeOverlay()
     }
 }

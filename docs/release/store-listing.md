@@ -34,8 +34,7 @@ Mushin Launcher — главный экран, который за одно ка
 Настройка под себя:
 • свайпы в четыре стороны запускают приложение, открывают шторку или поиск;
 • приложения можно переименовать и скрыть;
-• иконки слева, справа или без иконок;
-• пять стилей отклика на нажатие;
+• иконки рядом с названиями или без иконок;
 • по желанию — число уведомлений рядом с названием.
 
 Конфиденциальность. У Mushin нет доступа к интернету, нет аналитики и рекламы. Все данные хранятся только на вашем устройстве.
@@ -70,8 +69,7 @@ Swipe typing:
 Make it yours:
 • swipes in four directions launch an app, open the notification shade or open search;
 • rename or hide apps;
-• icons on the left, on the right, or none;
-• five press-feedback styles;
+• icons next to the names, or no icons at all;
 • optional notification counts next to app names.
 
 Privacy. Mushin has no internet access, no analytics and no ads. All data stays on your device.

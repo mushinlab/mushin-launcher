@@ -30,6 +30,7 @@
     <string name="space_type_custom">kustom</string>
     <string name="space_name">Nama</string>
     <string name="space_rename_title">Nama ruang</string>
+    <string name="space_rename">Ubah nama</string>
     <string name="space_palette">Palet</string>
     <string name="space_items">Aplikasi</string>
     <string name="space_add">+ Tambah</string>
@@ -71,7 +72,6 @@
     <string name="folder_name_hint">Nama folder</string>
     <string name="folder_add_apps">Tambah aplikasi</string>
     <string name="folder_remove_app">Hapus %1$s</string>
-    <string name="replace_title">Ganti %1$s</string>
 
     <string name="home_icons">Ikon</string>
     <string name="clock_sheet">Jam</string>
@@ -139,7 +139,7 @@
     <string name="system_language_default">Default sistem</string>
     <string name="system_version">Versi</string>
     <string name="system_privacy">Privasi</string>
-    <string name="system_privacy_text">Mushin tidak mengumpulkan atau membagikan data apa pun: aplikasi ini tidak punya akses internet, iklan, maupun analitik. Ruang beserta gambar latarnya, riwayat pembukaan, gestur yang dipelajari, dan setelan Anda hanya disimpan di perangkat ini, tidak ikut dicadangkan, dan terhapus bersama aplikasi. Mushin membaca daftar aplikasi terinstal dari sistem untuk menampilkannya di layar utama dan di pencarian. Jika Anda mengaktifkan jumlah notifikasi, Mushin hanya melihat berapa banyak notifikasi tiap aplikasi — teks notifikasi tidak pernah dibaca atau disimpan. Pertanyaan: mushin-lab@proton.me</string>
+    <string name="system_privacy_text">Mushin tidak mengumpulkan atau membagikan data apa pun: aplikasi ini tidak punya akses internet, iklan, maupun analitik. Ruang beserta gambar latarnya, riwayat pembukaan, gestur yang dipelajari, dan setelan Anda hanya disimpan di perangkat ini, tidak ikut dicadangkan, dan terhapus bersama aplikasi. Mushin membaca daftar aplikasi terinstal dari sistem untuk menampilkannya di layar utama dan di pencarian, serta daftar widgetnya agar Anda dapat menambahkannya. Jika Anda mengaktifkan jumlah notifikasi, Mushin hanya melihat berapa banyak notifikasi tiap aplikasi — teks notifikasi tidak pernah dibaca atau disimpan. Pertanyaan: mushin-lab@proton.me</string>
     <string name="system_licenses">Lisensi</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, ikon Material Symbols — Apache License 2.0. Font Inter, Open Sans, dan Montserrat — SIL Open Font License 1.1 (teks lisensi ada di dalam aplikasi, assets/licenses).</string>
     <string name="settings_memory">Memori</string>
@@ -222,7 +222,7 @@
     <string name="tip_search_title">Temukan aplikasi apa pun</string>
     <string name="tip_search_text">Geser ke atas di layar utama untuk membuka pencarian dengan keyboard milik launcher. Ketik beberapa huruf, lalu ketuk aplikasinya.</string>
     <string name="tip_arrange_title">Atur daftar</string>
-    <string name="tip_arrange_text">Ketuk pensil, lalu seret baris dengan pegangan di sebelah kirinya untuk memindahkannya. Pensil pada baris mengganti aplikasi, tanda silang menghapusnya dari daftar.</string>
+    <string name="tip_arrange_text">Ketuk pensil, lalu seret baris dengan pegangan di sebelah kirinya untuk memindahkannya. Geser baris ke kiri dan ketuk tempat sampah untuk menghapusnya dari daftar.</string>
     <string name="tip_style_title">Sesuaikan launcher</string>
     <string name="tip_style_text">Ketuk pensil, lalu Tt untuk mengubah font, ukuran, dan perataan. Saat mengedit, seret garis di atas daftar untuk memindahkan daftar.</string>
     <string name="tip_memory_title">Ajari launcher</string>
@@ -247,7 +247,7 @@
     <string name="onboarding_position">Slide %1$d dari %2$d</string>
     <string name="edit_tips">Tips pengeditan</string>
     <string name="edit_tip_list_title">Aplikasi dan folder</string>
-    <string name="edit_tip_list">Seret baris dengan pegangan di sebelah kirinya untuk mengubah urutan. Pensil pada baris mengganti aplikasi atau membuka editor folder, tanda silang menghapus baris dari daftar. Tambahkan aplikasi dan folder di bawah daftar. Seret pegangan di atas daftar untuk memindahkannya; gulir untuk melihat aplikasi lainnya.</string>
+    <string name="edit_tip_list">Seret baris dengan pegangan di sebelah kirinya untuk mengubah urutan. Geser baris ke kiri dan ketuk tempat sampah untuk menghapusnya dari daftar; pensil pada folder membuka editornya. Tambahkan aplikasi dan folder di bawah daftar. Seret pegangan di atas daftar untuk memindahkannya; gulir untuk melihat aplikasi lainnya.</string>
     <string name="edit_tip_widgets_title">Widget</string>
     <string name="edit_tip_widgets">Panel atas adalah kisi 2 × 2. Dalam mode edit, tahan widget untuk memindahkannya, seret batang di tepinya untuk merentangkannya ke sel di sebelahnya, dan ketuk sel kosong untuk menambahkan widget.</string>
     <string name="edit_tip_font_title">Font</string>

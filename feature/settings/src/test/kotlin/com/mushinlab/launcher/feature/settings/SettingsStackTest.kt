@@ -24,7 +24,6 @@ class SettingsStackTest {
         SettingsRoute.Tip("memory"),
         SettingsRoute.HomeFolder(3),
         SettingsRoute.PickFolderApps(3),
-        SettingsRoute.ReplaceApp(7, AppKey("org.telegram", "org.telegram.Main", 10)),
     )
 
     @Test

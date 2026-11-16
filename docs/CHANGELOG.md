@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.10.1 — 2026-11-16
+
+### Changed
+- New installations name the initial space “Default” in every language; existing names are kept.
+- Holding a space in Settings shows Rename and Delete as icons in a row. The default space can be renamed but cannot be deleted.
+- Tap the bottom home bar to choose a space. Holding an empty area no longer opens the space menu.
+- The built-in clock and date automatically choose white or black to contrast with the background behind them, including wallpaper brightness and their position.
+- The privacy text in Settings → System → Privacy and the privacy policy say that the launcher also reads the list of widgets other apps offer.
+- App bundle builds carry all seven languages, so choosing a language in Settings works without downloading anything.
+- Edit mode rows have no buttons: swipe a row to the left until it clicks, release, then tap the bin to remove it. Rows peek to the side when edit mode opens. Folders keep the pencil that opens their editor.
+
+### Removed
+- Replacing an app from its row in edit mode.
+
+### Fixed
+- Widgets get the exact size of their area. Before, a widget could shrink to its smallest content and draw its parts over each other.
+
 ## 0.10.0 — 2026-11-16
 
 ### Added

@@ -30,6 +30,7 @@
     <string name="space_type_custom">eigener</string>
     <string name="space_name">Name</string>
     <string name="space_rename_title">Name des Bereichs</string>
+    <string name="space_rename">Umbenennen</string>
     <string name="space_palette">Palette</string>
     <string name="space_items">Apps</string>
     <string name="space_add">+ Hinzufügen</string>
@@ -71,7 +72,6 @@
     <string name="folder_name_hint">Ordnername</string>
     <string name="folder_add_apps">Apps hinzufügen</string>
     <string name="folder_remove_app">%1$s entfernen</string>
-    <string name="replace_title">%1$s ersetzen</string>
 
     <string name="home_icons">Symbole</string>
     <string name="clock_sheet">Uhr</string>
@@ -139,7 +139,7 @@
     <string name="system_language_default">Systemsprache</string>
     <string name="system_version">Version</string>
     <string name="system_privacy">Datenschutz</string>
-    <string name="system_privacy_text">Mushin erhebt und teilt keine Daten: Die App hat keinen Internetzugriff, keine Werbung und keine Analyse. Deine Bereiche und ihre Hintergrundbilder, der Startverlauf, gelernte Gesten und Einstellungen werden nur auf diesem Gerät gespeichert, sind von Backups ausgeschlossen und werden mit der App gelöscht. Mushin liest die Liste der installierten Apps aus dem System, um sie auf dem Startbildschirm und in der Suche anzuzeigen. Wenn du den Benachrichtigungszähler einschaltest, sieht Mushin nur, wie viele Benachrichtigungen jede App hat — ihr Text wird nie gelesen oder gespeichert. Fragen: mushin-lab@proton.me</string>
+    <string name="system_privacy_text">Mushin erhebt und teilt keine Daten: Die App hat keinen Internetzugriff, keine Werbung und keine Analyse. Deine Bereiche und ihre Hintergrundbilder, der Startverlauf, gelernte Gesten und Einstellungen werden nur auf diesem Gerät gespeichert, sind von Backups ausgeschlossen und werden mit der App gelöscht. Mushin liest die Liste der installierten Apps aus dem System, um sie auf dem Startbildschirm und in der Suche anzuzeigen, und die Liste ihrer Widgets, damit du eines hinzufügen kannst. Wenn du den Benachrichtigungszähler einschaltest, sieht Mushin nur, wie viele Benachrichtigungen jede App hat — ihr Text wird nie gelesen oder gespeichert. Fragen: mushin-lab@proton.me</string>
     <string name="system_licenses">Lizenzen</string>
     <string name="system_licenses_text">AndroidX, Jetpack Compose, Room, DataStore, Kotlin, kotlinx.coroutines, kotlinx.collections.immutable, Symbole Material Symbols — Apache License 2.0. Schriftarten Inter, Open Sans und Montserrat — SIL Open Font License 1.1 (die Lizenztexte liegen in der App, assets/licenses).</string>
     <string name="settings_memory">Gedächtnis</string>
@@ -223,7 +223,7 @@
     <string name="tip_search_title">Finde jede App</string>
     <string name="tip_search_text">Wische auf dem Startbildschirm nach oben, um die Suche mit der eigenen Tastatur des Launchers zu öffnen. Tippe ein paar Buchstaben und dann auf die App.</string>
     <string name="tip_arrange_title">Ordne die Liste</string>
-    <string name="tip_arrange_text">Tippe auf den Stift und ziehe dann eine Zeile am Griff links, um sie zu verschieben. Der Stift in der Zeile ersetzt die App, das Kreuz entfernt sie aus der Liste.</string>
+    <string name="tip_arrange_text">Tippe auf den Stift und ziehe dann eine Zeile am Griff links, um sie zu verschieben. Wische eine Zeile nach links und tippe auf den Papierkorb, um sie aus der Liste zu entfernen.</string>
     <string name="tip_style_title">Passe den Launcher an</string>
     <string name="tip_style_text">Tippe auf den Stift und dann auf Tt, um Schrift, Größe und Ausrichtung zu ändern. Beim Bearbeiten kannst du die Linie über der Liste ziehen, um die Liste zu verschieben.</string>
     <string name="tip_memory_title">Bring dem Launcher etwas bei</string>
@@ -248,7 +248,7 @@
     <string name="onboarding_position">Folie %1$d von %2$d</string>
     <string name="edit_tips">Tipps zum Bearbeiten</string>
     <string name="edit_tip_list_title">Apps und Ordner</string>
-    <string name="edit_tip_list">Ziehe eine Zeile am Griff links, um die Reihenfolge zu ändern. Der Stift in der Zeile ersetzt die App oder öffnet den Ordner-Editor, das Kreuz entfernt die Zeile aus der Liste. Füge Apps und Ordner unter der Liste hinzu. Ziehe den Griff über der Liste, um sie zu verschieben. Scrolle, um weitere Apps zu sehen.</string>
+    <string name="edit_tip_list">Ziehe eine Zeile am Griff links, um die Reihenfolge zu ändern. Wische eine Zeile nach links und tippe auf den Papierkorb, um sie aus der Liste zu entfernen; der Stift an einem Ordner öffnet dessen Editor. Füge Apps und Ordner unter der Liste hinzu. Ziehe den Griff über der Liste, um sie zu verschieben. Scrolle, um weitere Apps zu sehen.</string>
     <string name="edit_tip_widgets_title">Widgets</string>
     <string name="edit_tip_widgets">Die obere Leiste ist ein 2 × 2-Raster. Halte im Bearbeitungsmodus ein Widget, um es zu verschieben, ziehe die Balken an seinen Rändern, um es über Nachbarzellen zu dehnen, und tippe auf eine leere Zelle, um ein Widget hinzuzufügen.</string>
     <string name="edit_tip_font_title">Schrift</string>
