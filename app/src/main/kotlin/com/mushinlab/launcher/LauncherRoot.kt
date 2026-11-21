@@ -5,19 +5,26 @@ import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -32,14 +39,19 @@ import com.mushinlab.launcher.core.model.WidgetCell
 import com.mushinlab.launcher.core.search.GesturePoint
 import com.mushinlab.launcher.core.ui.LocalIconProvider
 import com.mushinlab.launcher.core.ui.LocalMushinColors
+import com.mushinlab.launcher.core.ui.LocalMushinFont
+import com.mushinlab.launcher.core.ui.LocalMushinStroke
 import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinFont
 import com.mushinlab.launcher.core.ui.MushinStroke
 import com.mushinlab.launcher.core.ui.MushinTheme
 import com.mushinlab.launcher.core.ui.popupBackdrop
+import com.mushinlab.launcher.feature.home.EditToggle
 import com.mushinlab.launcher.feature.home.HomeActions
 import com.mushinlab.launcher.feature.home.HomeRow
 import com.mushinlab.launcher.feature.home.HomeScreen
+import com.mushinlab.launcher.feature.home.WidgetContent
+import com.mushinlab.launcher.feature.home.gesture.RowRegistry
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 
 @Composable
@@ -64,9 +76,17 @@ fun LauncherRoot(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
                 Modifier
                     .fillMaxSize()
                     .background(LocalMushinColors.current.background)
-                    .semantics { testTagsAsResourceId = true },
+                    .semantics { testTagsAsResourceId = true }
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent(PointerEventPass.Initial)
+                                if (event.type == PointerEventType.Press) vm.privateSpace.touched()
+                            }
+                        }
+                    },
             ) {
-                HomeLayer(vm)
+                HomeLayer(vm, iconProvider)
                 SearchLayer(vm, settings, iconProvider)
                 PopupLayer(vm)
                 FolderLayer(vm)
@@ -75,16 +95,19 @@ fun LauncherRoot(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
                 Box(Modifier.zIndex(3f)) { SettingsLayer(vm) }
                 OnboardingLayer(vm)
                 MessageLayer(vm)
+                PrivateHintLayer(vm)
+                PrivateGateLayer(vm)
             }
         }
     }
 }
 
 @Composable
-private fun HomeLayer(vm: LauncherViewModel) {
+private fun HomeLayer(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
     val home by vm.home.collectAsStateWithLifecycle()
     val backgroundBitmap by vm.background.collectAsStateWithLifecycle()
     val background = remember(backgroundBitmap) { backgroundBitmap?.asImageBitmap() }
+    val slide by vm.slides.slide.collectAsStateWithLifecycle()
     val density = LocalDensity.current
     val actions = remember(vm, density) { homeActions(vm, density) }
     val input = vm.homeInput
@@ -97,21 +120,92 @@ private fun HomeLayer(vm: LauncherViewModel) {
             input.completeSwipeLaunch()
         }
     }
-    HomeScreen(
-        background = background,
-        widgets = { id, height, width -> HostedWidgetView(id, vm.widgetHost, height, width) },
-        state = home,
-        minute = vm.minute,
-        actions = actions,
-        gesturesEnabled = { input.gesturesEnabled },
-        editing = vm.navigator.homeEditing,
-        modifier = Modifier
-            .zIndex(0f)
-            .graphicsLayer { slideOut(input.exit, shift.value) }
-            .popupBackdrop(
-                vm.navigator.overlay.let { it is Overlay.Popup || it is Overlay.Suggestion || it is Overlay.Folder },
-            ),
-    )
+    val modifier = Modifier
+        .zIndex(0f)
+        .graphicsLayer { slideOut(input.exit, shift.value) }
+        .popupBackdrop(
+            vm.navigator.overlay.let { it is Overlay.Popup || it is Overlay.Suggestion || it is Overlay.Folder },
+        )
+    val shown = slide
+    if (shown == null) {
+        HomeScreen(
+            background = background,
+            widgets = { id, height, width -> HostedWidgetView(id, vm.widgetHost, height, width) },
+            state = home,
+            minute = vm.minute,
+            actions = actions,
+            gesturesEnabled = { input.gesturesEnabled },
+            editing = vm.navigator.homeEditing,
+            modifier = modifier,
+        )
+    } else {
+        SpaceSlideLayer(vm, shown, iconProvider, actions, modifier)
+    }
+}
+
+@Composable
+private fun SpaceSlideLayer(
+    vm: LauncherViewModel,
+    slide: SpaceSlide,
+    iconProvider: LauncherIconProvider,
+    actions: HomeActions,
+    modifier: Modifier,
+) {
+    val progress = remember(slide) { Animatable(0f) }
+    LaunchedEffect(slide) {
+        progress.animateTo(1f, tween(Motion.TRANSITION_MS))
+        vm.slides.finish()
+    }
+    val widgets: WidgetContent = { id, height, width -> HostedWidgetView(id, vm.widgetHost, height, width) }
+    val outward = if (slide.direction == SwipeDirection.LEFT) -1f else 1f
+    val font = LocalMushinFont.current
+    val stroke = LocalMushinStroke.current
+    Box(modifier.fillMaxSize().clipToBounds()) {
+        SlidePage(slide.from, outward * progress.value, iconProvider, font, stroke, actions, vm.minute, widgets)
+        SlidePage(slide.to, -outward * (1f - progress.value), iconProvider, font, stroke, actions, vm.minute, widgets)
+        val registry = remember { RowRegistry() }
+        EditToggle(false, registry, actions, Modifier.align(Alignment.BottomEnd))
+        Box(
+            Modifier.matchParentSize().pointerInput(Unit) {
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false)
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        event.changes.forEach { it.consume() }
+                        if (event.changes.none { it.pressed }) break
+                    }
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun SlidePage(
+    page: SpacePage,
+    offset: Float,
+    iconProvider: LauncherIconProvider,
+    font: MushinFont,
+    stroke: MushinStroke,
+    actions: HomeActions,
+    minute: State<Long>,
+    widgets: WidgetContent,
+) {
+    val background = remember(page.background) { page.background?.asImageBitmap() }
+    MushinTheme(page.palette, font, stroke) {
+        CompositionLocalProvider(LocalIconProvider provides iconProvider.withColors(page.coloredIcons)) {
+            HomeScreen(
+                state = page.state,
+                minute = minute,
+                actions = actions,
+                gesturesEnabled = { false },
+                background = background,
+                widgets = widgets,
+                editToggle = false,
+                modifier = Modifier.fillMaxSize().graphicsLayer { translationX = offset * size.width },
+            )
+        }
+    }
 }
 
 @Composable
@@ -175,6 +269,8 @@ private fun homeActions(vm: LauncherViewModel, density: Density) = object : Home
 
     override fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean) =
         vm.homeInput.onSwipe(direction, fromShadeZone)
+
+    override fun onBarSwipe(direction: SwipeDirection) = vm.slides.pageSpace(direction)
 
     override fun onRequestRole() = vm.request(LauncherEffect.RequestHomeRole)
 

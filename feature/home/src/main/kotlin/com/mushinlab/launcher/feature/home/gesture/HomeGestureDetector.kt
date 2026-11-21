@@ -10,6 +10,7 @@ import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.unit.Velocity
+import com.mushinlab.launcher.core.model.SwipeDirection
 
 class HomeGestureDetector(
     private val arbiter: GestureArbiter,
@@ -64,7 +65,7 @@ class HomeGestureDetector(
         when (outcome) {
             null -> onHold(down, target, callbacks)
             is PressOutcome.Up -> onTap(outcome, target, callbacks)
-            PressOutcome.Slop -> onMove(down, tracker, callbacks)
+            PressOutcome.Slop -> onMove(down, target, tracker, callbacks)
             PressOutcome.Cancelled -> Unit
         }
     }
@@ -99,6 +100,7 @@ class HomeGestureDetector(
 
     private suspend fun AwaitPointerEventScope.onMove(
         down: PointerInputChange,
+        target: PressTarget,
         tracker: VelocityTracker,
         callbacks: HomeGestureCallbacks,
     ) {
@@ -113,12 +115,22 @@ class HomeGestureDetector(
         if (arbiter.isDrawing(pathLength(points), delta.getDistance())) {
             callbacks.onDraw(points)
         } else {
-            onSwipe(down.position, delta, velocity, callbacks)
+            onSwipe(down.position, target, delta, velocity, callbacks)
         }
     }
 
-    private fun onSwipe(start: Offset, delta: Offset, velocity: Velocity, callbacks: HomeGestureCallbacks) {
+    private fun onSwipe(
+        start: Offset,
+        target: PressTarget,
+        delta: Offset,
+        velocity: Velocity,
+        callbacks: HomeGestureCallbacks,
+    ) {
         val direction = arbiter.swipeDirection(delta.x, delta.y, velocity.x, velocity.y)
+        if (target == PressTarget.Bar && (direction == SwipeDirection.LEFT || direction == SwipeDirection.RIGHT)) {
+            callbacks.onBarSwipe(direction)
+            return
+        }
         val startZone = zone()
         if (direction != null && arbiter.isAllowedStart(direction, start.x, start.y, startZone)) {
             callbacks.onSwipe(direction, arbiter.isShadeSwipe(direction, start.y, startZone))

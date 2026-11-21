@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -190,6 +193,26 @@ internal fun AppsSettingsScreen(state: SettingsUiState, actions: SettingsActions
 }
 
 @Composable
+internal fun AdvancedScreen(actions: SettingsActions, back: () -> Unit) {
+    var confirming by remember { mutableStateOf(false) }
+    SettingsPage(stringResource(R.string.settings_advanced), back) {
+        NavRow(stringResource(R.string.advanced_reset_app), tag = "reset_app") { confirming = true }
+        NoteText(stringResource(R.string.advanced_reset_text))
+    }
+    if (confirming) {
+        ConfirmDialog(
+            message = stringResource(R.string.advanced_reset_text),
+            confirm = stringResource(R.string.advanced_reset_confirm),
+            onConfirm = {
+                confirming = false
+                actions.system.resetApp()
+            },
+            onDismiss = { confirming = false },
+        )
+    }
+}
+
+@Composable
 internal fun SystemScreen(
     state: SettingsUiState,
     actions: SettingsActions,
@@ -218,6 +241,9 @@ internal fun SystemScreen(
             summary = stringResource(R.string.summary_privacy),
             tag = "nav_privacy",
         ) { push(SettingsRoute.Privacy) }
+        NavRow(stringResource(R.string.settings_advanced), tag = "nav_advanced") {
+            push(SettingsRoute.Advanced)
+        }
         SectionHeader(stringResource(R.string.system_licenses))
         NoteText(stringResource(R.string.system_licenses_text))
     }

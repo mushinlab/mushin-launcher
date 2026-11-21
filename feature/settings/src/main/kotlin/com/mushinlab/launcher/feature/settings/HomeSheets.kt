@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
 import com.mushinlab.launcher.core.model.ClockFormat
+import com.mushinlab.launcher.core.model.ClockInk
 import com.mushinlab.launcher.core.model.ClockSize
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
@@ -64,6 +65,16 @@ private fun ClockRows(s: LauncherSettings, preferences: PreferenceActions) {
         s.clockFormat,
         "clock",
     ) { format -> preferences.updateSettings { it.copy(clockFormat = format) } }
+    DropdownRow(
+        stringResource(R.string.clock_ink),
+        listOf(
+            ClockInk.AUTO to stringResource(R.string.clock_ink_auto),
+            ClockInk.LIGHT to stringResource(R.string.clock_ink_light),
+            ClockInk.DARK to stringResource(R.string.clock_ink_dark),
+        ),
+        s.clockInk,
+        "clock_ink",
+    ) { ink -> preferences.updateSettings { it.copy(clockInk = ink) } }
     ToggleRow(stringResource(R.string.home_show_date), s.showDate, tag = "show_date") { value ->
         preferences.updateSettings { it.copy(showDate = value) }
     }

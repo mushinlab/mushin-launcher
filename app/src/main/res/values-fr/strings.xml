@@ -21,4 +21,12 @@
     <string name="notice_no_notification_settings">Les paramètres d’accès aux notifications ne sont pas disponibles sur cet appareil</string>
     <string name="widget_time">Heure</string>
     <string name="notice_widget_unavailable">Les widgets ne sont pas disponibles sur cet appareil.</string>
+    <string name="private_enter">Saisissez le code PIN</string>
+    <string name="private_repeat">Répétez le code PIN</string>
+    <string name="private_wrong">Code PIN incorrect</string>
+    <string name="private_cancel">Annuler</string>
+    <string name="private_hint_title">Espace privé</string>
+    <string name="private_hint_text">Touchez la barre inférieure, balayez vers le haut dans le menu ouvert et saisissez le code PIN.</string>
+    <string name="private_hint_check">Je sais utiliser l’espace privé</string>
+    <string name="private_hint_done">Continuer</string>
 </resources>

@@ -77,6 +77,10 @@
     <string name="clock_sheet">Uhr</string>
     <string name="home_clock">Uhrzeitformat</string>
     <string name="home_clock_system">System</string>
+    <string name="clock_ink">Textfarbe</string>
+    <string name="clock_ink_auto">Automatisch</string>
+    <string name="clock_ink_light">Hell</string>
+    <string name="clock_ink_dark">Dunkel</string>
     <string name="home_clock_24">24 Stunden</string>
     <string name="home_clock_12">12 Stunden</string>
     <string name="clock_size">Uhrgröße</string>
@@ -262,4 +266,9 @@
     <string name="widgets_time">Uhr</string>
     <string name="widgets_fit_panel">Nur Widgets, die in das Panel passen, werden angezeigt. Große belegen mehrere Zellen.</string>
     <string name="widgets_empty">Keine passenden kleinen Widgets in installierten Apps.</string>
+    <string name="space_type_private">privat</string>
+    <string name="settings_advanced">Erweitert</string>
+    <string name="advanced_reset_app">App zurücksetzen</string>
+    <string name="advanced_reset_text">Alle Bereiche, ihre Apps, die Einstellungen und die PIN des privaten Bereichs werden gelöscht.</string>
+    <string name="advanced_reset_confirm">Zurücksetzen</string>
 </resources>

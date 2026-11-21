@@ -6,6 +6,9 @@ enum class IconMode { NONE, RIGHT }
 /** Clock format; [SYSTEM] follows the device 12/24-hour setting. */
 enum class ClockFormat { SYSTEM, H24, H12 }
 
+/** Colour of the clock text: [AUTO] picks white or black from the backdrop, [LIGHT] is white and [DARK] is black. */
+enum class ClockInk { AUTO, LIGHT, DARK }
+
 /** Size of home-screen app labels; [sp] is the font size in sp. */
 enum class HomeTextSize(val sp: Int) { S(sp = 22), M(sp = 26), L(sp = 30) }
 
@@ -83,6 +86,7 @@ data class LauncherSettings(
     val showClock: Boolean = true,
     val clockSize: ClockSize = ClockSize.M,
     val clockPosition: ClockPosition = ClockPosition.START,
+    val clockInk: ClockInk = ClockInk.AUTO,
     val homeListOffset: Int? = null,
     val font: AppFont = AppFont.SYSTEM,
     val fontWeight: AppFontWeight = AppFontWeight.REGULAR,
@@ -104,4 +108,7 @@ data class LauncherSettings(
     val gestureInput: Boolean = false,
     val learnHints: Boolean = true,
     val onboardingDone: Boolean = false,
+    val privatePinSalt: String? = null,
+    val privatePinHash: String? = null,
+    val privateHintSeen: Boolean = false,
 )

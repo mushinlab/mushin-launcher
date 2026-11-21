@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.mushinlab.launcher.core.model.HostedWidget
 import com.mushinlab.launcher.core.model.WidgetCell
+import com.mushinlab.launcher.core.model.WidgetLayout
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.GlyphWrapper
@@ -67,10 +68,19 @@ data class HomeWidgetTile(val id: Int, val label: String, val cell: WidgetCell =
 
 @Immutable
 data class HomeWidgetPanel(
-    val widgets: ImmutableList<HomeWidgetTile> = persistentListOf(HomeWidgetTile(HostedWidget.CLOCK_ID, "")),
+    val widgets: ImmutableList<HomeWidgetTile> = persistentListOf(
+        HomeWidgetTile(HostedWidget.CLOCK_ID, "", HostedWidget.clock.cell),
+    ),
 ) {
     val freeCells: List<WidgetCell>
         get() = WidgetCell.singles.filter { cell -> widgets.none { it.cell.overlaps(cell) } }
+
+    val addCells: List<WidgetCell>
+        get() {
+            if (widgets.size >= WidgetLayout.MAX_WIDGETS) return emptyList()
+            val quarters = WidgetCell.quarters.filter { quarter -> widgets.none { it.cell.overlaps(quarter) } }
+            return quarters.ifEmpty { listOfNotNull(freeCells.firstOrNull()) }
+        }
 
     fun visibleRows(editing: Boolean): List<Int> = (0 until WidgetCell.ROWS).filter { row ->
         editing || widgets.any { row in it.cell.row until it.cell.row + it.cell.rowSpan }
@@ -97,16 +107,23 @@ internal class PanelEdits(
 )
 
 @Immutable
-private class PanelGrid(val cellWidth: Dp, val rows: List<Int>) {
-    val height: Dp get() = WIDGET_HEIGHT * rows.size + WIDGET_GAP * (rows.size - 1)
+private class PanelGrid(val cellWidth: Dp, val cellHeight: Dp, val rows: List<Int>) {
+    val height: Dp get() = cellHeight * rows.size + WIDGET_GAP * (rows.size - 1)
 
     fun offset(cell: WidgetCell): DpSize =
-        DpSize((cellWidth + WIDGET_GAP) * cell.column, (WIDGET_HEIGHT + WIDGET_GAP) * rows.indexOf(cell.row))
+        DpSize((cellWidth + WIDGET_GAP) * cell.column, (cellHeight + WIDGET_GAP) * rows.indexOf(cell.row))
 
     fun size(cell: WidgetCell): DpSize = DpSize(
         cellWidth * cell.columnSpan + WIDGET_GAP * (cell.columnSpan - 1),
-        WIDGET_HEIGHT * cell.rowSpan + WIDGET_GAP * (cell.rowSpan - 1),
+        cellHeight * cell.rowSpan + WIDGET_GAP * (cell.rowSpan - 1),
     )
+}
+
+private fun gridFor(maxWidth: Dp, rows: List<Int>): PanelGrid {
+    val cellWidth = (maxWidth - HomeDimens.rowPadding * 2 - WIDGET_GAP * (WidgetCell.COLUMNS - 1)) / WidgetCell.COLUMNS
+    val panelHeight = WIDGET_HEIGHT * 2 + WIDGET_GAP
+    val cellHeight = (panelHeight - WIDGET_GAP * (WidgetCell.ROWS - 1)) / WidgetCell.ROWS
+    return PanelGrid(cellWidth, cellHeight, rows)
 }
 
 @Composable
@@ -120,14 +137,14 @@ internal fun HomeWidgetPanel(
 ) {
     val rows = panel.visibleRows(editing)
     if (rows.isEmpty()) return
-    val grid = PanelGrid((maxWidth - HomeDimens.rowPadding * 2 - WIDGET_GAP) / WidgetCell.COLUMNS, rows)
+    val grid = gridFor(maxWidth, rows)
     var preview by remember(editing) { mutableStateOf<WidgetCell?>(null) }
     Box(
         Modifier.fillMaxWidth().padding(horizontal = HomeDimens.rowPadding, vertical = WIDGET_GAP)
             .height(grid.height)
             .testTag("widget_panel_TOP"),
     ) {
-        if (editing) panel.freeCells.forEach { key(it) { AddWidgetCell(it, grid, registry, edits.onAdd) } }
+        if (editing) panel.addCells.forEach { key(it) { AddWidgetCell(it, grid, registry, edits.onAdd) } }
         panel.widgets.forEach { tile ->
             key(tile.id) { WidgetTile(tile, grid, editing, registry, edits, slots) { preview = it } }
         }
@@ -163,7 +180,7 @@ private fun WidgetTile(
         }
         if (editing) {
             val step = with(LocalDensity.current) {
-                Offset((grid.cellWidth + WIDGET_GAP).toPx(), (WIDGET_HEIGHT + WIDGET_GAP).toPx())
+                Offset((grid.cellWidth + WIDGET_GAP).toPx(), (grid.cellHeight + WIDGET_GAP).toPx())
             }
             val place: (WidgetCell) -> Unit = { if (it != tile.cell) edits.onPlace(tile.id, it) }
             Box(
@@ -322,9 +339,11 @@ private fun AddWidgetCell(cell: WidgetCell, grid: PanelGrid, registry: RowRegist
     val key = "add_widget_${cell.column}_${cell.row}"
     val colors = LocalMushinColors.current
     val origin = grid.offset(cell)
+    val size = grid.size(cell)
+    val roomy = size.height >= ROOMY_ADD_CELL
     DisposableEffect(key) { onDispose { registry.block(key, null) } }
     Column(
-        Modifier.offset(origin.width, origin.height).size(grid.size(cell))
+        Modifier.offset(origin.width, origin.height).size(size)
             .clip(TILE_SHAPE)
             .border(GlyphWrapper.outline, PopupStyle.outline(colors), TILE_SHAPE)
             .onGloballyPositioned { registry.block(key, it.boundsInRoot()) }
@@ -333,12 +352,14 @@ private fun AddWidgetCell(cell: WidgetCell, grid: PanelGrid, registry: RowRegist
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        GlyphBadge(Glyph.ADD, ADD_BADGE)
-        Spacer(Modifier.size(8.dp))
-        SingleLineText(
-            stringResource(R.string.home_add_widget),
-            MushinType.style(MushinType.secondarySize, colors.textPrimary),
-        )
+        GlyphBadge(Glyph.ADD, if (roomy) ADD_BADGE else SMALL_ADD_BADGE)
+        if (roomy) {
+            Spacer(Modifier.size(8.dp))
+            SingleLineText(
+                stringResource(R.string.home_add_widget),
+                MushinType.style(MushinType.secondarySize, colors.textPrimary),
+            )
+        }
     }
 }
 
@@ -349,6 +370,8 @@ private val TILE_BUTTON = 36.dp
 private val TILE_GLYPH = 18.dp
 private val TILE_BUTTON_INSET = 4.dp
 private val ADD_BADGE = 32.dp
+private val SMALL_ADD_BADGE = 14.dp
+private val ROOMY_ADD_CELL = 64.dp
 private val HANDLE_TOUCH = 24.dp
 private val HANDLE_LENGTH = 32.dp
 private val HANDLE_BAR = 4.dp

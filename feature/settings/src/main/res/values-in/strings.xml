@@ -77,6 +77,10 @@
     <string name="clock_sheet">Jam</string>
     <string name="home_clock">Format jam</string>
     <string name="home_clock_system">Sistem</string>
+    <string name="clock_ink">Warna teks</string>
+    <string name="clock_ink_auto">Otomatis</string>
+    <string name="clock_ink_light">Terang</string>
+    <string name="clock_ink_dark">Gelap</string>
     <string name="home_clock_24">24 jam</string>
     <string name="home_clock_12">12 jam</string>
     <string name="clock_size">Ukuran jam</string>
@@ -261,4 +265,9 @@
     <string name="widgets_time">Jam</string>
     <string name="widgets_fit_panel">Hanya widget yang muat di panel yang ditampilkan. Widget besar memakai beberapa sel.</string>
     <string name="widgets_empty">Tidak ada widget kecil yang cocok dari aplikasi terpasang.</string>
+    <string name="space_type_private">privat</string>
+    <string name="settings_advanced">Lanjutan</string>
+    <string name="advanced_reset_app">Setel ulang aplikasi</string>
+    <string name="advanced_reset_text">Semua ruang, aplikasi di dalamnya, setelan, dan PIN ruang privat akan dihapus.</string>
+    <string name="advanced_reset_confirm">Setel ulang</string>
 </resources>

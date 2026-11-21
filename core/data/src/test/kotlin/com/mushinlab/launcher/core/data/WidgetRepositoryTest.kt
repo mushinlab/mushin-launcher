@@ -35,7 +35,7 @@ class WidgetRepositoryTest {
         val repository = WidgetRepository(store, backgroundScope)
         assertThat(repository.loaded.filterNotNull().first()).isEqualTo(WidgetState())
         assertThat(WidgetLayout().widgets).containsExactly(HostedWidget.clock)
-        assertThat(HostedWidget.clock.cell).isEqualTo(WidgetCell(0, 0))
+        assertThat(HostedWidget.clock.cell).isEqualTo(WidgetCell(0, 0, 4, 4))
     }
 
     @Test
@@ -99,7 +99,7 @@ class WidgetRepositoryTest {
         val migrated = repository.loaded.filterNotNull().first()
         val layout = requireNotNull(migrated.layouts[7])
         assertThat(layout.widgets.map { it.id }).containsExactly(10, 11, 12, 13).inOrder()
-        assertThat(layout.widgets.map { it.cell }).containsExactlyElementsIn(WidgetCell.singles).inOrder()
+        assertThat(layout.widgets.map { it.cell }).containsExactlyElementsIn(WidgetCell.quarters).inOrder()
         assertThat(migrated.pending?.id).isEqualTo(20)
         repository.update { it }
         assertThat(repository.loaded.filterNotNull().first()).isEqualTo(migrated)
@@ -136,13 +136,17 @@ class WidgetRepositoryTest {
         val layouts = WidgetRepository(store, backgroundScope).loaded.filterNotNull().first().layouts
         assertThat(layouts.getValue(1).widgets.map { it.id }).containsExactly(HostedWidget.CLOCK_ID, 30, 31).inOrder()
         assertThat(layouts.getValue(1).widgets.map { it.cell })
-            .containsExactly(WidgetCell(0, 0), WidgetCell(1, 0), WidgetCell(0, 1)).inOrder()
+            .containsExactly(
+                WidgetCell(0, 0, 4, 4),
+                WidgetCell(4, 0, 4, 4),
+                WidgetCell(0, 4, 4, 4),
+            ).inOrder()
         assertThat(layouts.getValue(2).widgets.map { it.id }).containsExactly(30, 31).inOrder()
         assertThat(
             layouts.getValue(2).widgets.map {
                 it.cell
             },
-        ).containsExactly(WidgetCell(0, 0), WidgetCell(0, 1)).inOrder()
+        ).containsExactly(WidgetCell(0, 0, 4, 4), WidgetCell(0, 4, 4, 4)).inOrder()
     }
 
     @Test
@@ -171,8 +175,52 @@ class WidgetRepositoryTest {
         }
         val state = WidgetRepository(store, backgroundScope).loaded.filterNotNull().first()
         assertThat(state.layouts.getValue(4).widgets)
-            .containsExactly(HostedWidget.clock, HostedWidget(40, "Calendar", WidgetCell(1, 0))).inOrder()
+            .containsExactly(HostedWidget.clock, HostedWidget(40, "Calendar", WidgetCell(4, 0, 4, 4))).inOrder()
         assertThat(state.pending).isEqualTo(PendingWidget(4, 41))
+    }
+
+    @Test
+    fun AC_51_1_versionFourCellsAreScaledToTheFineGrid() = runTest {
+        val bytes = java.io.ByteArrayOutputStream()
+        java.io.DataOutputStream(bytes).use { out ->
+            out.writeInt(4)
+            out.writeInt(1)
+            out.writeLong(4)
+            out.writeInt(2)
+            out.writeInt(50)
+            out.writeUTF("Calendar")
+            out.writeByte(0)
+            out.writeByte(0)
+            out.writeByte(1)
+            out.writeByte(2)
+            out.writeInt(HostedWidget.CLOCK_ID)
+            out.writeUTF("")
+            out.writeByte(1)
+            out.writeByte(1)
+            out.writeByte(1)
+            out.writeByte(1)
+            out.writeBoolean(true)
+            out.writeLong(4)
+            out.writeInt(51)
+            out.writeBoolean(true)
+            out.writeByte(1)
+            out.writeByte(0)
+            out.writeByte(1)
+            out.writeByte(1)
+        }
+        val store = PreferenceDataStoreFactory.create(scope = backgroundScope) {
+            File(tmp.root, "v4.preferences_pb")
+        }
+        store.edit {
+            it[stringPreferencesKey("widget_state")] = java.util.Base64.getEncoder().encodeToString(bytes.toByteArray())
+        }
+        val state = WidgetRepository(store, backgroundScope).loaded.filterNotNull().first()
+        assertThat(state.layouts.getValue(4).widgets)
+            .containsExactly(
+                HostedWidget(50, "Calendar", WidgetCell(0, 0, 4, 8)),
+                HostedWidget.clock.copy(cell = WidgetCell(4, 4, 4, 4)),
+            ).inOrder()
+        assertThat(state.pending).isEqualTo(PendingWidget(4, 51, WidgetCell(4, 0, 4, 4)))
     }
 
     @Test

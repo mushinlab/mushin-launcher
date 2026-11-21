@@ -10,6 +10,7 @@ import com.mushinlab.launcher.core.data.settings.SettingsRepository
 import com.mushinlab.launcher.core.model.AppFont
 import com.mushinlab.launcher.core.model.AppFontWeight
 import com.mushinlab.launcher.core.model.ClockFormat
+import com.mushinlab.launcher.core.model.ClockInk
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.ClockSize
 import com.mushinlab.launcher.core.model.HomeTextAlign
@@ -90,6 +91,7 @@ class SettingsRepositoryTest {
                 gestureShiftPenalty = 0.8f,
                 gestureSuggestMargin = 5f,
                 clockPosition = ClockPosition.END,
+                clockInk = ClockInk.DARK,
                 font = AppFont.MONTSERRAT,
                 fontWeight = AppFontWeight.LIGHT,
                 gestureInput = true,
@@ -106,6 +108,7 @@ class SettingsRepositoryTest {
         assertThat(settings.homeListOffset).isEqualTo(480)
         assertThat(settings.notificationCounts).isTrue()
         assertThat(settings.pressFeedback).isEqualTo(PressFeedback.DIM)
+        assertThat(settings.clockInk).isEqualTo(ClockInk.DARK)
         assertThat(settings.gestureShiftPenalty).isEqualTo(0.8f)
         assertThat(settings.gestureSuggestMargin).isEqualTo(1f)
         assertThat(settings.keyboardLayouts).containsExactly("ru", "en").inOrder()

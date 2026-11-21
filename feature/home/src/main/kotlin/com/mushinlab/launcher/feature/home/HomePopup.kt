@@ -1,6 +1,9 @@
 package com.mushinlab.launcher.feature.home
 
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -28,6 +32,7 @@ import com.mushinlab.launcher.core.ui.PanelHeader
 import com.mushinlab.launcher.core.ui.PanelItem
 import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.pressable
+import kotlin.math.abs
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
@@ -54,6 +59,8 @@ interface PopupActions {
 
     fun onRemoveFromSpace(key: AppKey)
 
+    fun onPrivate()
+
     fun onDismiss()
 }
 
@@ -65,19 +72,43 @@ fun HomePopup(
     actions: PopupActions,
 ) {
     AnchoredPanel(anchor = anchor, onDismiss = actions::onDismiss) {
-        if (app != null) {
-            AppSection(app, actions)
-            HorizontalDivider()
+        Column(Modifier.fillMaxWidth().privateSwipe(actions::onPrivate)) {
+            if (app != null) {
+                AppSection(app, actions)
+                HorizontalDivider()
+            }
+            spaces.forEach { space ->
+                PanelItem(
+                    text = space.name,
+                    radio = space.current,
+                    tag = "popup_env_${space.id}",
+                    onHold = { actions.onOpenSpaceSettings(space.id) },
+                    onClick = { actions.onSelectSpace(space.id) },
+                )
+            }
         }
-        spaces.forEach { space ->
-            PanelItem(
-                text = space.name,
-                radio = space.current,
-                tag = "popup_env_${space.id}",
-                onHold = { actions.onOpenSpaceSettings(space.id) },
-                onClick = { actions.onSelectSpace(space.id) },
-            )
+    }
+}
+
+private fun Modifier.privateSwipe(onUp: () -> Unit): Modifier = pointerInput(Unit) {
+    val threshold = PRIVATE_SWIPE.toPx()
+    awaitEachGesture {
+        val down = awaitFirstDown(requireUnconsumed = false)
+        var dy = 0f
+        var dx = 0f
+        var last = down.position
+        var pressed = true
+        while (pressed) {
+            val event = awaitPointerEvent()
+            val change = event.changes.firstOrNull { it.id == down.id }
+            pressed = change?.pressed == true
+            if (change != null) {
+                dy += change.position.y - last.y
+                dx += change.position.x - last.x
+                last = change.position
+            }
         }
+        if (-dy >= threshold && -dy >= PRIVATE_AXIS * abs(dx)) onUp()
     }
 }
 
@@ -111,6 +142,8 @@ private fun FolderItem(app: HomeRow, index: Int, onClick: () -> Unit) {
 
 private val FOLDER_ITEM = 48.dp
 private val FOLDER_ICON = 24.dp
+private val PRIVATE_SWIPE = 96.dp
+private const val PRIVATE_AXIS = 1.5f
 private const val DIMMED_ITEM = 0.5f
 
 @Composable

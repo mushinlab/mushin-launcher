@@ -17,6 +17,7 @@ object SettingsRouteCodec {
         SettingsRoute.Apps,
         SettingsRoute.System,
         SettingsRoute.Privacy,
+        SettingsRoute.Advanced,
         SettingsRoute.MemoryPickApp,
         SettingsRoute.Tips,
     ).associateBy { it.toString() }

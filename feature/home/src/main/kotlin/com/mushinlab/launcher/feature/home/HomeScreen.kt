@@ -102,6 +102,8 @@ interface HomeGestureActions {
 
     fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean)
 
+    fun onBarSwipe(direction: SwipeDirection)
+
     fun onDraw(points: List<Offset>, width: Float)
 }
 
@@ -179,6 +181,7 @@ fun HomeScreen(
     editing: Boolean = false,
     background: ImageBitmap? = null,
     widgets: WidgetContent = { _, _, _ -> },
+    editToggle: Boolean = true,
 ) {
     val colors = LocalMushinColors.current
     val registry = remember { RowRegistry() }
@@ -226,7 +229,7 @@ fun HomeScreen(
                 widgets,
             )
         }
-        EditToggle(editing, registry, actions, Modifier.align(Alignment.BottomEnd))
+        if (editToggle) EditToggle(editing, registry, actions, Modifier.align(Alignment.BottomEnd))
         TraceLayer(trace)
     }
 }

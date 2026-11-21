@@ -106,6 +106,8 @@ private fun systemActions(vm: LauncherViewModel) = object : SystemActions {
     override fun openNotificationAccess() = vm.request(LauncherEffect.OpenNotificationAccess)
 
     override fun setAppLanguage(tag: String?) = vm.setAppLanguage(tag)
+
+    override fun resetApp() = vm.reset.run()
 }
 
 private fun backgroundActions(vm: LauncherViewModel) = object : BackgroundActions {

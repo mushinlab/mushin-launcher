@@ -99,8 +99,8 @@ internal fun PopupLayer(vm: LauncherViewModel) {
 
 private fun popupActions(vm: LauncherViewModel) = object : PopupActions {
     override fun onSelectSpace(id: Long) {
-        vm.spaces.switchTo(id)
         vm.navigator.overlay = Overlay.None
+        vm.slides.select(id)
     }
 
     override fun onOpenSpaceSettings(id: Long) {
@@ -126,6 +126,11 @@ private fun popupActions(vm: LauncherViewModel) = object : PopupActions {
     override fun onRemoveFromSpace(key: AppKey) {
         vm.navigator.overlay = Overlay.None
         vm.model.removeFromCurrentSpace(key)
+    }
+
+    override fun onPrivate() {
+        vm.navigator.overlay = Overlay.None
+        vm.privateSpace.request()
     }
 
     override fun onDismiss() {

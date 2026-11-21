@@ -205,6 +205,7 @@ private fun HomeClock(
         format = state.clockFormat,
         size = state.clockSize,
         showDate = state.showDate,
+        ink = state.clockInk,
         pressed = gestures.pressedClock,
         onBounds = { if (!editing) registry.clock.set(it) },
     )

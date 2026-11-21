@@ -41,7 +41,7 @@ internal fun suggestionFor(
     val space = d.current ?: return null
     val rows = d.items[space.id].orEmpty()
     val home = rows.filter { FolderKeys.idOf(it) == null }
-    val elsewhere = d.items.filterKeys { it != space.id }.values.flatten().toSet()
+    val elsewhere = d.items.filterKeys { it != space.id }.values.flatten().toSet() + d.hiddenKeys()
     val label = { key: AppKey -> d.overrides[key]?.customLabel ?: d.apps[key]?.label.orEmpty() }
     val hint = Usefulness.suggest(
         home = home,

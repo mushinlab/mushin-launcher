@@ -52,6 +52,7 @@ abstract class LauncherUiTestBase {
                 activeKeyboardLayout = "en",
                 showClock = true,
                 clockSize = ClockSize.M,
+                privateHintSeen = true,
             )
         }
         container.spaces.spaces.value.forEach {

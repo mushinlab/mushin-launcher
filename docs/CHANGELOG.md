@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.11.0 — 2026-11-22
+
+### Added
+- Swipe left or right on the bottom bar to move to the next or previous space. Both pages slide with their own palette, wallpaper and widgets in 200 ms; the edit button stays in place.
+- The widget panel is now an 8×8 grid: widgets can sit and resize at 1/8 steps, the panel holds at most four widgets including the clock, and the app list moves up under the lowest occupied row.
+- Choose the clock text color in the clock sheet: automatic, light or dark.
+- A private space hidden behind a 4-digit PIN: tap the bottom bar, swipe up on the opened menu and enter the PIN. Apps in it disappear from every other space and from search; after two minutes without touching the screen the launcher returns to Default.
+- The first launch after onboarding explains how to open the private space; a checkbox must be ticked to dismiss it.
+- Settings → System → Advanced → Reset app deletes all spaces, their apps, settings and the private PIN, then starts fresh.
+
+### Changed
+- Widget layouts are stored in format v5. Existing layouts keep their places by scaling their coordinates to the finer grid.
+
 ## 0.10.2 — 2026-11-17
 
 ### Fixed

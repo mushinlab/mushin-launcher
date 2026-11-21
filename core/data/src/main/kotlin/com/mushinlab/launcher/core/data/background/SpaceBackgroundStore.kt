@@ -36,6 +36,12 @@ class SpaceBackgroundStore(private val directory: File, private val screenWidth:
     private val counter = AtomicInteger()
     val versions: StateFlow<Map<Long, Int>> = stored.asStateFlow()
 
+    /** Deletes every stored image. */
+    fun clear() {
+        directory.listFiles().orEmpty().forEach { it.delete() }
+        stored.value = emptyMap()
+    }
+
     /** Reads which spaces have an image. */
     fun scan() {
         val ids = directory.listFiles().orEmpty().mapNotNull { idOf(it.name) }

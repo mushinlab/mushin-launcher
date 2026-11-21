@@ -3,6 +3,7 @@ package com.mushinlab.launcher.feature.home
 import androidx.compose.runtime.Immutable
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.model.ClockFormat
+import com.mushinlab.launcher.core.model.ClockInk
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.ClockSize
 import com.mushinlab.launcher.core.model.FolderKeys
@@ -46,6 +47,7 @@ data class HomeUiState(
     val showClock: Boolean = true,
     val clockSize: ClockSize = ClockSize.M,
     val clockPosition: ClockPosition = ClockPosition.START,
+    val clockInk: ClockInk = ClockInk.AUTO,
     val homeListOffset: Int? = null,
     val backgroundBrightness: Float = 0f,
     val backgroundBlur: Float = 0f,

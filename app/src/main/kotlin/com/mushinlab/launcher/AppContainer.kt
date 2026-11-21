@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AppContainer(private val app: Application) {
     val scope = CoroutineScope(
@@ -49,6 +50,8 @@ class AppContainer(private val app: Application) {
 
     val database by lazy { MushinDatabase.build(app) }
     val spaces by lazy { SpaceRepository(database, scope) }
+    val reset by lazy { com.mushinlab.launcher.core.data.repo.ResetRepository(database) }
+    val privateSpaces by lazy { com.mushinlab.launcher.core.data.repo.PrivateSpaceRepository(database) }
     val folders by lazy { FolderRepository(database, scope) }
     val looks by lazy { SpaceLookRepository(database) }
     val overrides by lazy { OverrideRepository(database, scope) }
@@ -78,6 +81,15 @@ class AppContainer(private val app: Application) {
     val iconProvider by lazy { LauncherIconProvider(icons, catalog) }
     val notificationCounts = MutableStateFlow<Map<NotificationSource, Int>>(emptyMap())
     val notificationListener = ComponentName(app, NotificationCountService::class.java)
+
+    suspend fun resetAll(seedNames: MushinDatabase.SeedNames) {
+        widgetHost.appWidgetIds.forEach(widgetHost::deleteAppWidgetId)
+        widgets.update { com.mushinlab.launcher.core.model.WidgetState() }
+        reset.reset(seedNames)
+        snapshots.clear()
+        withContext(Dispatchers.IO) { backgrounds.clear() }
+        settings.update { com.mushinlab.launcher.core.model.LauncherSettings() }
+    }
 
     fun hasNotificationAccess(): Boolean =
         app.getSystemService(NotificationManager::class.java).isNotificationListenerAccessGranted(notificationListener)

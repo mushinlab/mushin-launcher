@@ -74,6 +74,9 @@ interface SpaceDao {
     @Query("DELETE FROM environment WHERE id = :id")
     suspend fun delete(id: Long)
 
+    @Query("DELETE FROM environment")
+    suspend fun clearAll()
+
     @Query("SELECT COALESCE(MAX(sort_order), -1) FROM environment")
     suspend fun maxSortOrder(): Int
 }
@@ -128,6 +131,15 @@ interface SpaceItemDao {
 
     @Query("DELETE FROM folder_item WHERE package_name = :packageName AND user_serial = :userSerial")
     suspend fun deleteFolderPackage(packageName: String, userSerial: Long)
+
+    @Query("DELETE FROM environment_item")
+    suspend fun clearAllItems()
+
+    @Query("DELETE FROM folder_item")
+    suspend fun clearAllFolderItems()
+
+    @Query("DELETE FROM folder")
+    suspend fun clearAllFolders()
 }
 
 /** Per-app user overrides; rows of removed packages are marked orphaned and purged later. */
@@ -164,6 +176,9 @@ interface AppOverrideDao {
     /** Deletes overrides orphaned before [before] (epoch ms); returns the number of rows deleted. */
     @Query("DELETE FROM app_override WHERE orphaned_at IS NOT NULL AND orphaned_at < :before")
     suspend fun purgeOrphanedBefore(before: Long): Int
+
+    @Query("DELETE FROM app_override")
+    suspend fun clearAll()
 }
 
 /** Apps launched from search, per space. */
@@ -283,6 +298,9 @@ interface GestureBindingDao {
 
     @Upsert
     suspend fun upsert(entity: GestureBindingEntity)
+
+    @Query("DELETE FROM gesture_binding")
+    suspend fun clearAll()
 }
 
 /** Learned keyboard drawings ([com.mushinlab.launcher.core.model.LearnedGesture]). */

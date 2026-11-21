@@ -58,7 +58,7 @@ import kotlinx.coroutines.withContext
 class LauncherViewModel(
     private val container: AppContainer,
     contentResolver: ContentResolver,
-    resources: Resources,
+    private val resources: Resources,
     initial: HomeSnapshot?,
     private val versionName: String,
     savedState: SavedStateHandle,
@@ -195,6 +195,17 @@ class LauncherViewModel(
         }
         state.copy(widgetPanels = widgetPanels(layout))
     }.stateIn(viewModelScope, SharingStarted.Eagerly, snapshotState(initial, roleHeld.value))
+
+    val slides = SpaceSlideController(
+        container,
+        viewModelScope,
+        data,
+        home,
+        background,
+        SlideFacts(roleHeld, capacity),
+    )
+    val privateSpace = PrivateSpaceController(container, viewModelScope, resources, data, navigator)
+    val reset = ResetController(container, viewModelScope, resources, privateSpace, navigator)
 
     val folderRows: StateFlow<Map<Long, ImmutableList<HomeRow>>> = data.map { it?.let(::folderRows).orEmpty() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())

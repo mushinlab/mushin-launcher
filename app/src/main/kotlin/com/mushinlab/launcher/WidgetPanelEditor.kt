@@ -19,7 +19,8 @@ class WidgetPanelEditor(
     }
 
     fun append(spaceId: Long, widget: HostedWidget, cell: WidgetCell?) {
-        scope.launch { change(spaceId) { it.add(widget, cell) ?: it } }
+        val span = widget.cell
+        scope.launch { change(spaceId) { it.add(widget, cell, span.columnSpan, span.rowSpan) ?: it } }
     }
 
     fun remove(id: Int) {

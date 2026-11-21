@@ -21,4 +21,12 @@
     <string name="notice_no_notification_settings">Notification access settings are not available on this device</string>
     <string name="widget_time">Time</string>
     <string name="notice_widget_unavailable">Widgets are not available on this device.</string>
+    <string name="private_enter">Enter the PIN</string>
+    <string name="private_repeat">Repeat the PIN</string>
+    <string name="private_wrong">Wrong PIN</string>
+    <string name="private_cancel">Cancel</string>
+    <string name="private_hint_title">Private space</string>
+    <string name="private_hint_text">Tap the bottom bar, then swipe up on the opened menu and enter the PIN.</string>
+    <string name="private_hint_check">I know how to use the private space</string>
+    <string name="private_hint_done">Continue</string>
 </resources>

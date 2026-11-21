@@ -93,6 +93,10 @@ class SettingsRepository(
         internal val SHOW_CLOCK = booleanPreferencesKey("show_clock")
         internal val CLOCK_SIZE = stringPreferencesKey("clock_size")
         internal val CLOCK_POSITION = stringPreferencesKey("clock_position")
+        internal val CLOCK_INK = stringPreferencesKey("clock_ink")
+        internal val PRIVATE_PIN_SALT = stringPreferencesKey("private_pin_salt")
+        internal val PRIVATE_PIN_HASH = stringPreferencesKey("private_pin_hash")
+        internal val PRIVATE_HINT_SEEN = booleanPreferencesKey("private_hint_seen")
         internal val FONT = stringPreferencesKey("font")
         internal val FONT_WEIGHT = stringPreferencesKey("font_weight")
         internal val HOME_TEXT_SIZE = stringPreferencesKey("home_text_size")
@@ -127,6 +131,7 @@ class SettingsRepository(
                 showClock = prefs.valueOr(SHOW_CLOCK, defaults.showClock),
                 clockSize = enumOr(prefs[CLOCK_SIZE], defaults.clockSize),
                 clockPosition = enumOr(prefs[CLOCK_POSITION], defaults.clockPosition),
+                clockInk = enumOr(prefs[CLOCK_INK], defaults.clockInk),
                 font = enumOr(prefs[FONT], defaults.font),
                 fontWeight = enumOr(prefs[FONT_WEIGHT], defaults.fontWeight),
                 homeTextSize = enumOr(prefs[HOME_TEXT_SIZE], defaults.homeTextSize),
@@ -151,6 +156,9 @@ class SettingsRepository(
                 gestureSuggestMargin = prefs.finiteOr(GESTURE_SUGGEST_MARGIN, defaults.gestureSuggestMargin)
                     .coerceIn(GestureTuning.SUGGEST_MARGIN_MIN, GestureTuning.SUGGEST_MARGIN_MAX),
                 onboardingDone = prefs.valueOr(ONBOARDING_DONE, defaults.onboardingDone),
+                privatePinSalt = prefs[PRIVATE_PIN_SALT],
+                privatePinHash = prefs[PRIVATE_PIN_HASH],
+                privateHintSeen = prefs.valueOr(PRIVATE_HINT_SEEN, defaults.privateHintSeen),
                 gestureInput = prefs.valueOr(GESTURE_INPUT, defaults.gestureInput),
                 learnHints = prefs.valueOr(LEARN_HINTS, defaults.learnHints),
             )
@@ -165,6 +173,7 @@ class SettingsRepository(
             prefs[SHOW_CLOCK] = settings.showClock
             prefs[CLOCK_SIZE] = settings.clockSize.name
             prefs[CLOCK_POSITION] = settings.clockPosition.name
+            prefs[CLOCK_INK] = settings.clockInk.name
             prefs[FONT] = settings.font.name
             prefs[FONT_WEIGHT] = settings.fontWeight.name
             prefs[HOME_TEXT_SIZE] = settings.homeTextSize.name
@@ -185,6 +194,9 @@ class SettingsRepository(
             prefs[GESTURE_SHIFT_PENALTY] = settings.gestureShiftPenalty
             prefs[GESTURE_SUGGEST_MARGIN] = settings.gestureSuggestMargin
             prefs[ONBOARDING_DONE] = settings.onboardingDone
+            settings.privatePinSalt?.let { prefs[PRIVATE_PIN_SALT] = it } ?: prefs.remove(PRIVATE_PIN_SALT)
+            settings.privatePinHash?.let { prefs[PRIVATE_PIN_HASH] = it } ?: prefs.remove(PRIVATE_PIN_HASH)
+            prefs[PRIVATE_HINT_SEEN] = settings.privateHintSeen
             prefs[GESTURE_INPUT] = settings.gestureInput
             prefs[LEARN_HINTS] = settings.learnHints
         }

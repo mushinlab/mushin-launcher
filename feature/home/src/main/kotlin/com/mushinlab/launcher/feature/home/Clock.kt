@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
@@ -51,6 +52,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.ClockFormat
+import com.mushinlab.launcher.core.model.ClockInk
 import com.mushinlab.launcher.core.model.ClockPosition
 import com.mushinlab.launcher.core.model.ClockSize
 import com.mushinlab.launcher.core.ui.Glyph
@@ -114,6 +116,7 @@ internal fun ClockTile(
     format: ClockFormat,
     size: ClockSize,
     showDate: Boolean,
+    ink: ClockInk,
     pressed: Boolean,
     onBounds: (Rect) -> Unit,
 ) {
@@ -128,13 +131,13 @@ internal fun ClockTile(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        ClockTime(minute, format, size)
-        if (showDate) ClockDate(minute)
+        ClockTime(minute, format, size, ink)
+        if (showDate) ClockDate(minute, ink)
     }
 }
 
 @Composable
-private fun ClockTime(minute: State<Long>, format: ClockFormat, size: ClockSize) {
+private fun ClockTime(minute: State<Long>, format: ClockFormat, size: ClockSize, ink: ClockInk) {
     val context = LocalContext.current
     val style = MushinType.style(size.tileSp.sp, LocalMushinColors.current.textPrimary, FontWeight.Light)
     val use24h = ClockText.is24h(format, DateFormat.is24HourFormat(context))
@@ -142,26 +145,33 @@ private fun ClockTime(minute: State<Long>, format: ClockFormat, size: ClockSize)
         ClockText.time(minute.value, ZoneId.systemDefault(), use24h),
         style,
         "clock",
+        ink,
     )
 }
 
 @Composable
-private fun ClockDate(minute: State<Long>) {
+private fun ClockDate(minute: State<Long>, ink: ClockInk) {
     val locale = LocalConfiguration.current.locales[0]
     ClockLabel(
         ClockText.shortDate(minute.value, ZoneId.systemDefault(), locale),
         MushinType.style(MushinType.secondarySize, LocalMushinColors.current.textSecondary),
         "date",
+        ink,
     )
 }
 
 @Composable
-private fun ClockLabel(text: String, style: TextStyle, tag: String) {
+private fun ClockLabel(text: String, style: TextStyle, tag: String, ink: ClockInk) {
     var bounds by remember { mutableStateOf(Rect.Zero) }
     val backdrop = LocalClockBackdrop.current
-    var target by remember { mutableStateOf(backdrop.ink(Rect.Zero)) }
-    LaunchedEffect(backdrop, bounds) {
-        if (!bounds.isEmpty && !backdrop.loading) target = backdrop.ink(bounds)
+    var automatic by remember { mutableStateOf(backdrop.ink(Rect.Zero)) }
+    LaunchedEffect(backdrop, bounds, ink) {
+        if (ink == ClockInk.AUTO && !bounds.isEmpty && !backdrop.loading) automatic = backdrop.ink(bounds)
+    }
+    val target = when (ink) {
+        ClockInk.LIGHT -> Color.White
+        ClockInk.DARK -> Color.Black
+        ClockInk.AUTO -> automatic
     }
     val color by animateColorAsState(target, tween(Motion.TRANSITION_MS), label = "clock_ink")
     SingleLineText(

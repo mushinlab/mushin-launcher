@@ -4,130 +4,121 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class WidgetLayoutTest {
-    private val a = HostedWidget(1, "a", WidgetCell(0, 0))
-    private val b = HostedWidget(2, "b", WidgetCell(1, 0))
-    private val c = HostedWidget(3, "c", WidgetCell(0, 1))
-    private val d = HostedWidget(4, "d")
+    private val a = HostedWidget(1, "a", WidgetCell(0, 0, 4, 4))
+    private val b = HostedWidget(2, "b", WidgetCell(4, 0, 4, 4))
+    private val c = HostedWidget(3, "c", WidgetCell(0, 4, 4, 4))
+    private val d = HostedWidget(4, "d", WidgetCell(4, 4, 4, 4))
 
     @Test
-    fun cellsStayInsideTheTwoByTwoGrid() {
-        assertThat(WidgetCell(1, 1).fits).isTrue()
-        assertThat(WidgetCell(0, 0, 2, 2).fits).isTrue()
-        assertThat(WidgetCell(1, 0, 2, 1).fits).isFalse()
-        assertThat(WidgetCell(0, 1, 1, 2).fits).isFalse()
+    fun cellsStayInsideTheEightByEightGrid() {
+        assertThat(WidgetCell(7, 7).fits).isTrue()
+        assertThat(WidgetCell(0, 0, 8, 8).fits).isTrue()
+        assertThat(WidgetCell(4, 0, 8, 1).fits).isFalse()
+        assertThat(WidgetCell(0, 4, 1, 8).fits).isFalse()
         assertThat(WidgetCell(-1, 0).fits).isFalse()
     }
 
     @Test
     fun overlapComparesRectangles() {
-        assertThat(WidgetCell(0, 0, 2, 1).overlaps(WidgetCell(1, 0))).isTrue()
-        assertThat(WidgetCell(0, 0, 2, 1).overlaps(WidgetCell(1, 1))).isFalse()
-        assertThat(WidgetCell(0, 0, 1, 2).overlaps(WidgetCell(0, 1))).isTrue()
+        assertThat(WidgetCell(0, 0, 4, 1).overlaps(WidgetCell(3, 0))).isTrue()
+        assertThat(WidgetCell(0, 0, 4, 1).overlaps(WidgetCell(3, 1))).isFalse()
+        assertThat(WidgetCell(0, 0, 1, 4).overlaps(WidgetCell(0, 3))).isTrue()
     }
 
     @Test
     fun addUsesThePreferredFreeCellOrTheFirstFreeOne() {
         val layout = WidgetLayout(listOf(a))
-        assertThat(layout.add(b, WidgetCell(1, 1))?.widgets?.last()?.cell).isEqualTo(WidgetCell(1, 1))
-        assertThat(layout.add(b, WidgetCell(0, 0))?.widgets?.last()?.cell).isEqualTo(WidgetCell(1, 0))
-        assertThat(WidgetLayout(listOf(a.copy(cell = WidgetCell(0, 0, 2, 2)))).add(b)).isNull()
+        assertThat(layout.add(HostedWidget(5, "e"), WidgetCell(4, 4))?.widgets?.last()?.cell)
+            .isEqualTo(WidgetCell(4, 4))
+        assertThat(layout.add(HostedWidget(5, "e"), WidgetCell(0, 0))?.widgets?.last()?.cell)
+            .isEqualTo(WidgetCell(4, 0))
+        assertThat(WidgetLayout(listOf(a.copy(cell = WidgetCell(0, 0, 8, 8)))).add(HostedWidget(5, "e"))).isNull()
         assertThat(layout.add(a)).isNull()
     }
 
     @Test
+    fun addStopsAtFourWidgets() {
+        val layout = WidgetLayout(listOf(a, b, c))
+        assertThat(layout.add(d, WidgetCell(4, 4))).isNotNull()
+        assertThat(WidgetLayout(listOf(a, b, c, d)).add(HostedWidget(5, "e"))).isNull()
+    }
+
+    @Test
     fun addingAWideWidgetTakesAFreeRowBeforeDisplacingAnything() {
-        val layout = WidgetLayout(listOf(a)).add(d, WidgetCell(1, 0), columnSpan = 2)
-        assertThat(layout?.widgets?.map { it.cell }).containsExactly(WidgetCell(0, 0), WidgetCell(0, 1, 2, 1)).inOrder()
-    }
-
-    @Test
-    fun addingATallWidgetCoversTheColumnOfTheChosenCell() {
-        val layout = WidgetLayout(listOf(a)).add(d, WidgetCell(1, 1), rowSpan = 2)
-        assertThat(layout?.widgets?.last()?.cell).isEqualTo(WidgetCell(1, 0, 1, 2))
-    }
-
-    @Test
-    fun addingAWideWidgetIntoABusyGridPushesItsNeighbourAside() {
-        val layout = WidgetLayout(listOf(a, c)).add(d, WidgetCell(1, 0), columnSpan = 2)
-        assertThat(layout?.widgets?.map { it.cell })
-            .containsExactly(WidgetCell(1, 1), WidgetCell(0, 1), WidgetCell(0, 0, 2, 1))
+        val layout = WidgetLayout(listOf(a)).add(HostedWidget(5, "e"), WidgetCell(4, 0), columnSpan = 8)
+        assertThat(layout?.widgets?.map { it.cell }).containsExactly(WidgetCell(0, 0, 4, 4), WidgetCell(0, 4, 8, 1))
             .inOrder()
     }
 
     @Test
-    fun addingAWidgetWithoutRoomForItsSpanKeepsItInOneCell() {
-        val layout = WidgetLayout(listOf(a, b, c)).add(d, columnSpan = 2, rowSpan = 2)
-        assertThat(layout?.widgets?.map { it.cell })
-            .containsExactly(WidgetCell(0, 0), WidgetCell(1, 0), WidgetCell(0, 1), WidgetCell(1, 1))
-            .inOrder()
+    fun addingATallWidgetTopAlignsItInTheColumnOfTheChosenCell() {
+        val layout = WidgetLayout(listOf(a)).add(HostedWidget(5, "e"), WidgetCell(4, 4), rowSpan = 8)
+        assertThat(layout?.widgets?.last()?.cell).isEqualTo(WidgetCell(4, 0, 1, 8))
     }
 
     @Test
-    fun addingAWidgetWithoutRoomForItsHeightKeepsItsWidthInAFreeRow() {
-        val layout = WidgetLayout(listOf(a)).add(d, WidgetCell(1, 0), columnSpan = 2, rowSpan = 2)
-        assertThat(layout?.widgets?.map { it.cell }).containsExactly(WidgetCell(0, 0), WidgetCell(0, 1, 2, 1)).inOrder()
+    fun addingASpanThatDoesNotFitFallsBackToASmallerOne() {
+        val layout = WidgetLayout(
+            listOf(a, b, c),
+        ).add(HostedWidget(5, "e"), WidgetCell(4, 4), columnSpan = 8, rowSpan = 8)
+        assertThat(layout?.widgets?.last()?.cell).isEqualTo(WidgetCell(0, 4, 8, 1))
     }
 
     @Test
     fun movingOntoAnotherWidgetSwapsThem() {
-        val moved = WidgetLayout(listOf(a, b)).place(1, WidgetCell(1, 0))
-        assertThat(moved?.widgets).containsExactly(a.copy(cell = WidgetCell(1, 0)), b.copy(cell = WidgetCell(0, 0)))
-    }
-
-    @Test
-    fun movingOntoAnotherWidgetSwapsThemEvenWhenAnEarlierCellIsFree() {
-        val layout = WidgetLayout(listOf(a.copy(cell = WidgetCell(1, 1)), b))
-        val moved = layout.place(1, WidgetCell(1, 0))
-        assertThat(moved?.widgets?.map { it.cell }).containsExactly(WidgetCell(1, 0), WidgetCell(1, 1))
+        val moved = WidgetLayout(listOf(a.copy(cell = WidgetCell(0, 0)), b.copy(cell = WidgetCell(4, 0))))
+            .place(1, WidgetCell(4, 0))
+        assertThat(moved?.widgets?.map { it.cell }).containsExactly(WidgetCell(4, 0), WidgetCell(0, 0))
     }
 
     @Test
     fun widenedWidgetPushesItsNeighbourToFreeSpace() {
-        val wide = WidgetLayout(listOf(a, b)).place(1, WidgetCell(0, 0, 2, 1))
-        assertThat(wide?.widgets?.map { it.cell }).containsExactly(WidgetCell(0, 0, 2, 1), WidgetCell(0, 1))
+        val wide = WidgetLayout(listOf(a.copy(cell = WidgetCell(0, 0)), b.copy(cell = WidgetCell(4, 0))))
+            .place(1, WidgetCell(0, 0, 8, 1))
+        assertThat(wide?.widgets?.map { it.cell })
+            .containsExactly(WidgetCell(0, 0, 8, 1), WidgetCell(0, 1))
+            .inOrder()
     }
 
     @Test
     fun displacedWidgetKeepsItsSpanWhenThereIsRoom() {
-        val tall = WidgetLayout(listOf(a.copy(cell = WidgetCell(0, 0, 1, 2)), b))
+        val tall = WidgetLayout(listOf(HostedWidget(1, "a", WidgetCell(0, 0, 1, 4)), b.copy(cell = WidgetCell(4, 0))))
         val swapped = tall.place(2, WidgetCell(0, 0))
-        assertThat(swapped?.widgets?.map { it.cell }).containsExactly(WidgetCell(1, 0, 1, 2), WidgetCell(0, 0))
-    }
-
-    @Test
-    fun displacedWidgetShrinksWhenItsSpanDoesNotFit() {
-        val d = HostedWidget(4, "d", WidgetCell(1, 1))
-        val layout = WidgetLayout(listOf(a.copy(cell = WidgetCell(0, 0, 1, 2)), b, d))
-        val moved = layout.place(2, WidgetCell(0, 0))
         assertThat(
-            moved?.widgets?.map {
+            swapped?.widgets?.map {
                 it.cell
             },
-        ).containsExactly(WidgetCell(1, 0), WidgetCell(0, 0), WidgetCell(1, 1))
-        assertThat(moved?.freeCells).containsExactly(WidgetCell(0, 1))
-    }
-
-    @Test
-    fun movingASingleOntoAWideRowSwapsTheRows() {
-        val layout = WidgetLayout(listOf(a.copy(cell = WidgetCell(0, 0, 2, 1)), c))
-        val moved = layout.place(3, WidgetCell(0, 0))
-        assertThat(moved?.widgets?.map { it.cell }).containsExactly(WidgetCell(0, 1, 2, 1), WidgetCell(0, 0))
+        ).containsExactly(WidgetCell(4, 0, 1, 4), WidgetCell(0, 0)).inOrder()
     }
 
     @Test
     fun placeFailsOutsideTheGridOrWithoutRoom() {
-        val full = WidgetLayout(listOf(a, b, c, HostedWidget(4, "d", WidgetCell(1, 1))))
-        assertThat(full.place(1, WidgetCell(0, 0, 2, 2))).isNull()
-        assertThat(full.place(1, WidgetCell(1, 0, 2, 1))).isNull()
+        val full = WidgetLayout(listOf(a, b, c, d))
+        assertThat(full.place(1, WidgetCell(0, 0, 8, 8))).isNull()
         assertThat(full.place(9, WidgetCell(0, 0))).isNull()
         assertThat(full.freeCells).isEmpty()
-        assertThat(WidgetLayout(listOf(a, b)).place(1, WidgetCell(0, 0, 2, 2))).isNull()
     }
 
     @Test
-    fun threeWidgetsCanShareAColumnAndTwoRows() {
-        val layout = WidgetLayout(listOf(a, c)).place(1, WidgetCell(0, 0, 1, 2))
-        assertThat(layout?.widgets?.map { it.cell }).containsExactly(WidgetCell(0, 0, 1, 2), WidgetCell(1, 0))
-        assertThat(layout?.freeCells).containsExactly(WidgetCell(1, 1))
+    fun aWidgetCanCoverAWholeColumnAndPushTheRestAside() {
+        val layout = WidgetLayout(listOf(a, c)).place(3, WidgetCell(0, 0, 4, 8))
+        assertThat(layout?.widgets?.map { it.cell })
+            .containsExactly(WidgetCell(4, 0, 4, 4), WidgetCell(0, 0, 4, 8))
+            .inOrder()
+        assertThat(layout?.freeCells).hasSize(16)
+    }
+
+    @Test
+    fun theDefaultClockFillsTheTopLeftQuarter() {
+        assertThat(WidgetLayout().widgets).containsExactly(HostedWidget.clock)
+        assertThat(HostedWidget.clock.cell).isEqualTo(WidgetCell(0, 0, 4, 4))
+        assertThat(WidgetCell.quarters)
+            .containsExactly(
+                WidgetCell(0, 0, 4, 4),
+                WidgetCell(4, 0, 4, 4),
+                WidgetCell(0, 4, 4, 4),
+                WidgetCell(4, 4, 4, 4),
+            )
+            .inOrder()
     }
 }

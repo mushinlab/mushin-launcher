@@ -4,7 +4,7 @@ package com.mushinlab.launcher.core.model
  * Kind of space. Exactly one [NORMAL] space exists and cannot be deleted; [SpaceLimits] caps [WORK] and
  * [CUSTOM] spaces.
  */
-enum class SpaceType { NORMAL, WORK, CUSTOM }
+enum class SpaceType { NORMAL, WORK, CUSTOM, PRIVATE }
 
 /**
  * A space: its own home list, palette and search recents.

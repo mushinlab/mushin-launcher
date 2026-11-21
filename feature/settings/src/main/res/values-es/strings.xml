@@ -77,6 +77,10 @@
     <string name="clock_sheet">Reloj</string>
     <string name="home_clock">Formato de hora</string>
     <string name="home_clock_system">Sistema</string>
+    <string name="clock_ink">Color del texto</string>
+    <string name="clock_ink_auto">Automático</string>
+    <string name="clock_ink_light">Claro</string>
+    <string name="clock_ink_dark">Oscuro</string>
     <string name="home_clock_24">24 horas</string>
     <string name="home_clock_12">12 horas</string>
     <string name="clock_size">Tamaño del reloj</string>
@@ -263,4 +267,9 @@
     <string name="widgets_time">Reloj</string>
     <string name="widgets_fit_panel">Solo se muestran widgets que caben en el panel. Los grandes ocupan varias celdas.</string>
     <string name="widgets_empty">No hay widgets pequeños compatibles en las apps instaladas.</string>
+    <string name="space_type_private">privado</string>
+    <string name="settings_advanced">Avanzado</string>
+    <string name="advanced_reset_app">Restablecer app</string>
+    <string name="advanced_reset_text">Se eliminarán todos los espacios, sus apps, los ajustes y el PIN del espacio privado.</string>
+    <string name="advanced_reset_confirm">Restablecer</string>
 </resources>

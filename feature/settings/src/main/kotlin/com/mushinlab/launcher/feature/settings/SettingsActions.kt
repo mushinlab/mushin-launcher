@@ -69,6 +69,8 @@ interface SystemActions {
     fun openNotificationAccess()
 
     fun setAppLanguage(tag: String?)
+
+    fun resetApp()
 }
 
 interface BackgroundActions {

@@ -23,6 +23,7 @@ internal fun spaceTypeLabel(type: SpaceType): String = stringResource(
         SpaceType.NORMAL -> R.string.space_type_normal
         SpaceType.WORK -> R.string.space_type_work
         SpaceType.CUSTOM -> R.string.space_type_custom
+        SpaceType.PRIVATE -> R.string.space_type_private
     },
 )
 

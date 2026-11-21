@@ -16,7 +16,10 @@ internal fun fitsCompactWidget(context: Context, info: AppWidgetProviderInfo): B
 
 internal fun compactSpan(context: Context, info: AppWidgetProviderInfo): WidgetCell? {
     val density = context.resources.displayMetrics.density
-    val cellWidth = (context.resources.configuration.screenWidthDp - PANEL_INSETS_DP - CELL_GAP_DP) / 2f
+    val gapsWidth = CELL_GAP_DP * (WidgetCell.COLUMNS - 1)
+    val cellWidth = (context.resources.configuration.screenWidthDp - PANEL_INSETS_DP - gapsWidth) / WidgetCell.COLUMNS
+    val panelHeight = COARSE_HEIGHT_DP * 2 + CELL_GAP_DP
+    val cellHeight = (panelHeight - CELL_GAP_DP * (WidgetCell.ROWS - 1)) / WidgetCell.ROWS
     val padding = AppWidgetHostView.getDefaultPaddingForWidget(context, info.provider, null)
     val minWidth = if (info.resizeMode and AppWidgetProviderInfo.RESIZE_HORIZONTAL != 0) {
         info.minResizeWidth
@@ -28,8 +31,8 @@ internal fun compactSpan(context: Context, info: AppWidgetProviderInfo): WidgetC
     } else {
         info.minHeight
     }
-    val columns = cells((minWidth + padding.left + padding.right) / density, cellWidth)
-    val rows = cells((minHeight + padding.top + padding.bottom) / density, CELL_HEIGHT_DP.toFloat())
+    val columns = cells((minWidth + padding.left + padding.right) / density, cellWidth.toFloat())
+    val rows = cells((minHeight + padding.top + padding.bottom) / density, cellHeight.toFloat())
     return WidgetCell(0, 0, columns, rows).takeIf { it.fits }
 }
 
@@ -38,4 +41,4 @@ private fun cells(sizeDp: Float, cellDp: Float): Int =
 
 private const val PANEL_INSETS_DP = 48
 private const val CELL_GAP_DP = 8
-private const val CELL_HEIGHT_DP = 112
+private const val COARSE_HEIGHT_DP = 112

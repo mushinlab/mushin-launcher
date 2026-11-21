@@ -45,6 +45,7 @@ class WidgetEditor(
         val spaceId = currentSpace() ?: return
         if (choosing) return
         val layout = repository.loaded.value?.layouts?.get(spaceId) ?: WidgetLayout()
+        if (layout.widgets.size >= WidgetLayout.MAX_WIDGETS) return
         val free = layout.freeCells
         target = cell?.takeIf { it in free } ?: free.firstOrNull() ?: return
         val clock = if (layout.widgets.none { it.isClock }) listOf(WidgetChoice.Clock) else emptyList()

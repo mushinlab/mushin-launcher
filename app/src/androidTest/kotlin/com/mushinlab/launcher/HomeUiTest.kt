@@ -37,6 +37,7 @@ import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
+import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.Usefulness
 import com.mushinlab.launcher.feature.home.R as HomeR
@@ -95,11 +96,65 @@ class HomeUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("home_bar").performClick()
         rule.onNodeWithTag("popup_env_${work.id}").performClick()
         rule.waitUntil(5_000) { container.settings.settings.value.currentSpaceId == work.id }
+        rule.waitUntil(5_000) { rule.activity.launcher.slides.slide.value == null }
         rule.onNodeWithTag("popup").assertDoesNotExist()
         rule.onNodeWithTag("home_space", useUnmergedTree = true).assertTextEquals(work.name)
         rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("home_bar").performTouchInput { click(center) }
         rule.onNodeWithTag("popup").assertDoesNotExist()
+    }
+
+    @Test
+    fun AC_50_1_swipingTheBottomBarLeftShowsTheNextSpace() {
+        val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }
+        swipeBar(-1)
+        rule.waitUntil(5_000) { container.settings.settings.value.currentSpaceId == work.id }
+        rule.waitUntil(5_000) { rule.activity.launcher.slides.slide.value == null }
+        rule.onNodeWithTag("home_space", useUnmergedTree = true).assertTextEquals(work.name)
+    }
+
+    @Test
+    fun AC_50_1_swipingTheBottomBarRightShowsThePreviousSpace() {
+        val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }
+        runBlocking { container.settings.update { it.copy(currentSpaceId = work.id) } }
+        rule.waitUntil(5_000) {
+            runCatching {
+                rule.onNodeWithTag("home_space", useUnmergedTree = true).assertTextEquals(work.name)
+            }.isSuccess
+        }
+        swipeBar(1)
+        rule.waitUntil(5_000) { container.settings.settings.value.currentSpaceId == normalId }
+        rule.waitUntil(5_000) { rule.activity.launcher.slides.slide.value == null }
+    }
+
+    @Test
+    fun AC_50_3_swipingTheBottomBarWhileEditingDoesNotChangeTheSpace() {
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.homeEditing }
+        swipeBar(1)
+        rule.waitForIdle()
+        assertThat(container.settings.settings.value.currentSpaceId).isEqualTo(normalId)
+        assertThat(rule.activity.launcher.slides.slide.value).isNull()
+    }
+
+    @Test
+    fun AC_50_7_swipingTheBottomBarDoesNotRunLeftRightBindings() {
+        runBlocking { container.gestures.set(SwipeDirection.LEFT, GestureAction.Search) }
+        try {
+            swipeBar(-1)
+            rule.waitUntil(5_000) { container.settings.settings.value.currentSpaceId != normalId }
+            rule.onNodeWithTag("search").assertDoesNotExist()
+        } finally {
+            runBlocking { container.gestures.set(SwipeDirection.LEFT, GestureAction.None) }
+        }
+    }
+
+    private fun swipeBar(direction: Int) {
+        rule.onNodeWithTag("home_bar").performTouchInput {
+            down(center)
+            moveBy(Offset(direction * width * 0.4f, 0f), 300)
+            up()
+        }
     }
 
     @Test

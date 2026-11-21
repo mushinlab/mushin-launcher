@@ -5,6 +5,7 @@ import com.mushinlab.launcher.core.model.AppUsage
 import com.mushinlab.launcher.core.model.FolderKeys
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.LearnedGesture
+import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SpaceUsage
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.Usefulness
@@ -31,7 +32,7 @@ internal fun settingsState(
     versionName: String,
 ): SettingsUiState = SettingsUiState(
     settings = d.settings,
-    spaces = d.spaces.map {
+    spaces = d.spaces.filterNot { it.type == SpaceType.PRIVATE }.map {
         SpaceSummary(
             id = it.id,
             name = it.name,
@@ -45,13 +46,14 @@ internal fun settingsState(
             backgroundRowAlpha = it.backgroundRowAlpha,
         )
     }.toImmutableList(),
-    spaceItems = d.spaces.associate { space ->
+    spaceItems = d.spaces.filterNot { it.type == SpaceType.PRIVATE }.associate { space ->
         space.id to d.items[space.id].orEmpty().map { key -> editorItem(d, key) }.toImmutableList()
     }.toImmutableMap(),
     folders = d.folders.mapValues { (id, folder) ->
         FolderSummary(id, folder.name, folder.apps.map { editorItem(d, it) }.toImmutableList())
     }.toImmutableMap(),
     apps = d.apps.values
+        .filterNot { it.key in d.hiddenKeys() }
         .map { PickerApp(it.key, d.label(it.key) ?: it.label, d.overrides[it.key]?.hidden == true) }
         .sortedWith(Alphabet.comparator { it.label })
         .toImmutableList(),

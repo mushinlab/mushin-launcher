@@ -21,4 +21,12 @@
     <string name="notice_no_notification_settings">Настройки доступа к уведомлениям недоступны на этом устройстве</string>
     <string name="widget_time">Время</string>
     <string name="notice_widget_unavailable">Виджеты недоступны на этом устройстве.</string>
+    <string name="private_enter">Введите PIN</string>
+    <string name="private_repeat">Повторите PIN</string>
+    <string name="private_wrong">Неверный PIN</string>
+    <string name="private_cancel">Отмена</string>
+    <string name="private_hint_title">Приватный спейс</string>
+    <string name="private_hint_text">Нажмите нижнюю плашку, затем свайпните вверх по открытому окошку и введите PIN.</string>
+    <string name="private_hint_check">Я знаю, как пользоваться приватным спейсом</string>
+    <string name="private_hint_done">Продолжить</string>
 </resources>

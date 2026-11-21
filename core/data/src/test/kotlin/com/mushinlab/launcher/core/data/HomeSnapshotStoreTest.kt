@@ -44,11 +44,12 @@ class HomeSnapshotStoreTest {
                     com.mushinlab.launcher.core.model.HostedWidget(
                         21,
                         "Calendar",
-                        com.mushinlab.launcher.core.model.WidgetCell(0, 1, 2, 1),
+                        com.mushinlab.launcher.core.model.WidgetCell(4, 0, 4, 4),
                     ),
                 ),
             ),
             spaceName = "Работа",
+            clockInk = com.mushinlab.launcher.core.model.ClockInk.DARK,
         )
         store.write(snapshot)
         assertThat(store.read()).isEqualTo(snapshot)

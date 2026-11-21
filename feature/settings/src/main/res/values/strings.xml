@@ -77,6 +77,10 @@
     <string name="clock_sheet">Clock</string>
     <string name="home_clock">Clock format</string>
     <string name="home_clock_system">System</string>
+    <string name="clock_ink">Text color</string>
+    <string name="clock_ink_auto">Automatic</string>
+    <string name="clock_ink_light">Light</string>
+    <string name="clock_ink_dark">Dark</string>
     <string name="home_clock_24">24-hour</string>
     <string name="home_clock_12">12-hour</string>
     <string name="clock_size">Clock size</string>
@@ -263,4 +267,9 @@
     <string name="widgets_time">Clock</string>
     <string name="widgets_fit_panel">Only widgets that fit the panel are shown. Larger ones take several cells.</string>
     <string name="widgets_empty">No small widgets available from installed apps.</string>
+    <string name="space_type_private">private</string>
+    <string name="settings_advanced">Advanced</string>
+    <string name="advanced_reset_app">Reset app</string>
+    <string name="advanced_reset_text">All spaces, the apps in them, settings and the private space PIN will be deleted.</string>
+    <string name="advanced_reset_confirm">Reset</string>
 </resources>

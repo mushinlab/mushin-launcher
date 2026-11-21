@@ -42,6 +42,8 @@ sealed interface SpaceError {
 
     data object NormalNotDeletable : SpaceError
 
+    data object PrivateIsUnique : SpaceError
+
     data object NotFound : SpaceError
 
     data class ItemLimitReached(val limit: Int) : SpaceError
@@ -95,6 +97,8 @@ class SpaceRepository(
             SpaceType.CUSTOM -> SpaceError.CustomLimitReached.takeIf {
                 all.count { it.type == SpaceType.CUSTOM.name } >= SpaceLimits.MAX_CUSTOM
             }
+
+            SpaceType.PRIVATE -> SpaceError.PrivateIsUnique
         }
         if (limitError != null) return@withTransaction SpaceOutcome.Failed(limitError)
         when (val validated = validateSpaceName(name, all, excludeId = null)) {
@@ -217,6 +221,19 @@ class SpaceRepository(
 /** The space with [currentSpaceId], or the normal space when it is unset or no longer exists. */
 fun resolveCurrentSpace(spaces: List<Space>, currentSpaceId: Long?): Space? =
     spaces.firstOrNull { it.id == currentSpaceId } ?: spaces.firstOrNull { it.type == SpaceType.NORMAL }
+
+/** The space [step] positions from the current one in list order, wrapping around; null with fewer than two spaces. */
+fun neighborSpace(spaces: List<Space>, currentSpaceId: Long?, step: Int): Space? {
+    if (spaces.any { it.type == SpaceType.PRIVATE && it.id == currentSpaceId }) return null
+    val visible = spaces.filterNot { it.type == SpaceType.PRIVATE }
+    val current = visible.takeIf { it.size >= 2 }?.let { list ->
+        list.firstOrNull { it.id == currentSpaceId } ?: list.firstOrNull { it.type == SpaceType.NORMAL }
+    }
+    return current?.let {
+        val target = visible[Math.floorMod(visible.indexOf(it) + step, visible.size)]
+        target.takeIf { candidate -> candidate.id != it.id }
+    }
+}
 
 private fun validateSpaceName(raw: String, all: List<SpaceEntity>, excludeId: Long?): SpaceOutcome<String> {
     val name = raw.trim()

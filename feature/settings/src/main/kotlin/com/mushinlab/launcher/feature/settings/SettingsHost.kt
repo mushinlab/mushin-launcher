@@ -91,7 +91,7 @@ private fun SettingsRouteScreen(
         SettingsRoute.Keyboard, SettingsRoute.Gestures, is SettingsRoute.PickGestureApp ->
             InputRouteScreen(route, state, actions, push, back)
 
-        SettingsRoute.Apps, SettingsRoute.System, SettingsRoute.Privacy ->
+        SettingsRoute.Apps, SettingsRoute.System, SettingsRoute.Privacy, SettingsRoute.Advanced ->
             SystemRouteScreen(route, state, actions, push, back)
 
         is SettingsRoute.MemoryApp, SettingsRoute.MemoryPickApp ->
@@ -148,6 +148,7 @@ private fun SystemRouteScreen(
     when (route) {
         SettingsRoute.Apps -> AppsSettingsScreen(state, actions, back)
         SettingsRoute.Privacy -> PrivacyScreen(state, actions, back)
+        SettingsRoute.Advanced -> AdvancedScreen(actions, back)
         else -> SystemScreen(state, actions, push, back)
     }
 }

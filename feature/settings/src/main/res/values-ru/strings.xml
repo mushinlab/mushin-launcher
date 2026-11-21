@@ -77,6 +77,10 @@
     <string name="clock_sheet">Часы</string>
     <string name="home_clock">Формат часов</string>
     <string name="home_clock_system">Как в системе</string>
+    <string name="clock_ink">Цвет шрифта</string>
+    <string name="clock_ink_auto">Авто</string>
+    <string name="clock_ink_light">Светлый</string>
+    <string name="clock_ink_dark">Тёмный</string>
     <string name="home_clock_24">24 часа</string>
     <string name="home_clock_12">12 часов</string>
     <string name="clock_size">Размер часов</string>
@@ -264,4 +268,9 @@
     <string name="widgets_time">Часы</string>
     <string name="widgets_fit_panel">Здесь только виджеты, которые помещаются в панель. Крупные занимают несколько ячеек.</string>
     <string name="widgets_empty">В установленных приложениях нет подходящих маленьких виджетов.</string>
+    <string name="space_type_private">приватный</string>
+    <string name="settings_advanced">Дополнительно</string>
+    <string name="advanced_reset_app">Сбросить приложение</string>
+    <string name="advanced_reset_text">Все спейсы, приложения в них, настройки и PIN приватного спейса будут удалены.</string>
+    <string name="advanced_reset_confirm">Сбросить</string>
 </resources>

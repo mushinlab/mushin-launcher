@@ -21,4 +21,12 @@
     <string name="notice_no_notification_settings">Setelan akses notifikasi tidak tersedia di perangkat ini</string>
     <string name="widget_time">Waktu</string>
     <string name="notice_widget_unavailable">Widget tidak tersedia di perangkat ini.</string>
+    <string name="private_enter">Masukkan PIN</string>
+    <string name="private_repeat">Ulangi PIN</string>
+    <string name="private_wrong">PIN salah</string>
+    <string name="private_cancel">Batal</string>
+    <string name="private_hint_title">Ruang privat</string>
+    <string name="private_hint_text">Ketuk bilah bawah, lalu geser ke atas pada menu yang terbuka dan masukkan PIN.</string>
+    <string name="private_hint_check">Saya tahu cara memakai ruang privat</string>
+    <string name="private_hint_done">Lanjutkan</string>
 </resources>

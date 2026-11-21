@@ -16,6 +16,7 @@ import com.mushinlab.launcher.core.model.ProfileType
 import com.mushinlab.launcher.core.model.SearchRecent
 import com.mushinlab.launcher.core.model.Space
 import com.mushinlab.launcher.core.model.SpaceBackground
+import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.WidgetLayout
 import com.mushinlab.launcher.core.search.Alphabet
@@ -59,6 +60,15 @@ data class LauncherData(
     fun folderLabel(id: Long): String? = folders[id]?.name?.trim()?.ifEmpty { untitledFolder }
 
     fun currentItems(): List<AppKey> = current?.let { items[it.id] }.orEmpty()
+
+    /** Apps that belong to the private space and must stay invisible outside it. */
+    val privateKeys: Set<AppKey>
+        get() = spaces.filter { it.type == SpaceType.PRIVATE }.flatMap { items[it.id].orEmpty() }.toSet()
+
+    val currentIsPrivate: Boolean get() = current?.type == SpaceType.PRIVATE
+
+    /** Apps hidden from every list and search of the current space. */
+    fun hiddenKeys(): Set<AppKey> = if (currentIsPrivate) emptySet() else privateKeys
 }
 
 internal fun homeState(
@@ -70,13 +80,14 @@ internal fun homeState(
     val count = { key: AppKey ->
         if (d.settings.notificationCounts) counts[NotificationSource(key.packageName, key.userSerial)] ?: 0 else 0
     }
-    val rows = d.currentItems().mapNotNull { key ->
+    val hidden = d.hiddenKeys()
+    val rows = d.currentItems().filterNot { it in hidden }.mapNotNull { key ->
         val folder = FolderKeys.idOf(key)?.let { d.folders[it] }
         if (folder != null) {
             return@mapNotNull HomeRow(
                 key = key,
                 label = d.folderLabel(folder.id).orEmpty(),
-                notifications = folder.apps.sumOf(count),
+                notifications = folder.apps.filterNot { it in hidden }.sumOf(count),
             )
         }
         val entry = d.apps[key] ?: return@mapNotNull null
@@ -100,6 +111,7 @@ internal fun homeState(
         showClock = d.settings.showClock,
         clockSize = d.settings.clockSize,
         clockPosition = d.settings.clockPosition,
+        clockInk = d.settings.clockInk,
         homeListOffset = d.current?.listOffset ?: d.settings.homeListOffset,
         backgroundBrightness = d.current?.backgroundBrightness ?: 0f,
         backgroundBlur = d.current?.backgroundBlur ?: 0f,
@@ -122,6 +134,7 @@ internal fun snapshotState(snapshot: HomeSnapshot?, roleHeld: Boolean): HomeUiSt
         showClock = snapshot.showClock,
         clockSize = snapshot.clockSize,
         clockPosition = snapshot.clockPosition,
+        clockInk = snapshot.clockInk,
         homeListOffset = snapshot.listOffset,
         roleMissing = !roleHeld,
         widgetPanels = widgetPanels(snapshot.widgetLayout),
@@ -140,6 +153,7 @@ internal fun homeSnapshot(d: LauncherData, state: HomeUiState): HomeSnapshot? {
         showDate = state.showDate,
         rows = state.rows.map { SnapshotRow(it.key, it.label, it.dimmed, it.work) },
         clockPosition = state.clockPosition,
+        clockInk = state.clockInk,
         listOffset = state.homeListOffset,
         textAlign = state.textAlign,
         showClock = state.showClock,
@@ -149,25 +163,34 @@ internal fun homeSnapshot(d: LauncherData, state: HomeUiState): HomeSnapshot? {
     )
 }
 
-internal fun folderRows(d: LauncherData): Map<Long, ImmutableList<HomeRow>> = d.folders.mapValues { (_, folder) ->
-    folder.apps.mapNotNull { key ->
-        d.apps[key]?.let { HomeRow(key, d.label(key) ?: it.label, it.isDimmed, it.profile == ProfileType.WORK) }
-    }.toImmutableList()
+internal fun folderRows(d: LauncherData): Map<Long, ImmutableList<HomeRow>> {
+    val hidden = d.hiddenKeys()
+    return d.folders.mapValues { (_, folder) ->
+        folder.apps.filterNot { it in hidden }.mapNotNull { key ->
+            d.apps[key]?.let { HomeRow(key, d.label(key) ?: it.label, it.isDimmed, it.profile == ProfileType.WORK) }
+        }.toImmutableList()
+    }
 }
 
-internal fun popupSpaces(d: LauncherData?): ImmutableList<PopupSpace> =
-    d?.spaces?.map { PopupSpace(it.id, it.name, it.id == d.current?.id) }?.toImmutableList() ?: persistentListOf()
+internal fun popupSpaces(d: LauncherData?): ImmutableList<PopupSpace> = d?.spaces.orEmpty()
+    .filterNot { it.type == SpaceType.PRIVATE }
+    .map { PopupSpace(it.id, it.name, it.id == d?.current?.id) }
+    .toImmutableList()
 
-internal fun searchIndex(d: LauncherData): SearchIndex = SearchIndex.build(
-    d.apps.values.map { entry ->
-        val override = d.overrides[entry.key]
-        SearchItem(entry.key, entry.label, override?.customLabel, override?.hidden == true)
-    },
-)
+internal fun searchIndex(d: LauncherData): SearchIndex {
+    val hidden = d.hiddenKeys()
+    return SearchIndex.build(
+        d.apps.values.filterNot { it.key in hidden }.map { entry ->
+            val override = d.overrides[entry.key]
+            SearchItem(entry.key, entry.label, override?.customLabel, override?.hidden == true)
+        },
+    )
+}
 
 internal fun recentKeys(d: LauncherData?, recents: Map<Long, List<SearchRecent>>): ImmutableList<AppKey> {
     val space = d?.current ?: return persistentListOf()
-    return recents[space.id].orEmpty().map { it.key }.toImmutableList()
+    val hidden = d.hiddenKeys()
+    return recents[space.id].orEmpty().map { it.key }.filterNot { it in hidden }.toImmutableList()
 }
 
 internal fun SpaceError.code(): String = when (this) {

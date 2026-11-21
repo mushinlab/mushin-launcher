@@ -21,4 +21,12 @@
     <string name="notice_no_notification_settings">Die Einstellungen für den Benachrichtigungszugriff sind auf diesem Gerät nicht verfügbar</string>
     <string name="widget_time">Uhrzeit</string>
     <string name="notice_widget_unavailable">Widgets sind auf diesem Gerät nicht verfügbar.</string>
+    <string name="private_enter">PIN eingeben</string>
+    <string name="private_repeat">PIN wiederholen</string>
+    <string name="private_wrong">Falsche PIN</string>
+    <string name="private_cancel">Abbrechen</string>
+    <string name="private_hint_title">Privater Bereich</string>
+    <string name="private_hint_text">Tippen Sie auf die untere Leiste, wischen Sie dann im geöffneten Menü nach oben und geben Sie die PIN ein.</string>
+    <string name="private_hint_check">Ich weiß, wie ich den privaten Bereich nutze</string>
+    <string name="private_hint_done">Weiter</string>
 </resources>

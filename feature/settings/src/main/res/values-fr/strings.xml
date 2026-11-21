@@ -77,6 +77,10 @@
     <string name="clock_sheet">Horloge</string>
     <string name="home_clock">Format de l’heure</string>
     <string name="home_clock_system">Système</string>
+    <string name="clock_ink">Couleur du texte</string>
+    <string name="clock_ink_auto">Automatique</string>
+    <string name="clock_ink_light">Clair</string>
+    <string name="clock_ink_dark">Sombre</string>
     <string name="home_clock_24">24 heures</string>
     <string name="home_clock_12">12 heures</string>
     <string name="clock_size">Taille de l’horloge</string>
@@ -263,4 +267,9 @@
     <string name="widgets_time">Horloge</string>
     <string name="widgets_fit_panel">Seuls les widgets qui tiennent dans le panneau sont affichés. Les grands occupent plusieurs cellules.</string>
     <string name="widgets_empty">Aucun petit widget compatible dans les applications installées.</string>
+    <string name="space_type_private">privé</string>
+    <string name="settings_advanced">Avancé</string>
+    <string name="advanced_reset_app">Réinitialiser l’application</string>
+    <string name="advanced_reset_text">Tous les espaces, leurs applications, les réglages et le code PIN de l’espace privé seront supprimés.</string>
+    <string name="advanced_reset_confirm">Réinitialiser</string>
 </resources>

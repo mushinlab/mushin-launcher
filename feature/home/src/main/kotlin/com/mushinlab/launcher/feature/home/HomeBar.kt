@@ -147,7 +147,7 @@ private fun BarStart(
 }
 
 @Composable
-internal fun EditToggle(editing: Boolean, registry: RowRegistry, actions: HomeActions, modifier: Modifier) {
+fun EditToggle(editing: Boolean, registry: RowRegistry, actions: HomeActions, modifier: Modifier) {
     val colors = LocalMushinColors.current
     val size by animateDpAsState(if (editing) DONE_SIZE else EDIT_SIZE, tween(Motion.TRANSITION_MS), label = "edit")
     val glyph by animateDpAsState(if (editing) DONE_GLYPH else EDIT_GLYPH, tween(Motion.TRANSITION_MS), label = "glyph")

@@ -50,6 +50,8 @@ sealed interface SettingsRoute {
 
     data object Privacy : SettingsRoute
 
+    data object Advanced : SettingsRoute
+
     data class MemoryApp(val key: AppKey, val sketch: Boolean = false) : SettingsRoute
 
     data object MemoryPickApp : SettingsRoute
