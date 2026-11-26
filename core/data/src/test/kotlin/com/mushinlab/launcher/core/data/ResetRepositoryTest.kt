@@ -33,7 +33,7 @@ class ResetRepositoryTest {
 
         ResetRepository(database.db) { database.now }.reset(MushinDatabase.SeedNames("Default", "Work"))
 
-        val reset = spaces.spaces.first { list -> list.none { it.type == SpaceType.CUSTOM } }
+        val reset = spaces.spaces.first { list -> list.isNotEmpty() && list.none { it.type == SpaceType.CUSTOM } }
         assertThat(reset.map { it.type }).containsExactly(SpaceType.NORMAL, SpaceType.WORK).inOrder()
         assertThat(reset.first { it.type == SpaceType.NORMAL }.name).isEqualTo("Default")
         assertThat(normal.id).isNotEqualTo(custom)
