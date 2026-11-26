@@ -16,7 +16,9 @@ interface HomeGestureCallbacks {
 
     fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean)
 
-    fun onBarSwipe(direction: SwipeDirection)
+    fun onBarDrag(dx: Float)
+
+    fun onBarRelease(direction: SwipeDirection?)
 
     fun onClockTap()
 

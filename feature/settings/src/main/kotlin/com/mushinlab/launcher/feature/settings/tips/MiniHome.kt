@@ -5,6 +5,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
@@ -20,6 +21,7 @@ internal object MiniHome {
     const val TOOL_STEP = 24f
     const val TOOL_TEXT = 1
     const val TOOL_THEME = 2
+    const val TOOL_MOTION = 3
     const val GRIP_Y = 8f
     const val ADD_GLYPH_Y = 8f
     const val ROW_INSET = 16f
@@ -59,10 +61,25 @@ internal fun DrawScope.editBar(colors: MushinColors, edit: Float) {
         imageGlyph(MiniHome.tool(0), tint, edit)
         textGlyph(MiniHome.tool(MiniHome.TOOL_TEXT), tint, edit)
         paletteGlyph(MiniHome.tool(MiniHome.TOOL_THEME), tint, edit)
+        motionGlyph(MiniHome.tool(MiniHome.TOOL_MOTION), tint, edit)
     }
     glyphCircle(colors, MiniHome.edit, MiniHome.GLYPH_RADIUS)
     pencil(MiniHome.edit, colors.textSecondary, (1f - edit) * BAR_ALPHA)
     if (edit > 0f) checkGlyph(MiniHome.edit, colors.accent, edit)
+}
+
+private fun DrawScope.motionGlyph(center: Offset, color: Color, alpha: Float) {
+    drawCircle(color, radius = MOTION_RADIUS, center = center + Offset(MOTION_SHIFT, 0f), alpha = alpha)
+    MotionLines.forEach { (y, length) ->
+        drawLine(
+            color,
+            Offset(center.x - MOTION_TAIL, center.y + y),
+            Offset(center.x - MOTION_TAIL + length, center.y + y),
+            MOTION_WIDTH,
+            StrokeCap.Round,
+            alpha = alpha,
+        )
+    }
 }
 
 internal fun DrawScope.listHandle(colors: MushinColors, center: Offset, visible: Float, active: Float) {
@@ -174,7 +191,12 @@ internal fun DrawScope.homeSheet(
     }
 }
 
-private const val TOOLS = 3
+private const val TOOLS = 4
+private const val MOTION_RADIUS = 2.8f
+private const val MOTION_SHIFT = 1.8f
+private const val MOTION_TAIL = 5f
+private const val MOTION_WIDTH = 1.3f
+private val MotionLines = listOf(-2.4f to 2.2f, 0f to 3f, 2.4f to 2.2f)
 private const val BAR_ALPHA = 0.7f
 private const val OUTLINE_ALPHA = 0.5f
 private const val OUTLINE_WIDTH = 0.8f

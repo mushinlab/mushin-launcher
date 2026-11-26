@@ -198,6 +198,13 @@ private fun EditTools(registry: RowRegistry, actions: HomeActions) {
             tag = "home_edit_theme",
             onClick = actions::onEditTheme,
         )
+        GlyphButton(
+            Glyph.MOTION,
+            stringResource(R.string.home_edit_motion),
+            tint,
+            tag = "home_edit_motion",
+            onClick = actions::onEditMotion,
+        )
     }
 }
 

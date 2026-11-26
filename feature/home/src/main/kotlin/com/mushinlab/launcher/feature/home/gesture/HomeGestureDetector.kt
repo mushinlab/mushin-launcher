@@ -11,6 +11,7 @@ import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.unit.Velocity
 import com.mushinlab.launcher.core.model.SwipeDirection
+import kotlin.math.abs
 
 class HomeGestureDetector(
     private val arbiter: GestureArbiter,
@@ -64,8 +65,15 @@ class HomeGestureDetector(
         }
         when (outcome) {
             null -> onHold(down, target, callbacks)
+
             is PressOutcome.Up -> onTap(outcome, target, callbacks)
-            PressOutcome.Slop -> onMove(down, target, tracker, callbacks)
+
+            is PressOutcome.Slop -> if (target == PressTarget.Bar && outcome.horizontalFrom(down.position)) {
+                onBarDrag(down, outcome.position, tracker, callbacks)
+            } else {
+                onMove(down, target, tracker, callbacks)
+            }
+
             PressOutcome.Cancelled -> Unit
         }
     }
@@ -119,6 +127,32 @@ class HomeGestureDetector(
         }
     }
 
+    private suspend fun AwaitPointerEventScope.onBarDrag(
+        down: PointerInputChange,
+        slop: Offset,
+        tracker: VelocityTracker,
+        callbacks: HomeGestureCallbacks,
+    ) {
+        callbacks.onBarDrag(slop.x - down.position.x)
+        var last = slop
+        while (true) {
+            val change = awaitSingle(down.id)
+            if (change == null) {
+                callbacks.onBarRelease(null)
+                return
+            }
+            tracker.addPointerInputChange(change)
+            change.consume()
+            last = change.position
+            if (!change.pressed) break
+            callbacks.onBarDrag(last.x - down.position.x)
+        }
+        val velocity = tracker.calculateVelocity()
+        val delta = last - down.position
+        val direction = arbiter.swipeDirection(delta.x, delta.y, velocity.x, velocity.y)
+        callbacks.onBarRelease(direction?.takeIf { it == SwipeDirection.LEFT || it == SwipeDirection.RIGHT })
+    }
+
     private fun onSwipe(
         start: Offset,
         target: PressTarget,
@@ -127,10 +161,7 @@ class HomeGestureDetector(
         callbacks: HomeGestureCallbacks,
     ) {
         val direction = arbiter.swipeDirection(delta.x, delta.y, velocity.x, velocity.y)
-        if (target == PressTarget.Bar && (direction == SwipeDirection.LEFT || direction == SwipeDirection.RIGHT)) {
-            callbacks.onBarSwipe(direction)
-            return
-        }
+        if (target == PressTarget.Bar && (direction == SwipeDirection.LEFT || direction == SwipeDirection.RIGHT)) return
         val startZone = zone()
         if (direction != null && arbiter.isAllowedStart(direction, start.x, start.y, startZone)) {
             callbacks.onSwipe(direction, arbiter.isShadeSwipe(direction, start.y, startZone))
@@ -156,7 +187,9 @@ private val PressTarget.rowIndex: Int?
 private sealed interface PressOutcome {
     data class Up(val position: Offset) : PressOutcome
 
-    data object Slop : PressOutcome
+    data class Slop(val position: Offset) : PressOutcome {
+        fun horizontalFrom(start: Offset): Boolean = abs(position.x - start.x) > abs(position.y - start.y)
+    }
 
     data object Cancelled : PressOutcome
 }
@@ -180,7 +213,7 @@ private fun AwaitPointerEventScope.outcomeOf(
     tracker.addPointerInputChange(change)
     return when {
         !change.pressed -> PressOutcome.Up(change.position)
-        (change.position - start).getDistance() > viewConfiguration.touchSlop -> PressOutcome.Slop
+        (change.position - start).getDistance() > viewConfiguration.touchSlop -> PressOutcome.Slop(change.position)
         else -> null
     }
 }

@@ -30,4 +30,5 @@
     <string name="widget_move_after">Pindahkan ke akhir</string>
     <string name="widget_grow">Perbesar</string>
     <string name="widget_shrink">Perkecil</string>
+    <string name="home_edit_motion">Animasi</string>
 </resources>

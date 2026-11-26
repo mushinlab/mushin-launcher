@@ -35,6 +35,7 @@ enum class Glyph(@param:DrawableRes val res: Int) {
     HIDE(R.drawable.ic_visibility_off),
     IMAGE(R.drawable.ic_image),
     INFO(R.drawable.ic_info),
+    MOTION(R.drawable.ic_motion),
     PALETTE(R.drawable.ic_palette),
     SETTINGS(R.drawable.ic_settings),
     SHOW(R.drawable.ic_visibility),

@@ -16,10 +16,12 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
@@ -37,6 +39,7 @@ import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
+import com.mushinlab.launcher.core.model.SpaceTransition
 import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.Usefulness
@@ -96,9 +99,8 @@ class HomeUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("home_bar").performClick()
         rule.onNodeWithTag("popup_env_${work.id}").performClick()
         rule.waitUntil(5_000) { container.settings.settings.value.currentSpaceId == work.id }
-        rule.waitUntil(5_000) { rule.activity.launcher.slides.slide.value == null }
+        waitForSpaceName(work.name)
         rule.onNodeWithTag("popup").assertDoesNotExist()
-        rule.onNodeWithTag("home_space", useUnmergedTree = true).assertTextEquals(work.name)
         rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("home_bar").performTouchInput { click(center) }
         rule.onNodeWithTag("popup").assertDoesNotExist()
@@ -109,8 +111,7 @@ class HomeUiTest : LauncherUiTestBase() {
         val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }
         swipeBar(-1)
         rule.waitUntil(5_000) { container.settings.settings.value.currentSpaceId == work.id }
-        rule.waitUntil(5_000) { rule.activity.launcher.slides.slide.value == null }
-        rule.onNodeWithTag("home_space", useUnmergedTree = true).assertTextEquals(work.name)
+        waitForSpaceName(work.name)
     }
 
     @Test
@@ -124,7 +125,7 @@ class HomeUiTest : LauncherUiTestBase() {
         }
         swipeBar(1)
         rule.waitUntil(5_000) { container.settings.settings.value.currentSpaceId == normalId }
-        rule.waitUntil(5_000) { rule.activity.launcher.slides.slide.value == null }
+        rule.waitUntil(5_000) { rule.onAllNodesWithTag("space_preview_$normalId").fetchSemanticsNodes().isEmpty() }
     }
 
     @Test
@@ -134,7 +135,8 @@ class HomeUiTest : LauncherUiTestBase() {
         swipeBar(1)
         rule.waitForIdle()
         assertThat(container.settings.settings.value.currentSpaceId).isEqualTo(normalId)
-        assertThat(rule.activity.launcher.slides.slide.value).isNull()
+        rule.onNodeWithTag("space_preview_${container.spaces.spaces.value.first { it.type == SpaceType.WORK }.id}")
+            .assertDoesNotExist()
     }
 
     @Test
@@ -146,6 +148,67 @@ class HomeUiTest : LauncherUiTestBase() {
             rule.onNodeWithTag("search").assertDoesNotExist()
         } finally {
             runBlocking { container.gestures.set(SwipeDirection.LEFT, GestureAction.None) }
+        }
+    }
+
+    @Test
+    fun AC_54_2_draggingTheBottomBarShowsTheBlurredNextSpaceAndShortReleaseStays() {
+        val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }
+        rule.onNodeWithTag("home_bar").performTouchInput {
+            down(center)
+            moveBy(Offset(0f, 1f), 16)
+            moveBy(Offset(-width * 0.05f, 0f), 50)
+            moveBy(Offset(-width * 0.03f, 0f), 400)
+        }
+        rule.onNodeWithTag("space_preview_${work.id}").assertExists()
+        rule.onNodeWithTag("home_bar").performTouchInput { up() }
+        rule.waitUntil(5_000) { rule.onAllNodesWithTag("space_preview_${work.id}").fetchSemanticsNodes().isEmpty() }
+        assertThat(container.settings.settings.value.currentSpaceId ?: normalId).isEqualTo(normalId)
+    }
+
+    @Test
+    fun AC_54_2_thePageEdgeStaysUnderTheFingerOnEveryMove() {
+        val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }
+        val start = rule.onNodeWithTag("home_bar").fetchSemanticsNode().boundsInRoot.center
+        val width = rule.onNodeWithTag("home").fetchSemanticsNode().size.width
+        var dx = -1f
+        rule.onRoot().performTouchInput {
+            down(start)
+            moveBy(Offset(dx, 0f), 16)
+        }
+        repeat(8) {
+            dx -= 40f
+            rule.onRoot().performTouchInput { moveBy(Offset(-40f, 0f), 50) }
+            val edge = rule.onNodeWithTag("space_preview_${work.id}").fetchSemanticsNode().positionInRoot.x
+            assertThat(edge).isWithin(2f).of(width + dx)
+        }
+        rule.onRoot().performTouchInput { up() }
+    }
+
+    @Test
+    fun AC_54_3_motionButtonInEditModeChoosesTheSpaceTransition() {
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("home_edit_motion").performClick()
+        rule.onNodeWithTag("motion_sheet").assertIsDisplayed()
+        rule.onNodeWithTag("motion_space_dropdown").performClick()
+        rule.onNodeWithTag("motion_space_NONE").performClick()
+        rule.waitUntil(5_000) { container.settings.settings.value.spaceTransition == SpaceTransition.NONE }
+    }
+
+    @Test
+    fun AC_54_3_withoutAnimationThePopupSwitchesWithoutAPreview() {
+        runBlocking { container.settings.update { it.copy(spaceTransition = SpaceTransition.NONE) } }
+        val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }
+        rule.onNodeWithTag("home_bar").performClick()
+        rule.onNodeWithTag("popup_env_${work.id}").performClick()
+        rule.waitUntil(5_000) { container.settings.settings.value.currentSpaceId == work.id }
+        rule.onNodeWithTag("space_preview_${work.id}").assertDoesNotExist()
+        waitForSpaceName(work.name)
+    }
+
+    private fun waitForSpaceName(name: String) {
+        rule.waitUntil(5_000) {
+            runCatching { rule.onNodeWithTag("home_space", useUnmergedTree = true).assertTextEquals(name) }.isSuccess
         }
     }
 

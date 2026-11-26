@@ -11,6 +11,7 @@ import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.core.model.SpaceType
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,6 +24,12 @@ class PrivateSpaceUiTest : LauncherUiTestBase() {
             it.copy(currentSpaceId = normalId, privatePinSalt = null, privatePinHash = null, privateHintSeen = true)
         }
         rule.waitUntil(5_000) { container.spaces.spaces.value.any { it.type == SpaceType.PRIVATE } }
+    }
+
+    @After
+    fun emptyPrivate() = runBlocking {
+        container.settings.update { it.copy(currentSpaceId = normalId) }
+        container.spaces.setItems(privateSpace.id, emptyList())
     }
 
     @Test

@@ -12,6 +12,7 @@ object SettingsRouteCodec {
         SettingsRoute.ClockSheet,
         SettingsRoute.TextSheet,
         SettingsRoute.ThemeSheet,
+        SettingsRoute.MotionSheet,
         SettingsRoute.Keyboard,
         SettingsRoute.Gestures,
         SettingsRoute.Apps,

@@ -273,4 +273,18 @@
     <string name="advanced_reset_app">Сбросить приложение</string>
     <string name="advanced_reset_text">Все спейсы, приложения в них, настройки и PIN приватного спейса будут удалены.</string>
     <string name="advanced_reset_confirm">Сбросить</string>
+    <string name="private_hint_title">Приватный спейс</string>
+    <string name="private_hint_text">Нажмите нижнюю плашку, затем свайпните вверх по открытому окошку и введите PIN.</string>
+    <string name="private_hint_check">Я знаю, как пользоваться приватным спейсом</string>
+    <string name="private_hint_done">Продолжить</string>
+    <string name="private_hint_space">Приватный</string>
+    <string name="style_theme_all">Тема всех спейсов</string>
+    <string name="theme_shared">Одна тема на все спейсы</string>
+    <string name="theme_shared_note">Палитра и цветные иконки меняются сразу во всех спейсах. У приватного спейса остаётся своё оформление.</string>
+    <string name="motion_sheet">Анимация</string>
+    <string name="motion_space">Смена спейса</string>
+    <string name="motion_slide">Сдвиг</string>
+    <string name="motion_fade">Растворение</string>
+    <string name="motion_none">Без анимации</string>
+    <string name="motion_note">Работает, когда спейс выбран в меню. Свайп по нижней плашке всегда ведёт страницы за пальцем.</string>
 </resources>

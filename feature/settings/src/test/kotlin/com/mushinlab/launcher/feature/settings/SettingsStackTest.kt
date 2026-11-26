@@ -17,6 +17,7 @@ class SettingsStackTest {
         SettingsRoute.ClockSheet,
         SettingsRoute.TextSheet,
         SettingsRoute.ThemeSheet,
+        SettingsRoute.MotionSheet,
         SettingsRoute.Privacy,
         SettingsRoute.MemoryApp(AppKey("org.telegram", "org.telegram.Main\$Alias", 10), sketch = true),
         SettingsRoute.MemoryPickApp,

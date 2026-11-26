@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.12.0 — 2026-11-27
+
+### Added
+- One theme for all spaces: a switch in the Theme sheet gives every space except the private one the same palette and color icons.
+- A Motion button in edit mode opens a sheet that chooses how the home screen changes space from the menu: slide, fade or no animation.
+
+### Changed
+- Swiping the bottom bar moves the page with your finger. The next space peeks in from the edge as a blurred preview with its name; a short drag springs back.
+- The private space introduction is a full-screen page with an animation, like the tips.
+
+### Fixed
+- The clock no longer flashes when the space changes.
+
 ## 0.11.0 — 2026-11-22
 
 ### Added

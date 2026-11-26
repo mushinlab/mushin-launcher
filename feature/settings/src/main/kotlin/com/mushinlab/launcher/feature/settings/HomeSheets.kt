@@ -29,12 +29,24 @@ import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.LauncherSettings
+import com.mushinlab.launcher.core.model.SpaceTransition
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinFonts
 import com.mushinlab.launcher.core.ui.MushinType
 
 @Composable
-internal fun ClockSheet(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+internal fun HomeSheetRoute(route: SettingsRoute, state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+    when (route) {
+        SettingsRoute.ClockSheet -> ClockSheet(state, actions, back)
+        SettingsRoute.TextSheet -> TextSheet(state, actions, back)
+        SettingsRoute.ThemeSheet -> ThemeSheet(state, actions, back)
+        SettingsRoute.MotionSheet -> MotionSheet(state, actions, back)
+        else -> Unit
+    }
+}
+
+@Composable
+private fun ClockSheet(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
     val s = state.settings
     val preferences = actions.preferences
     HomeSheet(stringResource(R.string.clock_sheet), "clock_sheet", back) {
@@ -81,7 +93,7 @@ private fun ClockRows(s: LauncherSettings, preferences: PreferenceActions) {
 }
 
 @Composable
-internal fun TextSheet(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+private fun TextSheet(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
     HomeSheet(stringResource(R.string.style_text), "text_sheet", back) {
         TextStyleRows(state.settings, actions.preferences)
         TextAlignRow(state.settings, actions.preferences)
@@ -90,15 +102,27 @@ internal fun TextSheet(state: SettingsUiState, actions: SettingsActions, back: (
 }
 
 @Composable
-internal fun ThemeSheet(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+private fun ThemeSheet(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
     val space = state.spaces.firstOrNull { it.current }
     if (space == null) {
         LaunchedEffect(Unit) { back() }
         return
     }
     val preferences = actions.preferences
-    HomeSheet(stringResource(R.string.style_theme, space.name), "theme_sheet", back) {
+    val shared = state.settings.sharedTheme
+    val title = if (shared) {
+        stringResource(
+            R.string.style_theme_all,
+        )
+    } else {
+        stringResource(R.string.style_theme, space.name)
+    }
+    HomeSheet(title, "theme_sheet", back) {
         PalettePicker(space.preset) { actions.spaces.setPalette(space.id, it) }
+        ToggleRow(stringResource(R.string.theme_shared), shared, tag = "theme_shared") {
+            actions.spaces.setSharedTheme(space.id, it)
+        }
+        NoteText(stringResource(R.string.theme_shared_note))
         val icons = state.settings.iconMode != IconMode.NONE
         ToggleRow(stringResource(R.string.home_icons), icons, tag = "theme_icons") { on ->
             preferences.updateSettings { it.copy(iconMode = if (on) IconMode.RIGHT else IconMode.NONE) }
@@ -108,6 +132,23 @@ internal fun ThemeSheet(state: SettingsUiState, actions: SettingsActions, back: 
         }
         NoteText(stringResource(R.string.space_colored_icons_note))
         NotificationRows(state, actions)
+    }
+}
+
+@Composable
+private fun MotionSheet(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+    HomeSheet(stringResource(R.string.motion_sheet), "motion_sheet", back) {
+        DropdownRow(
+            stringResource(R.string.motion_space),
+            listOf(
+                SpaceTransition.SLIDE to stringResource(R.string.motion_slide),
+                SpaceTransition.FADE to stringResource(R.string.motion_fade),
+                SpaceTransition.NONE to stringResource(R.string.motion_none),
+            ),
+            state.settings.spaceTransition,
+            "motion_space",
+        ) { transition -> actions.preferences.updateSettings { it.copy(spaceTransition = transition) } }
+        NoteText(stringResource(R.string.motion_note))
     }
 }
 

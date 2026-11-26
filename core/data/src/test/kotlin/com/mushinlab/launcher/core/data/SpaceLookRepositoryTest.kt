@@ -1,8 +1,12 @@
 package com.mushinlab.launcher.core.data
 
 import com.google.common.truth.Truth.assertThat
+import com.mushinlab.launcher.core.data.repo.PrivateSpaceRepository
 import com.mushinlab.launcher.core.data.repo.SpaceLookRepository
+import com.mushinlab.launcher.core.data.repo.SpaceOutcome
 import com.mushinlab.launcher.core.data.repo.SpaceRepository
+import com.mushinlab.launcher.core.model.PalettePreset
+import com.mushinlab.launcher.core.model.Palettes
 import com.mushinlab.launcher.core.model.SpaceType
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -93,5 +97,36 @@ class SpaceLookRepositoryTest {
         val reset = spaces.spaces.first { list -> list.any { it.id == normal.id && it.backgroundBlur == 0f } }
         assertThat(reset.first { it.id == normal.id }.backgroundBrightness).isEqualTo(0f)
         assertThat(reset.first { it.id == normal.id }.backgroundRowAlpha).isEqualTo(0.9f)
+    }
+
+    @Test
+    fun AC_54_1_shareThemeCopiesPaletteAndColoredIconsToEveryNonPrivateSpace() = runTest {
+        val repo = SpaceRepository(rule.db, backgroundScope, rule.clock)
+        val normal = repo.spaces.first { it.isNotEmpty() }.first { it.type == SpaceType.NORMAL }
+        val custom = (repo.create("Rest", SpaceType.CUSTOM, PalettePreset.MOSS) as SpaceOutcome.Ok).value
+        val private = PrivateSpaceRepository(rule.db, rule.clock).ensure("Private", PalettePreset.NIGHT)
+        repo.setPalette(normal.id, PalettePreset.PAPER)
+        repo.setColoredIcons(normal.id, false)
+        SpaceLookRepository(rule.db).shareTheme(normal.id)
+        val spaces = repo.spaces.first { list -> list.count { it.preset == PalettePreset.PAPER } == 3 }
+        spaces.filter { it.id != private }.forEach {
+            assertThat(it.palette).isEqualTo(Palettes.Paper)
+            assertThat(it.coloredIcons).isFalse()
+        }
+        assertThat(spaces.first { it.id == custom }.preset).isEqualTo(PalettePreset.PAPER)
+        assertThat(spaces.first { it.id == private }.preset).isEqualTo(PalettePreset.NIGHT)
+    }
+
+    @Test
+    fun AC_54_1_shareThemeFromThePrivateSpaceChangesNothing() = runTest {
+        val repo = SpaceRepository(rule.db, backgroundScope, rule.clock)
+        val private = PrivateSpaceRepository(rule.db, rule.clock).ensure("Private", PalettePreset.NIGHT)
+        SpaceLookRepository(rule.db).shareTheme(private)
+        val spaces = repo.spaces.first { list -> list.any { it.id == private } }
+        assertThat(spaces.map { it.preset }).containsExactly(
+            PalettePreset.GRAPHITE,
+            PalettePreset.NAVY,
+            PalettePreset.NIGHT,
+        ).inOrder()
     }
 }

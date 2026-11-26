@@ -37,6 +37,8 @@ internal data class ClockBackdrop(
     val frame: Rect = Rect.Zero,
     val loading: Boolean = false,
 ) {
+    val scene: ClockScene get() = ClockScene(pixels, surface)
+
     fun ink(bounds: Rect): Color {
         val area = bounds.inflate(blurPx).intersect(frame)
         val luminance = if (sampleable(bounds, area)) {
@@ -72,6 +74,8 @@ internal data class ClockBackdrop(
         return luminance / (SAMPLES * SAMPLES)
     }
 }
+
+internal data class ClockScene(val pixels: PixelMap?, val surface: Color)
 
 private const val SAMPLES = 9
 private const val SAMPLE_CENTER = 0.5f

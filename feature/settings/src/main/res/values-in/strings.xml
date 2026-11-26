@@ -270,4 +270,18 @@
     <string name="advanced_reset_app">Setel ulang aplikasi</string>
     <string name="advanced_reset_text">Semua ruang, aplikasi di dalamnya, setelan, dan PIN ruang privat akan dihapus.</string>
     <string name="advanced_reset_confirm">Setel ulang</string>
+    <string name="private_hint_title">Ruang privat</string>
+    <string name="private_hint_text">Ketuk bilah bawah, lalu geser ke atas pada menu yang terbuka dan masukkan PIN.</string>
+    <string name="private_hint_check">Saya tahu cara memakai ruang privat</string>
+    <string name="private_hint_done">Lanjutkan</string>
+    <string name="private_hint_space">Pribadi</string>
+    <string name="style_theme_all">Tema semua ruang</string>
+    <string name="theme_shared">Satu tema untuk semua ruang</string>
+    <string name="theme_shared_note">Palet dan ikon berwarna berubah di semua ruang sekaligus. Ruang pribadi tetap dengan tampilannya sendiri.</string>
+    <string name="motion_sheet">Animasi</string>
+    <string name="motion_space">Ganti ruang</string>
+    <string name="motion_slide">Geser</string>
+    <string name="motion_fade">Pudar</string>
+    <string name="motion_none">Tanpa animasi</string>
+    <string name="motion_note">Dipakai saat Anda memilih ruang di menu. Geser di bilah bawah selalu menggerakkan halaman mengikuti jari.</string>
 </resources>

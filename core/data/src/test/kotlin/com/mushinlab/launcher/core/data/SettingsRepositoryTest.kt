@@ -19,6 +19,7 @@ import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.KeyboardLanguages
 import com.mushinlab.launcher.core.model.LauncherSettings
 import com.mushinlab.launcher.core.model.PressFeedback
+import com.mushinlab.launcher.core.model.SpaceTransition
 import java.io.File
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -70,6 +71,8 @@ class SettingsRepositoryTest {
         assertThat(settings.onboardingDone).isFalse()
         assertThat(settings.gestureInput).isFalse()
         assertThat(settings.learnHints).isTrue()
+        assertThat(settings.sharedTheme).isFalse()
+        assertThat(settings.spaceTransition).isEqualTo(SpaceTransition.SLIDE)
     }
 
     @Test
@@ -98,6 +101,8 @@ class SettingsRepositoryTest {
                 learnHints = false,
                 showClock = false,
                 clockSize = ClockSize.L,
+                sharedTheme = true,
+                spaceTransition = SpaceTransition.FADE,
             )
         }
         val settings = repo.settings.first { it.currentSpaceId == 7L }
@@ -119,6 +124,8 @@ class SettingsRepositoryTest {
         assertThat(settings.learnHints).isFalse()
         assertThat(settings.showClock).isFalse()
         assertThat(settings.clockSize).isEqualTo(ClockSize.L)
+        assertThat(settings.sharedTheme).isTrue()
+        assertThat(settings.spaceTransition).isEqualTo(SpaceTransition.FADE)
         repo.update { it.copy(currentSpaceId = null) }
         assertThat(repo.settings.first { it.currentSpaceId == null }.iconMode).isEqualTo(IconMode.NONE)
     }

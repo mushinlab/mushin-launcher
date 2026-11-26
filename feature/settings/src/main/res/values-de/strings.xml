@@ -271,4 +271,18 @@
     <string name="advanced_reset_app">App zurücksetzen</string>
     <string name="advanced_reset_text">Alle Bereiche, ihre Apps, die Einstellungen und die PIN des privaten Bereichs werden gelöscht.</string>
     <string name="advanced_reset_confirm">Zurücksetzen</string>
+    <string name="private_hint_title">Privater Bereich</string>
+    <string name="private_hint_text">Tippen Sie auf die untere Leiste, wischen Sie dann im geöffneten Menü nach oben und geben Sie die PIN ein.</string>
+    <string name="private_hint_check">Ich weiß, wie ich den privaten Bereich nutze</string>
+    <string name="private_hint_done">Weiter</string>
+    <string name="private_hint_space">Privat</string>
+    <string name="style_theme_all">Design aller Bereiche</string>
+    <string name="theme_shared">Ein Design für alle Bereiche</string>
+    <string name="theme_shared_note">Palette und farbige Symbole ändern sich in allen Bereichen gleichzeitig. Der private Bereich behält sein eigenes Aussehen.</string>
+    <string name="motion_sheet">Bewegung</string>
+    <string name="motion_space">Bereichswechsel</string>
+    <string name="motion_slide">Schieben</string>
+    <string name="motion_fade">Überblenden</string>
+    <string name="motion_none">Keine</string>
+    <string name="motion_note">Gilt, wenn du einen Bereich im Menü wählst. Ein Wischen über die untere Leiste bewegt die Seiten immer mit dem Finger.</string>
 </resources>

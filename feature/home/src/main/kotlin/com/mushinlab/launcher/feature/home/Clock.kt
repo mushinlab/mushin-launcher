@@ -1,7 +1,7 @@
 package com.mushinlab.launcher.feature.home
 
 import android.text.format.DateFormat
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -164,22 +164,34 @@ private fun ClockDate(minute: State<Long>, ink: ClockInk) {
 private fun ClockLabel(text: String, style: TextStyle, tag: String, ink: ClockInk) {
     var bounds by remember { mutableStateOf(Rect.Zero) }
     val backdrop = LocalClockBackdrop.current
-    var automatic by remember { mutableStateOf(backdrop.ink(Rect.Zero)) }
+    val color = remember { Animatable(ink.fixed ?: backdrop.ink(Rect.Zero)) }
+    var measured by remember { mutableStateOf<ClockScene?>(null) }
     LaunchedEffect(backdrop, bounds, ink) {
-        if (ink == ClockInk.AUTO && !bounds.isEmpty && !backdrop.loading) automatic = backdrop.ink(bounds)
+        val fixed = ink.fixed
+        when {
+            fixed != null -> color.animateTo(fixed, tween(Motion.TRANSITION_MS))
+
+            !bounds.isEmpty && !backdrop.loading -> {
+                val target = backdrop.ink(bounds)
+                val sameScene = measured == backdrop.scene
+                measured = backdrop.scene
+                if (sameScene) color.animateTo(target, tween(Motion.TRANSITION_MS)) else color.snapTo(target)
+            }
+        }
     }
-    val target = when (ink) {
-        ClockInk.LIGHT -> Color.White
-        ClockInk.DARK -> Color.Black
-        ClockInk.AUTO -> automatic
-    }
-    val color by animateColorAsState(target, tween(Motion.TRANSITION_MS), label = "clock_ink")
     SingleLineText(
         text,
-        style.copy(color = color),
+        style.copy(color = color.value),
         Modifier.onGloballyPositioned { bounds = it.boundsInRoot() }.testTag(tag),
     )
 }
+
+private val ClockInk.fixed: Color?
+    get() = when (this) {
+        ClockInk.LIGHT -> Color.White
+        ClockInk.DARK -> Color.Black
+        ClockInk.AUTO -> null
+    }
 
 private val ClockSize.tileSp: Int
     get() = when (this) {

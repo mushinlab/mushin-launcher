@@ -30,4 +30,5 @@
     <string name="widget_move_after">Mover después</string>
     <string name="widget_grow">Agrandar</string>
     <string name="widget_shrink">Reducir</string>
+    <string name="home_edit_motion">Movimiento</string>
 </resources>

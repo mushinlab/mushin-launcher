@@ -16,8 +16,8 @@ android {
     namespace = "com.mushinlab.launcher"
     defaultConfig {
         applicationId = "com.mushinlab.launcher"
-        versionCode = 18
-        versionName = "0.11.0"
+        versionCode = 19
+        versionName = "0.12.0"
     }
     signingConfigs {
         if (uploadKeystore != null) {

@@ -57,4 +57,5 @@ data class HomeUiState(
     val suggestion: HomeSuggestion? = null,
     val widgetPanels: HomeWidgetPanels = HomeWidgetPanels(),
     val spaceName: String = "",
+    val spaceId: Long? = null,
 )

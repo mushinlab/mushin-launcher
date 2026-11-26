@@ -57,7 +57,7 @@ class ClockContrastUiTest : LauncherUiTestBase() {
         awaitInk(ComposeColor.Black)
         runBlocking {
             container.widgets.update {
-                val clock = HostedWidget.clock.copy(cell = WidgetCell(1, 0))
+                val clock = HostedWidget.clock.run { copy(cell = cell.at(WidgetCell.QUARTER, 0)) }
                 WidgetState(layouts = mapOf(normalId to WidgetLayout(listOf(clock))))
             }
         }

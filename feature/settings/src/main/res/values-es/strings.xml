@@ -272,4 +272,18 @@
     <string name="advanced_reset_app">Restablecer app</string>
     <string name="advanced_reset_text">Se eliminarán todos los espacios, sus apps, los ajustes y el PIN del espacio privado.</string>
     <string name="advanced_reset_confirm">Restablecer</string>
+    <string name="private_hint_title">Espacio privado</string>
+    <string name="private_hint_text">Toca la barra inferior, desliza hacia arriba en el menú abierto e introduce el PIN.</string>
+    <string name="private_hint_check">Sé cómo usar el espacio privado</string>
+    <string name="private_hint_done">Continuar</string>
+    <string name="private_hint_space">Privado</string>
+    <string name="style_theme_all">Tema de todos los espacios</string>
+    <string name="theme_shared">Un tema para todos los espacios</string>
+    <string name="theme_shared_note">La paleta y los iconos de color cambian a la vez en todos los espacios. El espacio privado conserva su propio aspecto.</string>
+    <string name="motion_sheet">Movimiento</string>
+    <string name="motion_space">Cambio de espacio</string>
+    <string name="motion_slide">Deslizar</string>
+    <string name="motion_fade">Fundido</string>
+    <string name="motion_none">Ninguna</string>
+    <string name="motion_note">Se usa al elegir un espacio en el menú. Deslizar sobre la barra inferior siempre mueve las páginas con el dedo.</string>
 </resources>

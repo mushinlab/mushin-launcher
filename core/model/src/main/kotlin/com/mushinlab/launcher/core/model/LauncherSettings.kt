@@ -9,6 +9,12 @@ enum class ClockFormat { SYSTEM, H24, H12 }
 /** Colour of the clock text: [AUTO] picks white or black from the backdrop, [LIGHT] is white and [DARK] is black. */
 enum class ClockInk { AUTO, LIGHT, DARK }
 
+/**
+ * How the home screen changes to another space when the change is not a swipe on the bottom bar (ADR-0054):
+ * [SLIDE] moves the pages sideways, [FADE] dissolves through the incoming space, [NONE] switches at once.
+ */
+enum class SpaceTransition { SLIDE, FADE, NONE }
+
 /** Size of home-screen app labels; [sp] is the font size in sp. */
 enum class HomeTextSize(val sp: Int) { S(sp = 22), M(sp = 26), L(sp = 30) }
 
@@ -76,7 +82,8 @@ object StrokeWidth {
  * Global preferences, persisted by `SettingsRepository`.
  *
  * [currentSpaceId] null means the normal space. Per-space options (palette, colored icons, list offset,
- * background) live in [Space]. [homeListOffset] null means the home list position is computed automatically.
+ * background) live in [Space]; with [sharedTheme] on, a palette or colored icons change applies to every space
+ * except the private one. [homeListOffset] null means the home list position is computed automatically.
  */
 data class LauncherSettings(
     val currentSpaceId: Long? = null,
@@ -111,4 +118,6 @@ data class LauncherSettings(
     val privatePinSalt: String? = null,
     val privatePinHash: String? = null,
     val privateHintSeen: Boolean = false,
+    val sharedTheme: Boolean = false,
+    val spaceTransition: SpaceTransition = SpaceTransition.SLIDE,
 )

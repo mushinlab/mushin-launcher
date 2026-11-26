@@ -272,4 +272,18 @@
     <string name="advanced_reset_app">Réinitialiser l’application</string>
     <string name="advanced_reset_text">Tous les espaces, leurs applications, les réglages et le code PIN de l’espace privé seront supprimés.</string>
     <string name="advanced_reset_confirm">Réinitialiser</string>
+    <string name="private_hint_title">Espace privé</string>
+    <string name="private_hint_text">Touchez la barre inférieure, balayez vers le haut dans le menu ouvert et saisissez le code PIN.</string>
+    <string name="private_hint_check">Je sais utiliser l’espace privé</string>
+    <string name="private_hint_done">Continuer</string>
+    <string name="private_hint_space">Privé</string>
+    <string name="style_theme_all">Thème de tous les espaces</string>
+    <string name="theme_shared">Un thème pour tous les espaces</string>
+    <string name="theme_shared_note">La palette et les icônes en couleur changent dans tous les espaces à la fois. L’espace privé garde son propre style.</string>
+    <string name="motion_sheet">Animation</string>
+    <string name="motion_space">Changement d’espace</string>
+    <string name="motion_slide">Glissement</string>
+    <string name="motion_fade">Fondu</string>
+    <string name="motion_none">Aucune</string>
+    <string name="motion_note">S’applique quand vous choisissez un espace dans le menu. Un balayage sur la barre du bas déplace toujours les pages avec le doigt.</string>
 </resources>

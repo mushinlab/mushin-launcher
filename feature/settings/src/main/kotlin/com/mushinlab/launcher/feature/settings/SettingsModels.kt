@@ -40,6 +40,8 @@ sealed interface SettingsRoute {
 
     data object ThemeSheet : SettingsRoute
 
+    data object MotionSheet : SettingsRoute
+
     data object Keyboard : SettingsRoute
 
     data object Gestures : SettingsRoute

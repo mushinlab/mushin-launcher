@@ -25,8 +25,4 @@
     <string name="private_repeat">Repeat the PIN</string>
     <string name="private_wrong">Wrong PIN</string>
     <string name="private_cancel">Cancel</string>
-    <string name="private_hint_title">Private space</string>
-    <string name="private_hint_text">Tap the bottom bar, then swipe up on the opened menu and enter the PIN.</string>
-    <string name="private_hint_check">I know how to use the private space</string>
-    <string name="private_hint_done">Continue</string>
 </resources>

@@ -30,4 +30,5 @@
     <string name="widget_move_after">Переместить позже</string>
     <string name="widget_grow">Увеличить</string>
     <string name="widget_shrink">Уменьшить</string>
+    <string name="home_edit_motion">Анимация</string>
 </resources>

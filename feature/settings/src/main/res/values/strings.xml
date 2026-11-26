@@ -272,4 +272,18 @@
     <string name="advanced_reset_app">Reset app</string>
     <string name="advanced_reset_text">All spaces, the apps in them, settings and the private space PIN will be deleted.</string>
     <string name="advanced_reset_confirm">Reset</string>
+    <string name="private_hint_title">Private space</string>
+    <string name="private_hint_text">Tap the bottom bar, then swipe up on the opened menu and enter the PIN.</string>
+    <string name="private_hint_check">I know how to use the private space</string>
+    <string name="private_hint_done">Continue</string>
+    <string name="private_hint_space">Private</string>
+    <string name="style_theme_all">Theme of all spaces</string>
+    <string name="theme_shared">One theme for all spaces</string>
+    <string name="theme_shared_note">The palette and color icons change in every space at once. The private space keeps its own look.</string>
+    <string name="motion_sheet">Motion</string>
+    <string name="motion_space">Space change</string>
+    <string name="motion_slide">Slide</string>
+    <string name="motion_fade">Fade</string>
+    <string name="motion_none">None</string>
+    <string name="motion_note">Used when you choose a space in the menu. A swipe on the bottom bar always moves the pages with your finger.</string>
 </resources>

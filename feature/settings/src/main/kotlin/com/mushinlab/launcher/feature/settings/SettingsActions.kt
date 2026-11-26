@@ -42,6 +42,8 @@ interface SpaceActions {
 
     fun setColoredIcons(id: Long, enabled: Boolean)
 
+    fun setSharedTheme(fromId: Long, enabled: Boolean)
+
     fun setSpaceItems(id: Long, keys: List<AppKey>)
 
     fun addSpaceItem(id: Long, key: AppKey)

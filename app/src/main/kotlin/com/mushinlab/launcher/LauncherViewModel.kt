@@ -113,6 +113,7 @@ class LauncherViewModel(
 
     val spaces = SpaceEditor(container, { id -> data.value?.items?.get(id).orEmpty() }, { capacity.value })
     val apps = AppEditor(container)
+    val themes = ThemeEditor(container)
     val preferences = PreferencesEditor(container)
     val memory = MemoryEditor(container)
     val suggestions = SuggestionEditor(container) { id -> data.value?.items?.get(id).orEmpty() }
@@ -142,13 +143,19 @@ class LauncherViewModel(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, initial?.palette ?: Palettes.Graphite)
 
-    val background: StateFlow<Bitmap?> = combine(container.spaces.spaces, container.settings.loaded) { spaces, s ->
-        s?.let { resolveCurrentSpace(spaces, it.currentSpaceId)?.id }
-    }
-        .combine(container.backgrounds.versions) { id, versions -> id?.let { it to versions[it] } }
-        .distinctUntilChanged()
-        .mapLatest { current -> current?.takeIf { it.second != null }?.let { container.backgrounds.load(it.first) } }
-        .flowOn(Dispatchers.IO)
+    private val spaceBackground: StateFlow<SpaceBitmap> =
+        combine(container.spaces.spaces, container.settings.loaded) { spaces, s ->
+            s?.let { resolveCurrentSpace(spaces, it.currentSpaceId)?.id }
+        }
+            .combine(container.backgrounds.versions) { id, versions -> id to id?.let { versions[it] } }
+            .distinctUntilChanged()
+            .mapLatest { (id, version) ->
+                SpaceBitmap(id, if (id != null && version != null) container.backgrounds.load(id) else null)
+            }
+            .flowOn(Dispatchers.IO)
+            .stateIn(viewModelScope, SharingStarted.Eagerly, SpaceBitmap(null, null))
+
+    val background: StateFlow<Bitmap?> = spaceBackground.map { it.bitmap }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     val coloredIcons: StateFlow<Boolean> = data.map { it?.current?.coloredIcons == true }
@@ -196,14 +203,7 @@ class LauncherViewModel(
         state.copy(widgetPanels = widgetPanels(layout))
     }.stateIn(viewModelScope, SharingStarted.Eagerly, snapshotState(initial, roleHeld.value))
 
-    val slides = SpaceSlideController(
-        container,
-        viewModelScope,
-        data,
-        home,
-        background,
-        SlideFacts(roleHeld, capacity),
-    )
+    val pager = SpacePager(container, viewModelScope, data, home, spaceBackground)
     val privateSpace = PrivateSpaceController(container, viewModelScope, resources, data, navigator)
     val reset = ResetController(container, viewModelScope, resources, privateSpace, navigator)
 

@@ -12,17 +12,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -33,6 +28,7 @@ import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.pressable
+import com.mushinlab.launcher.feature.settings.tips.PrivateIntro
 
 @Composable
 internal fun PrivateGateLayer(vm: LauncherViewModel) {
@@ -134,78 +130,10 @@ internal fun PrivateHintLayer(vm: LauncherViewModel) {
     val onboarding by vm.onboardingDone.collectAsStateWithLifecycle()
     val settings by vm.settings.collectAsStateWithLifecycle()
     if (onboarding != true || settings.privateHintSeen) return
-    var checked by rememberSaveable { mutableStateOf(false) }
-    val colors = LocalMushinColors.current
-    Box(
-        Modifier.zIndex(7f).fillMaxSize().background(colors.background.copy(alpha = SCRIM)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            Modifier
-                .padding(CARD_MARGIN)
-                .fillMaxWidth()
-                .background(colors.surface, CARD_SHAPE)
-                .padding(CARD_PADDING)
-                .testTag("private_hint"),
-        ) {
-            SingleLineText(
-                stringResource(R.string.private_hint_title),
-                MushinType.style(MushinType.resultSize, colors.textPrimary),
-            )
-            Spacer(Modifier.height(12.dp))
-            SingleLineText(
-                stringResource(R.string.private_hint_text),
-                MushinType.style(MushinType.secondarySize, colors.textSecondary),
-            )
-            Spacer(Modifier.height(16.dp))
-            HintCheck(checked) { checked = !checked }
-            Spacer(Modifier.height(20.dp))
-            HintDone(checked) {
-                vm.preferences.update { it.copy(privateHintSeen = true) }
-            }
-        }
-    }
-}
-
-@Composable
-private fun HintCheck(checked: Boolean, onToggle: () -> Unit) {
-    val colors = LocalMushinColors.current
-    Row(
-        Modifier.pressable(onClick = onToggle).testTag("private_hint_check"),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            Modifier
-                .size(CHECK_SIZE)
-                .background(if (checked) colors.accent else Color.Transparent, CHECK_SHAPE)
-                .border(OFFLINE_WIDTH, colors.textSecondary, CHECK_SHAPE),
-        )
-        Spacer(Modifier.width(12.dp))
-        SingleLineText(
-            stringResource(R.string.private_hint_check),
-            MushinType.style(MushinType.secondarySize, colors.textPrimary),
-        )
-    }
-}
-
-@Composable
-private fun HintDone(checked: Boolean, onDone: () -> Unit) {
-    val colors = LocalMushinColors.current
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .height(BUTTON_HEIGHT)
-            .background(if (checked) colors.accent else colors.keyBackground, BUTTON_SHAPE)
-            .pressable(enabled = checked, onClick = onDone)
-            .testTag("private_hint_done")
-            .alpha(if (checked) 1f else DISABLED_ALPHA),
-        contentAlignment = Alignment.Center,
-    ) {
-        SingleLineText(
-            stringResource(R.string.private_hint_done),
-            MushinType.style(MushinType.secondarySize, if (checked) colors.background else colors.textSecondary),
-        )
-    }
+    PrivateIntro(
+        onDone = { vm.preferences.update { it.copy(privateHintSeen = true) } },
+        modifier = Modifier.zIndex(7f),
+    )
 }
 
 private val CARD_MARGIN = 24.dp
@@ -216,10 +144,5 @@ private val DOT_GAP = 12.dp
 private val KEY_SIZE = 56.dp
 private val KEY_GAP = 8.dp
 private val KEY_TEXT = MushinType.keySize
-private val CHECK_SIZE = 28.dp
-private val CHECK_SHAPE = RoundedCornerShape(6.dp)
-private val BUTTON_HEIGHT = 48.dp
-private val BUTTON_SHAPE = RoundedCornerShape(12.dp)
 private val OFFLINE_WIDTH = 1.dp
 private const val SCRIM = 0.9f
-private const val DISABLED_ALPHA = 0.5f

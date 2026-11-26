@@ -1,13 +1,15 @@
 package com.mushinlab.launcher.core.data.repo
 
+import androidx.room.withTransaction
 import com.mushinlab.launcher.core.data.db.MushinDatabase
 import com.mushinlab.launcher.core.model.SpaceBackground
+import com.mushinlab.launcher.core.model.SpaceType
 
 /**
- * Background look of spaces (ADR-0020, ADR-0026), stored in the `environment` table and read through
- * [SpaceRepository.spaces]. The images themselves are files kept by the background store.
+ * Background look (ADR-0020, ADR-0026) and shared theme (ADR-0054) of spaces, stored in the `environment` table
+ * and read through [SpaceRepository.spaces]. The images themselves are files kept by the background store.
  */
-class SpaceLookRepository(db: MushinDatabase) {
+class SpaceLookRepository(private val db: MushinDatabase) {
     private val spaceDao = db.spaceDao()
 
     /**
@@ -27,5 +29,26 @@ class SpaceLookRepository(db: MushinDatabase) {
             SpaceBackground.blur(blur),
             SpaceBackground.rowAlpha(rowAlpha),
         )
+    }
+
+    /**
+     * Gives every space except the private one the palette and colored icons of space [fromId] (ADR-0054);
+     * nothing changes when [fromId] is missing or private.
+     */
+    suspend fun shareTheme(fromId: Long) {
+        db.withTransaction {
+            val source = spaceDao.get(fromId)?.takeIf { it.type != SpaceType.PRIVATE.name } ?: return@withTransaction
+            spaceDao.getAll()
+                .filter { it.id != source.id && it.type != SpaceType.PRIVATE.name }
+                .forEach { target ->
+                    with(source) {
+                        spaceDao.setPalette(
+                            target.id, palettePreset, background, zebraA, zebraB, textPrimary, textSecondary, accent,
+                            iconTint, divider, surface, keyBackground, keyPressed, isDark,
+                        )
+                    }
+                    spaceDao.setColoredIcons(target.id, source.coloredIcons)
+                }
+        }
     }
 }

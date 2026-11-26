@@ -30,4 +30,5 @@
     <string name="widget_move_after">Nach hinten verschieben</string>
     <string name="widget_grow">Vergrößern</string>
     <string name="widget_shrink">Verkleinern</string>
+    <string name="home_edit_motion">Bewegung</string>
 </resources>

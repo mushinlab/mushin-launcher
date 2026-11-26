@@ -137,9 +137,13 @@ internal class HomeGestureHandler(
         actions.value.onSwipe(direction, fromShadeZone)
     }
 
-    override fun onBarSwipe(direction: SwipeDirection) {
-        view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
-        actions.value.onBarSwipe(direction)
+    override fun onBarDrag(dx: Float) {
+        actions.value.onBarDrag(dx)
+    }
+
+    override fun onBarRelease(direction: SwipeDirection?) {
+        if (direction != null) view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+        actions.value.onBarRelease(direction)
     }
 
     override fun onClockTap() {

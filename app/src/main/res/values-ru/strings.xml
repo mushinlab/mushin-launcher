@@ -25,8 +25,4 @@
     <string name="private_repeat">Повторите PIN</string>
     <string name="private_wrong">Неверный PIN</string>
     <string name="private_cancel">Отмена</string>
-    <string name="private_hint_title">Приватный спейс</string>
-    <string name="private_hint_text">Нажмите нижнюю плашку, затем свайпните вверх по открытому окошку и введите PIN.</string>
-    <string name="private_hint_check">Я знаю, как пользоваться приватным спейсом</string>
-    <string name="private_hint_done">Продолжить</string>
 </resources>

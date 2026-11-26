@@ -102,7 +102,9 @@ interface HomeGestureActions {
 
     fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean)
 
-    fun onBarSwipe(direction: SwipeDirection)
+    fun onBarDrag(dx: Float)
+
+    fun onBarRelease(direction: SwipeDirection?)
 
     fun onDraw(points: List<Offset>, width: Float)
 }
@@ -147,6 +149,8 @@ interface HomeEditActions : HomeWidgetActions {
     fun onEditText()
 
     fun onEditTheme()
+
+    fun onEditMotion()
 
     fun onEditTips()
 

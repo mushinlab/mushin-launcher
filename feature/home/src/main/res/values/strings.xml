@@ -30,4 +30,5 @@
     <string name="widget_move_after">Move later</string>
     <string name="widget_grow">Make larger</string>
     <string name="widget_shrink">Make smaller</string>
+    <string name="home_edit_motion">Motion</string>
 </resources>

@@ -118,6 +118,7 @@ internal fun homeState(
         backgroundRowAlpha = d.current?.backgroundRowAlpha ?: SpaceBackground.ROW_ALPHA_DEFAULT,
         roleMissing = !roleHeld,
         spaceName = d.current?.name.orEmpty(),
+        spaceId = d.current?.id,
     )
 }
 
@@ -139,6 +140,7 @@ internal fun snapshotState(snapshot: HomeSnapshot?, roleHeld: Boolean): HomeUiSt
         roleMissing = !roleHeld,
         widgetPanels = widgetPanels(snapshot.widgetLayout),
         spaceName = snapshot.spaceName,
+        spaceId = snapshot.spaceId,
     )
 }
 

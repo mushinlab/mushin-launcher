@@ -97,6 +97,8 @@ class SettingsRepository(
         internal val PRIVATE_PIN_SALT = stringPreferencesKey("private_pin_salt")
         internal val PRIVATE_PIN_HASH = stringPreferencesKey("private_pin_hash")
         internal val PRIVATE_HINT_SEEN = booleanPreferencesKey("private_hint_seen")
+        internal val SHARED_THEME = booleanPreferencesKey("shared_theme")
+        internal val SPACE_TRANSITION = stringPreferencesKey("space_transition")
         internal val FONT = stringPreferencesKey("font")
         internal val FONT_WEIGHT = stringPreferencesKey("font_weight")
         internal val HOME_TEXT_SIZE = stringPreferencesKey("home_text_size")
@@ -159,6 +161,8 @@ class SettingsRepository(
                 privatePinSalt = prefs[PRIVATE_PIN_SALT],
                 privatePinHash = prefs[PRIVATE_PIN_HASH],
                 privateHintSeen = prefs.valueOr(PRIVATE_HINT_SEEN, defaults.privateHintSeen),
+                sharedTheme = prefs.valueOr(SHARED_THEME, defaults.sharedTheme),
+                spaceTransition = enumOr(prefs[SPACE_TRANSITION], defaults.spaceTransition),
                 gestureInput = prefs.valueOr(GESTURE_INPUT, defaults.gestureInput),
                 learnHints = prefs.valueOr(LEARN_HINTS, defaults.learnHints),
             )
@@ -197,6 +201,8 @@ class SettingsRepository(
             settings.privatePinSalt?.let { prefs[PRIVATE_PIN_SALT] = it } ?: prefs.remove(PRIVATE_PIN_SALT)
             settings.privatePinHash?.let { prefs[PRIVATE_PIN_HASH] = it } ?: prefs.remove(PRIVATE_PIN_HASH)
             prefs[PRIVATE_HINT_SEEN] = settings.privateHintSeen
+            prefs[SHARED_THEME] = settings.sharedTheme
+            prefs[SPACE_TRANSITION] = settings.spaceTransition.name
             prefs[GESTURE_INPUT] = settings.gestureInput
             prefs[LEARN_HINTS] = settings.learnHints
         }

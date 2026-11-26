@@ -19,6 +19,7 @@ import com.mushinlab.launcher.core.model.ClockFormat
 import com.mushinlab.launcher.core.model.GestureTuning
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.PalettePreset
+import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.StrokeColor
 import com.mushinlab.launcher.feature.settings.R as SettingsR
 import com.mushinlab.launcher.feature.settings.SettingsRoute
@@ -101,9 +102,15 @@ class SettingsUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun systemHasPrivacyWithStoredDataFoldedAndNoAdvanced() {
+    fun systemHasAdvancedWithResetApp() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.System) }
-        rule.onNodeWithTag("nav_advanced").assertDoesNotExist()
+        rule.onNodeWithTag("nav_advanced").performScrollTo().performClick()
+        rule.onNodeWithTag("reset_app").assertIsDisplayed()
+    }
+
+    @Test
+    fun systemHasPrivacyWithStoredDataFolded() {
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.System) }
         rule.onNodeWithTag("nav_privacy").performScrollTo().performClick()
         rule.onNodeWithTag("privacy_delete_memory").assertIsDisplayed()
         val history = rule.activity.getString(SettingsR.string.memory_usage)
@@ -163,6 +170,21 @@ class SettingsUiTest : LauncherUiTestBase() {
                     it.homeTextAlign == HomeTextAlign.END
             }
         }
+    }
+
+    @Test
+    fun AC_54_1_oneThemeForAllSpacesAppliesThePaletteEverywhere() {
+        rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.ThemeSheet) }
+        rule.onNodeWithTag("theme_shared").performScrollTo().performClick()
+        rule.waitUntil(5_000) { container.settings.settings.value.sharedTheme }
+        rule.onNodeWithTag("palette_PLUM").performScrollTo().performClick()
+        rule.waitUntil(5_000) {
+            container.spaces.spaces.value.filter {
+                it.type != SpaceType.PRIVATE
+            }.all { it.preset == PalettePreset.PLUM }
+        }
+        assertThat(container.spaces.spaces.value.filter { it.type == SpaceType.PRIVATE }.map { it.preset })
+            .doesNotContain(PalettePreset.PLUM)
     }
 
     @Test

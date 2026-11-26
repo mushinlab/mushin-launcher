@@ -25,8 +25,4 @@
     <string name="private_repeat">Repite el PIN</string>
     <string name="private_wrong">PIN incorrecto</string>
     <string name="private_cancel">Cancelar</string>
-    <string name="private_hint_title">Espacio privado</string>
-    <string name="private_hint_text">Toca la barra inferior, desliza hacia arriba en el menú abierto e introduce el PIN.</string>
-    <string name="private_hint_check">Sé cómo usar el espacio privado</string>
-    <string name="private_hint_done">Continuar</string>
 </resources>

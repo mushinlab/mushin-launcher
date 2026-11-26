@@ -100,7 +100,7 @@ internal fun PopupLayer(vm: LauncherViewModel) {
 private fun popupActions(vm: LauncherViewModel) = object : PopupActions {
     override fun onSelectSpace(id: Long) {
         vm.navigator.overlay = Overlay.None
-        vm.slides.select(id)
+        vm.pager.select(id)
     }
 
     override fun onOpenSpaceSettings(id: Long) {

@@ -82,11 +82,8 @@ private fun SettingsRouteScreen(
         ->
             SpaceRouteScreen(route, state, actions, push, back)
 
-        SettingsRoute.ClockSheet -> ClockSheet(state, actions, back)
-
-        SettingsRoute.TextSheet -> TextSheet(state, actions, back)
-
-        SettingsRoute.ThemeSheet -> ThemeSheet(state, actions, back)
+        SettingsRoute.ClockSheet, SettingsRoute.TextSheet, SettingsRoute.ThemeSheet, SettingsRoute.MotionSheet ->
+            HomeSheetRoute(route, state, actions, back)
 
         SettingsRoute.Keyboard, SettingsRoute.Gestures, is SettingsRoute.PickGestureApp ->
             InputRouteScreen(route, state, actions, push, back)

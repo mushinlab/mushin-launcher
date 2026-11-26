@@ -18,7 +18,13 @@ class SpaceEditor(
 
     suspend fun create(name: String, type: SpaceType): String? {
         val preset = if (type == SpaceType.WORK) PalettePreset.NAVY else PalettePreset.MOSS
-        return repository.create(name, type, preset).errorCode()
+        val outcome = repository.create(name, type, preset)
+        if (outcome is SpaceOutcome.Ok && container.settings.settings.value.sharedTheme) {
+            repository.spaces.value
+                .firstOrNull { it.id != outcome.value && it.type != SpaceType.PRIVATE }
+                ?.let { container.looks.shareTheme(it.id) }
+        }
+        return outcome.errorCode()
     }
 
     suspend fun rename(id: Long, name: String): String? = repository.rename(id, name).errorCode()
@@ -41,10 +47,6 @@ class SpaceEditor(
     }
 
     fun removeItem(id: Long, key: AppKey) = container.inBackground { repository.removeItem(id, key) }
-
-    fun setPalette(id: Long, preset: PalettePreset) = container.inBackground { repository.setPalette(id, preset) }
-
-    fun setColoredIcons(id: Long, enabled: Boolean) = container.inBackground { repository.setColoredIcons(id, enabled) }
 
     fun setListOffset(id: Long, dp: Int) = container.inBackground { repository.setListOffset(id, dp) }
 }
