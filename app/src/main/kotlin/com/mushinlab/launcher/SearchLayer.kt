@@ -106,6 +106,7 @@ internal fun rememberSearchChrome(settings: LauncherSettings): SearchChrome {
             gestureSuggestMargin = settings.gestureSuggestMargin,
             keyboardWidth = settings.keyboardWidth,
             keyboardShift = settings.keyboardShift,
+            keyboardLift = settings.keyboardLift.dp,
         )
     }
 }
@@ -183,6 +184,10 @@ private fun searchActions(vm: LauncherViewModel) = object : SearchActions {
 
     override fun onKeyboardFit(width: Float, shift: Float) {
         vm.preferences.update { it.copy(keyboardWidth = width, keyboardShift = shift) }
+    }
+
+    override fun onKeyboardLift(dp: Int) {
+        vm.preferences.update { it.copy(keyboardLift = dp) }
     }
 }
 

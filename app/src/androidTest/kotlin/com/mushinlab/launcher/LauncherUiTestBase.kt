@@ -76,6 +76,7 @@ abstract class LauncherUiTestBase {
                 notificationCounts = false,
                 keyboardWidth = KeyboardFit.WIDTH_MAX,
                 keyboardShift = 0f,
+                keyboardLift = 0,
                 homeListOffset = null,
                 pressFeedback = PressFeedback.FLASH,
                 gestureShiftPenalty = GestureTuning.SHIFT_PENALTY,

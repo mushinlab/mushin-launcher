@@ -10,10 +10,14 @@ internal enum class WidgetEdge(val alignment: Alignment, val horizontal: Boolean
     BOTTOM(Alignment.BottomCenter, false),
 }
 
-internal fun WidgetCell.moved(columns: Int, rows: Int): WidgetCell = at(
-    (column + columns).coerceIn(0, WidgetCell.COLUMNS - columnSpan),
-    (row + rows).coerceIn(0, WidgetCell.ROWS - rowSpan),
-)
+internal fun WidgetCell.moved(columns: Int, rows: Int): WidgetCell {
+    val top = (row + rows).coerceIn(0, WidgetCell.ROWS - 1)
+    return copy(
+        column = (column + columns).coerceIn(0, WidgetCell.COLUMNS - columnSpan),
+        row = top,
+        rowSpan = minOf(rowSpan, WidgetCell.ROWS - top),
+    )
+}
 
 internal fun WidgetCell.resized(edge: WidgetEdge, steps: Int): WidgetCell = when (edge) {
     WidgetEdge.END -> copy(columnSpan = (columnSpan + steps).coerceIn(1, WidgetCell.COLUMNS - column))

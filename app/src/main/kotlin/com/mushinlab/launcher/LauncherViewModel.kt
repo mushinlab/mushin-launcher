@@ -203,7 +203,7 @@ class LauncherViewModel(
         state.copy(widgetPanels = widgetPanels(layout))
     }.stateIn(viewModelScope, SharingStarted.Eagerly, snapshotState(initial, roleHeld.value))
 
-    val pager = SpacePager(container, viewModelScope, data, home, spaceBackground)
+    val pager = SpacePager(container, viewModelScope, data, home, spaceBackground, SlideFacts(roleHeld, capacity))
     val privateSpace = PrivateSpaceController(container, viewModelScope, resources, data, navigator)
     val reset = ResetController(container, viewModelScope, resources, privateSpace, navigator)
 

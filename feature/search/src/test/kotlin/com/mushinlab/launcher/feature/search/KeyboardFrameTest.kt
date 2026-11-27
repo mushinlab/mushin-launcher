@@ -34,4 +34,14 @@ class KeyboardFrameTest {
         assertThat(frame.dragStart(-100f, total).left).isEqualTo(0f)
         assertThat(frame.dragEnd(100f, total).right).isEqualTo(1000f)
     }
+
+    @Test
+    fun AC_56_2_liftStaysBetweenTheBottomAndTheRoomLeftForTheList() {
+        val drag = LiftDrag(start = 100f, room = 300f, cap = 1000f)
+        assertThat(drag.at(-50f)).isEqualTo(150f)
+        assertThat(drag.at(-1000f)).isEqualTo(400f)
+        assertThat(drag.at(500f)).isEqualTo(0f)
+        assertThat(LiftDrag(100f, 300f, 200f).at(-1000f)).isEqualTo(200f)
+        assertThat(LiftDrag(100f, -300f, 1000f).at(0f)).isEqualTo(0f)
+    }
 }

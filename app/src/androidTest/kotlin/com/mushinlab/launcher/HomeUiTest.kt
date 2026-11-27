@@ -4,6 +4,7 @@ import android.content.IntentFilter
 import android.database.sqlite.SQLiteDatabase
 import android.provider.AlarmClock
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
@@ -11,6 +12,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
@@ -43,6 +45,7 @@ import com.mushinlab.launcher.core.model.SpaceTransition
 import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.Usefulness
+import com.mushinlab.launcher.core.ui.MushinColors
 import com.mushinlab.launcher.feature.home.R as HomeR
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 import java.time.LocalDate
@@ -152,7 +155,7 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun AC_54_2_draggingTheBottomBarShowsTheBlurredNextSpaceAndShortReleaseStays() {
+    fun AC_54_2_draggingTheBottomBarShowsTheNextSpaceAndShortReleaseStays() {
         val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }
         rule.onNodeWithTag("home_bar").performTouchInput {
             down(center)
@@ -168,19 +171,24 @@ class HomeUiTest : LauncherUiTestBase() {
 
     @Test
     fun AC_54_2_thePageEdgeStaysUnderTheFingerOnEveryMove() {
-        val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }
-        val start = rule.onNodeWithTag("home_bar").fetchSemanticsNode().boundsInRoot.center
+        val spaces = container.spaces.spaces.value
+        val current = MushinColors.from(spaces.first { it.id == normalId }.palette).background
+        val next = MushinColors.from(spaces.first { it.type == SpaceType.WORK }.palette).background
+        val bar = rule.onNodeWithTag("home_bar").fetchSemanticsNode().boundsInRoot
         val width = rule.onNodeWithTag("home").fetchSemanticsNode().size.width
+        val y = bar.top.toInt() + 3
         var dx = -1f
         rule.onRoot().performTouchInput {
-            down(start)
+            down(bar.center)
             moveBy(Offset(dx, 0f), 16)
         }
         repeat(8) {
             dx -= 40f
             rule.onRoot().performTouchInput { moveBy(Offset(-40f, 0f), 50) }
-            val edge = rule.onNodeWithTag("space_preview_${work.id}").fetchSemanticsNode().positionInRoot.x
-            assertThat(edge).isWithin(2f).of(width + dx)
+            val pixels = rule.onRoot().captureToImage().toPixelMap()
+            val edge = (width + dx).toInt()
+            assertThat(pixels[edge - 6, y]).isEqualTo(current)
+            assertThat(pixels[edge + 6, y]).isEqualTo(next)
         }
         rule.onRoot().performTouchInput { up() }
     }

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.13.0 — 2026-11-27
+
+### Changed
+- Swiping the bottom bar shows the real next space next to your finger — its own palette, wallpaper, clock, widgets and apps — instead of a blurred preview, and nothing swaps when the space changes.
+- Edit mode shows a single Add widget button at the first free place.
+- Widgets move as soon as you drag them in edit mode, without holding first. A tall widget dropped too low becomes shorter to fit the panel.
+- The widget picker groups widgets by app and shows a preview of each one.
+- In keyboard resize mode you can drag the keyboard up: the result list gets shorter and the space below the keyboard stays empty.
+
 ## 0.12.0 — 2026-11-27
 
 ### Added

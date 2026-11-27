@@ -2,12 +2,18 @@ package com.mushinlab.launcher
 
 import android.graphics.Bitmap
 import androidx.compose.runtime.Immutable
+import com.mushinlab.launcher.core.apps.icons.IconKey
 import com.mushinlab.launcher.core.data.repo.neighborSpace
+import com.mushinlab.launcher.core.model.GestureAction
+import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.Palette
 import com.mushinlab.launcher.core.model.Space
 import com.mushinlab.launcher.core.model.SpaceTransition
 import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
+import com.mushinlab.launcher.core.model.WidgetLayout
+import com.mushinlab.launcher.core.model.WidgetState
+import com.mushinlab.launcher.core.model.swipesByApp
 import com.mushinlab.launcher.feature.home.HomeUiState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,33 +23,33 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Immutable
-data class SpacePreview(
+data class SpacePage(
     val id: Long,
-    val name: String,
+    val state: HomeUiState,
     val palette: Palette,
     val background: Bitmap?,
-    val brightness: Float,
-    val rows: Int,
+    val coloredIcons: Boolean,
 )
 
 @Immutable
-data class SpaceNeighbors(val previous: SpacePreview? = null, val next: SpacePreview? = null)
+data class SpaceNeighbors(val previous: SpacePage? = null, val next: SpacePage? = null)
 
 @Immutable
-data class SpaceSwitch(val target: SpacePreview, val transition: SpaceTransition, val direction: SwipeDirection)
+data class SpaceSwitch(val target: SpacePage, val transition: SpaceTransition, val direction: SwipeDirection)
 
 class SpaceBitmap(val spaceId: Long?, val bitmap: Bitmap?)
+
+class SlideFacts(val roleHeld: StateFlow<Boolean>, val capacity: StateFlow<Int>)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SpacePager(
@@ -52,25 +58,45 @@ class SpacePager(
     private val data: StateFlow<LauncherData?>,
     private val home: StateFlow<HomeUiState>,
     private val background: StateFlow<SpaceBitmap>,
+    private val facts: SlideFacts,
 ) {
     private val requestFlow = MutableStateFlow<SpaceSwitch?>(null)
     val request: StateFlow<SpaceSwitch?> = requestFlow.asStateFlow()
     private var pending = false
+    private val wallpapers = MutableStateFlow<Map<Long, Wallpaper>>(emptyMap())
 
-    val neighbors: StateFlow<SpaceNeighbors> = data.filterNotNull()
-        .map { d ->
-            val previous = neighborSpace(d.spaces, d.current?.id, -1)
-            val next = neighborSpace(d.spaces, d.current?.id, 1)
-            NeighborKey(previous, next, listOfNotNull(previous, next).map { d.items[it.id]?.size ?: 0 })
-        }
-        .combine(container.backgrounds.versions) { key, versions -> key to versions }
-        .distinctUntilChanged()
-        .mapLatest { (key, _) ->
-            val d = data.value
-            SpaceNeighbors(key.previous?.let { preview(d, it) }, key.next?.let { preview(d, it) })
+    private val pages = combine(
+        data.filterNotNull(),
+        container.widgets.loaded,
+        container.gestures.bindings,
+    ) { d, widgets, bindings -> PageInputs(d, widgets, bindings) }
+        .mapLatest { inputs ->
+            val d = inputs.data
+            listOf(-1, 1).map { step -> neighborSpace(d.spaces, d.current?.id, step)?.let { page(inputs, it) } }
         }
         .flowOn(Dispatchers.IO)
-        .stateIn(scope, SharingStarted.Eagerly, SpaceNeighbors())
+
+    val neighbors: StateFlow<SpaceNeighbors> = combine(pages, wallpapers) { (previous, next), images ->
+        SpaceNeighbors(previous?.dressed(images), next?.dressed(images))
+    }.stateIn(scope, SharingStarted.Eagerly, SpaceNeighbors())
+
+    fun warm() {
+        val versions = container.backgrounds.versions.value
+        val ids = listOfNotNull(neighbors.value.previous?.id, neighbors.value.next?.id)
+            .filter { id -> versions[id] != null && wallpapers.value[id]?.version != versions[id] }
+        if (ids.isEmpty()) return
+        scope.launch(Dispatchers.IO) {
+            ids.forEach { id ->
+                val version = versions[id] ?: return@forEach
+                val bitmap = container.backgrounds.load(id) ?: return@forEach
+                wallpapers.update { it + (id to Wallpaper(version, bitmap)) }
+            }
+        }
+    }
+
+    fun cool() {
+        wallpapers.value = emptyMap()
+    }
 
     fun select(id: Long) {
         val d = data.value ?: return
@@ -90,8 +116,11 @@ class SpacePager(
         pending = true
         scope.launch {
             try {
-                val preview = withContext(Dispatchers.IO) { preview(d, target) }
-                requestFlow.value = SpaceSwitch(preview, transition, direction)
+                val page = withContext(Dispatchers.IO) {
+                    val inputs = PageInputs(d, container.widgets.loaded.value, container.gestures.bindings.value)
+                    page(inputs, target).copy(background = loadBackground(target.id))
+                }
+                requestFlow.value = SpaceSwitch(page, transition, direction)
             } finally {
                 pending = false
             }
@@ -110,23 +139,41 @@ class SpacePager(
         requestFlow.value = null
     }
 
-    private fun preview(d: LauncherData?, space: Space): SpacePreview = SpacePreview(
-        id = space.id,
-        name = space.name,
-        palette = space.palette,
-        background = if (space.id in container.backgrounds.versions.value) {
-            container.backgrounds.loadThumbnail(space.id, THUMBNAIL_SIDE)
-        } else {
-            null
-        },
-        brightness = space.backgroundBrightness,
-        rows = d?.items?.get(space.id)?.size?.coerceAtMost(PREVIEW_ROWS) ?: 0,
+    private fun loadBackground(id: Long): Bitmap? =
+        if (id in container.backgrounds.versions.value) container.backgrounds.load(id) else null
+
+    private fun SpacePage.dressed(images: Map<Long, Wallpaper>): SpacePage =
+        images[id]?.let { copy(background = it.bitmap) } ?: this
+
+    private suspend fun page(inputs: PageInputs, space: Space): SpacePage {
+        val pageData = inputs.data.copy(current = space)
+        val swipes = inputs.bindings.swipesByApp()
+        if (pageData.settings.iconMode != IconMode.NONE) {
+            val sizePx = (HOME_ICON_DP * container.densityScale()).toInt()
+            pageData.currentItems().forEach { key ->
+                pageData.apps[key]?.let {
+                    container.icons.load(IconKey(key, it.lastUpdateTime, sizePx, space.coloredIcons))
+                }
+            }
+        }
+        val layout = inputs.widgets?.layouts?.get(space.id) ?: WidgetLayout()
+        val stats = SpaceStats(container.history.spaceUsage.value, container.history.launchDays.value)
+        val state = homeState(pageData, facts.roleHeld.value, container.notificationCounts.value, swipes).copy(
+            widgetPanels = widgetPanels(layout),
+            suggestion = suggestionFor(pageData, stats, swipes.keys, facts.capacity.value, System.currentTimeMillis()),
+        )
+        return SpacePage(space.id, state, space.palette, null, space.coloredIcons)
+    }
+
+    private class PageInputs(
+        val data: LauncherData,
+        val widgets: WidgetState?,
+        val bindings: Map<SwipeDirection, GestureAction>,
     )
 
-    private data class NeighborKey(val previous: Space?, val next: Space?, val rows: List<Int>)
+    private class Wallpaper(val version: Int, val bitmap: Bitmap)
 
     private companion object {
-        const val THUMBNAIL_SIDE = 360
-        const val PREVIEW_ROWS = 8
+        const val HOME_ICON_DP = 28f
     }
 }

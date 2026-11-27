@@ -18,12 +18,10 @@ class WidgetPanelsTest {
     }
 
     @Test
-    fun AC_51_2_addCellsAreFreeQuarters() {
+    fun AC_55_3_onlyTheFirstFreeQuarterIsOfferedForAdding() {
         val clock = HomeWidgetTile(HostedWidget.CLOCK_ID, "", WidgetCell(0, 0, 4, 4))
-        val panel = HomeWidgetPanel(persistentListOf(clock))
-        assertThat(panel.addCells)
-            .containsExactly(WidgetCell(4, 0, 4, 4), WidgetCell(0, 4, 4, 4), WidgetCell(4, 4, 4, 4))
-            .inOrder()
+        assertThat(HomeWidgetPanel(persistentListOf(clock)).addCells).containsExactly(WidgetCell(4, 0, 4, 4))
+        assertThat(HomeWidgetPanel(persistentListOf()).addCells).containsExactly(WidgetCell(0, 0, 4, 4))
     }
 
     @Test
@@ -55,6 +53,14 @@ class WidgetPanelsTest {
         assertThat(WidgetCell(0, 0).moved(1, 1)).isEqualTo(WidgetCell(1, 1))
         assertThat(WidgetCell(0, 0, 4, 1).moved(1, 1)).isEqualTo(WidgetCell(1, 1, 4, 1))
         assertThat(WidgetCell(4, 4).moved(-5, -5)).isEqualTo(WidgetCell(0, 0))
+    }
+
+    @Test
+    fun AC_55_4_aTallWidgetMovedTooLowBecomesShorter() {
+        assertThat(WidgetCell(0, 0, 4, 8).moved(4, 3)).isEqualTo(WidgetCell(4, 3, 4, 5))
+        assertThat(WidgetCell(0, 0, 4, 4).moved(0, 9)).isEqualTo(WidgetCell(0, 7, 4, 1))
+        assertThat(WidgetCell(0, 4, 4, 4).moved(0, -4)).isEqualTo(WidgetCell(0, 0, 4, 4))
+        assertThat(WidgetCell(6, 0, 2, 2).moved(3, 0)).isEqualTo(WidgetCell(6, 0, 2, 2))
     }
 
     @Test

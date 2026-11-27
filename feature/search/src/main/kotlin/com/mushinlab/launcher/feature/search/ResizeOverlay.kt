@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -29,7 +31,7 @@ import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinColors
 import kotlin.math.abs
 
-private enum class Anchor { START, END }
+private enum class Anchor { START, END, LIFT }
 
 private class Grip(val inset: Float, val touch: Float) {
     fun anchorAt(p: Offset, frame: KeyboardFrame): Anchor? = when {
@@ -39,17 +41,29 @@ private class Grip(val inset: Float, val touch: Float) {
     }
 }
 
+private class Placement {
+    var coordinates: LayoutCoordinates? = null
+
+    fun rootY(position: Offset): Float =
+        coordinates?.takeIf { it.isAttached }?.localToRoot(position)?.y ?: position.y
+}
+
 @Composable
 internal fun ResizeOverlay(
     frame: KeyboardFrame,
     total: Float,
     onDrag: (KeyboardFrame) -> Unit,
     onRelease: (KeyboardFrame) -> Unit,
+    onLift: (Float) -> Unit,
+    onLiftRelease: () -> Unit,
     onExit: () -> Unit,
     modifier: Modifier,
 ) {
     val colors = LocalMushinColors.current
     val current by rememberUpdatedState(frame)
+    val lift by rememberUpdatedState(onLift)
+    val liftRelease by rememberUpdatedState(onLiftRelease)
+    val placement = remember { Placement() }
     val density = LocalDensity.current
     val view = LocalView.current
     val grip = Grip(
@@ -60,21 +74,33 @@ internal fun ResizeOverlay(
     Canvas(
         modifier
             .testTag("resize_overlay")
+            .onGloballyPositioned { placement.coordinates = it }
             .pointerInput(total) {
                 awaitEachGesture {
                     val down = awaitFirstDown()
                     down.consume()
                     val start = current
                     val anchor = grip.anchorAt(down.position, start)
-                    if (anchor != null) {
-                        grabbed = anchor
-                        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                    }
-                    val moved = trackDrag(down, start, anchor, total, onDrag)
-                    grabbed = null
+                    grabbed = anchor
                     if (anchor == null) {
-                        onExit()
+                        val lifted = trackLift(down, placement, viewConfiguration.touchSlop) { dy ->
+                            if (grabbed == null) {
+                                grabbed = Anchor.LIFT
+                                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                            }
+                            lift(dy)
+                        }
+                        grabbed = null
+                        if (!lifted) {
+                            onExit()
+                            return@awaitEachGesture
+                        }
+                        view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                        liftRelease()
                     } else {
+                        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                        val moved = trackDrag(down, start, anchor, total, onDrag)
+                        grabbed = null
                         view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
                         onRelease(moved)
                     }
@@ -88,7 +114,7 @@ internal fun ResizeOverlay(
 private suspend fun AwaitPointerEventScope.trackDrag(
     down: PointerInputChange,
     start: KeyboardFrame,
-    anchor: Anchor?,
+    anchor: Anchor,
     total: Float,
     onDrag: (KeyboardFrame) -> Unit,
 ): KeyboardFrame {
@@ -97,17 +123,37 @@ private suspend fun AwaitPointerEventScope.trackDrag(
     while (change != null && change.pressed) {
         change.consume()
         moved = start.dragged(anchor, change.position.x - down.position.x, total)
-        if (anchor != null) onDrag(moved)
+        onDrag(moved)
         change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
     }
     change?.consume()
     return moved
 }
 
-private fun KeyboardFrame.dragged(anchor: Anchor?, dx: Float, total: Float): KeyboardFrame = when (anchor) {
+private suspend fun AwaitPointerEventScope.trackLift(
+    down: PointerInputChange,
+    placement: Placement,
+    slop: Float,
+    onLift: (Float) -> Unit,
+): Boolean {
+    val from = placement.rootY(down.position)
+    var lifting = false
+    var change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
+    while (change != null && change.pressed) {
+        change.consume()
+        val dy = placement.rootY(change.position) - from
+        if (abs(dy) > slop) lifting = true
+        if (lifting) onLift(dy)
+        change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
+    }
+    change?.consume()
+    return lifting
+}
+
+private fun KeyboardFrame.dragged(anchor: Anchor, dx: Float, total: Float): KeyboardFrame = when (anchor) {
     Anchor.START -> dragStart(dx, total)
     Anchor.END -> dragEnd(dx, total)
-    null -> this
+    Anchor.LIFT -> this
 }
 
 private fun DrawScope.drawFrame(frame: KeyboardFrame, grabbed: Anchor?, colors: MushinColors, inset: Float) {
@@ -135,6 +181,14 @@ private fun DrawScope.drawFrame(frame: KeyboardFrame, grabbed: Anchor?, colors: 
             StrokeCap.Round,
         )
     }
+    val center = frame.left + frame.width / 2
+    drawLine(
+        anchorColor(Anchor.LIFT),
+        Offset(center - length / 2, inset),
+        Offset(center + length / 2, inset),
+        anchorWidth(Anchor.LIFT),
+        StrokeCap.Round,
+    )
 }
 
 private const val RESIZE_SCRIM = 0.55f

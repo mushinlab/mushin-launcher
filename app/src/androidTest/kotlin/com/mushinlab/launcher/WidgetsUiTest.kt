@@ -2,7 +2,12 @@ package com.mushinlab.launcher
 
 import android.appwidget.AppWidgetManager
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -40,8 +45,9 @@ class WidgetsUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("add_widget_4_0").assertDoesNotExist()
         screenshot("default")
         rule.onNodeWithTag("home_edit").performClick()
-        WidgetCell.quarters.drop(1).forEach {
-            rule.onNodeWithTag("add_widget_${it.column}_${it.row}").assertIsDisplayed()
+        rule.onNodeWithTag("add_widget_4_0").assertIsDisplayed()
+        WidgetCell.quarters.drop(2).forEach {
+            rule.onNodeWithTag("add_widget_${it.column}_${it.row}").assertDoesNotExist()
         }
         rule.onNodeWithTag("tile_remove_${HostedWidget.CLOCK_ID}").performClick()
         rule.waitUntil(5_000) { layout().widgets.isEmpty() }
@@ -86,7 +92,7 @@ class WidgetsUiTest : LauncherUiTestBase() {
         assertThat(index).isAtLeast(0)
         rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("add_widget_4_0").performClick()
-        rule.onNodeWithTag("widget_choice_$index").performScrollTo().performClick()
+        chooseWidget(index)
         rule.waitUntil(10_000) { layout().widgets.any { !it.isClock } }
         val widget = layout().widgets.first { !it.isClock }
         rule.onNodeWithTag("widget_${widget.id}").assertIsDisplayed()
@@ -107,7 +113,7 @@ class WidgetsUiTest : LauncherUiTestBase() {
         assertThat(index).isAtLeast(0)
         rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("add_widget_4_0").performClick()
-        rule.onNodeWithTag("widget_choice_$index").performScrollTo().performClick()
+        chooseWidget(index)
         rule.waitUntil(10_000) { layout().widgets.any { !it.isClock } }
         val cell = layout().widgets.first { !it.isClock }.cell
         assertThat(cell.columnSpan * cell.rowSpan).isGreaterThan(1)
@@ -203,7 +209,7 @@ class WidgetsUiTest : LauncherUiTestBase() {
         assertThat(index).isAtLeast(0)
         rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("add_widget_4_0").performClick()
-        rule.onNodeWithTag("widget_choice_$index").performScrollTo().performClick()
+        chooseWidget(index)
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
         rule.waitUntil(10_000) {
             automation.rootInActiveWindow?.packageName?.toString() == providers[index].configure.packageName
@@ -212,6 +218,27 @@ class WidgetsUiTest : LauncherUiTestBase() {
         rule.waitUntil(5_000) { container.widgets.loaded.value?.pending == null }
         assertThat(layout().widgets).containsExactly(HostedWidget.clock)
         assertThat(container.widgetHost.appWidgetIds).isEmpty()
+    }
+
+    @Test
+    fun AC_55_4_aTallWidgetDraggedWithoutHoldingShrinksToFitAtTheBottom() {
+        val widget = seedWidgets(1).single()
+        runBlocking {
+            container.widgets.update {
+                WidgetState(mapOf(normalId to WidgetLayout(listOf(widget.copy(cell = WidgetCell(0, 0, 4, 8))))))
+            }
+        }
+        rule.waitUntil(5_000) { cell(widget.id) == WidgetCell(0, 0, 4, 8) }
+        rule.onNodeWithTag("home_edit").performClick()
+        val tile = rule.onNodeWithTag("widget_${widget.id}")
+        val bounds = tile.fetchSemanticsNode().boundsInRoot
+        tile.performTouchInput {
+            down(Offset(width * 0.3f, height * 0.3f))
+            moveBy(Offset(1f, 1f), 16)
+            moveBy(Offset(bounds.width, bounds.height * 3 / 8), 300)
+            up()
+        }
+        rule.waitUntil(5_000) { cell(widget.id) == WidgetCell(4, 3, 4, 5) }
     }
 
     private fun seedWidgets(count: Int): List<HostedWidget> {
@@ -235,6 +262,15 @@ class WidgetsUiTest : LauncherUiTestBase() {
         }
         rule.waitUntil(5_000) { rule.activity.launcher.home.value.widgetPanels.top.widgets.size == count }
         return widgets
+    }
+
+    private fun chooseWidget(index: Int) {
+        val card = hasTestTag("widget_choice_$index")
+        val group = SemanticsMatcher("widget group") {
+            it.config.getOrNull(SemanticsProperties.TestTag)?.startsWith("widget_group_") == true
+        }
+        rule.onNode(group and hasAnyDescendant(card)).performScrollTo()
+        rule.onNode(card).performScrollTo().performClick()
     }
 
     private fun cell(id: Int): WidgetCell? = layout().widgets.firstOrNull { it.id == id }?.cell

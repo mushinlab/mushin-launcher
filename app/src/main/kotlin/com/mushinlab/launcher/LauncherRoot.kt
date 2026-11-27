@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -48,6 +49,7 @@ import com.mushinlab.launcher.core.ui.popupBackdrop
 import com.mushinlab.launcher.feature.home.HomeActions
 import com.mushinlab.launcher.feature.home.HomeRow
 import com.mushinlab.launcher.feature.home.HomeScreen
+import com.mushinlab.launcher.feature.home.WidgetContent
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 
 @Composable
@@ -82,7 +84,7 @@ fun LauncherRoot(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
                         }
                     },
             ) {
-                HomeLayer(vm)
+                HomeLayer(vm, iconProvider)
                 SearchLayer(vm, settings, iconProvider)
                 PopupLayer(vm)
                 FolderLayer(vm)
@@ -99,7 +101,7 @@ fun LauncherRoot(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
 }
 
 @Composable
-private fun HomeLayer(vm: LauncherViewModel) {
+private fun HomeLayer(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
     val home by vm.home.collectAsStateWithLifecycle()
     val backgroundBitmap by vm.background.collectAsStateWithLifecycle()
     val background = remember(backgroundBitmap) { backgroundBitmap?.asImageBitmap() }
@@ -119,6 +121,8 @@ private fun HomeLayer(vm: LauncherViewModel) {
         }
     }
     LaunchedEffect(request) { request?.let { pager.play(it) } }
+    val widgets: WidgetContent =
+        remember(vm) { { id, height, width -> HostedWidgetView(id, vm.widgetHost, height, width) } }
     Box(
         Modifier
             .zIndex(0f)
@@ -132,7 +136,7 @@ private fun HomeLayer(vm: LauncherViewModel) {
     ) {
         HomeScreen(
             background = background,
-            widgets = { id, height, width -> HostedWidgetView(id, vm.widgetHost, height, width) },
+            widgets = widgets,
             state = home,
             minute = vm.minute,
             actions = actions,
@@ -142,18 +146,42 @@ private fun HomeLayer(vm: LauncherViewModel) {
                 .drawWithContent { translate(left = pager.offset * size.width) { this@drawWithContent.drawContent() } }
                 .graphicsLayer(),
         )
-        pager.side?.let { side ->
-            SpacePreviewPage(
-                side,
-                Modifier.graphicsLayer {
+        PagerPages(pager, iconProvider, widgets, vm.minute, actions)
+    }
+}
+
+@Composable
+private fun PagerPages(
+    pager: SpacePagerMotion,
+    iconProvider: LauncherIconProvider,
+    widgets: WidgetContent,
+    minute: State<Long>,
+    actions: HomeActions,
+) {
+    pager.side?.let { side ->
+        SpacePageView(
+            side,
+            iconProvider,
+            widgets,
+            minute,
+            actions,
+            Modifier
+                .drawWithContent {
                     val from = if (pager.offset < 0f) 1f else -1f
-                    translationX = (pager.offset + from) * size.width
-                },
-            )
-        }
-        pager.cover?.let { cover ->
-            SpacePreviewPage(cover, Modifier.graphicsLayer { alpha = pager.coverAlpha })
-        }
+                    translate(left = (pager.offset + from) * size.width) { this@drawWithContent.drawContent() }
+                }
+                .graphicsLayer(),
+        )
+    }
+    pager.cover?.let { cover ->
+        SpacePageView(
+            cover,
+            iconProvider,
+            widgets,
+            minute,
+            actions,
+            Modifier.graphicsLayer { alpha = pager.coverAlpha },
+        )
     }
 }
 

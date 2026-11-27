@@ -115,6 +115,7 @@ class SettingsRepository(
         internal val KB_DIGIT_HINTS = booleanPreferencesKey("kb_digit_hints")
         internal val KB_WIDTH = floatPreferencesKey("kb_width")
         internal val KB_SHIFT = floatPreferencesKey("kb_shift")
+        internal val KB_LIFT = intPreferencesKey("kb_lift")
         internal val HOME_LIST_OFFSET = intPreferencesKey("home_list_offset")
         internal val GESTURE_SHIFT_PENALTY = floatPreferencesKey("gesture_shift_penalty")
         internal val GESTURE_SUGGEST_MARGIN = floatPreferencesKey("gesture_suggest_margin")
@@ -152,6 +153,7 @@ class SettingsRepository(
                     .coerceIn(KeyboardFit.WIDTH_MIN, KeyboardFit.WIDTH_MAX),
                 keyboardShift = prefs.finiteOr(KB_SHIFT, defaults.keyboardShift)
                     .coerceIn(KeyboardFit.SHIFT_MIN, KeyboardFit.SHIFT_MAX),
+                keyboardLift = prefs.valueOr(KB_LIFT, defaults.keyboardLift).coerceIn(0, KeyboardFit.LIFT_MAX_DP),
                 homeListOffset = prefs[HOME_LIST_OFFSET]?.coerceIn(0, HomeListOffset.MAX_DP),
                 gestureShiftPenalty = prefs.finiteOr(GESTURE_SHIFT_PENALTY, defaults.gestureShiftPenalty)
                     .coerceIn(GestureTuning.SHIFT_PENALTY_MIN, GestureTuning.SHIFT_PENALTY_MAX),
@@ -193,6 +195,7 @@ class SettingsRepository(
             prefs[KB_DIGIT_HINTS] = settings.keyboardDigitHints
             prefs[KB_WIDTH] = settings.keyboardWidth
             prefs[KB_SHIFT] = settings.keyboardShift
+            prefs[KB_LIFT] = settings.keyboardLift
             val listOffset = settings.homeListOffset
             if (listOffset == null) prefs.remove(HOME_LIST_OFFSET) else prefs[HOME_LIST_OFFSET] = listOffset
             prefs[GESTURE_SHIFT_PENALTY] = settings.gestureShiftPenalty

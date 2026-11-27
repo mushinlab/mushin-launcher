@@ -16,6 +16,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.mushinlab.launcher.feature.search.KeyboardDimens
 import com.mushinlab.launcher.feature.search.SearchDimens
+import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -157,6 +158,28 @@ class KeyboardUiTest : LauncherUiTestBase() {
         rule.runOnIdle { assertThat(container.settings.settings.value.keyboardShift).isEqualTo(1f) }
         rule.onNodeWithTag("resize_overlay").performTouchInput { click(Offset(centerX, top + 4f)) }
         rule.onNodeWithTag("resize_overlay").assertDoesNotExist()
+    }
+
+    @Test
+    fun AC_56_1_draggingTheKeyboardUpLiftsItAndLeavesEmptySpaceBelow() {
+        openSearch()
+        val pane = rule.onNodeWithTag("input_pane").fetchSemanticsNode().boundsInRoot
+        val results = rule.onNodeWithTag("results").fetchSemanticsNode().boundsInRoot
+        rule.onNodeWithTag("key_RESIZE").performClick()
+        rule.onNodeWithTag("resize_overlay").performTouchInput {
+            down(center)
+            repeat(STEPS) { i -> moveTo(center - Offset(0f, 200f * (i + 1) / STEPS)) }
+            up()
+        }
+        val lift = with(rule.density) { 200f.toDp().value.roundToInt() }
+        rule.waitUntil(5_000) { container.settings.settings.value.keyboardLift == lift }
+        rule.waitForIdle()
+        val lifted = rule.onNodeWithTag("input_pane").fetchSemanticsNode().boundsInRoot
+        val shorter = rule.onNodeWithTag("results").fetchSemanticsNode().boundsInRoot
+        assertThat(lifted.bottom).isWithin(3f).of(pane.bottom - 200f)
+        assertThat(lifted.height).isWithin(1f).of(pane.height)
+        assertThat(shorter.height).isWithin(3f).of(results.height - 200f)
+        rule.onNodeWithTag("resize_overlay").assertIsDisplayed()
     }
 
     @Test

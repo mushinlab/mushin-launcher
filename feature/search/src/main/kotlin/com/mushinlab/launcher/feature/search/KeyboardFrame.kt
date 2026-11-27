@@ -31,3 +31,9 @@ data class KeyboardFrame(val left: Float, val width: Float) {
         }
     }
 }
+
+internal class LiftDrag(private val start: Float, room: Float, cap: Float) {
+    private val limit = minOf(cap, start + room).coerceAtLeast(0f)
+
+    fun at(dy: Float): Float = (start - dy).coerceIn(0f, limit)
+}

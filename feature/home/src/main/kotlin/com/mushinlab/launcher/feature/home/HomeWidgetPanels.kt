@@ -3,7 +3,6 @@ package com.mushinlab.launcher.feature.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -78,8 +77,8 @@ data class HomeWidgetPanel(
     val addCells: List<WidgetCell>
         get() {
             if (widgets.size >= WidgetLayout.MAX_WIDGETS) return emptyList()
-            val quarters = WidgetCell.quarters.filter { quarter -> widgets.none { it.cell.overlaps(quarter) } }
-            return quarters.ifEmpty { listOfNotNull(freeCells.firstOrNull()) }
+            val quarter = WidgetCell.quarters.firstOrNull { quarter -> widgets.none { it.cell.overlaps(quarter) } }
+            return listOfNotNull(quarter ?: freeCells.firstOrNull())
         }
 
     fun visibleRows(editing: Boolean): List<Int> = (0 until WidgetCell.ROWS).filter { row ->
@@ -212,7 +211,7 @@ private fun Modifier.dragToMove(
         onOffset(null)
         onPreview(null)
     }
-    detectDragGesturesAfterLongPress(
+    detectDragGestures(
         onDragStart = {
             delta = Offset.Zero
             onOffset(delta)

@@ -267,7 +267,7 @@ private fun PickerInput(
             word != null
         }
     }
-    Box(Modifier.fillMaxWidth()) {
+    Box(Modifier.fillMaxWidth().padding(bottom = chrome.keyboardLift)) {
         Column(
             Modifier
                 .fillMaxWidth(chrome.keyboardWidth)

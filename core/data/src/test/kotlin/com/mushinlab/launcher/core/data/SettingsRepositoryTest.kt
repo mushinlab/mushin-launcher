@@ -65,6 +65,7 @@ class SettingsRepositoryTest {
         assertThat(settings.keyboardDigitHints).isTrue()
         assertThat(settings.keyboardWidth).isEqualTo(1f)
         assertThat(settings.keyboardShift).isEqualTo(0f)
+        assertThat(settings.keyboardLift).isEqualTo(0)
         assertThat(settings.homeListOffset).isNull()
         assertThat(settings.gestureShiftPenalty).isEqualTo(0.5f)
         assertThat(settings.gestureSuggestMargin).isEqualTo(0.3f)
@@ -88,6 +89,7 @@ class SettingsRepositoryTest {
                 keyboardLayouts = listOf("ru", "en"),
                 keyboardWidth = 0.1f,
                 keyboardShift = -0.5f,
+                keyboardLift = 10_000,
                 homeListOffset = 10_000,
                 notificationCounts = true,
                 pressFeedback = PressFeedback.DIM,
@@ -110,6 +112,7 @@ class SettingsRepositoryTest {
         assertThat(settings.homeTextAlign).isEqualTo(HomeTextAlign.CENTER)
         assertThat(settings.keyboardWidth).isEqualTo(0.6f)
         assertThat(settings.keyboardShift).isEqualTo(-0.5f)
+        assertThat(settings.keyboardLift).isEqualTo(480)
         assertThat(settings.homeListOffset).isEqualTo(480)
         assertThat(settings.notificationCounts).isTrue()
         assertThat(settings.pressFeedback).isEqualTo(PressFeedback.DIM)

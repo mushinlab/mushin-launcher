@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +52,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.AppKey
+import com.mushinlab.launcher.core.model.KeyboardFit
 import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
@@ -58,6 +61,7 @@ import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.popupBackdrop
 import com.mushinlab.launcher.core.ui.pressable
 import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -72,6 +76,7 @@ fun SearchScreen(
     val colors = LocalMushinColors.current
     val closePx = with(LocalDensity.current) { SearchDimens.closeSwipe.toPx() }
     var lastDown by remember { mutableStateOf(Offset.Zero) }
+    var resultsHeight by remember { mutableFloatStateOf(0f) }
     val onLongPress: (AppKey, String) -> Unit = { key, label -> actions.onLongPress(key, label, lastDown) }
     Box(
         modifier
@@ -102,11 +107,11 @@ fun SearchScreen(
                 chrome.iconMode,
                 actions,
                 onLongPress,
-                Modifier.weight(1f).fillMaxWidth().then(pane),
+                Modifier.weight(1f).fillMaxWidth().onSizeChanged { resultsHeight = it.height.toFloat() }.then(pane),
             )
             Spacer(Modifier.height(gap))
             val typing = mode == SearchMode.TYPING
-            InputPane(controller, chrome, actions, typing, active, inputPane)
+            InputPane(controller, chrome, actions, typing, active, { resultsHeight }, inputPane)
             Spacer(Modifier.height(gap))
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
@@ -191,13 +196,21 @@ private fun InputPane(
     actions: SearchActions,
     typing: Boolean,
     active: Boolean,
+    room: () -> Float,
     pane: Modifier,
 ) {
+    val density = LocalDensity.current
     var total by remember { mutableFloatStateOf(0f) }
-    var dragged by remember { mutableStateOf<KeyboardFrame?>(null) }
-    val width = dragged?.fraction(total) ?: chrome.keyboardWidth
-    val shift = dragged?.shift(total) ?: chrome.keyboardShift
-    Box(Modifier.fillMaxWidth().onSizeChanged { total = it.width.toFloat() }) {
+    val fit = remember { FitDrag() }
+    val width = fit.frame?.fraction(total) ?: chrome.keyboardWidth
+    val shift = fit.frame?.shift(total) ?: chrome.keyboardShift
+    val liftPx = fit.lifted ?: with(density) { chrome.keyboardLift.toPx() }
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .padding(bottom = with(density) { liftPx.toDp() })
+            .onSizeChanged { total = it.width.toFloat() },
+    ) {
         Column(
             Modifier
                 .fillMaxWidth(width)
@@ -229,19 +242,50 @@ private fun InputPane(
             }
         }
         if (typing && controller.panels.resizing && total > 0f) {
-            ResizeOverlay(
-                frame = dragged ?: KeyboardFrame.of(width, shift, total),
-                total = total,
-                onDrag = { dragged = it },
-                onRelease = { frame ->
-                    actions.onKeyboardFit(frame.fraction(total), frame.shift(total))
-                },
-                onExit = controller.panels::toggleResize,
-                modifier = Modifier.matchParentSize(),
-            )
+            FitOverlay(fit, KeyboardFrame.of(width, shift, total), total, liftPx, room, controller.panels, actions)
         }
     }
-    LaunchedEffect(chrome.keyboardWidth, chrome.keyboardShift) { dragged = null }
+    LaunchedEffect(chrome.keyboardWidth, chrome.keyboardShift) { fit.frame = null }
+    LaunchedEffect(chrome.keyboardLift) { fit.lifted = null }
+}
+
+@Stable
+private class FitDrag {
+    var frame by mutableStateOf<KeyboardFrame?>(null)
+    var lifted by mutableStateOf<Float?>(null)
+    var lift: LiftDrag? = null
+}
+
+@Composable
+private fun BoxScope.FitOverlay(
+    fit: FitDrag,
+    frame: KeyboardFrame,
+    total: Float,
+    liftPx: Float,
+    room: () -> Float,
+    panels: SearchPanels,
+    actions: SearchActions,
+) {
+    val density = LocalDensity.current
+    ResizeOverlay(
+        frame = fit.frame ?: frame,
+        total = total,
+        onDrag = { fit.frame = it },
+        onRelease = { moved -> actions.onKeyboardFit(moved.fraction(total), moved.shift(total)) },
+        onLift = { dy ->
+            val drag = fit.lift ?: with(density) {
+                LiftDrag(liftPx, room() - SearchDimens.liftReserve.toPx(), KeyboardFit.LIFT_MAX_DP.dp.toPx())
+            }
+            fit.lift = drag
+            fit.lifted = drag.at(dy)
+        },
+        onLiftRelease = {
+            fit.lift = null
+            fit.lifted?.let { actions.onKeyboardLift(with(density) { it.toDp().value.roundToInt() }) }
+        },
+        onExit = panels::toggleResize,
+        modifier = Modifier.matchParentSize(),
+    )
 }
 
 @Composable

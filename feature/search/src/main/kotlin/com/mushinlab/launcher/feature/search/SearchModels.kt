@@ -25,6 +25,7 @@ data class SearchChrome(
     val gestureSuggestMargin: Float,
     val keyboardWidth: Float = 1f,
     val keyboardShift: Float = 0f,
+    val keyboardLift: Dp = 0.dp,
 )
 
 interface SearchActions : KeyboardActions, SearchMenuActions, SearchOptionsActions {
@@ -35,6 +36,8 @@ interface SearchActions : KeyboardActions, SearchMenuActions, SearchOptionsActio
     fun onLongPress(key: AppKey, label: String, anchor: Offset)
 
     fun onKeyboardFit(width: Float, shift: Float)
+
+    fun onKeyboardLift(dp: Int)
 }
 
 object SearchDimens {
@@ -58,6 +61,7 @@ object SearchDimens {
     val headerGap: Dp = 6.dp
     val paneGap: Dp = 8.dp
     val panePadding: Dp = 8.dp
+    val liftReserve: Dp = resultHeight * 2
     val paneRadius: Dp = 16.dp
     val closeSwipe: Dp = 72.dp
 }

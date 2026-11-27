@@ -31,8 +31,8 @@ enum class HomeTextAlign { START, CENTER, END }
 enum class PressFeedback { FLASH, HOLD, ACCENT, DIM, SCALE }
 
 /**
- * Allowed on-screen keyboard width (fraction of the screen width) and horizontal position
- * (-1 at the start edge, 1 at the end edge).
+ * Allowed on-screen keyboard width (fraction of the screen width), horizontal position
+ * (-1 at the start edge, 1 at the end edge) and lift above the bottom edge, in dp.
  */
 object KeyboardFit {
     const val WIDTH_MIN = 0.6f
@@ -40,6 +40,7 @@ object KeyboardFit {
     const val SHIFT_MIN = -1f
     const val SHIFT_MAX = 1f
     const val STEP = 0.05f
+    const val LIFT_MAX_DP = 480
 }
 
 /** Upper bound of the vertical offset of the home app list, in dp. */
@@ -110,6 +111,7 @@ data class LauncherSettings(
     val keyboardDigitHints: Boolean = true,
     val keyboardWidth: Float = KeyboardFit.WIDTH_MAX,
     val keyboardShift: Float = 0f,
+    val keyboardLift: Int = 0,
     val gestureShiftPenalty: Float = GestureTuning.SHIFT_PENALTY,
     val gestureSuggestMargin: Float = GestureTuning.SUGGEST_MARGIN,
     val gestureInput: Boolean = false,

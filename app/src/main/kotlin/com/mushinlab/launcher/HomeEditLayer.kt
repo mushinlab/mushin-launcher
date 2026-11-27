@@ -3,6 +3,7 @@ package com.mushinlab.launcher
 import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.mushinlab.launcher.feature.settings.EditTipsSheet
@@ -20,7 +21,9 @@ internal fun HomeEditLayer(vm: LauncherViewModel) {
 
 @Composable
 private fun WidgetPicker(vm: LauncherViewModel, choices: List<WidgetChoice>) {
-    val manager = LocalContext.current.packageManager
+    val context = LocalContext.current
+    val manager = context.packageManager
+    val art = remember(choices) { WidgetArtLoader(context, choices) }
     BackHandler(onBack = vm.widgets::dismissChoices)
     WidgetPickerSheet(
         choices.mapIndexed { index, choice ->
@@ -34,6 +37,7 @@ private fun WidgetPicker(vm: LauncherViewModel, choices: List<WidgetChoice>) {
                 )
             }
         }.toImmutableList(),
+        art,
         { index ->
             val choice = choices.getOrNull(index)
             if (choice != null) vm.widgets.choose(choice)
