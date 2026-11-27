@@ -107,7 +107,7 @@ internal fun HomeColumn(
         val listCapacity = (listSpace / rowHeight).toInt().coerceAtLeast(state.rows.size)
         Layout(
             content = {
-                HomeHeader(state, registry, actions) {
+                HomeHeader(state, registry, actions, editing) {
                     HomeWidgetPanel(
                         state.widgetPanels.top,
                         panelWidth,
@@ -179,10 +179,14 @@ private fun HomeHeader(
     state: HomeUiState,
     registry: RowRegistry,
     actions: State<HomeActions>,
+    editing: Boolean,
     content: @Composable () -> Unit,
 ) {
     Column(Modifier.fillMaxWidth()) {
-        Spacer(Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + HomeDimens.topGap))
+        Spacer(Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding()))
+        Box(Modifier.fillMaxWidth().height(HomeDimens.topGap), contentAlignment = Alignment.Center) {
+            if (editing) AddWidgetButton(state.widgetPanels.top, registry) { actions.value.onAddWidget(it) }
+        }
         if (state.roleMissing) {
             RoleCard(registry, onClick = { actions.value.onRequestRole() })
         }

@@ -52,7 +52,6 @@ object KeyboardLayouts {
     private const val HALF_KEY_OF_ELEVEN = 1f / 22
     private const val SIDE_KEY_WEIGHT = 1.5f
     private const val SPACE_WEIGHT = 8.5f
-    private const val SPACE_ROW_SCALE = 0.5f
     const val LETTER_ROWS = 3
 
     val EN: KeyboardLayout = layout(
@@ -156,6 +155,5 @@ object KeyboardLayouts {
             ),
         ),
         rowInsets = listOf(0f, middleInset, bottomInset, 0f),
-        rowScales = listOf(1f, 1f, 1f, SPACE_ROW_SCALE),
     )
 }

@@ -42,17 +42,16 @@ class WidgetsUiTest : LauncherUiTestBase() {
     @Test
     fun AC_39_1_clockIsARemovableSlotAddedBackFromThePicker() {
         rule.onNodeWithTag("widget_${HostedWidget.CLOCK_ID}").assertIsDisplayed()
-        rule.onNodeWithTag("add_widget_4_0").assertDoesNotExist()
+        rule.onNodeWithTag("add_widget").assertDoesNotExist()
         screenshot("default")
         rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("add_widget_4_0").assertIsDisplayed()
-        WidgetCell.quarters.drop(2).forEach {
-            rule.onNodeWithTag("add_widget_${it.column}_${it.row}").assertDoesNotExist()
-        }
+        val button = rule.onNodeWithTag("add_widget").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        val clock = rule.onNodeWithTag("widget_${HostedWidget.CLOCK_ID}").fetchSemanticsNode().boundsInRoot
+        assertThat(button.bottom).isAtMost(clock.top)
         rule.onNodeWithTag("tile_remove_${HostedWidget.CLOCK_ID}").performClick()
         rule.waitUntil(5_000) { layout().widgets.isEmpty() }
         rule.onNodeWithTag("clock_block").assertDoesNotExist()
-        rule.onNodeWithTag("add_widget_0_0").assertIsDisplayed().performClick()
+        rule.onNodeWithTag("add_widget").assertIsDisplayed().performClick()
         assertThat(rule.activity.launcher.widgets.choices?.first()).isEqualTo(WidgetChoice.Clock)
         rule.onNodeWithTag("widget_choice_0").performClick()
         rule.waitUntil(5_000) { layout().widgets == listOf(HostedWidget.clock) }
@@ -63,14 +62,14 @@ class WidgetsUiTest : LauncherUiTestBase() {
     fun AC_51_2_threeWidgetsLeaveTheFourthQuarterForAdding() {
         seedWidgets(3)
         rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("add_widget_4_4").assertIsDisplayed()
+        rule.onNodeWithTag("add_widget").assertIsDisplayed()
         screenshot("expanded-three")
     }
 
     @Test
     fun AC_39_3_pickerFiltersWidgetsThatFitThePanelAndCancellationAllocatesNothing() {
         rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("add_widget_4_0").performClick()
+        rule.onNodeWithTag("add_widget").performClick()
         rule.onNodeWithTag("widget_picker").assertIsDisplayed()
         val choices = rule.activity.launcher.widgets.choices.orEmpty()
         assertThat(choices).isNotEmpty()
@@ -91,7 +90,7 @@ class WidgetsUiTest : LauncherUiTestBase() {
         val index = compactProviders(rule.activity).indexOfFirst { it.configure == null }
         assertThat(index).isAtLeast(0)
         rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("add_widget_4_0").performClick()
+        rule.onNodeWithTag("add_widget").performClick()
         chooseWidget(index)
         rule.waitUntil(10_000) { layout().widgets.any { !it.isClock } }
         val widget = layout().widgets.first { !it.isClock }
@@ -112,7 +111,7 @@ class WidgetsUiTest : LauncherUiTestBase() {
         }
         assertThat(index).isAtLeast(0)
         rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("add_widget_4_0").performClick()
+        rule.onNodeWithTag("add_widget").performClick()
         chooseWidget(index)
         rule.waitUntil(10_000) { layout().widgets.any { !it.isClock } }
         val cell = layout().widgets.first { !it.isClock }.cell
@@ -148,7 +147,7 @@ class WidgetsUiTest : LauncherUiTestBase() {
         rule.waitUntil(5_000) { cell(widgets[0].id) == WidgetCell(4, 0, 4, 8) }
         val tall = first.fetchSemanticsNode().boundsInRoot
         assertThat(tall.height).isGreaterThan(a.height * 2)
-        rule.onNodeWithTag("add_widget_0_4").assertIsDisplayed()
+        rule.onNodeWithTag("add_widget").assertIsDisplayed()
         screenshot("column-and-tall")
         rule.activityRule.scenario.recreate()
         rule.waitUntil(5_000) { cell(widgets[0].id) == WidgetCell(4, 0, 4, 8) }
@@ -179,7 +178,7 @@ class WidgetsUiTest : LauncherUiTestBase() {
         assertThat(cells[0].top).isEqualTo(cells[1].top)
         assertThat(cells[2].top).isEqualTo(cells[3].top)
         assertThat(cells[2].top).isGreaterThan(cells[0].bottom)
-        WidgetCell.singles.forEach { rule.onNodeWithTag("add_widget_${it.column}_${it.row}").assertDoesNotExist() }
+        rule.onNodeWithTag("add_widget").assertDoesNotExist()
         screenshot("expanded-edit")
         rule.runOnIdle { rule.activity.launcher.widgets.add() }
         rule.waitForIdle()
@@ -208,7 +207,7 @@ class WidgetsUiTest : LauncherUiTestBase() {
         val index = providers.indexOfFirst { it.configure != null }
         assertThat(index).isAtLeast(0)
         rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("add_widget_4_0").performClick()
+        rule.onNodeWithTag("add_widget").performClick()
         chooseWidget(index)
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
         rule.waitUntil(10_000) {

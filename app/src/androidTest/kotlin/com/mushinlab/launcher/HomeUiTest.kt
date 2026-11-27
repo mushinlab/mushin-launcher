@@ -118,6 +118,38 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
+    fun AC_57_2_switchingToASpaceWithFewerRowsSetsTheListHeightAtOnce() {
+        val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }
+        val original = runBlocking { container.spaces.itemsOf(work.id) }
+        runBlocking {
+            container.spaces.setItems(work.id, spaceItems().take(1))
+            container.settings.update { it.copy(spaceTransition = SpaceTransition.NONE) }
+        }
+        rule.waitForIdle()
+        val before = rule.onNodeWithTag("edit_list").fetchSemanticsNode().boundsInRoot.height
+        rule.mainClock.autoAdvance = false
+        try {
+            runBlocking { container.settings.update { it.copy(currentSpaceId = work.id) } }
+            var frames = 0
+            while (rule.activity.launcher.home.value.spaceId != work.id && frames < SWITCH_FRAMES) {
+                Thread.sleep(FRAME_MS)
+                rule.mainClock.advanceTimeByFrame()
+                frames++
+            }
+            assertThat(rule.activity.launcher.home.value.spaceId).isEqualTo(work.id)
+            repeat(2) { rule.mainClock.advanceTimeByFrame() }
+            val early = rule.onNodeWithTag("edit_list").fetchSemanticsNode().boundsInRoot.height
+            rule.mainClock.advanceTimeBy(1_000)
+            val settled = rule.onNodeWithTag("edit_list").fetchSemanticsNode().boundsInRoot.height
+            assertThat(settled).isWithin(1f).of(before / 3)
+            assertThat(early).isWithin(1f).of(settled)
+        } finally {
+            rule.mainClock.autoAdvance = true
+            runBlocking { container.spaces.setItems(work.id, original) }
+        }
+    }
+
+    @Test
     fun AC_50_1_swipingTheBottomBarRightShowsThePreviousSpace() {
         val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }
         runBlocking { container.settings.update { it.copy(currentSpaceId = work.id) } }
@@ -500,7 +532,7 @@ class HomeUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("tile_remove_${com.mushinlab.launcher.core.model.HostedWidget.CLOCK_ID}").performClick()
         rule.waitUntil(5_000) { rule.activity.launcher.home.value.widgetPanels.top.widgets.isEmpty() }
         rule.onNodeWithTag("clock").assertDoesNotExist()
-        rule.onNodeWithTag("add_widget_0_0").assertIsDisplayed()
+        rule.onNodeWithTag("add_widget").assertIsDisplayed()
         runBlocking { container.widgets.update { com.mushinlab.launcher.core.model.WidgetState() } }
         rule.waitUntil(5_000) { rule.activity.launcher.home.value.widgetPanels.top.widgets.isNotEmpty() }
     }
@@ -530,6 +562,21 @@ class HomeUiTest : LauncherUiTestBase() {
         assertThat(first).isIn(spaceItems())
         rule.onNodeWithTag("row_remove_0").assertIsDisplayed().performClick()
         rule.waitUntil(5_000) { first !in spaceItems() }
+    }
+
+    @Test
+    fun AC_57_3_enteringEditModeHintsRemovalOnTheFirstRowOnly() {
+        rule.mainClock.autoAdvance = false
+        try {
+            rule.onNodeWithTag("home_edit").performClick()
+            rule.mainClock.advanceTimeBy(HINT_OUT_MS)
+            rule.onNodeWithTag("row_remove_0").assertExists()
+            rule.onNodeWithTag("row_remove_1").assertDoesNotExist()
+            rule.mainClock.advanceTimeBy(HINT_DONE_MS)
+            rule.onNodeWithTag("row_remove_0").assertDoesNotExist()
+        } finally {
+            rule.mainClock.autoAdvance = true
+        }
     }
 
     @Test
@@ -669,3 +716,8 @@ class HomeUiTest : LauncherUiTestBase() {
         }
     }
 }
+
+private const val SWITCH_FRAMES = 300
+private const val FRAME_MS = 16L
+private const val HINT_OUT_MS = 800L
+private const val HINT_DONE_MS = 1_500L

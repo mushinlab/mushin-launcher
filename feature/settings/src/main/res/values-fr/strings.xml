@@ -165,6 +165,8 @@
         <item quantity="many">%d de tracés</item>
         <item quantity="other">%d tracés</item>
     </plurals>
+    <string name="settings_spaces">Espaces</string>
+    <string name="summary_spaces">Créer, renommer et supprimer des espaces</string>
     <string name="summary_keyboard">Dispositions, vibration, indications de chiffres, saisie gestuelle</string>
     <string name="summary_gestures">Balayages sur l’écran d’accueil et tracé</string>
     <string name="summary_apps">Applis masquées, noms personnalisés</string>

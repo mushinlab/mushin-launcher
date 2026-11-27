@@ -165,6 +165,8 @@
         <item quantity="many">%d de desenhos</item>
         <item quantity="other">%d desenhos</item>
     </plurals>
+    <string name="settings_spaces">Espaços</string>
+    <string name="summary_spaces">Criar, renomear e excluir espaços</string>
     <string name="summary_keyboard">Layouts, vibração, dicas de números, digitação por gestos</string>
     <string name="summary_gestures">Gestos de deslizar na tela inicial e traço</string>
     <string name="summary_apps">Apps ocultos, nomes personalizados</string>

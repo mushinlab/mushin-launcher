@@ -69,8 +69,6 @@ private fun spaceActions(vm: LauncherViewModel) = object : SpaceActions {
 
     override fun deleteSpace(id: Long) = vm.spaces.delete(id)
 
-    override fun switchSpace(id: Long) = vm.spaces.switchTo(id)
-
     override fun setPalette(id: Long, preset: PalettePreset) = vm.themes.setPalette(id, preset)
 
     override fun setColoredIcons(id: Long, enabled: Boolean) = vm.themes.setColoredIcons(id, enabled)

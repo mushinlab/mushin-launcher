@@ -163,6 +163,8 @@
     <plurals name="memory_drawings">
         <item quantity="other">%d gambar</item>
     </plurals>
+    <string name="settings_spaces">Ruang</string>
+    <string name="summary_spaces">Buat, ganti nama, dan hapus ruang</string>
     <string name="summary_keyboard">Tata letak, getaran, petunjuk angka, ketik geser</string>
     <string name="summary_gestures">Geser di layar utama dan garis</string>
     <string name="summary_apps">Aplikasi tersembunyi, nama kustom</string>

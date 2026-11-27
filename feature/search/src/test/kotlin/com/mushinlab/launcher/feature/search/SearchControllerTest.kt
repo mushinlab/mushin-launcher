@@ -186,7 +186,7 @@ class SearchControllerTest {
         val resize = keys.single { it.spec.action == KeyAction.RESIZE }
         assertThat(resize.rect.right).isLessThan(space.rect.left)
         assertThat(space.rect.right).isGreaterThan(1060f)
-        assertThat(space.rect.height + 10f).isEqualTo((keys[0].rect.height + 10f) / 2)
+        assertThat(space.rect.height).isEqualTo(keys[0].rect.height)
         assertThat(space.rect.bottom + 5f + 10f)
             .isEqualTo(KeyboardGeometry.height(KeyboardLayouts.EN, rowHeight = 136f, padding = 10f))
         val q = keys.indexOfFirst { it.spec.char == 'q' }

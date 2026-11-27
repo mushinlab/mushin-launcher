@@ -36,8 +36,6 @@ interface SpaceActions {
 
     fun deleteSpace(id: Long)
 
-    fun switchSpace(id: Long)
-
     fun setPalette(id: Long, preset: PalettePreset)
 
     fun setColoredIcons(id: Long, enabled: Boolean)

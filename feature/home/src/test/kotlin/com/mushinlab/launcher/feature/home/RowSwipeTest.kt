@@ -75,15 +75,18 @@ class RowSwipeTest {
     }
 
     @Test
-    fun theHintMovesEveryRowAndClosingResetsTheSwipe() {
+    fun AC_57_3_theHintMovesOnlyOneRowAndClosingResetsTheSwipe() {
         val swipe = RowSwipe()
         swipe.hint = 24f
+        swipe.hintKey = a
         assertThat(swipe.offsetOf(a)).isEqualTo(24f)
-        open(swipe, a)
-        assertThat(swipe.offsetOf(a)).isEqualTo(reveal)
-        assertThat(swipe.offsetOf(b)).isEqualTo(24f)
+        assertThat(swipe.offsetOf(b)).isEqualTo(0f)
+        open(swipe, b)
+        assertThat(swipe.offsetOf(b)).isEqualTo(reveal)
+        assertThat(swipe.offsetOf(a)).isEqualTo(24f)
         swipe.close()
-        assertThat(swipe.isOpen(a)).isFalse()
+        assertThat(swipe.isOpen(b)).isFalse()
+        assertThat(swipe.offsetOf(b)).isEqualTo(0f)
         assertThat(swipe.offsetOf(a)).isEqualTo(24f)
     }
 

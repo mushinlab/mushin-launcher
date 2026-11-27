@@ -42,6 +42,7 @@ class KeyboardUiTest : LauncherUiTestBase() {
         val keyboard = rule.onNodeWithTag("keyboard").fetchSemanticsNode().boundsInRoot
         assertThat(resize.right).isLessThan(space.left)
         assertThat(keyboard.right - space.right).isLessThan(20f)
+        assertThat(resize.height).isWithin(1f).of(space.height)
         rule.onNodeWithTag("key_ENTER").assertDoesNotExist()
         rule.onNodeWithTag("enter").assertDoesNotExist()
         rule.onNodeWithTag("query_clear").assertDoesNotExist()
@@ -64,7 +65,7 @@ class KeyboardUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun spaceRowIsHalfAsTallAndKeyboardSitsAtTheBottomWithInnerPadding() {
+    fun AC_57_4_spaceRowIsAsTallAsLettersAndKeyboardSitsAtTheBottomWithInnerPadding() {
         openSearch()
         val q = rule.onNodeWithTag("key_q").fetchSemanticsNode().boundsInRoot
         val space = rule.onNodeWithTag("key_SPACE").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
@@ -73,8 +74,7 @@ class KeyboardUiTest : LauncherUiTestBase() {
         val navBar = ViewCompat.getRootWindowInsets(rule.activity.window.decorView)
             ?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
         with(rule.density) {
-            assertThat(space.height + KeyboardDimens.gap.toPx())
-                .isWithin(2f).of((q.height + KeyboardDimens.gap.toPx()) / 2)
+            assertThat(space.height).isWithin(1f).of(q.height)
             assertThat(search.bottom - navBar - keyboard.bottom)
                 .isWithin(2f).of((SearchDimens.paneGap + SearchDimens.panePadding).toPx())
         }

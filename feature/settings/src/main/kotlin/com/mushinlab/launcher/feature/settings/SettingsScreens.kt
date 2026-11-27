@@ -28,24 +28,19 @@ import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.pressable
 
 @Composable
-internal fun RootScreen(
-    state: SettingsUiState,
-    actions: SettingsActions,
-    push: (SettingsRoute) -> Unit,
-    back: () -> Unit,
-) {
-    val bar = remember { SpaceBarState() }
-    Box {
-        SettingsPage(stringResource(R.string.settings_title), back) {
-            SpaceBar(state.spaces, actions.spaces, bar)
-            RootRows(push)
-        }
-        SpaceBarOverlays(state.spaces, actions.spaces, bar)
+internal fun RootScreen(push: (SettingsRoute) -> Unit, back: () -> Unit) {
+    SettingsPage(stringResource(R.string.settings_title), back) {
+        RootRows(push)
     }
 }
 
 @Composable
 private fun RootRows(push: (SettingsRoute) -> Unit) {
+    NavRow(
+        stringResource(R.string.settings_spaces),
+        summary = stringResource(R.string.summary_spaces),
+        tag = "nav_spaces",
+    ) { push(SettingsRoute.Spaces) }
     NavRow(
         stringResource(R.string.settings_keyboard),
         summary = stringResource(R.string.summary_keyboard),

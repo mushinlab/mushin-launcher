@@ -1,9 +1,12 @@
 package com.mushinlab.launcher
 
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -12,7 +15,6 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.RootMatchers.isDialog
@@ -98,24 +100,27 @@ class SpacesUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun settingsRootListsSpacesAsRadioRowWithCurrentFirst() {
+    fun AC_57_1_spacesHaveTheirOwnSettingsScreenAtTheTopOfSettings() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
+        val spacesRow = rule.onNodeWithTag("nav_spaces").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        val keyboardRow = rule.onNodeWithTag("nav_keyboard").fetchSemanticsNode().boundsInRoot
+        assertThat(spacesRow.top).isLessThan(keyboardRow.top)
+        rule.onNodeWithTag("space_chips").assertDoesNotExist()
+        rule.onNodeWithTag("nav_spaces").performClick()
+        rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.Spaces }
         val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }.id
-        rule.onNodeWithTag("space_chip_$normalId").assertIsSelected()
-        val normalLeft = rule.onNodeWithTag("space_chip_$normalId").fetchSemanticsNode().boundsInRoot.left
-        val workLeft = rule.onNodeWithTag("space_chip_$work").fetchSemanticsNode().boundsInRoot.left
-        assertThat(normalLeft).isLessThan(workLeft)
-        rule.onNodeWithTag("space_chip_$work").assertIsNotSelected().performClick()
-        rule.waitUntil(5_000) { container.settings.settings.value.currentSpaceId == work }
-        rule.onNodeWithTag("space_chip_$work").assertIsSelected()
-        rule.onNodeWithTag("nav_search").assertDoesNotExist()
+        val normalTop = rule.onNodeWithTag("space_row_$normalId").fetchSemanticsNode().boundsInRoot.top
+        val workTop = rule.onNodeWithTag("space_row_$work").fetchSemanticsNode().boundsInRoot.top
+        assertThat(normalTop).isLessThan(workTop)
+        rule.onNodeWithTag("space_rename_$work").assertIsDisplayed()
+        rule.onNodeWithTag("space_delete_$work").assertIsDisplayed()
     }
 
     @Test
-    fun plusButtonCreatesASpaceThatAppearsAsAChip() {
+    fun addRowCreatesASpaceThatAppearsInTheList() {
         val name = "New ${System.currentTimeMillis() % 100_000}"
-        rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
-        rule.onNodeWithTag("settings_add_space").assertIsDisplayed().performClick()
+        openSpaces()
+        rule.onNodeWithTag("settings_add_space").performScrollTo().performClick()
         rule.onNodeWithTag("space_type_WORK").assertDoesNotExist()
         rule.onNodeWithTag("text_input").performTextInput(name)
         rule.onNodeWithTag("dialog_button_1").performClick()
@@ -124,28 +129,25 @@ class SpacesUiTest : LauncherUiTestBase() {
         try {
             assertThat(created.type).isEqualTo(SpaceType.CUSTOM)
             rule.onNodeWithTag("dialog").assertDoesNotExist()
-            rule.onNodeWithTag("space_chip_${created.id}").performScrollTo().assertIsDisplayed().assertIsNotSelected()
-            rule.onNodeWithTag("settings_add_space").assertIsDisplayed()
+            rule.onNodeWithTag("space_row_${created.id}").performScrollTo().assert(hasAnyDescendant(hasText(name)))
+            rule.onNodeWithTag("settings_add_space").performScrollTo().assertIsDisplayed()
         } finally {
             runBlocking { container.spaces.delete(created.id) }
         }
     }
 
     @Test
-    fun longPressOnASpaceChipDeletesItAfterTheSystemDialog() {
+    fun deleteIconRemovesTheSpaceAfterTheSystemDialog() {
         val id = createCustomSpace("Doomed ${System.currentTimeMillis() % 100_000}")
         try {
-            rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
-            rule.onNodeWithTag("space_chip_$id").performScrollTo().performTouchInput { longClick() }
-            rule.onNodeWithTag("popup").assertIsDisplayed()
-            rule.onNodeWithTag("space_delete").assertIsDisplayed().performClick()
-            rule.onNodeWithTag("popup").assertDoesNotExist()
+            openSpaces()
+            rule.onNodeWithTag("space_delete_$id").performScrollTo().performClick()
             assertThat(container.spaces.spaces.value.any { it.id == id }).isTrue()
             onView(withText(rule.activity.getString(SettingsR.string.settings_delete)))
                 .inRoot(isDialog())
                 .perform(click())
             rule.waitUntil(5_000) { container.spaces.spaces.value.none { it.id == id } }
-            rule.onNodeWithTag("space_chip_$id").assertDoesNotExist()
+            rule.onNodeWithTag("space_row_$id").assertDoesNotExist()
         } finally {
             runBlocking { container.spaces.delete(id) }
         }
@@ -155,15 +157,14 @@ class SpacesUiTest : LauncherUiTestBase() {
     fun cancelInTheSystemDialogKeepsTheSpace() {
         val id = createCustomSpace("Kept ${System.currentTimeMillis() % 100_000}")
         try {
-            rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
-            rule.onNodeWithTag("space_chip_$id").performScrollTo().performTouchInput { longClick() }
-            rule.onNodeWithTag("space_delete").performClick()
+            openSpaces()
+            rule.onNodeWithTag("space_delete_$id").performScrollTo().performClick()
             onView(withText(rule.activity.getString(SettingsR.string.settings_cancel)))
                 .inRoot(isDialog())
                 .perform(click())
             rule.waitForIdle()
             assertThat(container.spaces.spaces.value.any { it.id == id }).isTrue()
-            rule.onNodeWithTag("space_chip_$id").assertExists()
+            rule.onNodeWithTag("space_row_$id").assertExists()
         } finally {
             runBlocking { container.spaces.delete(id) }
         }
@@ -172,12 +173,10 @@ class SpacesUiTest : LauncherUiTestBase() {
     @Test
     fun AC_49_2_normalSpaceCanBeRenamedButNotDeleted() {
         val original = container.spaces.spaces.value.first { it.id == normalId }.name
-        rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
-        rule.onNodeWithTag("space_chip_$normalId").performTouchInput { longClick() }
-        rule.onNodeWithTag("popup").assertIsDisplayed()
-        rule.onNodeWithTag("space_delete").assertDoesNotExist()
+        openSpaces()
+        rule.onNodeWithTag("space_delete_$normalId").assertDoesNotExist()
         try {
-            rule.onNodeWithTag("space_rename").performClick()
+            rule.onNodeWithTag("space_rename_$normalId").performClick()
             rule.onNodeWithTag("text_input").assertTextEquals(original).performTextReplacement("Renamed default")
             rule.onNodeWithTag("dialog_button_1").performClick()
             rule.waitUntil(5_000) {
@@ -186,7 +185,7 @@ class SpacesUiTest : LauncherUiTestBase() {
                         it.name == "Renamed default"
                 }
             }
-            rule.onNodeWithTag("space_chip_$normalId").assertTextEquals("Renamed default").assertIsSelected()
+            rule.onNodeWithTag("space_row_$normalId").assert(hasAnyDescendant(hasText("Renamed default")))
             rule.onNodeWithTag("dialog").assertDoesNotExist()
         } finally {
             runBlocking { container.spaces.rename(normalId, original) }
@@ -194,17 +193,17 @@ class SpacesUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun AC_49_2_spaceMenuHasTwoIconsAndRenameRejectsDuplicates() {
+    fun AC_49_2_spaceRowHasTwoIconsAndRenameRejectsDuplicates() {
         val id = createCustomSpace("Rename me")
         val duplicate = container.spaces.spaces.value.first { it.id == normalId }.name
         try {
-            rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
-            rule.onNodeWithTag("space_chip_$id").performScrollTo().performTouchInput { longClick() }
-            val delete = rule.onNodeWithTag("space_delete").fetchSemanticsNode().boundsInRoot
-            val rename = rule.onNodeWithTag("space_rename").fetchSemanticsNode().boundsInRoot
+            openSpaces()
+            rule.onNodeWithTag("space_row_$id").performScrollTo()
+            val delete = rule.onNodeWithTag("space_delete_$id").fetchSemanticsNode().boundsInRoot
+            val rename = rule.onNodeWithTag("space_rename_$id").fetchSemanticsNode().boundsInRoot
             assertThat(rename.center.y).isWithin(1f).of(delete.center.y)
-            assertThat(rename.left).isAtLeast(delete.right)
-            rule.onNodeWithTag("space_rename").performClick()
+            assertThat(delete.left).isAtLeast(rename.right)
+            rule.onNodeWithTag("space_rename_$id").performClick()
             rule.onNodeWithTag("text_input").performTextReplacement(duplicate)
             rule.onNodeWithTag("dialog_button_1").performClick()
             rule.onNodeWithText(rule.activity.getString(SettingsR.string.error_name_taken)).assertIsDisplayed()
@@ -212,10 +211,18 @@ class SpacesUiTest : LauncherUiTestBase() {
             rule.onNodeWithTag("dialog_button_1").performClick()
             rule.waitUntil(5_000) { container.spaces.spaces.value.any { it.id == id && it.name == "Renamed space" } }
             rule.onNodeWithTag("dialog").assertDoesNotExist()
-            rule.onNodeWithTag("space_chip_$id").performScrollTo().assertTextEquals("Renamed space")
+            rule.onNodeWithTag("space_row_$id").performScrollTo().assert(hasAnyDescendant(hasText("Renamed space")))
         } finally {
             runBlocking { container.spaces.delete(id) }
         }
+    }
+
+    private fun openSpaces() {
+        rule.runOnIdle {
+            rule.activity.launcher.navigator.settings.open()
+            rule.activity.launcher.navigator.settings.push(SettingsRoute.Spaces)
+        }
+        rule.onNodeWithTag("settings_add_space").assertExists()
     }
 
     private fun createCustomSpace(name: String): Long {

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.13.1 — 2026-11-27
+
+### Changed
+- Spaces have their own screen at the top of Settings: a plain list with rename and delete buttons on every space and a New space row. The space chips above the settings are gone.
+- Entering edit mode hints removal on the first row only, with a slower pull that shows the delete button and slides back.
+- All four keyboard rows have the same height.
+- In edit mode the Add widget button sits above the widgets instead of inside the grid.
+
+### Fixed
+- The app list no longer animates its height or flashes a scroll bar at the end of a space switch.
+
 ## 0.13.0 — 2026-11-27
 
 ### Changed

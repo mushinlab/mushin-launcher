@@ -1,21 +1,16 @@
 package com.mushinlab.launcher.feature.settings
 
 import android.view.HapticFeedbackConstants
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -25,10 +20,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.layout.boundsInWindow
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -39,27 +30,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.SpaceLimits
 import com.mushinlab.launcher.core.model.SpaceType
-import com.mushinlab.launcher.core.ui.AnchoredPanel
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
-import com.mushinlab.launcher.core.ui.PanelHeader
 import com.mushinlab.launcher.core.ui.RadioMark
 import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.pressable
 import kotlinx.coroutines.launch
 
 @Stable
-internal class SpaceBarState {
+private class SpaceListState {
     var creating by mutableStateOf(false)
-    var menu by mutableStateOf<SpaceMenu?>(null)
     var deleting by mutableStateOf<SpaceSummary?>(null)
     var renaming by mutableStateOf<SpaceSummary?>(null)
 }
-
-@Immutable
-internal data class SpaceMenu(val space: SpaceSummary, val anchor: Offset)
 
 internal fun creatableTypes(spaces: List<SpaceSummary>): List<SpaceType> = listOfNotNull(
     SpaceType.CUSTOM.takeIf { spaces.count { it.type == SpaceType.CUSTOM } < SpaceLimits.MAX_CUSTOM },
@@ -67,97 +52,69 @@ internal fun creatableTypes(spaces: List<SpaceSummary>): List<SpaceType> = listO
 )
 
 @Composable
-internal fun SpaceBar(spaces: List<SpaceSummary>, actions: SpaceActions, bar: SpaceBarState) {
+internal fun SpacesScreen(spaces: List<SpaceSummary>, actions: SpaceActions, back: () -> Unit) {
     val view = LocalView.current
-    val reject = { view.performHapticFeedback(HapticFeedbackConstants.REJECT) }
-    Row(Modifier.fillMaxWidth().padding(end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-        Row(
-            Modifier
-                .weight(1f, fill = false)
-                .horizontalScroll(rememberScrollState())
-                .padding(start = CARD_MARGIN, end = 4.dp, top = 8.dp, bottom = 8.dp)
-                .testTag("space_chips"),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
+    val list = remember { SpaceListState() }
+    Box {
+        SettingsPage(stringResource(R.string.settings_spaces), back) {
             spaces.forEach { space ->
-                SpaceChip(space, onSelect = { actions.switchSpace(space.id) }) { anchor ->
-                    bar.menu = SpaceMenu(space, anchor)
+                SpaceRow(space, onRename = { list.renaming = space }, onDelete = { list.deleting = space })
+            }
+            NavRow(stringResource(R.string.space_create_title), tag = "settings_add_space") {
+                if (creatableTypes(spaces).isEmpty()) {
+                    view.performHapticFeedback(HapticFeedbackConstants.REJECT)
+                } else {
+                    list.creating = true
                 }
             }
         }
-        GlyphButton(
-            Glyph.ADD,
-            stringResource(R.string.space_create_title),
-            LocalMushinColors.current.textPrimary,
-            tag = "settings_add_space",
-        ) {
-            if (creatableTypes(spaces).isEmpty()) reject() else bar.creating = true
-        }
+        SpaceDialogs(spaces, actions, list)
     }
 }
 
 @Composable
-private fun SpaceChip(space: SpaceSummary, onSelect: () -> Unit, onHold: (Offset) -> Unit) {
+private fun SpaceRow(space: SpaceSummary, onRename: () -> Unit, onDelete: () -> Unit) {
     val colors = LocalMushinColors.current
-    var anchor by remember { mutableStateOf(Offset.Zero) }
     Row(
         Modifier
-            .onGloballyPositioned { anchor = it.boundsInWindow().bottomCenter }
-            .clip(RoundedCornerShape(CARD_RADIUS))
-            .background(if (space.current) colors.accent.copy(alpha = CHIP_ALPHA) else colors.surface)
-            .border(1.dp, if (space.current) colors.accent else colors.surface, RoundedCornerShape(CARD_RADIUS))
-            .pressable(role = Role.RadioButton, onLongClick = { onHold(anchor) }, onClick = onSelect)
-            .semantics { selected = space.current }
-            .testTag("space_chip_${space.id}")
-            .heightIn(min = 48.dp)
-            .padding(horizontal = 14.dp),
+            .settingsCard()
+            .heightIn(min = 56.dp)
+            .testTag("space_row_${space.id}")
+            .padding(start = CARD_PADDING, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        RadioMark(space.current)
-        Spacer(Modifier.width(8.dp))
-        SingleLineText(space.name, MushinType.style(16.sp, colors.textPrimary))
+        Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
+            SingleLineText(space.name, MushinType.style(17.sp, colors.textPrimary))
+            SingleLineText(spaceTypeLabel(space.type), MushinType.style(14.sp, colors.textSecondary))
+        }
+        GlyphButton(
+            Glyph.EDIT,
+            stringResource(R.string.space_rename),
+            colors.textPrimary,
+            tag = "space_rename_${space.id}",
+            onClick = onRename,
+        )
+        if (space.type != SpaceType.NORMAL) {
+            GlyphButton(
+                Glyph.DELETE,
+                stringResource(R.string.space_delete),
+                colors.danger,
+                tag = "space_delete_${space.id}",
+                onClick = onDelete,
+            )
+        }
     }
 }
 
 @Composable
-internal fun SpaceBarOverlays(spaces: List<SpaceSummary>, actions: SpaceActions, bar: SpaceBarState) {
+private fun SpaceDialogs(spaces: List<SpaceSummary>, actions: SpaceActions, list: SpaceListState) {
     val types = creatableTypes(spaces)
-    if (bar.creating && types.isNotEmpty()) CreateSpaceDialog(types, actions) { bar.creating = false }
-    bar.menu?.let { menu ->
-        AnchoredPanel(anchor = menu.anchor, onDismiss = { bar.menu = null }) {
-            PanelHeader(menu.space.name)
-            Row(
-                Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                if (menu.space.type != SpaceType.NORMAL) {
-                    GlyphButton(
-                        Glyph.DELETE,
-                        stringResource(R.string.space_delete),
-                        LocalMushinColors.current.danger,
-                        tag = "space_delete",
-                    ) {
-                        bar.menu = null
-                        bar.deleting = menu.space
-                    }
-                }
-                GlyphButton(
-                    Glyph.EDIT,
-                    stringResource(R.string.space_rename),
-                    LocalMushinColors.current.textPrimary,
-                    tag = "space_rename",
-                ) {
-                    bar.menu = null
-                    bar.renaming = menu.space
-                }
-            }
-        }
+    if (list.creating && types.isNotEmpty()) CreateSpaceDialog(types, actions) { list.creating = false }
+    list.renaming?.let { space ->
+        RenameSpaceDialog(space, actions) { list.renaming = null }
     }
-    bar.renaming?.let { space ->
-        RenameSpaceDialog(space, actions) { bar.renaming = null }
-    }
-    bar.deleting?.let { space ->
-        DeleteSpaceDialog(space, onConfirm = { actions.deleteSpace(space.id) }, onDismiss = { bar.deleting = null })
+    list.deleting?.let { space ->
+        DeleteSpaceDialog(space, onConfirm = { actions.deleteSpace(space.id) }, onDismiss = { list.deleting = null })
     }
 }
 
@@ -231,5 +188,3 @@ private fun DeleteSpaceDialog(space: SpaceSummary, onConfirm: () -> Unit, onDism
         onDismiss = onDismiss,
     )
 }
-
-private const val CHIP_ALPHA = 0.16f

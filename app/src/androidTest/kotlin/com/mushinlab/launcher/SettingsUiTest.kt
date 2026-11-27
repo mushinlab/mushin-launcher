@@ -37,10 +37,11 @@ class SettingsUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun rootEndsWithTipsThenSystemAndHasNoSpacesEntry() {
+    fun rootStartsWithSpacesAndEndsWithTipsThenSystem() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         rule.onNodeWithTag("nav_style").assertDoesNotExist()
         val order = listOf(
+            "nav_spaces",
             "nav_keyboard",
             "nav_gestures",
             "nav_apps",

@@ -1,6 +1,8 @@
 package com.mushinlab.launcher.feature.home
 
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -38,7 +40,7 @@ internal object SwipeResistance {
 internal object SwipeDimens {
     val reveal = 72.dp
     val limit = 120.dp
-    val hint = 28.dp
+    val hint = 56.dp
 }
 
 @Stable
@@ -47,12 +49,16 @@ internal class RowSwipe {
         private set
     var offset by mutableFloatStateOf(0f)
     var hint by mutableFloatStateOf(0f)
+    var hintKey by mutableStateOf<AppKey?>(null)
     var settling: Job? = null
     private var open by mutableStateOf(false)
     private var wasOpen = false
     private var pull = 0f
 
-    fun offsetOf(key: AppKey): Float = if (this.key == key) max(offset, hint) else hint
+    fun offsetOf(key: AppKey): Float {
+        val hinted = if (key == hintKey) hint else 0f
+        return if (this.key == key) max(offset, hinted) else hinted
+    }
 
     fun isOpen(key: AppKey): Boolean = open && this.key == key
 
@@ -134,9 +140,19 @@ internal fun SwipeEffects(swipe: RowSwipe, reorder: RowReorder, rows: List<HomeR
     LaunchedEffect(editing) {
         swipe.close()
         swipe.hint = 0f
+        swipe.hintKey = rows.firstOrNull()?.key
         if (editing) {
-            animate(0f, hint, animationSpec = tween(Motion.TRANSITION_MS)) { value, _ -> swipe.hint = value }
-            animate(hint, 0f, animationSpec = tween(Motion.TRANSITION_MS)) { value, _ -> swipe.hint = value }
+            animate(0f, 0f, animationSpec = hintKeyframes(hint)) { value, _ -> swipe.hint = value }
         }
     }
 }
+
+private fun hintKeyframes(hint: Float) = keyframes {
+    durationMillis = Motion.TRANSITION_MS + HINT_PULL_MS * 2 + HINT_HOLD_MS
+    0f at Motion.TRANSITION_MS using FastOutSlowInEasing
+    hint at Motion.TRANSITION_MS + HINT_PULL_MS
+    hint at Motion.TRANSITION_MS + HINT_PULL_MS + HINT_HOLD_MS using FastOutSlowInEasing
+}
+
+private const val HINT_PULL_MS = 600
+private const val HINT_HOLD_MS = 300

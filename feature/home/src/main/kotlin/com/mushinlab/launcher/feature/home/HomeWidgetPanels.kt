@@ -1,12 +1,12 @@
 package com.mushinlab.launcher.feature.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,11 +30,13 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
@@ -49,7 +51,6 @@ import com.mushinlab.launcher.core.model.WidgetCell
 import com.mushinlab.launcher.core.model.WidgetLayout
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
-import com.mushinlab.launcher.core.ui.GlyphWrapper
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.PopupStyle
@@ -143,7 +144,6 @@ internal fun HomeWidgetPanel(
             .height(grid.height)
             .testTag("widget_panel_TOP"),
     ) {
-        if (editing) panel.addCells.forEach { key(it) { AddWidgetCell(it, grid, registry, edits.onAdd) } }
         panel.widgets.forEach { tile ->
             key(tile.id) { WidgetTile(tile, grid, editing, registry, edits, slots) { preview = it } }
         }
@@ -334,31 +334,32 @@ private fun Modifier.widgetMoveActions(cell: WidgetCell, onMove: (WidgetCell) ->
 }
 
 @Composable
-private fun AddWidgetCell(cell: WidgetCell, grid: PanelGrid, registry: RowRegistry, onAdd: (WidgetCell) -> Unit) {
-    val key = "add_widget_${cell.column}_${cell.row}"
+internal fun AddWidgetButton(panel: HomeWidgetPanel, registry: RowRegistry, onAdd: (WidgetCell) -> Unit) {
+    val cell = panel.addCells.firstOrNull() ?: return
     val colors = LocalMushinColors.current
-    val origin = grid.offset(cell)
-    val size = grid.size(cell)
-    val roomy = size.height >= ROOMY_ADD_CELL
-    DisposableEffect(key) { onDispose { registry.block(key, null) } }
-    Column(
-        Modifier.offset(origin.width, origin.height).size(size)
-            .clip(TILE_SHAPE)
-            .border(GlyphWrapper.outline, PopupStyle.outline(colors), TILE_SHAPE)
-            .onGloballyPositioned { registry.block(key, it.boundsInRoot()) }
+    DisposableEffect(Unit) { onDispose { registry.block(ADD_WIDGET, null) } }
+    Row(
+        Modifier
+            .height(ADD_WIDGET_HEIGHT)
+            .clip(CircleShape)
+            .background(colors.keyBackground)
+            .onGloballyPositioned { registry.block(ADD_WIDGET, it.boundsInRoot()) }
             .pressable(onClick = { onAdd(cell) })
-            .testTag(key),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+            .testTag(ADD_WIDGET)
+            .padding(horizontal = ADD_WIDGET_PADDING),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        GlyphBadge(Glyph.ADD, if (roomy) ADD_BADGE else SMALL_ADD_BADGE)
-        if (roomy) {
-            Spacer(Modifier.size(8.dp))
-            SingleLineText(
-                stringResource(R.string.home_add_widget),
-                MushinType.style(MushinType.secondarySize, colors.textPrimary),
-            )
-        }
+        Image(
+            painterResource(Glyph.WIDGETS.res),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(colors.iconTint),
+            modifier = Modifier.size(ADD_WIDGET_GLYPH),
+        )
+        Spacer(Modifier.size(8.dp))
+        SingleLineText(
+            stringResource(R.string.home_add_widget),
+            MushinType.style(MushinType.secondarySize, colors.textPrimary),
+        )
     }
 }
 
@@ -368,10 +369,11 @@ private val TILE_SHAPE = RoundedCornerShape(12.dp)
 private val TILE_BUTTON = 36.dp
 private val TILE_GLYPH = 18.dp
 private val TILE_BUTTON_INSET = 4.dp
-private val ADD_BADGE = 32.dp
-private val SMALL_ADD_BADGE = 14.dp
-private val ROOMY_ADD_CELL = 64.dp
 private val HANDLE_TOUCH = 24.dp
+private val ADD_WIDGET_HEIGHT = 36.dp
+private val ADD_WIDGET_PADDING = 14.dp
+private val ADD_WIDGET_GLYPH = 20.dp
+private const val ADD_WIDGET = "add_widget"
 private val HANDLE_LENGTH = 32.dp
 private val HANDLE_BAR = 4.dp
 private val HANDLE_BACKING = 12.dp

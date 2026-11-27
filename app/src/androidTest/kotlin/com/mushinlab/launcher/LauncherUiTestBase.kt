@@ -17,6 +17,7 @@ import com.mushinlab.launcher.core.model.HomeTextSize
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.KeyboardFit
 import com.mushinlab.launcher.core.model.PressFeedback
+import com.mushinlab.launcher.core.model.SpaceTransition
 import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.StrokeColor
 import com.mushinlab.launcher.feature.search.KeyboardDimens
@@ -77,6 +78,7 @@ abstract class LauncherUiTestBase {
                 keyboardWidth = KeyboardFit.WIDTH_MAX,
                 keyboardShift = 0f,
                 keyboardLift = 0,
+                spaceTransition = SpaceTransition.SLIDE,
                 homeListOffset = null,
                 pressFeedback = PressFeedback.FLASH,
                 gestureShiftPenalty = GestureTuning.SHIFT_PENALTY,

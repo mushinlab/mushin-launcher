@@ -164,6 +164,8 @@
         <item quantity="one">%d drawing</item>
         <item quantity="other">%d drawings</item>
     </plurals>
+    <string name="settings_spaces">Spaces</string>
+    <string name="summary_spaces">Create, rename and delete spaces</string>
     <string name="summary_keyboard">Layouts, vibration, digit hints, swipe typing</string>
     <string name="summary_gestures">Swipes on the home screen and the stroke</string>
     <string name="summary_apps">Hidden apps, custom names</string>

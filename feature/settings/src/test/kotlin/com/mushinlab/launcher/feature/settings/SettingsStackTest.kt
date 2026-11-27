@@ -25,6 +25,7 @@ class SettingsStackTest {
         SettingsRoute.Tip("memory"),
         SettingsRoute.HomeFolder(3),
         SettingsRoute.PickFolderApps(3),
+        SettingsRoute.Spaces,
     )
 
     @Test
@@ -37,7 +38,6 @@ class SettingsStackTest {
     @Test
     fun unknownOrBrokenRoutesAreDropped() {
         assertThat(SettingsRouteCodec.decode("Nowhere")).isNull()
-        assertThat(SettingsRouteCodec.decode("Spaces")).isNull()
         assertThat(SettingsRouteCodec.decode("SpaceEditor|x")).isNull()
         assertThat(SettingsRouteCodec.decode("BackgroundEditor")).isNull()
         assertThat(SettingsRouteCodec.decode("BackgroundEditor|")).isNull()

@@ -73,7 +73,9 @@ private fun SettingsRouteScreen(
     val back: () -> Unit = { if (stack.top == route) stack.pop() }
     val push: (SettingsRoute) -> Unit = { if (stack.top == route) stack.push(it) }
     when (route) {
-        SettingsRoute.Root -> RootScreen(state, actions, push, back)
+        SettingsRoute.Root -> RootScreen(push, back)
+
+        SettingsRoute.Spaces -> SpacesScreen(state.spaces, actions.spaces, back)
 
         is SettingsRoute.SpaceEditor,
         is SettingsRoute.BackgroundEditor,

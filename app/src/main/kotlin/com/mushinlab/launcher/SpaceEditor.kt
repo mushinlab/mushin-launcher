@@ -33,10 +33,6 @@ class SpaceEditor(
         if (repository.delete(id) is SpaceOutcome.Ok) withContext(Dispatchers.IO) { container.backgrounds.delete(id) }
     }
 
-    fun switchTo(id: Long) {
-        container.scope.launch { container.settings.update { it.copy(currentSpaceId = id) } }
-    }
-
     fun setItems(id: Long, keys: List<AppKey>) = container.inBackground { repository.setItems(id, keys) }
 
     fun addItem(id: Long, key: AppKey): Boolean {

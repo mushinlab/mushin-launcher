@@ -164,6 +164,8 @@
         <item quantity="one">%d Zeichnung</item>
         <item quantity="other">%d Zeichnungen</item>
     </plurals>
+    <string name="settings_spaces">Bereiche</string>
+    <string name="summary_spaces">Bereiche erstellen, umbenennen und löschen</string>
     <string name="summary_keyboard">Layouts, Vibration, Ziffernhinweise, Wischeingabe</string>
     <string name="summary_gestures">Wischgesten auf dem Startbildschirm und Linie</string>
     <string name="summary_apps">Ausgeblendete Apps, eigene Namen</string>
