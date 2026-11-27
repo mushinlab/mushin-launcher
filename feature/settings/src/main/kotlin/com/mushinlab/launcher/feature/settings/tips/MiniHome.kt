@@ -9,13 +9,11 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.TextLayoutResult
 import com.mushinlab.launcher.core.ui.MushinColors
 
 internal object MiniHome {
     const val LIST_TOP = 100f
-    const val HANDLE_ABOVE = 14f
     const val GLYPH_RADIUS = 10f
     const val TOOL_LEFT = 20f
     const val TOOL_STEP = 24f
@@ -31,8 +29,6 @@ internal object MiniHome {
     val edit = Scene.pencil
 
     fun tool(index: Int) = Offset(TOOL_LEFT + TOOL_STEP * index, edit.y)
-
-    fun handle(listTop: Float) = Offset(Scene.WIDTH / 2, listTop - HANDLE_ABOVE)
 
     fun grip(sheetTop: Float) = Offset(Scene.WIDTH / 2, sheetTop + GRIP_Y)
 
@@ -80,28 +76,6 @@ private fun DrawScope.motionGlyph(center: Offset, color: Color, alpha: Float) {
             alpha = alpha,
         )
     }
-}
-
-internal fun DrawScope.listHandle(colors: MushinColors, center: Offset, visible: Float, active: Float) {
-    if (visible <= 0f) return
-    val outer = Size(HANDLE_WIDTH + HANDLE_PADDING * 2, HANDLE_THICKNESS + HANDLE_PADDING * 2)
-    val outerLeft = Offset(center.x - outer.width / 2, center.y - outer.height / 2)
-    drawRoundRect(colors.surface, outerLeft, outer, CornerRadius(outer.height / 2), alpha = visible)
-    drawRoundRect(
-        colors.textSecondary,
-        outerLeft,
-        outer,
-        CornerRadius(outer.height / 2),
-        alpha = visible * OUTLINE_ALPHA,
-        style = Stroke(width = OUTLINE_WIDTH),
-    )
-    drawRoundRect(
-        lerp(colors.textSecondary.copy(alpha = HANDLE_ALPHA), colors.accent, active),
-        Offset(center.x - HANDLE_WIDTH / 2, center.y - HANDLE_THICKNESS / 2),
-        Size(HANDLE_WIDTH, HANDLE_THICKNESS),
-        CornerRadius(HANDLE_THICKNESS / 2),
-        alpha = visible,
-    )
 }
 
 internal fun DrawScope.clockCell(colors: MushinColors, clock: MiniClock, edit: Float) {
@@ -200,10 +174,6 @@ private val MotionLines = listOf(-2.4f to 2.2f, 0f to 3f, 2.4f to 2.2f)
 private const val BAR_ALPHA = 0.7f
 private const val OUTLINE_ALPHA = 0.5f
 private const val OUTLINE_WIDTH = 0.8f
-private const val HANDLE_WIDTH = 18f
-private const val HANDLE_THICKNESS = 2f
-private const val HANDLE_PADDING = 3f
-private const val HANDLE_ALPHA = 0.35f
 private const val SLOT_PAD = 3f
 private const val SLOT_CORNER = 6f
 private const val SLOT_FILL = 0.08f

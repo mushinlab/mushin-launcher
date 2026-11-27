@@ -23,9 +23,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -203,19 +206,28 @@ private fun DigitBubble(key: KeyGeometry) {
 private fun ResizeMark(color: Color) {
     Canvas(Modifier.size(KeyboardDimens.resizeMark).testTag("resize_mark")) {
         val w = size.width
-        val h = size.height
         val stroke = w * RESIZE_STROKE
-        val mid = h / 2
-        drawLine(color, Offset(stroke, h * 0.2f), Offset(stroke, h * 0.8f), stroke, StrokeCap.Round)
-        drawLine(color, Offset(w - stroke, h * 0.2f), Offset(w - stroke, h * 0.8f), stroke, StrokeCap.Round)
-        drawLine(color, Offset(w * 0.22f, mid), Offset(w * 0.78f, mid), stroke, StrokeCap.Round)
-        val head = w * 0.14f
-        listOf(w * 0.22f to 1f, w * 0.78f to -1f).forEach { (x, dir) ->
-            drawLine(color, Offset(x, mid), Offset(x + head * dir, mid - head), stroke, StrokeCap.Round)
-            drawLine(color, Offset(x, mid), Offset(x + head * dir, mid + head), stroke, StrokeCap.Round)
-        }
+        val inset = stroke / 2
+        drawRoundRect(
+            color,
+            topLeft = Offset(inset, inset),
+            size = Size(w - stroke, w - stroke),
+            cornerRadius = CornerRadius(w * RESIZE_CORNER),
+            style = Stroke(stroke),
+        )
+        val near = w * RESIZE_ARROW_START
+        val far = w - near
+        val head = w * RESIZE_ARROW_HEAD
+        drawLine(color, Offset(near, far), Offset(far, near), stroke, StrokeCap.Round)
+        drawLine(color, Offset(far, near), Offset(far - head, near), stroke, StrokeCap.Round)
+        drawLine(color, Offset(far, near), Offset(far, near + head), stroke, StrokeCap.Round)
+        drawLine(color, Offset(near, far), Offset(near + head, far), stroke, StrokeCap.Round)
+        drawLine(color, Offset(near, far), Offset(near, far - head), stroke, StrokeCap.Round)
     }
 }
 
 private const val RESIZE_STROKE = 0.08f
+private const val RESIZE_CORNER = 0.18f
+private const val RESIZE_ARROW_START = 0.3f
+private const val RESIZE_ARROW_HEAD = 0.2f
 private const val VECTOR_TOLERANCE = 0.2f

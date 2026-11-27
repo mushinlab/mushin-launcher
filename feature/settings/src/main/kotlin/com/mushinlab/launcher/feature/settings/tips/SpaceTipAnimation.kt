@@ -89,7 +89,6 @@ private fun DrawScope.drawSpaceHome(time: Float, colors: MushinColors, labels: S
     val added = ease(time, ROWS_FROM, ROWS_FROM + SLIDE_MS)
     drawRect(colors.background, size = Size(Scene.WIDTH, Scene.HEIGHT))
     clockCell(colors, labels.clock, edit)
-    listHandle(colors, MiniHome.handle(MiniHome.LIST_TOP), edit, 0f)
     zebraRows(colors, MiniHome.LIST_TOP, labels.apps.take(HOME_APPS_AFTER), MiniHome.ROW_INSET * edit) { index ->
         if (index < HOME_APPS_BEFORE) 1f else added
     }

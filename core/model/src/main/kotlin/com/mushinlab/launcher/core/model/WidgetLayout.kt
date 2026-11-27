@@ -67,6 +67,26 @@ data class WidgetLayout(val widgets: List<HostedWidget> = listOf(HostedWidget.cl
             .firstNotNullOfOrNull { added.spread(widget.id, cell, it) } ?: added
     }
 
+    /**
+     * The largest free rectangle for a new widget: at least [columnSpan] by [rowSpan] cells and at most a quarter
+     * of the panel, the topmost then leftmost among equals; null when no such rectangle is free.
+     */
+    fun roomFor(columnSpan: Int = 1, rowSpan: Int = 1): WidgetCell? {
+        val columns = columnSpan.coerceAtMost(WidgetCell.QUARTER)..WidgetCell.QUARTER
+        val rows = rowSpan.coerceAtMost(WidgetCell.QUARTER)..WidgetCell.QUARTER
+        return WidgetCell.singles
+            .flatMap { origin ->
+                columns.flatMap { c -> rows.map { r -> WidgetCell(origin.column, origin.row, c, r) } }
+            }
+            .filter { candidate -> candidate.fits && widgets.none { it.cell.overlaps(candidate) } }
+            .maxWithOrNull(
+                compareBy<WidgetCell> { it.columnSpan * it.rowSpan }.thenByDescending {
+                    it.row * WidgetCell.COLUMNS +
+                        it.column
+                },
+            )
+    }
+
     private fun spread(id: Int, cell: WidgetCell, span: WidgetCell): WidgetLayout? {
         val around = span.at(
             minOf(cell.column, WidgetCell.COLUMNS - span.columnSpan),

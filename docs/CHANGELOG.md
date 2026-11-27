@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.13.2 — 2026-11-27
+
+### Changed
+- The keyboard's bottom row (resize and space) is a third shorter than the letter rows, and the resize key shows a standard resize icon.
+- Edit mode shows the widget grid.
+- The app list sits right under the widgets and moves up or down as soon as the widgets change; the list handle and the manual list position are gone.
+- A new widget takes the largest free spot, up to a quarter of the panel, instead of a single cell.
+
 ## 0.13.1 — 2026-11-27
 
 ### Changed

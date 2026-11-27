@@ -232,7 +232,7 @@
     <string name="tip_arrange_title">Organisez la liste</string>
     <string name="tip_arrange_text">Touchez le crayon, puis faites glisser une ligne par la poignée à sa gauche pour la déplacer. Balayez une ligne vers la gauche et touchez la corbeille pour la retirer de la liste.</string>
     <string name="tip_style_title">Personnalisez le launcher</string>
-    <string name="tip_style_text">Touchez le crayon, puis Tt pour changer la police, la taille et l’alignement. Pendant la modification, faites glisser le trait au-dessus de la liste pour déplacer la liste.</string>
+    <string name="tip_style_text">Touchez le crayon, puis Tt pour changer la police, la taille et l’alignement.</string>
     <string name="tip_memory_title">Entraînez le launcher</string>
     <string name="tip_memory_text">Dans Paramètres → Gestes, activez « Saisie par gestes » et dessinez une forme pour une appli. Dessinez la même forme sur l’écran d’accueil et le launcher ouvre cette appli.</string>
     <string name="tips_more_title">Pour aller plus loin, voyez les Astuces</string>

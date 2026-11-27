@@ -127,8 +127,6 @@ interface HomeControlActions {
     fun onOpenSpaces(anchor: Offset)
 
     fun onSuggestion(anchor: Offset)
-
-    fun onListOffset(dp: Int)
 }
 
 interface HomeWidgetActions {

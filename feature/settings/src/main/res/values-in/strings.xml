@@ -230,7 +230,7 @@
     <string name="tip_arrange_title">Atur daftar</string>
     <string name="tip_arrange_text">Ketuk pensil, lalu seret baris dengan pegangan di sebelah kirinya untuk memindahkannya. Geser baris ke kiri dan ketuk tempat sampah untuk menghapusnya dari daftar.</string>
     <string name="tip_style_title">Sesuaikan launcher</string>
-    <string name="tip_style_text">Ketuk pensil, lalu Tt untuk mengubah font, ukuran, dan perataan. Saat mengedit, seret garis di atas daftar untuk memindahkan daftar.</string>
+    <string name="tip_style_text">Ketuk pensil, lalu Tt untuk mengubah font, ukuran, dan perataan.</string>
     <string name="tip_memory_title">Ajari launcher</string>
     <string name="tip_memory_text">Di Setelan → Gestur, aktifkan “Input gestur” lalu gambar bentuk untuk aplikasi. Gambar bentuk yang sama di layar utama, dan launcher akan membuka aplikasi itu.</string>
     <string name="tips_more_title">Selengkapnya, buka Tips</string>

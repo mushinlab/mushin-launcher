@@ -43,8 +43,6 @@ class SpaceEditor(
     }
 
     fun removeItem(id: Long, key: AppKey) = container.inBackground { repository.removeItem(id, key) }
-
-    fun setListOffset(id: Long, dp: Int) = container.inBackground { repository.setListOffset(id, dp) }
 }
 
 private fun <T> SpaceOutcome<T>.errorCode(): String? = when (this) {

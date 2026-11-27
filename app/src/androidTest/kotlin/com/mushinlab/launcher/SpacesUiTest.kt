@@ -233,20 +233,6 @@ class SpacesUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun eachSpaceKeepsItsOwnListPosition() {
-        val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }.id
-        val top = { rule.onNodeWithTag("list_handle").fetchSemanticsNode().boundsInRoot.top }
-        val start = top()
-        runBlocking { container.spaces.setListOffset(normalId, 100) }
-        rule.waitUntil(5_000) { top() - start > 50f }
-        val moved = top()
-        runBlocking { container.settings.update { it.copy(currentSpaceId = work) } }
-        rule.waitUntil(5_000) { abs(top() - start) < 2f }
-        runBlocking { container.settings.update { it.copy(currentSpaceId = normalId) } }
-        rule.waitUntil(5_000) { abs(top() - moved) < 2f }
-    }
-
-    @Test
     fun popupListsSpacesAsVerticalRadioButtons() {
         rule.onNodeWithTag("home_bar").performClick()
         val work = container.spaces.spaces.value.first { it.type == SpaceType.WORK }.id

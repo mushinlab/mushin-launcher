@@ -231,7 +231,7 @@
     <string name="tip_arrange_title">Arrange the list</string>
     <string name="tip_arrange_text">Tap the pencil, then drag a row by the handle on its left to move it. Swipe a row to the left and tap the bin to remove it from the list.</string>
     <string name="tip_style_title">Customize the launcher</string>
-    <string name="tip_style_text">Tap the pencil, then Tt to change the font, size and alignment. While editing, drag the line above the list to move the list.</string>
+    <string name="tip_style_text">Tap the pencil, then Tt to change the font, size and alignment.</string>
     <string name="tip_memory_title">Teach the launcher</string>
     <string name="tip_memory_text">In Settings → Gestures, turn on Gesture input and draw a shape for an app. Draw the same shape on the home screen and the launcher opens that app.</string>
     <string name="tips_more_title">For more, explore Tips</string>

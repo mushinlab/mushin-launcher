@@ -44,7 +44,9 @@ class WidgetsUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("widget_${HostedWidget.CLOCK_ID}").assertIsDisplayed()
         rule.onNodeWithTag("add_widget").assertDoesNotExist()
         screenshot("default")
+        rule.onNodeWithTag("widget_grid").assertDoesNotExist()
         rule.onNodeWithTag("home_edit").performClick()
+        rule.onNodeWithTag("widget_grid").assertIsDisplayed()
         val button = rule.onNodeWithTag("add_widget").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
         val clock = rule.onNodeWithTag("widget_${HostedWidget.CLOCK_ID}").fetchSemanticsNode().boundsInRoot
         assertThat(button.bottom).isAtMost(clock.top)

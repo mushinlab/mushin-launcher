@@ -1,13 +1,11 @@
 package com.mushinlab.launcher.feature.home
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,16 +25,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
@@ -52,10 +49,7 @@ import com.mushinlab.launcher.core.model.WidgetLayout
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
 import com.mushinlab.launcher.core.ui.LocalMushinColors
-import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.PopupStyle
-import com.mushinlab.launcher.core.ui.SingleLineText
-import com.mushinlab.launcher.core.ui.pressable
 import com.mushinlab.launcher.feature.home.gesture.RowRegistry
 import kotlin.math.roundToInt
 import kotlinx.collections.immutable.ImmutableList
@@ -144,6 +138,7 @@ internal fun HomeWidgetPanel(
             .height(grid.height)
             .testTag("widget_panel_TOP"),
     ) {
+        if (editing) GridCells(grid, panel.widgets.map { it.cell })
         panel.widgets.forEach { tile ->
             key(tile.id) { WidgetTile(tile, grid, editing, registry, edits, slots) { preview = it } }
         }
@@ -282,6 +277,29 @@ private fun BoxScope.ResizeHandle(
 }
 
 @Composable
+private fun BoxScope.GridCells(grid: PanelGrid, taken: List<WidgetCell>) {
+    val color = LocalMushinColors.current.textSecondary.copy(alpha = GRID_ALPHA)
+    Canvas(Modifier.matchParentSize().testTag("widget_grid")) {
+        val width = grid.cellWidth.toPx()
+        val height = grid.cellHeight.toPx()
+        val gap = WIDGET_GAP.toPx()
+        val radius = CornerRadius(GRID_RADIUS.toPx())
+        grid.rows.forEachIndexed { index, row ->
+            repeat(WidgetCell.COLUMNS) { column ->
+                if (taken.none { it.overlaps(WidgetCell(column, row)) }) {
+                    drawRoundRect(
+                        color,
+                        Offset(column * (width + gap), index * (height + gap)),
+                        Size(width, height),
+                        radius,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun PreviewFrame(cell: WidgetCell, grid: PanelGrid) {
     val origin = grid.offset(cell)
     val accent = LocalMushinColors.current.accent
@@ -333,36 +351,6 @@ private fun Modifier.widgetMoveActions(cell: WidgetCell, onMove: (WidgetCell) ->
     }
 }
 
-@Composable
-internal fun AddWidgetButton(panel: HomeWidgetPanel, registry: RowRegistry, onAdd: (WidgetCell) -> Unit) {
-    val cell = panel.addCells.firstOrNull() ?: return
-    val colors = LocalMushinColors.current
-    DisposableEffect(Unit) { onDispose { registry.block(ADD_WIDGET, null) } }
-    Row(
-        Modifier
-            .height(ADD_WIDGET_HEIGHT)
-            .clip(CircleShape)
-            .background(colors.keyBackground)
-            .onGloballyPositioned { registry.block(ADD_WIDGET, it.boundsInRoot()) }
-            .pressable(onClick = { onAdd(cell) })
-            .testTag(ADD_WIDGET)
-            .padding(horizontal = ADD_WIDGET_PADDING),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Image(
-            painterResource(Glyph.WIDGETS.res),
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(colors.iconTint),
-            modifier = Modifier.size(ADD_WIDGET_GLYPH),
-        )
-        Spacer(Modifier.size(8.dp))
-        SingleLineText(
-            stringResource(R.string.home_add_widget),
-            MushinType.style(MushinType.secondarySize, colors.textPrimary),
-        )
-    }
-}
-
 internal val WIDGET_HEIGHT = 112.dp
 private val WIDGET_GAP = 8.dp
 private val TILE_SHAPE = RoundedCornerShape(12.dp)
@@ -370,12 +358,10 @@ private val TILE_BUTTON = 36.dp
 private val TILE_GLYPH = 18.dp
 private val TILE_BUTTON_INSET = 4.dp
 private val HANDLE_TOUCH = 24.dp
-private val ADD_WIDGET_HEIGHT = 36.dp
-private val ADD_WIDGET_PADDING = 14.dp
-private val ADD_WIDGET_GLYPH = 20.dp
-private const val ADD_WIDGET = "add_widget"
 private val HANDLE_LENGTH = 32.dp
 private val HANDLE_BAR = 4.dp
 private val HANDLE_BACKING = 12.dp
 private const val EDIT_CONTENT_ALPHA = 0.5f
 private const val PREVIEW_ALPHA = 0.15f
+private const val GRID_ALPHA = 0.1f
+private val GRID_RADIUS = 4.dp

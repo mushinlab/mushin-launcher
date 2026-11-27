@@ -231,7 +231,7 @@
     <string name="tip_arrange_title">Ordne die Liste</string>
     <string name="tip_arrange_text">Tippe auf den Stift und ziehe dann eine Zeile am Griff links, um sie zu verschieben. Wische eine Zeile nach links und tippe auf den Papierkorb, um sie aus der Liste zu entfernen.</string>
     <string name="tip_style_title">Passe den Launcher an</string>
-    <string name="tip_style_text">Tippe auf den Stift und dann auf Tt, um Schrift, Größe und Ausrichtung zu ändern. Beim Bearbeiten kannst du die Linie über der Liste ziehen, um die Liste zu verschieben.</string>
+    <string name="tip_style_text">Tippe auf den Stift und dann auf Tt, um Schrift, Größe und Ausrichtung zu ändern.</string>
     <string name="tip_memory_title">Bring dem Launcher etwas bei</string>
     <string name="tip_memory_text">Schalte unter Einstellungen → Gesten die „Gesteneingabe“ ein und zeichne eine Form für eine App. Zeichne dieselbe Form auf dem Startbildschirm, und der Launcher öffnet diese App.</string>
     <string name="tips_more_title">Mehr findest du unter Tipps</string>

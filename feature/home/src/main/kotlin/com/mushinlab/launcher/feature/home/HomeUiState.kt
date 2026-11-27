@@ -48,7 +48,6 @@ data class HomeUiState(
     val clockSize: ClockSize = ClockSize.M,
     val clockPosition: ClockPosition = ClockPosition.START,
     val clockInk: ClockInk = ClockInk.AUTO,
-    val homeListOffset: Int? = null,
     val backgroundBrightness: Float = 0f,
     val backgroundBlur: Float = 0f,
     val backgroundRowAlpha: Float = SpaceBackground.ROW_ALPHA_DEFAULT,

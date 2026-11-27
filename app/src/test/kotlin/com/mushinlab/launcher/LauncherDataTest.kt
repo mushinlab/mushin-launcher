@@ -103,23 +103,6 @@ class LauncherDataTest {
     }
 
     @Test
-    fun listOffsetIsAutomaticUntilTheSpaceOrSettingsSaveOne() {
-        val auto = homeState(data(), true, emptyMap(), emptyMap())
-        val global = homeState(data(LauncherSettings(homeListOffset = 0)), true, emptyMap(), emptyMap())
-        val own = homeState(
-            data(LauncherSettings(homeListOffset = 0)).copy(current = normal.copy(listOffset = 90)),
-            true,
-            emptyMap(),
-            emptyMap(),
-        )
-
-        assertThat(auto.homeListOffset).isNull()
-        assertThat(snapshotState(homeSnapshot(data(), auto), roleHeld = true).homeListOffset).isNull()
-        assertThat(global.homeListOffset).isEqualTo(0)
-        assertThat(own.homeListOffset).isEqualTo(90)
-    }
-
-    @Test
     fun homeTakesTheBackgroundLookOfTheCurrentSpace() {
         val styled = normal.copy(backgroundBrightness = -0.3f, backgroundBlur = 0.5f, backgroundRowAlpha = 0.4f)
         val looks = data().copy(spaces = listOf(styled, work), current = styled)

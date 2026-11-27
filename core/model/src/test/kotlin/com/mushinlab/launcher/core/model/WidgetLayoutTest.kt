@@ -26,6 +26,18 @@ class WidgetLayoutTest {
     }
 
     @Test
+    fun AC_59_3_aNewWidgetTakesTheLargestFreeRectangleUpToAQuarter() {
+        assertThat(WidgetLayout(listOf(a)).roomFor()).isEqualTo(WidgetCell(4, 0, 4, 4))
+        val plug = HostedWidget(5, "plug", WidgetCell(0, 0, 4, 5))
+        assertThat(WidgetLayout(listOf(plug, b)).roomFor()).isEqualTo(WidgetCell(4, 4, 4, 4))
+        assertThat(WidgetLayout(listOf(a, b, c)).roomFor(2, 2)).isEqualTo(WidgetCell(4, 4, 4, 4))
+        val tight = WidgetLayout(listOf(HostedWidget(5, "w", WidgetCell(0, 0, 8, 7))))
+        assertThat(tight.roomFor()).isEqualTo(WidgetCell(0, 7, 4, 1))
+        assertThat(tight.roomFor(1, 2)).isNull()
+        assertThat(WidgetLayout(listOf(a, b, c, d)).roomFor()).isNull()
+    }
+
+    @Test
     fun addUsesThePreferredFreeCellOrTheFirstFreeOne() {
         val layout = WidgetLayout(listOf(a))
         assertThat(layout.add(HostedWidget(5, "e"), WidgetCell(4, 4))?.widgets?.last()?.cell)

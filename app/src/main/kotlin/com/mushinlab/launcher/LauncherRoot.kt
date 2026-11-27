@@ -307,10 +307,6 @@ private fun homeActions(vm: LauncherViewModel, density: Density, pager: SpacePag
         navigator.overlay = Overlay.Suggestion(anchor)
     }
 
-    override fun onListOffset(dp: Int) {
-        vm.model.currentSpace?.let { vm.spaces.setListOffset(it.id, dp) }
-    }
-
     override fun onDraw(points: List<Offset>, width: Float) =
         vm.homeInput.onDrawing(points.map { GesturePoint(it.x, it.y) }, width, density.density)
 }

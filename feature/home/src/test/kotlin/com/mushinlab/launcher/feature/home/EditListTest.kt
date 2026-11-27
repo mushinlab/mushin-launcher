@@ -18,7 +18,7 @@ class EditListTest {
 
     @Test
     fun onlyTheEditFoldIsAnimatedAndTheRowCountAppliesAtOnce() {
-        val viewing = ListEditing(editing = false, dragging = false)
+        val viewing = ListEditing(editing = false)
         assertThat(viewing.rowsInView(1, 0f)).isEqualTo(1f)
         assertThat(viewing.rowsInView(3, 0f)).isEqualTo(3f)
         assertThat(viewing.rowsInView(10, 1f)).isEqualTo(5.5f)

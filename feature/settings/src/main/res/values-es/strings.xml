@@ -232,7 +232,7 @@
     <string name="tip_arrange_title">Ordena la lista</string>
     <string name="tip_arrange_text">Toca el lápiz y arrastra una fila por el control de su izquierda para moverla. Desliza una fila hacia la izquierda y toca la papelera para quitarla de la lista.</string>
     <string name="tip_style_title">Personaliza el launcher</string>
-    <string name="tip_style_text">Toca el lápiz y luego Tt para cambiar la fuente, el tamaño y la alineación. Mientras editas, arrastra la línea sobre la lista para mover la lista.</string>
+    <string name="tip_style_text">Toca el lápiz y luego Tt para cambiar la fuente, el tamaño y la alineación.</string>
     <string name="tip_memory_title">Enseña al launcher</string>
     <string name="tip_memory_text">En Ajustes → Gestos, activa «Entrada por gestos» y dibuja una forma para una app. Dibuja la misma forma en la pantalla de inicio y el launcher abrirá esa app.</string>
     <string name="tips_more_title">Para más, explora Consejos</string>

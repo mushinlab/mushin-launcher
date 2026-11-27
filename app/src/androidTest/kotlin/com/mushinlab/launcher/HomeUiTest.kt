@@ -40,17 +40,19 @@ import com.mushinlab.launcher.core.model.ClockSize
 import com.mushinlab.launcher.core.model.GestureAction
 import com.mushinlab.launcher.core.model.HomeTextAlign
 import com.mushinlab.launcher.core.model.HomeTextSize
+import com.mushinlab.launcher.core.model.HostedWidget
 import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.SpaceTransition
 import com.mushinlab.launcher.core.model.SpaceType
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.model.Usefulness
+import com.mushinlab.launcher.core.model.WidgetCell
+import com.mushinlab.launcher.core.model.WidgetLayout
 import com.mushinlab.launcher.core.ui.MushinColors
 import com.mushinlab.launcher.feature.home.R as HomeR
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 import java.time.LocalDate
 import java.time.ZoneId
-import kotlin.math.abs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -432,48 +434,28 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun inEditModeDraggingTheHandleMovesTheListTogetherWithTheHandle() {
-        rule.onNodeWithTag("home_edit").performClick()
+    fun AC_59_2_theListMovesUpAndDownWithTheWidgetRows() {
+        rule.onNodeWithTag("list_handle").assertDoesNotExist()
+        val panel = rule.onNodeWithTag("widget_panel_TOP").fetchSemanticsNode().boundsInRoot
         val before = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.top
-        rule.onNodeWithTag("list_handle").performTouchInput {
-            down(center)
-            moveBy(Offset(0f, 200f))
-            up()
-        }
-        rule.waitUntil(5_000) { (listOffsetOf(normalId) ?: 0) > 0 }
-        val after = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.top
-        assertThat(after - before).isWithin(4f).of(200f)
-        val handle = rule.onNodeWithTag("list_handle").fetchSemanticsNode().boundsInRoot
-        assertThat(after - handle.bottom).isWithin(2f).of(0f)
-    }
-
-    @Test
-    fun listStartsLowerByDefaultAndDraggingTheHandleSavesAnOffset() {
-        val handle = { rule.onNodeWithTag("list_handle").fetchSemanticsNode().boundsInRoot }
-        val natural = handle().top
-        runBlocking { container.settings.update { it.copy(homeListOffset = null) } }
-        rule.waitUntil(5_000) { rule.activity.launcher.home.value.homeListOffset == null }
-        rule.waitForIdle()
-        val auto = handle()
-        val screen = rule.onNodeWithTag("home").fetchSemanticsNode().boundsInRoot
-        val gap = with(rule.density) { 32.dp.toPx() }
-        assertThat(auto.top - natural).isWithin(2f).of(gap * 2)
-        assertThat(auto.top).isLessThan(screen.height * 0.5f)
-        val rowHeight = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.height
-        val bar = rule.onNodeWithTag("home_edit").fetchSemanticsNode().boundsInRoot
-        assertThat(bar.top - auto.bottom).isAtLeast(rowHeight * 4 - 1f)
-        rule.onNodeWithTag("home_edit").performClick()
-        val naturalEditing = handle().top - (auto.top - natural)
-        rule.onNodeWithTag("list_handle").performTouchInput {
-            down(center)
-            moveBy(Offset(0f, -150f))
-            up()
-        }
-        rule.waitUntil(5_000) { listOffsetOf(normalId) != null }
-        val saved = listOffsetOf(normalId)!!
-        with(rule.density) {
-            assertThat(saved.dp.toPx()).isWithin(6f).of(auto.top - natural - 150f)
-            rule.waitUntil(5_000) { abs(handle().top - (naturalEditing + saved.dp.toPx())) < 3f }
+        val original = container.widgets.loaded.value
+        val shortClock = HostedWidget.clock.copy(cell = WidgetCell(0, 0, 4, 2))
+        try {
+            runBlocking {
+                container.widgets.update {
+                    it.copy(layouts = it.layouts + (normalId to WidgetLayout(listOf(shortClock))))
+                }
+            }
+            rule.waitUntil(5_000) {
+                rule.onNodeWithTag("widget_panel_TOP").fetchSemanticsNode().boundsInRoot.height < panel.height - 1f
+            }
+            rule.waitForIdle()
+            val shorter = rule.onNodeWithTag("widget_panel_TOP").fetchSemanticsNode().boundsInRoot
+            val after = rule.onNodeWithTag("row_0").fetchSemanticsNode().boundsInRoot.top
+            assertThat(before - after).isWithin(2f).of(panel.height - shorter.height)
+            assertThat(after - shorter.bottom).isWithin(2f).of(before - panel.bottom)
+        } finally {
+            runBlocking { container.widgets.update { original ?: it } }
         }
     }
 
@@ -706,9 +688,7 @@ class HomeUiTest : LauncherUiTestBase() {
         }
         rule.onNodeWithTag("empty_env").assertDoesNotExist()
         rule.onNodeWithTag("home_edit").performClick()
-        val handle = rule.onNodeWithTag("list_handle").fetchSemanticsNode().boundsInRoot
         val add = rule.onNodeWithTag("home_add").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
-        assertThat(add.top).isWithin(1f).of(handle.bottom)
         assertThat(add.height).isAtLeast(with(rule.density) { 48.dp.toPx() })
         rule.onNodeWithTag("home_add_app").performClick()
         rule.waitUntil(5_000) {

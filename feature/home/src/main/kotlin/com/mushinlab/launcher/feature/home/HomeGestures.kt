@@ -15,7 +15,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.model.ClockPosition
-import com.mushinlab.launcher.core.model.HomeListOffset
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.feature.home.gesture.DragCallbacks
 import com.mushinlab.launcher.feature.home.gesture.GestureArbiter
@@ -67,50 +66,12 @@ internal class ClockMover(
     }
 }
 
-internal class ListHandleDrag(
-    private val maxOffsetPx: Float,
-    private val view: View,
-    private val onReleased: (Float) -> Unit,
-) : DragCallbacks {
-    private var restingPx = 0f
-    private var draggedPx by mutableStateOf<Float?>(null)
-    private var last by mutableStateOf<Float?>(null)
-    val active: Boolean get() = last != null
-
-    fun offsetPx(restingPx: Float): Float {
-        this.restingPx = restingPx
-        return draggedPx ?: restingPx
-    }
-
-    fun settle() {
-        if (last == null) draggedPx = null
-    }
-
-    override fun onHold(position: Float) {
-        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-        draggedPx = draggedPx ?: restingPx
-        last = position
-    }
-
-    override fun onDrag(position: Float) {
-        val previous = last ?: return
-        draggedPx = ((draggedPx ?: restingPx) + position - previous).coerceIn(0f, maxOffsetPx)
-        last = position
-    }
-
-    override fun onRelease() {
-        last = null
-        draggedPx?.let(onReleased)
-    }
-}
-
 internal class HomeGestureHandler(
     private val view: View,
     private val state: State<HomeUiState>,
     private val actions: State<HomeActions>,
     private val trace: Trace,
     override val clock: ClockMover,
-    override val handle: ListHandleDrag,
 ) : HomeGestureCallbacks {
     var width by mutableFloatStateOf(0f)
     var pressedRow by mutableStateOf<Int?>(null)
@@ -172,7 +133,6 @@ internal fun rememberHomeGestures(
     val view = LocalView.current
     val density = LocalDensity.current
     val inset = with(density) { HomeDimens.rowPadding.roundToPx() }
-    val maxOffsetPx = with(density) { HomeListOffset.MAX_DP.dp.toPx() }
     val home = state.value
     val gestures = remember(view) {
         HomeGestureHandler(
@@ -181,13 +141,9 @@ internal fun rememberHomeGestures(
             actions = actions,
             trace = trace,
             clock = ClockMover(home.clockPosition, inset, view) { actions.value.onClockMoved(it) },
-            handle = ListHandleDrag(maxOffsetPx, view) {
-                actions.value.onListOffset(with(density) { it.toDp().value.toInt() })
-            },
         )
     }
     LaunchedEffect(home.clockPosition) { gestures.clock.sync(home.clockPosition) }
-    LaunchedEffect(home.homeListOffset) { gestures.handle.settle() }
     return gestures
 }
 

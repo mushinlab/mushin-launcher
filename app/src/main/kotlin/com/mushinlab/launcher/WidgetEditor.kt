@@ -137,7 +137,12 @@ class WidgetEditor(
         var added = false
         repository.update { state ->
             val layout = state.layouts[pending.spaceId] ?: WidgetLayout()
-            val next = layout.add(widget, pending.cell, span.columnSpan, span.rowSpan)
+            val room = layout.roomFor(span.columnSpan, span.rowSpan)
+            val next = if (room == null) {
+                layout.add(widget, pending.cell, span.columnSpan, span.rowSpan)
+            } else {
+                layout.add(widget, WidgetCell(room.column, room.row), room.columnSpan, room.rowSpan)
+            }
             added = next != null
             state.copy(layouts = state.layouts + (pending.spaceId to (next ?: layout)), pending = null)
         }

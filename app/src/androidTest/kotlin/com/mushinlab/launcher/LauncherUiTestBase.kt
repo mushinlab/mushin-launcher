@@ -64,7 +64,6 @@ abstract class LauncherUiTestBase {
         container.spaces.setItems(normal.id, apps.map { it.key })
         container.folders.folders.value.keys.forEach { container.folders.delete(it) }
         rule.waitUntil(5_000) { rule.activity.launcher.navigator.overlay == Overlay.None }
-        rule.waitUntil(5_000) { rule.activity.launcher.home.value.homeListOffset == 0 }
         rule.waitUntil(5_000) {
             runCatching { rule.onNodeWithTag("row_2").assertIsDisplayed() }.isSuccess
         }
@@ -102,8 +101,6 @@ abstract class LauncherUiTestBase {
         }
         rule.onNodeWithTag("search").assertIsDisplayed()
     }
-
-    protected fun listOffsetOf(id: Long): Int? = container.spaces.spaces.value.first { it.id == id }.listOffset
 
     protected fun spaceItems(): List<com.mushinlab.launcher.core.model.AppKey> =
         runBlocking { container.spaces.itemsOf(normalId) }
