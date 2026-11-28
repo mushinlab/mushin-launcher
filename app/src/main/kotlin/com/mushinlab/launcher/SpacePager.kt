@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -37,7 +38,6 @@ data class SpacePage(
     val id: Long,
     val state: HomeUiState,
     val palette: Palette,
-    val background: Bitmap?,
     val coloredIcons: Boolean,
 )
 
@@ -63,7 +63,6 @@ class SpacePager(
     private val requestFlow = MutableStateFlow<SpaceSwitch?>(null)
     val request: StateFlow<SpaceSwitch?> = requestFlow.asStateFlow()
     private var pending = false
-    private val wallpapers = MutableStateFlow<Map<Long, Wallpaper>>(emptyMap())
 
     private val pages = combine(
         data.filterNotNull(),
@@ -76,27 +75,9 @@ class SpacePager(
         }
         .flowOn(Dispatchers.IO)
 
-    val neighbors: StateFlow<SpaceNeighbors> = combine(pages, wallpapers) { (previous, next), images ->
-        SpaceNeighbors(previous?.dressed(images), next?.dressed(images))
-    }.stateIn(scope, SharingStarted.Eagerly, SpaceNeighbors())
-
-    fun warm() {
-        val versions = container.backgrounds.versions.value
-        val ids = listOfNotNull(neighbors.value.previous?.id, neighbors.value.next?.id)
-            .filter { id -> versions[id] != null && wallpapers.value[id]?.version != versions[id] }
-        if (ids.isEmpty()) return
-        scope.launch(Dispatchers.IO) {
-            ids.forEach { id ->
-                val version = versions[id] ?: return@forEach
-                val bitmap = container.backgrounds.load(id) ?: return@forEach
-                wallpapers.update { it + (id to Wallpaper(version, bitmap)) }
-            }
-        }
-    }
-
-    fun cool() {
-        wallpapers.value = emptyMap()
-    }
+    val neighbors: StateFlow<SpaceNeighbors> = pages
+        .map { (previous, next) -> SpaceNeighbors(previous, next) }
+        .stateIn(scope, SharingStarted.Eagerly, SpaceNeighbors())
 
     fun select(id: Long) {
         val d = data.value ?: return
@@ -118,7 +99,7 @@ class SpacePager(
             try {
                 val page = withContext(Dispatchers.IO) {
                     val inputs = PageInputs(d, container.widgets.loaded.value, container.gestures.bindings.value)
-                    page(inputs, target).copy(background = loadBackground(target.id))
+                    page(inputs, target)
                 }
                 requestFlow.value = SpaceSwitch(page, transition, direction)
             } finally {
@@ -139,12 +120,6 @@ class SpacePager(
         requestFlow.value = null
     }
 
-    private fun loadBackground(id: Long): Bitmap? =
-        if (id in container.backgrounds.versions.value) container.backgrounds.load(id) else null
-
-    private fun SpacePage.dressed(images: Map<Long, Wallpaper>): SpacePage =
-        images[id]?.let { copy(background = it.bitmap) } ?: this
-
     private suspend fun page(inputs: PageInputs, space: Space): SpacePage {
         val pageData = inputs.data.copy(current = space)
         val swipes = inputs.bindings.swipesByApp()
@@ -162,7 +137,7 @@ class SpacePager(
             widgetPanels = widgetPanels(layout),
             suggestion = suggestionFor(pageData, stats, swipes.keys, facts.capacity.value, System.currentTimeMillis()),
         )
-        return SpacePage(space.id, state, space.palette, null, space.coloredIcons)
+        return SpacePage(space.id, state, space.palette, space.coloredIcons)
     }
 
     private class PageInputs(
@@ -170,8 +145,6 @@ class SpacePager(
         val widgets: WidgetState?,
         val bindings: Map<SwipeDirection, GestureAction>,
     )
-
-    private class Wallpaper(val version: Int, val bitmap: Bitmap)
 
     private companion object {
         const val HOME_ICON_DP = 28f

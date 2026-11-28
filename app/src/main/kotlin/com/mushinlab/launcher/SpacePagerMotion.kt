@@ -45,14 +45,9 @@ class SpacePagerMotion(private val pager: SpacePager, private val scope: Corouti
     var busy by mutableStateOf(false)
         private set
     var width = 0f
-    private var dragging = false
 
     fun drag(dx: Float) {
         if (busy || width <= 0f) return
-        if (!dragging) {
-            dragging = true
-            pager.warm()
-        }
         val neighbors = pager.neighbors.value
         val target = if (dx < 0f) neighbors.next else neighbors.previous
         side = target
@@ -60,7 +55,6 @@ class SpacePagerMotion(private val pager: SpacePager, private val scope: Corouti
     }
 
     fun release(direction: SwipeDirection?) {
-        dragging = false
         if (busy) return
         val forward = direction == SwipeDirection.LEFT && offset < 0f
         val backward = direction == SwipeDirection.RIGHT && offset > 0f
@@ -77,7 +71,6 @@ class SpacePagerMotion(private val pager: SpacePager, private val scope: Corouti
                 }
             } finally {
                 busy = false
-                pager.cool()
             }
         }
     }
@@ -139,7 +132,6 @@ internal fun SpacePageView(
     actions: HomeActions,
     modifier: Modifier,
 ) {
-    val background = remember(page.background) { page.background?.asImageBitmap() }
     MushinTheme(page.palette, LocalMushinFont.current, LocalMushinStroke.current) {
         CompositionLocalProvider(LocalIconProvider provides icons.withColors(page.coloredIcons)) {
             Box(modifier.fillMaxSize().clearAndSetSemantics { testTag = "space_preview_${page.id}" }) {
@@ -148,7 +140,6 @@ internal fun SpacePageView(
                     minute = minute,
                     actions = actions,
                     gesturesEnabled = { false },
-                    background = background,
                     widgets = widgets,
                 )
             }

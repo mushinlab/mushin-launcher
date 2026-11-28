@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.14.1 — 2026-11-28
+
+### Changed
+- Switching spaces is gentler: the page slides in with the space colour and the new background image fades in over two seconds instead of arriving with the page.
+
+### Fixed
+- Dragging or stretching a widget over another no longer shrinks the other one to a single cell; if it has no room of its size, both stay where they were.
+
 ## 0.14.0 — 2026-11-28
 
 ### Changed

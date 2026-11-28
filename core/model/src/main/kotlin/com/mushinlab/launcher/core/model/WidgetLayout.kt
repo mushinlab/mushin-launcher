@@ -97,9 +97,9 @@ data class WidgetLayout(val widgets: List<HostedWidget> = listOf(HostedWidget.cl
     }
 
     /**
-     * Moves or resizes widget [id] to [target]. Widgets it covers move to free space, first to where the moved
-     * widget was, keeping their span when possible and shrinking to one cell otherwise. Returns null when [target]
-     * is outside the grid or there is no room.
+     * Moves or resizes widget [id] to [target]. Widgets it covers move with their span to free space, first to
+     * where the moved widget was; they never shrink (ADR-0073). Returns null, leaving every widget where it was,
+     * when [target] is outside the grid or a covered widget has no room of its size.
      */
     fun place(id: Int, target: WidgetCell): WidgetLayout? {
         val moved = widgets.firstOrNull { it.id == id } ?: return null
@@ -111,7 +111,7 @@ data class WidgetLayout(val widgets: List<HostedWidget> = listOf(HostedWidget.cl
         val relocated = mutableListOf<HostedWidget>()
         for (widget in displaced) {
             val taken = placed + relocated.map { it.cell }
-            val cell = spot(widget.cell, origins, taken) ?: spot(WidgetCell(0, 0), origins, taken) ?: return null
+            val cell = spot(widget.cell, origins, taken) ?: return null
             relocated += widget.copy(cell = cell)
         }
         val result = (stay + relocated).associateBy { it.id } + (id to moved.copy(cell = target))

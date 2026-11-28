@@ -209,7 +209,7 @@ class BackgroundUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun AC_60_1_aNewBackgroundFadesInOverASecond() {
+    fun AC_72_1_aNewBackgroundFadesInOverTwoSeconds() {
         fun centre(): Int {
             val image = rule.onNodeWithTag("home").captureToImage().asAndroidBitmap()
             return image.getPixel(image.width / 2, image.height * 4 / 5)
@@ -309,7 +309,7 @@ class BackgroundUiTest : LauncherUiTestBase() {
         const val TOLERANCE = 12
         const val WAIT_FRAMES = 300
         const val FRAME_MS = 16L
-        const val FADE_DONE_MS = 1_200L
+        const val FADE_DONE_MS = 2_200L
         const val HALF = 128
         const val SAMPLE_STEP = 24
         const val MID_FRAMES = 12

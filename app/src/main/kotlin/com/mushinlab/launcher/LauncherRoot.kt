@@ -104,7 +104,8 @@ fun LauncherRoot(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
 private fun HomeLayer(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
     val home by vm.home.collectAsStateWithLifecycle()
     val spaceBitmap by vm.spaceBackground.collectAsStateWithLifecycle()
-    val background = remember(spaceBitmap.bitmap) { spaceBitmap.bitmap?.asImageBitmap() }
+    val stale = home.spaceId != spaceBitmap.spaceId
+    val background = remember(spaceBitmap.bitmap, stale) { spaceBitmap.bitmap?.takeUnless { stale }?.asImageBitmap() }
     val request by vm.pager.request.collectAsStateWithLifecycle()
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
@@ -142,8 +143,7 @@ private fun HomeLayer(vm: LauncherViewModel, iconProvider: LauncherIconProvider)
             actions = actions,
             gesturesEnabled = { input.gesturesEnabled && !pager.busy },
             editing = vm.navigator.homeEditing,
-            fadeBackground = pager.cover == null,
-            backgroundStale = home.spaceId != spaceBitmap.spaceId,
+            backgroundStale = stale,
             modifier = Modifier
                 .drawWithContent { translate(left = pager.offset * size.width) { this@drawWithContent.drawContent() } }
                 .graphicsLayer(),

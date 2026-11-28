@@ -69,11 +69,12 @@ class WidgetLayoutTest {
     }
 
     @Test
-    fun addingASpanThatDoesNotFitFallsBackToASmallerOne() {
+    fun AC_73_1_addingASpanThatWouldShrinkOthersKeepsThemAndTakesAFreeCell() {
         val layout = WidgetLayout(
             listOf(a, b, c),
         ).add(HostedWidget(5, "e"), WidgetCell(4, 4), columnSpan = 8, rowSpan = 8)
-        assertThat(layout?.widgets?.last()?.cell).isEqualTo(WidgetCell(0, 4, 8, 1))
+        assertThat(layout?.widgets?.map { it.cell }?.dropLast(1)).isEqualTo(listOf(a, b, c).map { it.cell })
+        assertThat(layout?.widgets?.last()?.cell).isEqualTo(WidgetCell(4, 4))
     }
 
     @Test
@@ -101,6 +102,20 @@ class WidgetLayoutTest {
                 it.cell
             },
         ).containsExactly(WidgetCell(4, 0, 1, 4), WidgetCell(0, 0)).inOrder()
+    }
+
+    @Test
+    fun AC_73_1_aCoveredWidgetWithoutRoomOfItsSizeKeepsEveryWidgetInPlace() {
+        val layout = WidgetLayout(
+            listOf(
+                HostedWidget(1, "a", WidgetCell(0, 0, 4, 4)),
+                HostedWidget(2, "b", WidgetCell(4, 0, 4, 4)),
+                HostedWidget(3, "c", WidgetCell(0, 4, 4, 4)),
+                HostedWidget(4, "d", WidgetCell(4, 4, 4, 4)),
+            ),
+        )
+        assertThat(layout.place(1, WidgetCell(2, 0, 4, 4))).isNull()
+        assertThat(layout.place(1, WidgetCell(0, 0, 6, 4))).isNull()
     }
 
     @Test

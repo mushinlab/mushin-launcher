@@ -2,8 +2,9 @@ package com.mushinlab.launcher.feature.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -52,6 +53,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.boundsInRoot
@@ -184,7 +186,6 @@ fun HomeScreen(
     background: ImageBitmap? = null,
     widgets: WidgetContent = { _, _, _ -> },
     editToggle: Boolean = true,
-    fadeBackground: Boolean = true,
     backgroundStale: Boolean = false,
 ) {
     val colors = LocalMushinColors.current
@@ -197,7 +198,7 @@ fun HomeScreen(
     val gestures = rememberHomeGestures(currentState, currentActions, trace)
     val currentEditing = rememberUpdatedState(editing)
     var frame by remember { mutableStateOf(Rect.Zero) }
-    val backdrop = clockBackdrop(background, state, frame, fadeBackground, backgroundStale)
+    val backdrop = clockBackdrop(background, state, frame, backgroundStale)
     Box(
         modifier
             .fillMaxSize()
@@ -210,21 +211,7 @@ fun HomeScreen(
                     .detect(this, gestures)
             },
     ) {
-        Crossfade(
-            background,
-            Modifier.matchParentSize(),
-            animationSpec = if (fadeBackground) tween(BACKGROUND_FADE_MS) else snap(),
-            label = "background",
-        ) { image ->
-            if (image != null) {
-                SpaceBackdrop(
-                    image,
-                    state.backgroundBrightness,
-                    state.backgroundBlur,
-                    Modifier.fillMaxSize().testTag("home_background"),
-                )
-            }
-        }
+        BackgroundImage(background, state, Modifier.matchParentSize())
         CompositionLocalProvider(LocalClockBackdrop provides backdrop) {
             HomeColumn(
                 state,
@@ -508,19 +495,16 @@ private fun clockBackdrop(
     background: ImageBitmap?,
     state: HomeUiState,
     frame: Rect,
-    fadeBackground: Boolean,
     stale: Boolean,
 ): ClockBackdrop {
     val pixels by rememberBackdropPixels(background)
     val blurPx = with(LocalDensity.current) { BackgroundLook.blurRadius(state.backgroundBlur).toPx() }
     val loading = stale || (background != null && pixels == null)
     val changes = remember { BackgroundChanges(background) }
-    val fadeMs = if (fadeBackground && changes.changed(background)) BACKGROUND_FADE_MS else 0
+    val fadeMs = if (changes.changed(background)) BACKGROUND_FADE_MS else 0
     val surface = LocalMushinColors.current.background
     return ClockBackdrop(pixels, surface, state.backgroundBrightness, blurPx, frame, loading, fadeMs)
 }
-
-private const val BACKGROUND_FADE_MS = 1_000
 
 private class BackgroundChanges(private val first: ImageBitmap?) {
     private var moved = false
