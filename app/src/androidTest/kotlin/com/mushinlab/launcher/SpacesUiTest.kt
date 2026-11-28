@@ -1,6 +1,7 @@
 package com.mushinlab.launcher
 
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
@@ -80,7 +81,10 @@ class SpacesUiTest : LauncherUiTestBase() {
         val small = button()
         rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("home_edit_tools").assertIsDisplayed()
-        rule.waitUntil(5_000) { button() > small }
+        assertThat(button()).isWithin(1f).of(small)
+        rule.onNodeWithTag("home_edit").assertContentDescriptionEquals(
+            rule.activity.getString(com.mushinlab.launcher.feature.home.R.string.home_edit_done),
+        )
         assertThat(navigator.settings.isOpen).isFalse()
         rule.onNodeWithTag("home_edit_text").performClick()
         rule.waitUntil(5_000) { navigator.settings.top == SettingsRoute.TextSheet }

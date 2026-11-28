@@ -68,8 +68,7 @@ fun SettingsPage(
                 stringResource(R.string.settings_back),
                 colors.textPrimary,
                 tag = "settings_back",
-                modifier = Modifier.padding(horizontal = 12.dp).clip(CircleShape).background(colors.surface),
-                size = 40.dp,
+                modifier = Modifier.padding(horizontal = 4.dp),
                 onClick = onBack,
             )
             Column {

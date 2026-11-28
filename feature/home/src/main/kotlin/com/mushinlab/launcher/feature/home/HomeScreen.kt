@@ -84,6 +84,7 @@ import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.BackgroundLook
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
+import com.mushinlab.launcher.core.ui.LocalGlyphHalo
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinType
@@ -212,7 +213,7 @@ fun HomeScreen(
             },
     ) {
         BackgroundImage(background, state, Modifier.matchParentSize())
-        CompositionLocalProvider(LocalClockBackdrop provides backdrop) {
+        CompositionLocalProvider(LocalClockBackdrop provides backdrop, LocalGlyphHalo provides (background != null)) {
             HomeColumn(
                 state,
                 minute,
@@ -224,7 +225,11 @@ fun HomeScreen(
                 widgets,
             )
         }
-        if (editToggle) EditToggle(editing, registry, actions, Modifier.align(Alignment.BottomEnd))
+        if (editToggle) {
+            CompositionLocalProvider(LocalGlyphHalo provides (background != null)) {
+                EditToggle(editing, registry, actions, Modifier.align(Alignment.BottomEnd))
+            }
+        }
         TraceLayer(trace)
     }
 }

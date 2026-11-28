@@ -13,11 +13,11 @@ class ThemeTest {
     private val colors = MushinColors.from(Palettes.Graphite)
 
     @Test
-    fun AC_37_4_iconContainersKeepContrastInEveryFixedTheme() {
+    fun AC_74_1_bareIconsKeepContrastOnTheSpaceBackgroundInEveryFixedTheme() {
         Palettes.presets.values.forEach { palette ->
             val colors = MushinColors.from(palette)
-            listOf(colors.textPrimary, colors.textSecondary, colors.accent).forEach { tint ->
-                assertThat(contrast(tint, colors.keyBackground)).isAtLeast(3f)
+            listOf(colors.textPrimary, colors.textSecondary, colors.accent, colors.danger).forEach { tint ->
+                assertThat(contrast(tint, colors.background)).isAtLeast(3f)
             }
             assertThat(contrast(colors.background, colors.accent)).isAtLeast(3f)
         }

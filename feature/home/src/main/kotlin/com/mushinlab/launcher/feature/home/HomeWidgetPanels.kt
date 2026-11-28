@@ -325,7 +325,7 @@ private fun RemoveTileButton(tile: HomeWidgetTile, edits: PanelEdits, modifier: 
     GlyphButton(
         Glyph.DELETE,
         stringResource(R.string.widget_remove),
-        LocalMushinColors.current.textPrimary,
+        LocalMushinColors.current.danger,
         tag = "tile_remove_${tile.id}",
         modifier = modifier.padding(TILE_BUTTON_INSET),
         size = TILE_BUTTON,

@@ -515,7 +515,9 @@ class HomeUiTest : LauncherUiTestBase() {
         val app = rule.onNodeWithTag("home_add_app").fetchSemanticsNode().boundsInRoot
         assertThat(app.right).isAtMost(folder.left + 1f)
         assertThat(folder.center.y).isWithin(1f).of(app.center.y)
-        rule.onNodeWithTag("home_add_folder").assertTextEquals(rule.activity.getString(HomeR.string.home_add_folder))
+        rule.onNodeWithTag(
+            "home_add_folder",
+        ).assertContentDescriptionEquals(rule.activity.getString(HomeR.string.home_add_folder))
         rule.onNodeWithTag("home_add_app").performClick()
         rule.waitUntil(5_000) {
             rule.activity.launcher.navigator.settings.top == SettingsRoute.PickApps(normalId)

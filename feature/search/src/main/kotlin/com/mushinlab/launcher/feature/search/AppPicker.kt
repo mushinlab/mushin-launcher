@@ -56,7 +56,6 @@ import com.mushinlab.launcher.core.search.SearchItem
 import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
-import com.mushinlab.launcher.core.ui.GlyphStyle
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinType
@@ -178,7 +177,7 @@ private fun PickerHeader(state: AppPickerState, changed: Boolean, onBack: () -> 
                 stringResource(R.string.picker_save),
                 colors.accent,
                 tag = "picker_save",
-                style = GlyphStyle.FILLED,
+                glyphSize = DONE_GLYPH,
                 onClick = onBack,
             )
         }
@@ -324,3 +323,4 @@ private fun pickerKeys(query: PickerQuery, actions: AppPickerActions) = object :
 private val PICKER_HEADER = 56.dp
 private val CHECK_SIZE = 20.dp
 private const val DISABLED_ALPHA = 0.4f
+private val DONE_GLYPH = 28.dp

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.14.2 — 2026-11-28
+
+### Changed
+- New thin line icons without circles or outlines everywhere; over a background image they get a soft shadow instead. Delete is a plain red bin, Done is an accent check mark.
+- Edit mode uses icons instead of words at the bottom (background, text, theme, motion), so it fits in every language.
+
 ## 0.14.1 — 2026-11-28
 
 ### Changed

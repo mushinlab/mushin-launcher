@@ -1,13 +1,10 @@
 package com.mushinlab.launcher.feature.home
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -20,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -30,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
@@ -41,7 +36,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.GlyphButton
@@ -49,18 +43,12 @@ import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.Motion
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.SingleLineText
-import com.mushinlab.launcher.core.ui.pressable
 import com.mushinlab.launcher.feature.home.gesture.RowRegistry
 
 @Composable
 internal fun HomeBar(state: HomeUiState, editing: Boolean, registry: RowRegistry, actions: HomeActions) {
     val suggestion = state.suggestion
     val colors = LocalMushinColors.current
-    val toggle by animateDpAsState(
-        if (editing) DONE_WIDTH else EDIT_SIZE,
-        tween(Motion.TRANSITION_MS),
-        label = "toggle",
-    )
     var bounds by remember { mutableStateOf<Rect?>(null) }
     DisposableEffect(Unit) { onDispose { registry.bar.set(null) } }
     Row(
@@ -93,7 +81,7 @@ internal fun HomeBar(state: HomeUiState, editing: Boolean, registry: RowRegistry
                 },
             ) { actions.onSuggestion(anchor) }
         }
-        Spacer(Modifier.width(toggle))
+        Spacer(Modifier.width(EDIT_SIZE))
     }
 }
 
@@ -156,77 +144,47 @@ private fun SpaceDots(count: Int, current: Int) {
 
 @Composable
 fun EditToggle(editing: Boolean, registry: RowRegistry, actions: HomeActions, modifier: Modifier) {
-    val place = modifier
-        .windowInsetsPadding(WindowInsets.navigationBars)
-        .padding(end = BAR_PADDING, bottom = (HomeDimens.barHeight - EDIT_SIZE) / 2)
-        .onGloballyPositioned { registry.block(BAR_EDIT, it.boundsInRoot()) }
-    if (editing) {
-        DonePill(place, actions::onEdit)
-    } else {
-        GlyphButton(
-            Glyph.EDIT,
-            stringResource(R.string.home_edit),
-            LocalMushinColors.current.textPrimary,
-            tag = "home_edit",
-            modifier = place,
-            onClick = actions::onEdit,
-        )
-    }
-}
-
-@Composable
-private fun DonePill(modifier: Modifier, onClick: () -> Unit) {
     val colors = LocalMushinColors.current
-    Box(modifier.size(DONE_WIDTH, EDIT_SIZE), contentAlignment = Alignment.Center) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(DONE_HEIGHT)
-                .clip(CircleShape)
-                .background(colors.accent)
-                .pressable(onClick = onClick)
-                .testTag("home_edit"),
-            contentAlignment = Alignment.Center,
-        ) {
-            SingleLineText(
-                stringResource(R.string.home_edit_done),
-                MushinType.style(MushinType.popupHeaderSize, colors.background, FontWeight.Medium),
-            )
-        }
-    }
+    GlyphButton(
+        if (editing) Glyph.CHECK else Glyph.EDIT,
+        stringResource(if (editing) R.string.home_edit_done else R.string.home_edit),
+        if (editing) colors.accent else colors.textPrimary,
+        tag = "home_edit",
+        glyphSize = if (editing) DONE_GLYPH else EDIT_GLYPH,
+        modifier = modifier
+            .windowInsetsPadding(WindowInsets.navigationBars)
+            .padding(end = BAR_PADDING, bottom = (HomeDimens.barHeight - EDIT_SIZE) / 2)
+            .onGloballyPositioned { registry.block(BAR_EDIT, it.boundsInRoot()) },
+        onClick = actions::onEdit,
+    )
 }
 
 @Composable
 private fun EditTools(registry: RowRegistry, actions: HomeActions) {
+    val tint = LocalMushinColors.current.textPrimary
     DisposableEffect(Unit) { onDispose { registry.block(BAR_TOOLS, null) } }
     Row(
         Modifier
             .onGloballyPositioned { registry.block(BAR_TOOLS, it.boundsInRoot()) }
-            .horizontalScroll(rememberScrollState())
             .testTag("home_edit_tools"),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        EditTab(R.string.home_edit_background, "home_edit_background", actions::onEditBackground)
-        EditTab(R.string.home_edit_text, "home_edit_text", actions::onEditText)
-        EditTab(R.string.home_edit_theme, "home_edit_theme", actions::onEditTheme)
-        EditTab(R.string.home_edit_motion, "home_edit_motion", actions::onEditMotion)
-    }
-}
-
-@Composable
-private fun EditTab(@StringRes text: Int, tag: String, onClick: () -> Unit) {
-    Box(
-        Modifier
-            .height(EDIT_SIZE)
-            .pressable(onClick = onClick)
-            .testTag(tag)
-            .padding(horizontal = TAB_PADDING),
-        contentAlignment = Alignment.Center,
-    ) {
-        SingleLineText(
-            stringResource(text),
-            MushinType.style(MushinType.popupHeaderSize, LocalMushinColors.current.textSecondary),
+        GlyphButton(
+            Glyph.IMAGE,
+            stringResource(R.string.home_edit_background),
+            tint,
+            tag = "home_edit_background",
+            onClick = actions::onEditBackground,
         )
+        GlyphButton(Glyph.TEXT, stringResource(R.string.home_edit_text), tint, tag = "home_edit_text") {
+            actions.onEditText()
+        }
+        GlyphButton(Glyph.PALETTE, stringResource(R.string.home_edit_theme), tint, tag = "home_edit_theme") {
+            actions.onEditTheme()
+        }
+        GlyphButton(Glyph.MOTION, stringResource(R.string.home_edit_motion), tint, tag = "home_edit_motion") {
+            actions.onEditMotion()
+        }
     }
 }
 
@@ -239,7 +197,6 @@ private val DOT_GAP = 5.dp
 private val DOTS_GAP = 10.dp
 private val SPACE_PADDING = 16.dp
 private val BAR_PADDING = 8.dp
-private val TAB_PADDING = 8.dp
 private val EDIT_SIZE = 48.dp
-private val DONE_WIDTH = 96.dp
-private val DONE_HEIGHT = 40.dp
+private val EDIT_GLYPH = 24.dp
+private val DONE_GLYPH = 28.dp
