@@ -63,6 +63,8 @@ private val Finger = Track(
         Key(3650, StyleGeometry.alignValue),
         Key(SHEET_DRAG_FROM, StyleGeometry.grip),
         Key(SHEET_DRAG_TO, StyleGeometry.grip + Offset(0f, StyleGeometry.SHEET_DRAG)),
+        Key(LIST_FROM, MiniHome.handle(MiniHome.LIST_TOP)),
+        Key(LIST_TO, MiniHome.handle(MiniHome.LIST_TOP + StyleGeometry.LIST_SHIFT)),
         Key(5800, MiniHome.edit),
         Key(6100, MiniHome.edit),
         Key(6550, Scene.rest),
@@ -70,7 +72,7 @@ private val Finger = Track(
 )
 
 @Immutable
-private data class RowLook(val family: Int, val align: Float)
+private data class RowLook(val family: Int, val align: Float, val listTop: Float)
 
 private fun DrawScope.drawStyleTip(time: Float, colors: MushinColors, labels: StyleLabels) {
     val family = when {
@@ -81,6 +83,7 @@ private fun DrawScope.drawStyleTip(time: Float, colors: MushinColors, labels: St
     val look = RowLook(
         family = family,
         align = ease(time, TAP_ALIGN + SWITCH_DELAY, TAP_ALIGN + SWITCH_DELAY + ALIGN_MS),
+        listTop = MiniHome.LIST_TOP + StyleGeometry.LIST_SHIFT * ease(time, LIST_FROM, LIST_TO),
     )
     val sheet = sheetOffset(
         StyleGeometry.SHEET_TOP,
@@ -94,6 +97,7 @@ private fun DrawScope.drawStyleTip(time: Float, colors: MushinColors, labels: St
         val press = maxOf(
             pulse(time, TAP_EDIT, TAP_TEXT, TAP_FONT_1, TAP_FONT_2, TAP_ALIGN, TAP_DONE),
             hold(time, SHEET_DRAG_FROM - PRESS_LEAD, SHEET_DRAG_TO),
+            hold(time, LIST_FROM - PRESS_LEAD, LIST_TO),
         )
         finger(
             colors,
@@ -108,8 +112,9 @@ private fun DrawScope.drawStyledHome(time: Float, colors: MushinColors, labels: 
     val edit = ease(time, TAP_EDIT + EDIT_DELAY, TAP_EDIT + EDIT_DELAY + EDIT_MS) -
         ease(time, TAP_DONE + EDIT_DELAY, TAP_DONE + EDIT_DELAY + EDIT_MS)
     clockCell(colors, labels.clock, edit)
+    listHandle(colors, MiniHome.handle(look.listTop), edit, hold(time, LIST_FROM - PRESS_LEAD, LIST_TO))
     labels.apps[look.family].forEachIndexed { index, label ->
-        val top = MiniHome.LIST_TOP + Scene.ROW_HEIGHT * index
+        val top = look.listTop + Scene.ROW_HEIGHT * index
         val centerY = top + Scene.ROW_HEIGHT / 2
         drawRect(colors.zebra(index), Offset(0f, top), Size(Scene.WIDTH, Scene.ROW_HEIGHT))
         val centered = (Scene.WIDTH - label.size.width) / 2 - CENTER_SHIFT * edit
@@ -153,6 +158,7 @@ private object StyleGeometry {
     const val LABEL_WIDTH = 92f
     const val VALUE_WIDTH = 52f
     const val VALUE_TAP = 14f
+    const val LIST_SHIFT = 30f
     val grip = MiniHome.grip(SHEET_TOP)
     val fontValue = Offset(VALUE_RIGHT - VALUE_TAP, rowCenterY(0))
     val alignValue = Offset(VALUE_RIGHT - VALUE_TAP, rowCenterY(2))
@@ -180,6 +186,8 @@ private const val TAP_FONT_2 = 2950
 private const val TAP_ALIGN = 3500
 private const val SHEET_DRAG_FROM = 4000
 private const val SHEET_DRAG_TO = 4350
+private const val LIST_FROM = 4800
+private const val LIST_TO = 5300
 private const val TAP_DONE = 5850
 private const val FINGER_OUT = 6100
 private const val FADE_MS = 300

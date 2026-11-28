@@ -106,16 +106,13 @@
 
     <string name="keyboard_layouts">Layouts</string>
     <string name="keyboard_haptics">Haptisches Feedback</string>
-    <string name="keyboard_digit_hints">Ziffernhinweise</string>
     <string name="keyboard_gesture_tuning">Wischeingabe</string>
     <string name="keyboard_gesture_shift">Versatzstrafe</string>
     <string name="keyboard_gesture_shift_note">Niedriger: Eine Zeichnung neben den Buchstaben wird leichter erkannt, aber Zufallstreffer werden häufiger. Höher: Du musst genauer zeichnen. Standard 0,50.</string>
     <string name="keyboard_gesture_margin">Vorschlagsspanne</string>
     <string name="keyboard_gesture_margin_note">Höher: Öfter werden mehrere Apps statt einer angezeigt. 0: Vorschläge nur bei gleich guten Treffern. Standard 0,30.</string>
     <string name="keyboard_gesture_tuning_reset">Standardwerte wiederherstellen</string>
-    <string name="keyboard_need_one">Mindestens ein Layout ist nötig</string>
-    <string name="keyboard_remove_layout">Entfernen</string>
-    <string name="keyboard_add_layout">Weitere hinzufügen</string>
+    <string name="keyboard_restore">Zurücksetzen</string>
 
     <string name="gesture_up">Nach oben wischen</string>
     <string name="gesture_down">Nach unten wischen</string>
@@ -166,7 +163,7 @@
     </plurals>
     <string name="settings_spaces">Bereiche</string>
     <string name="summary_spaces">Bereiche erstellen, umbenennen und löschen</string>
-    <string name="summary_keyboard">Layouts, Vibration, Ziffernhinweise, Wischeingabe</string>
+    <string name="summary_keyboard">Layouts, Vibration, Wischeingabe</string>
     <string name="summary_gestures">Wischgesten auf dem Startbildschirm und Linie</string>
     <string name="summary_apps">Ausgeblendete Apps, eigene Namen</string>
     <string name="summary_system">Standard-Launcher, Sprache, Datenschutz, Erweitert</string>
@@ -183,7 +180,6 @@
     <string name="settings_back">Zurück</string>
     <string name="style_theme">Design von „%1$s“</string>
     <string name="style_text">Text</string>
-    <string name="keyboard_fit_note">Breite und Position der Tastatur änderst du mit der Taste links neben der Leertaste: Ziehe die seitlichen Anker, um die Größe zu ändern, den unteren, um sie zu verschieben. Das ganze Eingabefeld ändert sich mit.</string>
     <string name="style_stroke">Linie</string>
     <string name="style_stroke_width">Dicke</string>
     <string name="style_stroke_color">Farbe</string>
@@ -231,7 +227,7 @@
     <string name="tip_arrange_title">Ordne die Liste</string>
     <string name="tip_arrange_text">Tippe auf den Stift und ziehe dann eine Zeile am Griff links, um sie zu verschieben. Wische eine Zeile nach links und tippe auf den Papierkorb, um sie aus der Liste zu entfernen.</string>
     <string name="tip_style_title">Passe den Launcher an</string>
-    <string name="tip_style_text">Tippe auf den Stift und dann auf Tt, um Schrift, Größe und Ausrichtung zu ändern.</string>
+    <string name="tip_style_text">Tippe auf den Stift und dann auf Tt, um Schrift, Größe und Ausrichtung zu ändern. Beim Bearbeiten kannst du die Linie über der Liste ziehen, um die Liste zu verschieben.</string>
     <string name="tip_memory_title">Bring dem Launcher etwas bei</string>
     <string name="tip_memory_text">Schalte unter Einstellungen → Gesten die „Gesteneingabe“ ein und zeichne eine Form für eine App. Zeichne dieselbe Form auf dem Startbildschirm, und der Launcher öffnet diese App.</string>
     <string name="tips_more_title">Mehr findest du unter Tipps</string>

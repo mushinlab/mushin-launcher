@@ -123,16 +123,16 @@ class SearchEngineTest {
     }
 
     @Test
-    fun AC_09_4_hiddenAppsOnlyOnExactOrPrefix() {
+    fun AC_64_1_hiddenAppsNeverAppearWithoutShowHidden() {
         val hiddenSlack = app("Slack", hidden = true)
         val index = SearchIndex.build(listOf(hiddenSlack, telegram))
         assertThat(index.alphabetical.map { it.displayLabel }).containsExactly("Telegram")
-        val prefix = engine.search(index, "sla", emptyMap(), now)
-        assertThat(prefix.map { it.label }).containsExactly("Slack")
-        assertThat(prefix.single().hidden).isTrue()
+        assertThat(engine.search(index, "slack", emptyMap(), now)).isEmpty()
+        assertThat(engine.search(index, "sla", emptyMap(), now)).isEmpty()
         assertThat(engine.search(index, "ack", emptyMap(), now)).isEmpty()
-        assertThat(engine.search(index, "slk", emptyMap(), now)).isEmpty()
-        assertThat(engine.search(index, "слак", emptyMap(), now).single().level).isEqualTo(MatchLevel.EXACT)
+        assertThat(engine.search(index, "слак", emptyMap(), now)).isEmpty()
+        assertThat(engine.search(index, "слак", emptyMap(), now, includeHidden = true).single().level)
+            .isEqualTo(MatchLevel.EXACT)
     }
 
     @Test

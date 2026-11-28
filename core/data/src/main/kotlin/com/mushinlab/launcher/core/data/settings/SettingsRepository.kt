@@ -112,7 +112,6 @@ class SettingsRepository(
         internal val KB_LAYOUTS = stringPreferencesKey("kb_layouts")
         internal val KB_ACTIVE_LAYOUT = stringPreferencesKey("kb_active_layout")
         internal val KB_HAPTICS = booleanPreferencesKey("kb_haptics")
-        internal val KB_DIGIT_HINTS = booleanPreferencesKey("kb_digit_hints")
         internal val KB_WIDTH = floatPreferencesKey("kb_width")
         internal val KB_SHIFT = floatPreferencesKey("kb_shift")
         internal val KB_LIFT = intPreferencesKey("kb_lift")
@@ -148,7 +147,6 @@ class SettingsRepository(
                 keyboardLayouts = layouts,
                 activeKeyboardLayout = prefs.valueOr(KB_ACTIVE_LAYOUT, layouts.first()),
                 keyboardHaptics = prefs.valueOr(KB_HAPTICS, defaults.keyboardHaptics),
-                keyboardDigitHints = prefs.valueOr(KB_DIGIT_HINTS, defaults.keyboardDigitHints),
                 keyboardWidth = prefs.finiteOr(KB_WIDTH, defaults.keyboardWidth)
                     .coerceIn(KeyboardFit.WIDTH_MIN, KeyboardFit.WIDTH_MAX),
                 keyboardShift = prefs.finiteOr(KB_SHIFT, defaults.keyboardShift)
@@ -192,7 +190,6 @@ class SettingsRepository(
             prefs[KB_LAYOUTS] = settings.keyboardLayouts.joinToString(",")
             prefs[KB_ACTIVE_LAYOUT] = settings.activeKeyboardLayout
             prefs[KB_HAPTICS] = settings.keyboardHaptics
-            prefs[KB_DIGIT_HINTS] = settings.keyboardDigitHints
             prefs[KB_WIDTH] = settings.keyboardWidth
             prefs[KB_SHIFT] = settings.keyboardShift
             prefs[KB_LIFT] = settings.keyboardLift

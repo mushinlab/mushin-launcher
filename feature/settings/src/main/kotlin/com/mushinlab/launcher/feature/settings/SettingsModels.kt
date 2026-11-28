@@ -46,6 +46,8 @@ sealed interface SettingsRoute {
 
     data object Keyboard : SettingsRoute
 
+    data object KeyboardAdvanced : SettingsRoute
+
     data object Gestures : SettingsRoute
 
     data object Apps : SettingsRoute

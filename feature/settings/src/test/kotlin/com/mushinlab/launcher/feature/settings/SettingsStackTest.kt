@@ -26,6 +26,7 @@ class SettingsStackTest {
         SettingsRoute.HomeFolder(3),
         SettingsRoute.PickFolderApps(3),
         SettingsRoute.Spaces,
+        SettingsRoute.KeyboardAdvanced,
     )
 
     @Test

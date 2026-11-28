@@ -62,7 +62,6 @@ class SettingsRepositoryTest {
         assertThat(settings.keyboardLayouts).containsExactly("en", "ru").inOrder()
         assertThat(settings.activeKeyboardLayout).isEqualTo("en")
         assertThat(settings.keyboardHaptics).isTrue()
-        assertThat(settings.keyboardDigitHints).isTrue()
         assertThat(settings.keyboardWidth).isEqualTo(1f)
         assertThat(settings.keyboardShift).isEqualTo(0f)
         assertThat(settings.keyboardLift).isEqualTo(0)

@@ -87,7 +87,11 @@ private fun SettingsRouteScreen(
         SettingsRoute.ClockSheet, SettingsRoute.TextSheet, SettingsRoute.ThemeSheet, SettingsRoute.MotionSheet ->
             HomeSheetRoute(route, state, actions, back)
 
-        SettingsRoute.Keyboard, SettingsRoute.Gestures, is SettingsRoute.PickGestureApp ->
+        SettingsRoute.Keyboard,
+        SettingsRoute.KeyboardAdvanced,
+        SettingsRoute.Gestures,
+        is SettingsRoute.PickGestureApp,
+        ->
             InputRouteScreen(route, state, actions, push, back)
 
         SettingsRoute.Apps, SettingsRoute.System, SettingsRoute.Privacy, SettingsRoute.Advanced ->
@@ -132,7 +136,8 @@ private fun InputRouteScreen(
     when (route) {
         is SettingsRoute.PickGestureApp -> GestureAppPicker(route.direction, state, actions, back)
         SettingsRoute.Gestures -> GesturesScreen(state, actions, push, back)
-        else -> KeyboardSettingsScreen(state, actions, back)
+        SettingsRoute.KeyboardAdvanced -> KeyboardAdvancedScreen(state, actions, back)
+        else -> KeyboardSettingsScreen(state, actions, push, back)
     }
 }
 

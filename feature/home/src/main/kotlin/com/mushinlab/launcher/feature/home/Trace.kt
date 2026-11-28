@@ -1,8 +1,19 @@
 package com.mushinlab.launcher.feature.home
 
 import android.os.SystemClock
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -13,14 +24,21 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameMillis
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
+import com.mushinlab.launcher.core.ui.GlyphWrapper
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.LocalMushinStroke
 import com.mushinlab.launcher.core.ui.Motion
+import com.mushinlab.launcher.core.ui.PopupStyle
 import com.mushinlab.launcher.core.ui.drawBrushTrail
 import kotlinx.coroutines.flow.first
 
@@ -60,5 +78,45 @@ fun TraceLayer(trace: Trace, modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+fun ListHandle(active: Boolean, visible: Boolean, onBounds: (Rect) -> Unit) {
+    val colors = LocalMushinColors.current
+    val alpha by animateFloatAsState(if (visible) 1f else 0f, tween(Motion.TRANSITION_MS), label = "handle")
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .alpha(alpha)
+            .height(HANDLE_HEIGHT + HANDLE_LIST_GAP)
+            .onGloballyPositioned { onBounds(it.boundsInRoot()) }
+            .testTag("list_handle")
+            .padding(bottom = HANDLE_LIST_GAP),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            Modifier
+                .size(HANDLE_WIDTH + HANDLE_PADDING * 2, HANDLE_THICKNESS + HANDLE_PADDING * 2)
+                .background(colors.surface, CircleShape)
+                .border(GlyphWrapper.outline, PopupStyle.outline(colors), CircleShape)
+                .testTag("list_handle_wrapper"),
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(
+                Modifier
+                    .size(HANDLE_WIDTH, HANDLE_THICKNESS)
+                    .background(
+                        if (active) colors.accent else colors.textSecondary.copy(alpha = HANDLE_ALPHA),
+                        RoundedCornerShape(HANDLE_THICKNESS),
+                    ),
+            )
+        }
+    }
+}
+
 private const val TRACE_ALPHA = 0.85f
 private const val BRUSH_WIDTH = 2.5f
+val HANDLE_HEIGHT = 24.dp
+internal val HANDLE_LIST_GAP = 8.dp
+private val HANDLE_WIDTH = 36.dp
+private val HANDLE_THICKNESS = 4.dp
+private val HANDLE_PADDING = 6.dp
+private const val HANDLE_ALPHA = 0.35f

@@ -1,6 +1,8 @@
 package com.mushinlab.launcher
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -44,7 +46,13 @@ internal fun SearchLayer(vm: LauncherViewModel, settings: LauncherSettings, icon
     SearchSourcesEffect(vm)
     val active = vm.navigator.overlay == Overlay.Search
     val progress = remember { Animatable(0f) }
-    LaunchedEffect(active) { progress.animateTo(if (active) 1f else 0f, tween(Motion.TRANSITION_MS)) }
+    LaunchedEffect(active) {
+        val underSettings = !active && vm.navigator.settings.top != null
+        progress.animateTo(
+            if (active) 1f else 0f,
+            tween(Motion.TRANSITION_MS, easing = if (underSettings) HoldUntilEnd else FastOutSlowInEasing),
+        )
+    }
     val shown by remember { derivedStateOf { progress.value > 0f } }
     if (!composed && !active) return
     val slidePx = with(LocalDensity.current) { SEARCH_SLIDE.toPx() }
@@ -100,7 +108,6 @@ internal fun rememberSearchChrome(settings: LauncherSettings): SearchChrome {
             iconMode = settings.iconMode,
             layout = layout,
             nextLayoutLabel = next.label,
-            digitHints = settings.keyboardDigitHints,
             haptics = settings.keyboardHaptics,
             gestureShiftPenalty = settings.gestureShiftPenalty,
             gestureSuggestMargin = settings.gestureSuggestMargin,
@@ -192,3 +199,5 @@ private fun searchActions(vm: LauncherViewModel) = object : SearchActions {
 }
 
 private val SEARCH_SLIDE = 24.dp
+
+private val HoldUntilEnd = Easing { if (it < 1f) 0f else 1f }

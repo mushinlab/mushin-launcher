@@ -1,7 +1,9 @@
 package com.mushinlab.launcher.feature.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -127,6 +129,8 @@ interface HomeControlActions {
     fun onOpenSpaces(anchor: Offset)
 
     fun onSuggestion(anchor: Offset)
+
+    fun onListOffset(dp: Int)
 }
 
 interface HomeWidgetActions {
@@ -184,6 +188,8 @@ fun HomeScreen(
     background: ImageBitmap? = null,
     widgets: WidgetContent = { _, _, _ -> },
     editToggle: Boolean = true,
+    fadeBackground: Boolean = true,
+    backgroundStale: Boolean = false,
 ) {
     val colors = LocalMushinColors.current
     val registry = remember { RowRegistry() }
@@ -195,10 +201,7 @@ fun HomeScreen(
     val gestures = rememberHomeGestures(currentState, currentActions, trace)
     val currentEditing = rememberUpdatedState(editing)
     var frame by remember { mutableStateOf(Rect.Zero) }
-    val pixels by rememberBackdropPixels(background)
-    val blurPx = with(LocalDensity.current) { BackgroundLook.blurRadius(state.backgroundBlur).toPx() }
-    val loading = background != null && pixels == null
-    val backdrop = ClockBackdrop(pixels, colors.background, state.backgroundBrightness, blurPx, frame, loading)
+    val backdrop = clockBackdrop(background, state, frame, fadeBackground, backgroundStale)
     Box(
         modifier
             .fillMaxSize()
@@ -211,13 +214,20 @@ fun HomeScreen(
                     .detect(this, gestures)
             },
     ) {
-        if (background != null) {
-            SpaceBackdrop(
-                background,
-                state.backgroundBrightness,
-                state.backgroundBlur,
-                Modifier.fillMaxSize().testTag("home_background"),
-            )
+        Crossfade(
+            background,
+            Modifier.matchParentSize(),
+            animationSpec = if (fadeBackground) tween(BACKGROUND_FADE_MS) else snap(),
+            label = "background",
+        ) { image ->
+            if (image != null) {
+                SpaceBackdrop(
+                    image,
+                    state.backgroundBrightness,
+                    state.backgroundBlur,
+                    Modifier.fillMaxSize().testTag("home_background"),
+                )
+            }
         }
         CompositionLocalProvider(LocalClockBackdrop provides backdrop) {
             HomeColumn(
@@ -496,3 +506,31 @@ private fun BadgedIcon(row: HomeRow, index: Int, badge: Boolean, modifier: Modif
 private const val ROLE_CARD = "role_card"
 private const val SHADE_ZONE = 0.2f
 private const val DIMMED_ALPHA = 0.5f
+
+@Composable
+private fun clockBackdrop(
+    background: ImageBitmap?,
+    state: HomeUiState,
+    frame: Rect,
+    fadeBackground: Boolean,
+    stale: Boolean,
+): ClockBackdrop {
+    val pixels by rememberBackdropPixels(background)
+    val blurPx = with(LocalDensity.current) { BackgroundLook.blurRadius(state.backgroundBlur).toPx() }
+    val loading = stale || (background != null && pixels == null)
+    val changes = remember { BackgroundChanges(background) }
+    val fadeMs = if (fadeBackground && changes.changed(background)) BACKGROUND_FADE_MS else 0
+    val surface = LocalMushinColors.current.background
+    return ClockBackdrop(pixels, surface, state.backgroundBrightness, blurPx, frame, loading, fadeMs)
+}
+
+private const val BACKGROUND_FADE_MS = 1_000
+
+private class BackgroundChanges(private val first: ImageBitmap?) {
+    private var moved = false
+
+    fun changed(now: ImageBitmap?): Boolean {
+        if (now !== first) moved = true
+        return moved
+    }
+}

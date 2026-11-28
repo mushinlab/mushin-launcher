@@ -46,7 +46,7 @@ class SearchEngine(private val options: SearchOptions = SearchOptions()) {
 
     /**
      * Up to [limit] results, best first. [usage] and [now] (epoch ms) feed the launch bonus. Hidden apps appear only
-     * for prefix or exact matches unless [includeHidden] is set. A blank query gives no results.
+     * when [includeHidden] is set. A blank query gives no results.
      */
     fun search(
         index: SearchIndex,
@@ -60,9 +60,8 @@ class SearchEngine(private val options: SearchOptions = SearchOptions()) {
         if (variants.isEmpty()) return emptyList()
         val results = ArrayList<SearchResult>()
         index.items.forEach { indexed ->
-            val best = bestMatch(indexed, variants) ?: return@forEach
-            val (level, score) = best
-            if (indexed.item.hidden && !includeHidden && level.base < MatchLevel.PREFIX.base) return@forEach
+            if (indexed.item.hidden && !includeHidden) return@forEach
+            val (level, score) = bestMatch(indexed, variants) ?: return@forEach
             results += SearchResult(
                 key = indexed.item.key,
                 label = indexed.item.displayLabel,

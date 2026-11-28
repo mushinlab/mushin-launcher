@@ -50,6 +50,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -61,7 +62,10 @@ import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mushinlab.launcher.core.model.HomeListOffset
 import com.mushinlab.launcher.core.model.SwipeDirection
 import com.mushinlab.launcher.core.ui.AppIcon
 import com.mushinlab.launcher.core.ui.Glyph
@@ -96,6 +100,7 @@ internal fun HomeColumn(
     val rowColor: (Int) -> Color = remember(colors, hasBackground, rowAlpha) {
         { index -> colors.row(index, overImage = hasBackground, alpha = rowAlpha) }
     }
+    val placement = rememberListPlacement(state, rowHeight)
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val panelWidth = maxWidth
         val listSpace = maxHeight - HomeDimens.barHeight - HomeDimens.barGap
@@ -127,7 +132,7 @@ internal fun HomeColumn(
                     registry,
                     gestures,
                     actions,
-                    ListEditing(editing),
+                    ListEditing(editing, gestures.handle.active),
                     listCapacity,
                 )
                 Column(Modifier.fillMaxWidth()) {
@@ -139,7 +144,7 @@ internal fun HomeColumn(
                 }
             },
             modifier = Modifier.fillMaxSize(),
-            measurePolicy = remember { homeColumnPolicy() },
+            measurePolicy = remember(placement, gestures.handle) { homeColumnPolicy(placement, gestures.handle) },
         )
     }
 }
@@ -155,6 +160,7 @@ private fun HomeFavorites(
     capacity: Int,
 ) {
     Column(Modifier.fillMaxWidth()) {
+        ListHandle(active = gestures.handle.active, visible = editing.editing, onBounds = registry.handle::set)
         FavoritesList(
             state,
             registry,
@@ -185,7 +191,7 @@ private fun HomeHeader(
             RoleCard(registry, onClick = { actions.value.onRequestRole() })
         }
         content()
-        Spacer(Modifier.height(HomeDimens.listGap))
+        Spacer(Modifier.height(HomeDimens.listGap - HANDLE_HEIGHT))
     }
 }
 
@@ -206,6 +212,17 @@ private fun HomeClock(
         ink = state.clockInk,
         pressed = gestures.pressedClock,
         onBounds = { if (!editing) registry.clock.set(it) },
+    )
+}
+
+@Composable
+private fun rememberListPlacement(state: HomeUiState, rowHeight: Dp): ListPlacement = with(LocalDensity.current) {
+    ListPlacement(
+        savedOffsetPx = state.homeListOffset?.dp?.toPx(),
+        clockGapPx = HomeDimens.listGap.toPx(),
+        rowHeightPx = rowHeight.toPx(),
+        maxOffsetPx = HomeListOffset.MAX_DP.dp.toPx(),
+        handleHeightPx = (HANDLE_HEIGHT + HANDLE_LIST_GAP).roundToPx(),
     )
 }
 

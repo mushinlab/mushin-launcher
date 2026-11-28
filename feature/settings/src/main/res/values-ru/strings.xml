@@ -106,16 +106,13 @@
 
     <string name="keyboard_layouts">Раскладки</string>
     <string name="keyboard_haptics">Отклик вибрацией</string>
-    <string name="keyboard_digit_hints">Подсказки цифр</string>
     <string name="keyboard_gesture_tuning">Рисунок на клавиатуре</string>
     <string name="keyboard_gesture_shift">Штраф за сдвиг</string>
     <string name="keyboard_gesture_shift_note">Меньше — рисунок, нарисованный в стороне от букв, узнаётся легче, но чаще бывают случайные совпадения. Больше — нужно попадать точнее. По умолчанию 0,50.</string>
     <string name="keyboard_gesture_margin">Порог вариантов</string>
     <string name="keyboard_gesture_margin_note">Больше — чаще показываются несколько приложений вместо одного. 0 — варианты только при одинаковом совпадении. По умолчанию 0,30.</string>
     <string name="keyboard_gesture_tuning_reset">Вернуть значения по умолчанию</string>
-    <string name="keyboard_need_one">Нужна хотя бы одна раскладка</string>
-    <string name="keyboard_remove_layout">Убрать</string>
-    <string name="keyboard_add_layout">Добавить ещё</string>
+    <string name="keyboard_restore">Сброс</string>
 
     <string name="gesture_up">Свайп вверх</string>
     <string name="gesture_down">Свайп вниз</string>
@@ -168,7 +165,7 @@
     </plurals>
     <string name="settings_spaces">Спейсы</string>
     <string name="summary_spaces">Создание, переименование и удаление спейсов</string>
-    <string name="summary_keyboard">Раскладки, вибрация, подсказки цифр, рисунок на клавиатуре</string>
+    <string name="summary_keyboard">Раскладки, вибрация, рисунок на клавиатуре</string>
     <string name="summary_gestures">Свайпы на главном экране и линия</string>
     <string name="summary_apps">Скрытые приложения, свои названия</string>
     <string name="summary_system">Лаунчер по умолчанию, язык, конфиденциальность, дополнительно</string>
@@ -185,7 +182,6 @@
     <string name="settings_back">Назад</string>
     <string name="style_theme">Тема спейса «%1$s»</string>
     <string name="style_text">Текст</string>
-    <string name="keyboard_fit_note">Ширину и положение клавиатуры меняет кнопка слева от пробела: потяните боковые якоря, чтобы изменить ширину, нижний — чтобы сдвинуть. Меняется вся панель ввода.</string>
     <string name="style_stroke">Линия</string>
     <string name="style_stroke_width">Толщина</string>
     <string name="style_stroke_color">Цвет</string>
@@ -233,7 +229,7 @@
     <string name="tip_arrange_title">Расставьте список</string>
     <string name="tip_arrange_text">Нажмите на карандаш, затем перетащите строку за ручку слева. Чтобы убрать строку из списка, смахните её влево и нажмите на корзину.</string>
     <string name="tip_style_title">Настройте лаунчер под себя</string>
-    <string name="tip_style_text">Нажмите на карандаш, затем на Tт, чтобы сменить шрифт, размер и выравнивание.</string>
+    <string name="tip_style_text">Нажмите на карандаш, затем на Tт, чтобы сменить шрифт, размер и выравнивание. В режиме правки перетащите черту над списком, чтобы передвинуть список.</string>
     <string name="tip_memory_title">Научите лаунчер</string>
     <string name="tip_memory_text">В «Настройки → Жесты» включите «Ввод жестами» и нарисуйте фигуру для приложения. Нарисуйте её же на главном экране, и лаунчер откроет это приложение.</string>
     <string name="tips_more_title">Больше — в «Советах»</string>

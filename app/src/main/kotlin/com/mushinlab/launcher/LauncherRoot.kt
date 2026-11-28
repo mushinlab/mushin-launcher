@@ -103,8 +103,8 @@ fun LauncherRoot(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
 @Composable
 private fun HomeLayer(vm: LauncherViewModel, iconProvider: LauncherIconProvider) {
     val home by vm.home.collectAsStateWithLifecycle()
-    val backgroundBitmap by vm.background.collectAsStateWithLifecycle()
-    val background = remember(backgroundBitmap) { backgroundBitmap?.asImageBitmap() }
+    val spaceBitmap by vm.spaceBackground.collectAsStateWithLifecycle()
+    val background = remember(spaceBitmap.bitmap) { spaceBitmap.bitmap?.asImageBitmap() }
     val request by vm.pager.request.collectAsStateWithLifecycle()
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
@@ -142,6 +142,8 @@ private fun HomeLayer(vm: LauncherViewModel, iconProvider: LauncherIconProvider)
             actions = actions,
             gesturesEnabled = { input.gesturesEnabled && !pager.busy },
             editing = vm.navigator.homeEditing,
+            fadeBackground = pager.cover == null,
+            backgroundStale = home.spaceId != spaceBitmap.spaceId,
             modifier = Modifier
                 .drawWithContent { translate(left = pager.offset * size.width) { this@drawWithContent.drawContent() } }
                 .graphicsLayer(),
@@ -305,6 +307,10 @@ private fun homeActions(vm: LauncherViewModel, density: Density, pager: SpacePag
 
     override fun onSuggestion(anchor: Offset) {
         navigator.overlay = Overlay.Suggestion(anchor)
+    }
+
+    override fun onListOffset(dp: Int) {
+        vm.model.currentSpace?.let { vm.spaces.setListOffset(it.id, dp) }
     }
 
     override fun onDraw(points: List<Offset>, width: Float) =

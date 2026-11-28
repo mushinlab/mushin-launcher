@@ -44,6 +44,7 @@ private fun DrawScope.drawArrangeTip(time: Float, colors: MushinColors, labels: 
     val swiped = ease(time, SWIPE_FROM, SWIPE_TO)
     scene(colors, loopFade(time, LOOP_MS)) {
         clockCell(colors, labels.clock, edit)
+        listHandle(colors, MiniHome.handle(MiniHome.LIST_TOP), edit, 0f)
         for (index in 1 until ROWS) {
             val passed = ((drag / Scene.ROW_HEIGHT - (index - HALF_ROW)) / SHIFT_SPAN).coerceIn(0f, 1f)
             val shift = if (index <= MOVED_ROWS) Scene.ROW_HEIGHT * passed else 0f

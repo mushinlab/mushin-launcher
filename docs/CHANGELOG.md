@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.13.3 — 2026-11-28
+
+### Changed
+- A space's background fades in over a second instead of appearing at once.
+- The list handle is back: in edit mode, drag it to move the app list up or down. The list keeps that distance below the widgets as they change.
+- Keyboard settings are compact: layouts are picked in one multi-select list, digit hints are always on, and the swipe-typing tuning with its Restore defaults button moved to Advanced.
+
+### Fixed
+- The clock no longer flickers when switching spaces: its colour changes together with the fading background.
+- Opening Settings from the search gear fades Settings in over the search instead of flashing the home screen.
+- Hidden apps no longer show up in search when you type their name; they appear only while the Show hidden eye is on.
+
 ## 0.13.2 — 2026-11-27
 
 ### Changed

@@ -106,16 +106,13 @@
 
     <string name="keyboard_layouts">Layouts</string>
     <string name="keyboard_haptics">Haptic feedback</string>
-    <string name="keyboard_digit_hints">Digit hints</string>
     <string name="keyboard_gesture_tuning">Swipe typing</string>
     <string name="keyboard_gesture_shift">Shift penalty</string>
     <string name="keyboard_gesture_shift_note">Lower: a drawing made away from the letters is recognised more easily, but accidental matches get more frequent. Higher: you need to be more precise. Default 0.50.</string>
     <string name="keyboard_gesture_margin">Suggestion margin</string>
     <string name="keyboard_gesture_margin_note">Higher: several apps are shown instead of one more often. 0: suggestions only for equally good matches. Default 0.30.</string>
     <string name="keyboard_gesture_tuning_reset">Restore defaults</string>
-    <string name="keyboard_need_one">At least one layout is required</string>
-    <string name="keyboard_remove_layout">Remove</string>
-    <string name="keyboard_add_layout">Add more</string>
+    <string name="keyboard_restore">Restore</string>
 
     <string name="gesture_up">Swipe up</string>
     <string name="gesture_down">Swipe down</string>
@@ -166,7 +163,7 @@
     </plurals>
     <string name="settings_spaces">Spaces</string>
     <string name="summary_spaces">Create, rename and delete spaces</string>
-    <string name="summary_keyboard">Layouts, vibration, digit hints, swipe typing</string>
+    <string name="summary_keyboard">Layouts, vibration, swipe typing</string>
     <string name="summary_gestures">Swipes on the home screen and the stroke</string>
     <string name="summary_apps">Hidden apps, custom names</string>
     <string name="summary_system">Default launcher, language, privacy, advanced</string>
@@ -183,7 +180,6 @@
     <string name="settings_back">Back</string>
     <string name="style_theme">Theme of “%1$s”</string>
     <string name="style_text">Text</string>
-    <string name="keyboard_fit_note">Change the keyboard width and position with the button left of the space bar: drag the side anchors to resize, the bottom one to move. The whole input panel changes.</string>
     <string name="style_stroke">Stroke</string>
     <string name="style_stroke_width">Thickness</string>
     <string name="style_stroke_color">Color</string>
@@ -231,7 +227,7 @@
     <string name="tip_arrange_title">Arrange the list</string>
     <string name="tip_arrange_text">Tap the pencil, then drag a row by the handle on its left to move it. Swipe a row to the left and tap the bin to remove it from the list.</string>
     <string name="tip_style_title">Customize the launcher</string>
-    <string name="tip_style_text">Tap the pencil, then Tt to change the font, size and alignment.</string>
+    <string name="tip_style_text">Tap the pencil, then Tt to change the font, size and alignment. While editing, drag the line above the list to move the list.</string>
     <string name="tip_memory_title">Teach the launcher</string>
     <string name="tip_memory_text">In Settings → Gestures, turn on Gesture input and draw a shape for an app. Draw the same shape on the home screen and the launcher opens that app.</string>
     <string name="tips_more_title">For more, explore Tips</string>

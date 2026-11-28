@@ -55,7 +55,6 @@ import kotlin.math.roundToInt
 fun Keyboard(
     layout: KeyboardLayout,
     nextLayoutLabel: String,
-    digitHints: Boolean,
     haptics: Boolean,
     actions: KeyboardActions,
     glide: Glide,
@@ -110,7 +109,7 @@ fun Keyboard(
             },
     ) {
         keys.forEachIndexed { index, key ->
-            KeyView(index, key, state, nextLayoutLabel, digitHints)
+            KeyView(index, key, state, nextLayoutLabel)
         }
         GlideTrail(state, Modifier.matchParentSize().clipToBounds().testTag("glide_trail"))
         BrushTrailLayer(state.brush, Modifier.matchParentSize().clipToBounds())
@@ -137,7 +136,6 @@ private fun KeyView(
     key: KeyGeometry,
     state: KeyboardState,
     nextLayoutLabel: String,
-    digitHints: Boolean,
 ) {
     val colors = LocalMushinColors.current
     val density = LocalDensity.current
@@ -159,7 +157,7 @@ private fun KeyView(
         BasicText(label, style = MushinType.style(size, colors.textPrimary))
         if (key.spec.action == KeyAction.RESIZE) ResizeMark(colors.textPrimary)
         val digit = key.spec.digit
-        if (digitHints && digit != null) {
+        if (digit != null) {
             BasicText(
                 digit.toString(),
                 style = MushinType.style(MushinType.digitHintSize, colors.textSecondary),

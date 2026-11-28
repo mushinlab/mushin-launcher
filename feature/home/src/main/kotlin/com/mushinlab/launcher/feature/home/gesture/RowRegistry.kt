@@ -7,6 +7,7 @@ class RowRegistry {
     private val rows = HashMap<Int, Rect>()
     private val blocked = HashMap<String, Rect>()
     val clock = HitArea()
+    val handle = HitArea()
     val bar = HitArea()
 
     fun update(index: Int, bounds: Rect) {

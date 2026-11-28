@@ -1,11 +1,8 @@
 package com.mushinlab.launcher.feature.settings
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,14 +10,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.GestureTuning
 import com.mushinlab.launcher.core.model.LauncherSettings
-import com.mushinlab.launcher.core.search.KeyboardLayout
 import com.mushinlab.launcher.core.search.KeyboardLayouts
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
@@ -69,39 +65,50 @@ private fun RootRows(push: (SettingsRoute) -> Unit) {
 }
 
 @Composable
-internal fun KeyboardSettingsScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+internal fun KeyboardSettingsScreen(
+    state: SettingsUiState,
+    actions: SettingsActions,
+    push: (SettingsRoute) -> Unit,
+    back: () -> Unit,
+) {
     val s = state.settings
     val preferences = actions.preferences
-    val enabled = s.keyboardLayouts.mapNotNull(KeyboardLayouts::byId)
-    val available = KeyboardLayouts.all.filterNot { it in enabled }
     SettingsPage(stringResource(R.string.settings_keyboard), back) {
-        SectionHeader(stringResource(R.string.keyboard_layouts))
-        enabled.forEach { layout ->
-            LayoutRow(layout, removable = enabled.size > 1) {
-                preferences.updateSettings { it.withoutLayout(layout.id) }
-            }
+        MultiDropdownRow(
+            stringResource(R.string.keyboard_layouts),
+            KeyboardLayouts.all.map { it.id to it.nativeName },
+            s.keyboardLayouts.toSet(),
+            "layouts",
+        ) { id ->
+            preferences.updateSettings { if (id in it.keyboardLayouts) it.withoutLayout(id) else it.withLayout(id) }
         }
-        if (available.isNotEmpty()) {
-            DropdownRow<String?>(
-                stringResource(R.string.keyboard_add_layout),
-                available.map { it.id to "${it.nativeName} · ${it.label}" },
-                null,
-                "layout_add",
-            ) { id ->
-                if (id != null) preferences.updateSettings { it.withLayout(id) }
-            }
-        }
-        NoteText(stringResource(R.string.keyboard_need_one))
-        CardGap()
         ToggleRow(stringResource(R.string.keyboard_haptics), s.keyboardHaptics, tag = "kb_haptics") { v ->
             preferences.updateSettings { it.copy(keyboardHaptics = v) }
         }
-        ToggleRow(stringResource(R.string.keyboard_digit_hints), s.keyboardDigitHints, tag = "kb_digits") { v ->
-            preferences.updateSettings { it.copy(keyboardDigitHints = v) }
-        }
-        NoteText(stringResource(R.string.keyboard_fit_note))
+        NavRow(
+            stringResource(R.string.settings_advanced),
+            summary = stringResource(R.string.keyboard_gesture_tuning),
+            tag = "nav_keyboard_advanced",
+        ) { push(SettingsRoute.KeyboardAdvanced) }
+    }
+}
+
+@Composable
+internal fun KeyboardAdvancedScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+    val s = state.settings
+    val preferences = actions.preferences
+    SettingsPage(stringResource(R.string.settings_advanced), back) {
         SectionHeader(stringResource(R.string.keyboard_gesture_tuning))
         GestureTuningRows(s, preferences)
+        SectionHeader(stringResource(R.string.keyboard_restore))
+        ButtonRow(stringResource(R.string.keyboard_gesture_tuning_reset), tag = "kb_gesture_tuning_reset") {
+            preferences.updateSettings {
+                it.copy(
+                    gestureShiftPenalty = GestureTuning.SHIFT_PENALTY,
+                    gestureSuggestMargin = GestureTuning.SUGGEST_MARGIN,
+                )
+            }
+        }
     }
 }
 
@@ -123,42 +130,21 @@ private fun GestureTuningRows(s: LauncherSettings, preferences: PreferenceAction
         tag = "kb_gesture_margin",
     ) { v -> preferences.updateSettings { it.copy(gestureSuggestMargin = v) } }
     NoteText(stringResource(R.string.keyboard_gesture_margin_note))
-    NavRow(stringResource(R.string.keyboard_gesture_tuning_reset), tag = "kb_gesture_tuning_reset") {
-        preferences.updateSettings {
-            it.copy(
-                gestureShiftPenalty = GestureTuning.SHIFT_PENALTY,
-                gestureSuggestMargin = GestureTuning.SUGGEST_MARGIN,
-            )
-        }
-    }
 }
 
 @Composable
-private fun LayoutRow(layout: KeyboardLayout, removable: Boolean, onRemove: () -> Unit) {
+private fun ButtonRow(title: String, tag: String, onClick: () -> Unit) {
     val colors = LocalMushinColors.current
-    Row(
+    Box(
         Modifier
             .settingsCard()
-            .heightIn(min = 56.dp)
-            .testTag("layout_${layout.id}")
-            .padding(start = CARD_PADDING),
-        verticalAlignment = Alignment.CenterVertically,
+            .heightIn(min = 48.dp)
+            .pressable(onClick = onClick)
+            .testTag(tag)
+            .padding(horizontal = CARD_PADDING),
+        contentAlignment = Alignment.Center,
     ) {
-        Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
-            BasicText(layout.nativeName, style = MushinType.style(17.sp, colors.textPrimary))
-            BasicText(layout.label, style = MushinType.style(14.sp, colors.textSecondary))
-        }
-        Box(
-            Modifier
-                .heightIn(min = 56.dp)
-                .pressable(enabled = removable, onClick = onRemove)
-                .testTag("layout_remove_${layout.id}")
-                .alpha(if (removable) 1f else DISABLED_ALPHA)
-                .padding(horizontal = CARD_PADDING),
-            contentAlignment = Alignment.Center,
-        ) {
-            SingleLineText(stringResource(R.string.keyboard_remove_layout), MushinType.style(15.sp, colors.accent))
-        }
+        SingleLineText(title, MushinType.style(16.sp, colors.accent, FontWeight.Medium))
     }
 }
 

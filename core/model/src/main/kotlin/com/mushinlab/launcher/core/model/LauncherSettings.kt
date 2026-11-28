@@ -108,7 +108,6 @@ data class LauncherSettings(
     val keyboardLayouts: List<String> = listOf("en", "ru"),
     val activeKeyboardLayout: String = "en",
     val keyboardHaptics: Boolean = true,
-    val keyboardDigitHints: Boolean = true,
     val keyboardWidth: Float = KeyboardFit.WIDTH_MAX,
     val keyboardShift: Float = 0f,
     val keyboardLift: Int = 0,

@@ -303,7 +303,6 @@ private fun PickerInput(
             Keyboard(
                 remember(chrome.layout) { chrome.layout.withoutResize() },
                 chrome.nextLayoutLabel,
-                chrome.digitHints,
                 chrome.haptics,
                 keys,
                 glide,

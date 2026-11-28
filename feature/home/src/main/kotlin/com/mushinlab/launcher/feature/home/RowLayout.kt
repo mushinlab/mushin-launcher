@@ -88,8 +88,10 @@ internal fun LabelWithIcon(
 }
 
 @Immutable
-internal data class ListEditing(val editing: Boolean) {
-    fun rowsInView(rows: Int): Float = if (editing) EditList.viewportRows(rows) else rows.toFloat()
+internal data class ListEditing(val editing: Boolean, val dragging: Boolean) {
+    val folded: Boolean get() = editing && !dragging
+
+    fun rowsInView(rows: Int): Float = if (folded) EditList.viewportRows(rows) else rows.toFloat()
 
     fun rowsInView(rows: Int, fold: Float): Float = rows + (EditList.viewportRows(rows) - rows) * fold
 }
@@ -104,7 +106,7 @@ internal fun ScrollingRows(
     content: @Composable () -> Unit,
 ) {
     val scroll = rememberScrollState()
-    val fold by animateFloatAsState(if (editing.editing) 1f else 0f, tween(Motion.TRANSITION_MS), label = "rows")
+    val fold by animateFloatAsState(if (editing.folded) 1f else 0f, tween(Motion.TRANSITION_MS), label = "rows")
     val viewport = minOf(rowStyle.height * editing.rowsInView(rows, fold), maxHeight.coerceAtLeast(0.dp))
     val scrolls = rowStyle.height * rows > viewport
     LaunchedEffect(editing.editing) { if (!editing.editing) scroll.scrollTo(0) }

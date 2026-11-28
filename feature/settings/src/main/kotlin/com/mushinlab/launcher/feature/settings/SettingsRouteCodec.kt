@@ -15,6 +15,7 @@ object SettingsRouteCodec {
         SettingsRoute.ThemeSheet,
         SettingsRoute.MotionSheet,
         SettingsRoute.Keyboard,
+        SettingsRoute.KeyboardAdvanced,
         SettingsRoute.Gestures,
         SettingsRoute.Apps,
         SettingsRoute.System,

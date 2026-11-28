@@ -232,7 +232,6 @@ private fun InputPane(
                 Keyboard(
                     chrome.layout,
                     chrome.nextLayoutLabel,
-                    chrome.digitHints,
                     chrome.haptics,
                     actions,
                     glide,

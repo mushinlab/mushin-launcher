@@ -19,7 +19,6 @@ data class SearchChrome(
     val iconMode: IconMode,
     val layout: KeyboardLayout,
     val nextLayoutLabel: String,
-    val digitHints: Boolean,
     val haptics: Boolean,
     val gestureShiftPenalty: Float,
     val gestureSuggestMargin: Float,

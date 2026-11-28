@@ -106,16 +106,13 @@
 
     <string name="keyboard_layouts">Layouts</string>
     <string name="keyboard_haptics">Resposta tátil</string>
-    <string name="keyboard_digit_hints">Dicas de números</string>
     <string name="keyboard_gesture_tuning">Digitação por gestos</string>
     <string name="keyboard_gesture_shift">Penalidade de desvio</string>
     <string name="keyboard_gesture_shift_note">Menor: um desenho feito longe das letras é reconhecido com mais facilidade, mas acertos acidentais ficam mais frequentes. Maior: é preciso mais precisão. Padrão: 0,50.</string>
     <string name="keyboard_gesture_margin">Margem de sugestões</string>
     <string name="keyboard_gesture_margin_note">Maior: vários apps aparecem com mais frequência no lugar de um só. 0: sugestões só para correspondências igualmente boas. Padrão: 0,30.</string>
     <string name="keyboard_gesture_tuning_reset">Restaurar padrões</string>
-    <string name="keyboard_need_one">É necessário pelo menos um layout</string>
-    <string name="keyboard_remove_layout">Remover</string>
-    <string name="keyboard_add_layout">Adicionar mais</string>
+    <string name="keyboard_restore">Restaurar</string>
 
     <string name="gesture_up">Deslizar para cima</string>
     <string name="gesture_down">Deslizar para baixo</string>
@@ -167,7 +164,7 @@
     </plurals>
     <string name="settings_spaces">Espaços</string>
     <string name="summary_spaces">Criar, renomear e excluir espaços</string>
-    <string name="summary_keyboard">Layouts, vibração, dicas de números, digitação por gestos</string>
+    <string name="summary_keyboard">Layouts, vibração, digitação por gestos</string>
     <string name="summary_gestures">Gestos de deslizar na tela inicial e traço</string>
     <string name="summary_apps">Apps ocultos, nomes personalizados</string>
     <string name="summary_system">Launcher padrão, idioma, privacidade, avançado</string>
@@ -184,7 +181,6 @@
     <string name="settings_back">Voltar</string>
     <string name="style_theme">Tema de “%1$s”</string>
     <string name="style_text">Texto</string>
-    <string name="keyboard_fit_note">Mude a largura e a posição do teclado com o botão à esquerda da barra de espaço: arraste as âncoras laterais para redimensionar e a de baixo para mover. Todo o painel de entrada muda.</string>
     <string name="style_stroke">Traço</string>
     <string name="style_stroke_width">Espessura</string>
     <string name="style_stroke_color">Cor</string>
@@ -232,7 +228,7 @@
     <string name="tip_arrange_title">Organize a lista</string>
     <string name="tip_arrange_text">Toque no lápis e arraste uma linha pela alça à esquerda para movê-la. Deslize uma linha para a esquerda e toque na lixeira para removê-la da lista.</string>
     <string name="tip_style_title">Personalize o launcher</string>
-    <string name="tip_style_text">Toque no lápis e depois em Tt para mudar a fonte, o tamanho e o alinhamento.</string>
+    <string name="tip_style_text">Toque no lápis e depois em Tt para mudar a fonte, o tamanho e o alinhamento. Durante a edição, arraste a linha acima da lista para mover a lista.</string>
     <string name="tip_memory_title">Ensine o launcher</string>
     <string name="tip_memory_text">Em Configurações → Gestos, ative “Entrada por gestos” e desenhe uma forma para um app. Desenhe a mesma forma na tela inicial e o launcher abre esse app.</string>
     <string name="tips_more_title">Para mais, explore as Dicas</string>

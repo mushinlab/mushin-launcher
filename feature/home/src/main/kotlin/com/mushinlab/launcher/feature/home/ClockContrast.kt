@@ -36,6 +36,7 @@ internal data class ClockBackdrop(
     val blurPx: Float = 0f,
     val frame: Rect = Rect.Zero,
     val loading: Boolean = false,
+    val fadeMs: Int = 0,
 ) {
     val scene: ClockScene get() = ClockScene(pixels, surface)
 

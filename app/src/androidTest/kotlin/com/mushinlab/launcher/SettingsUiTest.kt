@@ -71,9 +71,11 @@ class SettingsUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun keyboardSectionHoldsSwipeTypingSettings() {
+    fun AC_63_2_keyboardAdvancedHoldsSwipeTypingSettingsAndRestore() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open() }
         rule.onNodeWithTag("nav_keyboard").performClick()
+        rule.onNodeWithTag("kb_gesture_shift").assertDoesNotExist()
+        rule.onNodeWithTag("nav_keyboard_advanced").performClick()
         rule.onNodeWithTag("kb_gesture_shift").performScrollTo().performTouchInput { click(centerLeft) }
         rule.waitUntil(5_000) {
             container.settings.settings.value.gestureShiftPenalty == GestureTuning.SHIFT_PENALTY_MIN

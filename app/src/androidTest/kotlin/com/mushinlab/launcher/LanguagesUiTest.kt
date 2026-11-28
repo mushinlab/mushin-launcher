@@ -55,17 +55,16 @@ class LanguagesUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun keyboardLayoutsAreAListWithAddMoreAndRemoveAndTheKeyCyclesInListOrder() {
+    fun AC_63_1_keyboardLayoutsAreOneMultiSelectAndTheKeyCyclesInSelectionOrder() {
         try {
             rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Keyboard) }
-            rule.onNodeWithTag("layout_en").assertIsDisplayed()
-            rule.onNodeWithTag("layout_ru").assertIsDisplayed()
-            rule.onNodeWithTag("layout_de").assertDoesNotExist()
-            rule.onNodeWithTag("layout_add_dropdown").performScrollTo().performClick()
-            rule.onNodeWithTag("layout_add_en").assertDoesNotExist()
-            rule.onNodeWithTag("layout_add_de").performScrollTo().performClick()
+            rule.onNodeWithTag("kb_digits").assertDoesNotExist()
+            rule.onNodeWithTag("layout_en").assertDoesNotExist()
+            rule.onNodeWithTag("layouts_dropdown").assertIsDisplayed().performClick()
+            rule.onNodeWithTag("layouts_menu").assertIsDisplayed()
+            rule.onNodeWithTag("layouts_de").performScrollTo().performClick()
             rule.waitUntil(5_000) { container.settings.settings.value.keyboardLayouts == listOf("en", "ru", "de") }
-            rule.onNodeWithTag("layout_de").performScrollTo().assertIsDisplayed()
+            rule.onNodeWithTag("layouts_menu").assertIsDisplayed()
 
             rule.runOnIdle { rule.activity.launcher.navigator.closeAll() }
             openSearch()
@@ -83,12 +82,12 @@ class LanguagesUiTest : LauncherUiTestBase() {
             rule.onNodeWithTag("key_q").assertIsDisplayed()
 
             rule.runOnIdle { rule.activity.launcher.navigator.openSettings(SettingsRoute.Keyboard) }
-            rule.onNodeWithTag("layout_remove_ru").performClick()
+            rule.onNodeWithTag("layouts_dropdown").performClick()
+            rule.onNodeWithTag("layouts_ru").performScrollTo().performClick()
             rule.waitUntil(5_000) { container.settings.settings.value.keyboardLayouts == listOf("en", "de") }
-            rule.onNodeWithTag("layout_ru").assertDoesNotExist()
-            rule.onNodeWithTag("layout_remove_de").performClick()
+            rule.onNodeWithTag("layouts_de").performScrollTo().performClick()
             rule.waitUntil(5_000) { container.settings.settings.value.keyboardLayouts == listOf("en") }
-            rule.onNodeWithTag("layout_remove_en").assertIsNotEnabled()
+            rule.onNodeWithTag("layouts_en").performScrollTo().assertIsNotEnabled()
         } finally {
             runBlocking {
                 container.settings.update { it.copy(keyboardLayouts = listOf("en", "ru"), activeKeyboardLayout = "en") }

@@ -175,7 +175,11 @@ private fun ClockLabel(text: String, style: TextStyle, tag: String, ink: ClockIn
                 val target = backdrop.ink(bounds)
                 val sameScene = measured == backdrop.scene
                 measured = backdrop.scene
-                if (sameScene) color.animateTo(target, tween(Motion.TRANSITION_MS)) else color.snapTo(target)
+                when {
+                    sameScene -> color.animateTo(target, tween(Motion.TRANSITION_MS))
+                    backdrop.fadeMs > 0 -> color.animateTo(target, tween(backdrop.fadeMs))
+                    else -> color.snapTo(target)
+                }
             }
         }
     }

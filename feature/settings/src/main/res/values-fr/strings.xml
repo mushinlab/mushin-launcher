@@ -106,16 +106,13 @@
 
     <string name="keyboard_layouts">Dispositions</string>
     <string name="keyboard_haptics">Retour haptique</string>
-    <string name="keyboard_digit_hints">Indications de chiffres</string>
     <string name="keyboard_gesture_tuning">Saisie gestuelle</string>
     <string name="keyboard_gesture_shift">Pénalité de décalage</string>
     <string name="keyboard_gesture_shift_note">Plus bas : un tracé fait à côté des lettres est reconnu plus facilement, mais les correspondances accidentelles sont plus fréquentes. Plus haut : il faut être plus précis. Par défaut 0,50.</string>
     <string name="keyboard_gesture_margin">Marge de suggestions</string>
     <string name="keyboard_gesture_margin_note">Plus haut : plusieurs applis s’affichent plus souvent au lieu d’une seule. 0 : suggestions uniquement pour des correspondances aussi bonnes. Par défaut 0,30.</string>
     <string name="keyboard_gesture_tuning_reset">Rétablir les valeurs par défaut</string>
-    <string name="keyboard_need_one">Au moins une disposition est requise</string>
-    <string name="keyboard_remove_layout">Retirer</string>
-    <string name="keyboard_add_layout">Ajouter d’autres</string>
+    <string name="keyboard_restore">Réinitialisation</string>
 
     <string name="gesture_up">Balayer vers le haut</string>
     <string name="gesture_down">Balayer vers le bas</string>
@@ -167,7 +164,7 @@
     </plurals>
     <string name="settings_spaces">Espaces</string>
     <string name="summary_spaces">Créer, renommer et supprimer des espaces</string>
-    <string name="summary_keyboard">Dispositions, vibration, indications de chiffres, saisie gestuelle</string>
+    <string name="summary_keyboard">Dispositions, vibration, saisie gestuelle</string>
     <string name="summary_gestures">Balayages sur l’écran d’accueil et tracé</string>
     <string name="summary_apps">Applis masquées, noms personnalisés</string>
     <string name="summary_system">Launcher par défaut, langue, confidentialité, avancé</string>
@@ -184,7 +181,6 @@
     <string name="settings_back">Retour</string>
     <string name="style_theme">Thème de « %1$s »</string>
     <string name="style_text">Texte</string>
-    <string name="keyboard_fit_note">Changez la largeur et la position du clavier avec le bouton à gauche de la barre d’espace : faites glisser les poignées latérales pour redimensionner, celle du bas pour déplacer. Tout le panneau de saisie change.</string>
     <string name="style_stroke">Tracé</string>
     <string name="style_stroke_width">Épaisseur</string>
     <string name="style_stroke_color">Couleur</string>
@@ -232,7 +228,7 @@
     <string name="tip_arrange_title">Organisez la liste</string>
     <string name="tip_arrange_text">Touchez le crayon, puis faites glisser une ligne par la poignée à sa gauche pour la déplacer. Balayez une ligne vers la gauche et touchez la corbeille pour la retirer de la liste.</string>
     <string name="tip_style_title">Personnalisez le launcher</string>
-    <string name="tip_style_text">Touchez le crayon, puis Tt pour changer la police, la taille et l’alignement.</string>
+    <string name="tip_style_text">Touchez le crayon, puis Tt pour changer la police, la taille et l’alignement. Pendant la modification, faites glisser le trait au-dessus de la liste pour déplacer la liste.</string>
     <string name="tip_memory_title">Entraînez le launcher</string>
     <string name="tip_memory_text">Dans Paramètres → Gestes, activez « Saisie par gestes » et dessinez une forme pour une appli. Dessinez la même forme sur l’écran d’accueil et le launcher ouvre cette appli.</string>
     <string name="tips_more_title">Pour aller plus loin, voyez les Astuces</string>

@@ -143,7 +143,7 @@ class LauncherViewModel(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, initial?.palette ?: Palettes.Graphite)
 
-    private val spaceBackground: StateFlow<SpaceBitmap> =
+    val spaceBackground: StateFlow<SpaceBitmap> =
         combine(container.spaces.spaces, container.settings.loaded) { spaces, s ->
             s?.let { resolveCurrentSpace(spaces, it.currentSpaceId)?.id }
         }

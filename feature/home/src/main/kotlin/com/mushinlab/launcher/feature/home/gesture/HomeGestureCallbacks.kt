@@ -6,6 +6,8 @@ import com.mushinlab.launcher.core.model.SwipeDirection
 interface HomeGestureCallbacks {
     val clock: DragCallbacks
 
+    val handle: DragCallbacks
+
     fun onPressed(rowIndex: Int?, clock: Boolean)
 
     fun onRowTap(index: Int, position: Offset)

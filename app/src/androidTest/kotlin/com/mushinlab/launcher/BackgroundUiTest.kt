@@ -9,6 +9,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
@@ -207,10 +208,110 @@ class BackgroundUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("home_background").assertDoesNotExist()
     }
 
+    @Test
+    fun AC_60_1_aNewBackgroundFadesInOverASecond() {
+        fun centre(): Int {
+            val image = rule.onNodeWithTag("home").captureToImage().asAndroidBitmap()
+            return image.getPixel(image.width / 2, image.height * 4 / 5)
+        }
+        rule.mainClock.autoAdvance = false
+        try {
+            seedRedBackground()
+            var frames = 0
+            while (rule.activity.launcher.background.value == null && frames < WAIT_FRAMES) {
+                Thread.sleep(FRAME_MS)
+                rule.mainClock.advanceTimeByFrame()
+                frames++
+            }
+            repeat(2) { rule.mainClock.advanceTimeByFrame() }
+            val early = centre()
+            rule.mainClock.advanceTimeBy(FADE_DONE_MS)
+            val settled = centre()
+            assertThat(Color.red(early)).isLessThan(HALF)
+            assertThat(Color.red(settled)).isGreaterThan(255 - TOLERANCE)
+            assertThat(Color.green(settled)).isLessThan(TOLERANCE)
+        } finally {
+            rule.mainClock.autoAdvance = true
+        }
+    }
+
+    @Test
+    fun AC_62_1_clockInkChangesTogetherWithTheFadingBackground() {
+        fun brightest(): Int {
+            val image = rule.onNodeWithTag("clock_block").captureToImage().asAndroidBitmap()
+            var best = 0
+            for (x in 0 until image.width) {
+                for (y in 0 until image.height) best = maxOf(best, Color.green(image.getPixel(x, y)))
+            }
+            return best
+        }
+        assertThat(brightest()).isGreaterThan(255 - TOLERANCE * 4)
+        rule.mainClock.autoAdvance = false
+        try {
+            seedRedBackground()
+            awaitBackground()
+            repeat(2) { rule.mainClock.advanceTimeByFrame() }
+            val early = brightest()
+            rule.mainClock.advanceTimeBy(FADE_DONE_MS)
+            val settled = brightest()
+            assertThat(early).isGreaterThan(HALF)
+            assertThat(settled).isLessThan(HALF)
+        } finally {
+            rule.mainClock.autoAdvance = true
+        }
+    }
+
+    @Test
+    fun AC_62_2_settingsFromSearchFadeInOverTheSearchWithoutShowingHome() {
+        seedRedBackground()
+        rule.waitUntil(5_000) { rule.activity.launcher.background.value != null }
+        rule.waitForIdle()
+        openSearch()
+        rule.waitForIdle()
+        fun reddest(): Int {
+            val image = rule.onRoot().captureToImage().asAndroidBitmap()
+            var red = 0
+            for (x in 0 until image.width step SAMPLE_STEP) {
+                for (y in 0 until image.height step SAMPLE_STEP) {
+                    val pixel = image.getPixel(x, y)
+                    red = maxOf(red, Color.red(pixel) - Color.green(pixel))
+                }
+            }
+            return red
+        }
+        assertThat(reddest()).isLessThan(TOLERANCE * 2)
+        rule.mainClock.autoAdvance = false
+        try {
+            rule.onNodeWithTag("search_settings").performClick()
+            repeat(MID_FRAMES) {
+                rule.mainClock.advanceTimeByFrame()
+                assertThat(reddest()).isLessThan(TOLERANCE * 2)
+            }
+        } finally {
+            rule.mainClock.autoAdvance = true
+        }
+        rule.onNodeWithTag("settings").assertIsDisplayed()
+    }
+
+    private fun awaitBackground() {
+        var frames = 0
+        while (rule.activity.launcher.background.value == null && frames < WAIT_FRAMES) {
+            Thread.sleep(FRAME_MS)
+            rule.mainClock.advanceTimeByFrame()
+            frames++
+        }
+    }
+
     private companion object {
         const val SEED_WIDTH = 108
         const val SEED_HEIGHT = 240
         const val DEFAULT_ROW_ALPHA = 0.9f
         const val TOLERANCE = 12
+        const val WAIT_FRAMES = 300
+        const val FRAME_MS = 16L
+        const val FADE_DONE_MS = 1_200L
+        const val HALF = 128
+        const val SAMPLE_STEP = 24
+        const val MID_FRAMES = 12
     }
 }
