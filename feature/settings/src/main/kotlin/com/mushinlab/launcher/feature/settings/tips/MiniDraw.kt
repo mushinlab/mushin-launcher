@@ -171,7 +171,7 @@ internal fun DrawScope.zebraRows(
         if (alpha > 0f) {
             val y = top + Scene.ROW_HEIGHT * index
             drawRect(
-                colors.zebra(index),
+                colors.zebraA,
                 topLeft = Offset(0f, y),
                 size = Size(Scene.WIDTH, Scene.ROW_HEIGHT),
                 alpha = alpha,

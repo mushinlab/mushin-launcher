@@ -27,17 +27,17 @@ data class Palette(
 /** Built-in palette presets; [of] falls back to [Graphite] for presets without built-in colors. */
 object Palettes {
     val Graphite = Palette(
-        background = argb(0x121212),
-        zebraA = argb(0x121212),
-        zebraB = argb(0x1C1C1C),
-        textPrimary = argb(0xDEDEDE),
-        textSecondary = argb(0x9E9E9E),
+        background = argb(0x0F0F0F),
+        zebraA = argb(0x0F0F0F),
+        zebraB = argb(0x1A1A1A),
+        textPrimary = argb(0xECECE8),
+        textSecondary = argb(0x8F8F8C),
         accent = argb(0xB5C7FF),
         iconTint = argb(0xC8C8C8),
-        divider = argb(0x2A2A2A),
-        surface = argb(0x1E1E1E),
-        keyBackground = argb(0x2C2C2C),
-        keyPressed = argb(0x3C3C3C),
+        divider = argb(0x262626),
+        surface = argb(0x171717),
+        keyBackground = argb(0x1C1C1C),
+        keyPressed = argb(0x2E2E2E),
         isDark = true,
     )
 

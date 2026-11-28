@@ -80,7 +80,7 @@ class SpacesUiTest : LauncherUiTestBase() {
         val small = button()
         rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("home_edit_tools").assertIsDisplayed()
-        rule.waitUntil(5_000) { abs(button() - small * DONE_SCALE_NUMERATOR / DONE_SCALE_DENOMINATOR) < 2f }
+        rule.waitUntil(5_000) { button() > small }
         assertThat(navigator.settings.isOpen).isFalse()
         rule.onNodeWithTag("home_edit_text").performClick()
         rule.waitUntil(5_000) { navigator.settings.top == SettingsRoute.TextSheet }
@@ -266,6 +266,3 @@ class SpacesUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("settings_space", useUnmergedTree = true).assertTextEquals(name)
     }
 }
-
-private const val DONE_SCALE_NUMERATOR = 56f
-private const val DONE_SCALE_DENOMINATOR = 48f

@@ -118,7 +118,7 @@ private fun MockList(settings: LauncherSettings, overImage: Boolean, rowAlpha: F
                 Modifier
                     .fillMaxWidth()
                     .height(rowHeight)
-                    .background(colors.row(index, overImage, rowAlpha))
+                    .background(colors.row(overImage, rowAlpha))
                     .testTag("background_mock_row_$index")
                     .padding(horizontal = ROW_PADDING),
                 horizontalArrangement = when (settings.homeTextAlign) {

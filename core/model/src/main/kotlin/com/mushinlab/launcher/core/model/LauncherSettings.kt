@@ -88,7 +88,7 @@ object StrokeWidth {
  */
 data class LauncherSettings(
     val currentSpaceId: Long? = null,
-    val iconMode: IconMode = IconMode.RIGHT,
+    val iconMode: IconMode = IconMode.NONE,
     val clockFormat: ClockFormat = ClockFormat.SYSTEM,
     val showDate: Boolean = true,
     val showClock: Boolean = true,
@@ -96,8 +96,8 @@ data class LauncherSettings(
     val clockPosition: ClockPosition = ClockPosition.START,
     val clockInk: ClockInk = ClockInk.AUTO,
     val homeListOffset: Int? = null,
-    val font: AppFont = AppFont.SYSTEM,
-    val fontWeight: AppFontWeight = AppFontWeight.REGULAR,
+    val font: AppFont = AppFont.INTER,
+    val fontWeight: AppFontWeight = AppFontWeight.LIGHT,
     val homeTextSize: HomeTextSize = HomeTextSize.M,
     val homeTextAlign: HomeTextAlign = HomeTextAlign.START,
     val strokeWidth: Int = StrokeWidth.DEFAULT_DP,

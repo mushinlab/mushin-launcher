@@ -12,7 +12,6 @@
     <string name="home_edit_background">Фон</string>
     <string name="home_edit_text">Текст</string>
     <string name="home_edit_theme">Тема</string>
-    <string name="home_settings">Настройки</string>
     <string name="home_add_folder">Добавить папку</string>
     <string name="home_add_app">Добавить приложение</string>
     <string name="home_row_edit">Изменить %1$s</string>
@@ -23,7 +22,6 @@
     <string name="suggest_replace">Поставить вместо «%1$s»</string>
     <string name="suggest_add">Добавить на главный экран</string>
     <string name="suggest_dismiss">Не предлагать</string>
-    <string name="home_edit_tips">Советы по редактированию</string>
     <string name="home_add_widget">Добавить виджет</string>
     <string name="widget_remove">Убрать виджет</string>
     <string name="widget_move_before">Переместить раньше</string>

@@ -96,8 +96,8 @@ fun SectionHeader(text: String) {
     val colors = LocalMushinColors.current
     BasicText(
         text,
-        style = MushinType.style(14.sp, colors.accent, FontWeight.Medium),
-        modifier = Modifier.padding(start = 28.dp, end = 28.dp, top = 20.dp, bottom = 8.dp),
+        style = MushinType.style(13.sp, colors.textSecondary, FontWeight.Medium),
+        modifier = Modifier.padding(start = 28.dp, end = 28.dp, top = 24.dp, bottom = 4.dp),
     )
 }
 
@@ -106,7 +106,6 @@ internal fun Modifier.settingsCard(): Modifier = this
     .fillMaxWidth()
     .padding(horizontal = CARD_MARGIN, vertical = CARD_GAP / 2)
     .clip(RoundedCornerShape(CARD_RADIUS))
-    .background(LocalMushinColors.current.surface)
 
 @Composable
 fun CardGap() {
@@ -135,7 +134,7 @@ fun NoteText(text: String, color: Color = LocalMushinColors.current.textSecondar
 
 internal const val DISABLED_ALPHA = 0.4f
 internal val CARD_RADIUS = 6.dp
-internal val CARD_MARGIN = 16.dp
+internal val CARD_MARGIN = 12.dp
 internal val CARD_GAP = 4.dp
 internal val CARD_PADDING = 16.dp
 private const val SELECTED_ALPHA = 0.24f

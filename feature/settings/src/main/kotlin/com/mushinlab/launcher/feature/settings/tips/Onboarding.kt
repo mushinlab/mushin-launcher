@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsTopHeight
@@ -42,7 +41,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -77,6 +75,7 @@ fun Onboarding(
             .testTag("onboarding"),
     ) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+        Progress(pager)
         AnimatedContent(
             targetState = pager.page,
             transitionSpec = { slideTransition() },
@@ -101,21 +100,18 @@ private fun AnimatedContentTransitionScope<Int>.slideTransition(): ContentTransf
 @Composable
 private fun OnboardingSlide(page: Int) {
     val colors = LocalMushinColors.current
-    val tip = Tip.entries.getOrNull(page)
-    Column(
-        Modifier.fillMaxSize().padding(horizontal = 24.dp).testTag("onboarding_slide_$page"),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    val tip = OnboardingPager.TIPS.getOrNull(page)
+    Column(Modifier.fillMaxSize().padding(horizontal = 28.dp).testTag("onboarding_slide_$page")) {
         val frame = Modifier.weight(1f).fillMaxWidth().padding(vertical = 16.dp)
         if (tip != null) TipAnimation(tip, frame) else TipsHintAnimation(frame)
         BasicText(
             stringResource(tip?.title ?: R.string.tips_more_title),
-            style = MushinType.style(24.sp, colors.textPrimary, FontWeight.Medium).copy(textAlign = TextAlign.Center),
+            style = MushinType.style(32.sp, colors.textPrimary, FontWeight.Light),
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(12.dp))
         BasicText(
             stringResource(tip?.description ?: R.string.tips_more_text),
-            style = MushinType.style(16.sp, colors.textSecondary).copy(textAlign = TextAlign.Center),
+            style = MushinType.style(16.sp, colors.textSecondary),
         )
         Spacer(Modifier.height(16.dp))
     }
@@ -124,7 +120,6 @@ private fun OnboardingSlide(page: Int) {
 @Composable
 private fun OnboardingFooter(pager: OnboardingPager, onFinish: () -> Unit) {
     val colors = LocalMushinColors.current
-    val dots = stringResource(R.string.onboarding_position, pager.page + 1, pager.count)
     Row(
         Modifier.fillMaxWidth().heightIn(min = 72.dp).padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -140,21 +135,31 @@ private fun OnboardingFooter(pager: OnboardingPager, onFinish: () -> Unit) {
                     .padding(horizontal = 16.dp, vertical = 12.dp),
             )
         }
-        Row(
-            Modifier.semantics { contentDescription = dots }.testTag("onboarding_dots"),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            repeat(pager.count) { index ->
-                val color = if (index == pager.page) colors.accent else colors.textSecondary.copy(alpha = DOT_ALPHA)
-                Box(Modifier.size(8.dp).clip(CircleShape).background(color))
-            }
-        }
         Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
             NextButton(
                 stringResource(if (pager.isLast) R.string.onboarding_done else R.string.onboarding_next),
                 colors.accent,
                 colors.background,
             ) { if (!pager.next()) onFinish() }
+        }
+    }
+}
+
+@Composable
+private fun Progress(pager: OnboardingPager) {
+    val colors = LocalMushinColors.current
+    val position = stringResource(R.string.onboarding_position, pager.page + 1, pager.count)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 28.dp, vertical = 16.dp)
+            .semantics { contentDescription = position }
+            .testTag("onboarding_dots"),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        repeat(pager.count) { index ->
+            val color = if (index <= pager.page) colors.accent else colors.divider
+            Box(Modifier.weight(1f).height(2.dp).clip(CircleShape).background(color))
         }
     }
 }
@@ -175,4 +180,3 @@ private fun NextButton(label: String, background: Color, content: Color, onClick
 
 private val SWIPE_DISTANCE = 56.dp
 private val BUTTON_RADIUS = 24.dp
-private const val DOT_ALPHA = 0.35f

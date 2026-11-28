@@ -2,7 +2,6 @@ package com.mushinlab.launcher.feature.home
 
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,17 +18,19 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.model.AppKey
 import com.mushinlab.launcher.core.ui.AnchoredPanel
 import com.mushinlab.launcher.core.ui.AppIcon
-import com.mushinlab.launcher.core.ui.Glyph
-import com.mushinlab.launcher.core.ui.GlyphButton
-import com.mushinlab.launcher.core.ui.HorizontalDivider
+import com.mushinlab.launcher.core.ui.BottomPanel
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.PanelHeader
 import com.mushinlab.launcher.core.ui.PanelItem
+import com.mushinlab.launcher.core.ui.SheetItem
+import com.mushinlab.launcher.core.ui.SheetTitle
 import com.mushinlab.launcher.core.ui.SingleLineText
 import com.mushinlab.launcher.core.ui.pressable
 import kotlin.math.abs
@@ -66,25 +67,28 @@ interface PopupActions {
 
 @Composable
 fun HomePopup(
-    anchor: Offset,
     app: PopupApp?,
     spaces: ImmutableList<PopupSpace>,
     actions: PopupActions,
 ) {
-    AnchoredPanel(anchor = anchor, onDismiss = actions::onDismiss) {
+    val colors = LocalMushinColors.current
+    BottomPanel(onDismiss = actions::onDismiss) {
         Column(Modifier.fillMaxWidth().privateSwipe(actions::onPrivate)) {
             if (app != null) {
                 AppSection(app, actions)
-                HorizontalDivider()
-            }
-            spaces.forEach { space ->
-                PanelItem(
-                    text = space.name,
-                    radio = space.current,
-                    tag = "popup_env_${space.id}",
-                    onHold = { actions.onOpenSpaceSettings(space.id) },
-                    onClick = { actions.onSelectSpace(space.id) },
-                )
+            } else {
+                spaces.forEach { space ->
+                    SheetItem(
+                        text = space.name,
+                        tag = "popup_env_${space.id}",
+                        color = if (space.current) colors.textPrimary else colors.textSecondary,
+                        size = SPACE_SIZE,
+                        weight = FontWeight.Light,
+                        selected = space.current,
+                        onHold = { actions.onOpenSpaceSettings(space.id) },
+                        onClick = { actions.onSelectSpace(space.id) },
+                    )
+                }
             }
         }
     }
@@ -149,39 +153,22 @@ private const val DIMMED_ITEM = 0.5f
 @Composable
 private fun AppSection(app: PopupApp, actions: PopupActions) {
     val colors = LocalMushinColors.current
-    val tint = colors.textPrimary
-    PanelHeader(app.label)
-    Row(
-        Modifier.padding(start = APP_ACTIONS_INSET, end = APP_ACTIONS_INSET, bottom = APP_ACTIONS_INSET),
-        horizontalArrangement = Arrangement.spacedBy(APP_ACTIONS_GAP),
-    ) {
-        if (app.canUninstall) {
-            GlyphButton(
-                Glyph.DELETE,
-                stringResource(R.string.popup_uninstall),
-                colors.danger,
-                tag = "popup_uninstall",
-            ) { actions.onUninstall(app.key) }
+    SheetTitle(app.label)
+    SheetItem(stringResource(R.string.popup_rename), "popup_rename", colors.textPrimary) { actions.onRename(app.key) }
+    SheetItem(stringResource(R.string.popup_about), "popup_about", colors.textPrimary) { actions.onAbout(app.key) }
+    if (app.inSpace) {
+        SheetItem(stringResource(R.string.popup_remove_from_space), "popup_remove", colors.textPrimary) {
+            actions.onRemoveFromSpace(app.key)
         }
-        GlyphButton(Glyph.INFO, stringResource(R.string.popup_about), tint, tag = "popup_about") {
-            actions.onAbout(app.key)
-        }
-        GlyphButton(Glyph.EDIT, stringResource(R.string.popup_rename), tint, tag = "popup_rename") {
-            actions.onRename(app.key)
-        }
-        if (app.inSpace) {
-            GlyphButton(
-                Glyph.CLOSE,
-                stringResource(R.string.popup_remove_from_space),
-                tint,
-                tag = "popup_remove",
-            ) { actions.onRemoveFromSpace(app.key) }
+    }
+    if (app.canUninstall) {
+        SheetItem(stringResource(R.string.popup_uninstall), "popup_uninstall", colors.danger) {
+            actions.onUninstall(app.key)
         }
     }
 }
 
-private val APP_ACTIONS_INSET = 12.dp
-private val APP_ACTIONS_GAP = 8.dp
+private val SPACE_SIZE = 26.sp
 
 interface SuggestionActions {
     fun onReplace(suggestion: HomeSuggestion)

@@ -35,7 +35,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -85,8 +87,8 @@ fun SearchScreen(
             .testTag("search"),
     ) {
         val gap = SearchDimens.paneGap
-        val pane = Modifier.clip(RoundedCornerShape(SearchDimens.paneRadius)).background(colors.surface)
-        val inputPane = Modifier.background(colors.surface, RoundedCornerShape(SearchDimens.paneRadius))
+        val pane = Modifier
+        val inputPane = Modifier
         Column(
             Modifier
                 .fillMaxSize()
@@ -296,6 +298,7 @@ private fun QueryRow(controller: SearchController, haptics: Boolean, actions: Se
             .height(SearchDimens.queryHeight)
             .pressable(pressedColor = Color.Transparent, onClick = actions::onShowKeyboard)
             .testTag("query_row")
+            .underline(colors.divider)
             .padding(start = SearchDimens.padding, end = KeyboardDimens.gap / 2),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -344,4 +347,10 @@ private fun SuggestionIcons(rows: ImmutableList<SearchRow>, actions: SearchActio
 }
 
 internal const val HIGHLIGHT_ALPHA = 0.12f
-internal const val PANE_ZEBRA_ALPHA = 0.05f
+
+private fun Modifier.underline(color: Color): Modifier = drawBehind {
+    val width = UNDERLINE.toPx()
+    drawRect(color, Offset(0f, size.height - width), Size(size.width, width))
+}
+
+private val UNDERLINE = 1.dp

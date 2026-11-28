@@ -17,6 +17,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.mushinlab.launcher.core.model.GestureTuning
 import com.mushinlab.launcher.core.model.HomeListOffset
+import com.mushinlab.launcher.core.model.IconMode
 import com.mushinlab.launcher.core.model.KeyboardFit
 import com.mushinlab.launcher.core.model.KeyboardLanguages
 import com.mushinlab.launcher.core.model.LauncherSettings
@@ -86,6 +87,8 @@ class SettingsRepository(
                 produceFile = file,
             )
 
+        private const val LEGACY_ICONS_LEFT = "LEFT"
+
         internal val CURRENT_SPACE_ID = longPreferencesKey("current_env_id")
         internal val ICON_MODE = stringPreferencesKey("icon_mode")
         internal val CLOCK_FORMAT = stringPreferencesKey("clock_format")
@@ -127,7 +130,7 @@ class SettingsRepository(
             val layouts = decodeLayouts(prefs[KB_LAYOUTS]) ?: defaultLayouts
             return LauncherSettings(
                 currentSpaceId = prefs[CURRENT_SPACE_ID],
-                iconMode = enumOr(prefs[ICON_MODE], defaults.iconMode),
+                iconMode = iconMode(prefs[ICON_MODE], defaults.iconMode),
                 clockFormat = enumOr(prefs[CLOCK_FORMAT], defaults.clockFormat),
                 showDate = prefs.valueOr(SHOW_DATE, defaults.showDate),
                 showClock = prefs.valueOr(SHOW_CLOCK, defaults.showClock),
@@ -217,6 +220,9 @@ class SettingsRepository(
             ?.map { it.trim() }
             ?.filter { it.isNotEmpty() }
             ?.takeIf { it.isNotEmpty() }
+
+        private fun iconMode(raw: String?, default: IconMode): IconMode =
+            if (raw == LEGACY_ICONS_LEFT) IconMode.RIGHT else enumOr(raw, default)
 
         private inline fun <reified E : Enum<E>> enumOr(raw: String?, default: E): E =
             raw?.let { value -> enumValues<E>().firstOrNull { it.name == value } } ?: default

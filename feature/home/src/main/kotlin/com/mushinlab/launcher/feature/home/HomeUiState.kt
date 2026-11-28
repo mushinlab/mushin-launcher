@@ -58,4 +58,6 @@ data class HomeUiState(
     val widgetPanels: HomeWidgetPanels = HomeWidgetPanels(),
     val spaceName: String = "",
     val spaceId: Long? = null,
+    val spaceCount: Int = 0,
+    val spaceIndex: Int = -1,
 )

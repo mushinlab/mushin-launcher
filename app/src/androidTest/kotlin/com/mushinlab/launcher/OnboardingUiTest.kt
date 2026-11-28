@@ -91,6 +91,6 @@ class OnboardingUiTest : LauncherUiTestBase() {
     private fun exists(tag: String) = rule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
 
     private companion object {
-        val SLIDES = Tip.entries.size + 1
+        val SLIDES = 4
     }
 }

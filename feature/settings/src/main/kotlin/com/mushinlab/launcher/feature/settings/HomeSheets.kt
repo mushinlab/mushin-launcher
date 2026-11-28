@@ -57,7 +57,7 @@ private fun ClockSheet(state: SettingsUiState, actions: SettingsActions, back: (
 
 @Composable
 private fun ClockRows(s: LauncherSettings, preferences: PreferenceActions) {
-    DropdownRow(
+    SegmentedRow(
         stringResource(R.string.clock_size),
         listOf(
             ClockSize.S to stringResource(R.string.home_text_s),
@@ -67,7 +67,7 @@ private fun ClockRows(s: LauncherSettings, preferences: PreferenceActions) {
         s.clockSize,
         "clock_size",
     ) { size -> preferences.updateSettings { it.copy(clockSize = size) } }
-    DropdownRow(
+    SegmentedRow(
         stringResource(R.string.home_clock),
         listOf(
             ClockFormat.SYSTEM to stringResource(R.string.home_clock_system),
@@ -77,7 +77,7 @@ private fun ClockRows(s: LauncherSettings, preferences: PreferenceActions) {
         s.clockFormat,
         "clock",
     ) { format -> preferences.updateSettings { it.copy(clockFormat = format) } }
-    DropdownRow(
+    SegmentedRow(
         stringResource(R.string.clock_ink),
         listOf(
             ClockInk.AUTO to stringResource(R.string.clock_ink_auto),
@@ -138,7 +138,7 @@ private fun ThemeSheet(state: SettingsUiState, actions: SettingsActions, back: (
 @Composable
 private fun MotionSheet(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
     HomeSheet(stringResource(R.string.motion_sheet), "motion_sheet", back) {
-        DropdownRow(
+        SegmentedRow(
             stringResource(R.string.motion_space),
             listOf(
                 SpaceTransition.SLIDE to stringResource(R.string.motion_slide),
@@ -175,7 +175,7 @@ internal fun HomeSheet(title: String, tag: String, onClose: () -> Unit, content:
     SettingsSheet(tag = tag, onClose = onClose, scrimAlpha = HOME_SHEET_SCRIM, color = colors.background) {
         BasicText(
             title,
-            style = MushinType.style(20.sp, colors.textPrimary, FontWeight.Medium),
+            style = MushinType.style(26.sp, colors.textPrimary, FontWeight.Light),
             modifier = Modifier.padding(horizontal = CARD_MARGIN + CARD_PADDING),
         )
         Spacer(Modifier.height(8.dp))
@@ -212,7 +212,7 @@ private fun TextStyleRows(s: LauncherSettings, preferences: PreferenceActions) {
             )
         },
     ) { font -> preferences.updateSettings { it.copy(font = font) } }
-    DropdownRow(
+    SegmentedRow(
         stringResource(R.string.style_weight),
         listOf(
             AppFontWeight.LIGHT to stringResource(R.string.weight_light),
@@ -222,7 +222,7 @@ private fun TextStyleRows(s: LauncherSettings, preferences: PreferenceActions) {
         s.fontWeight,
         "font_weight",
     ) { weight -> preferences.updateSettings { it.copy(fontWeight = weight) } }
-    DropdownRow(
+    SegmentedRow(
         stringResource(R.string.home_text_size),
         listOf(
             HomeTextSize.S to stringResource(R.string.home_text_s),
@@ -236,7 +236,7 @@ private fun TextStyleRows(s: LauncherSettings, preferences: PreferenceActions) {
 
 @Composable
 private fun TextAlignRow(s: LauncherSettings, preferences: PreferenceActions) {
-    DropdownRow(
+    SegmentedRow(
         stringResource(R.string.home_text_align),
         listOf(
             HomeTextAlign.START to stringResource(R.string.home_text_align_start),

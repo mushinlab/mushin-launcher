@@ -124,8 +124,6 @@ interface HomeControlActions {
 
     fun onAddFolder()
 
-    fun onOpenSettings()
-
     fun onOpenSpaces(anchor: Offset)
 
     fun onSuggestion(anchor: Offset)
@@ -153,8 +151,6 @@ interface HomeEditActions : HomeWidgetActions {
     fun onEditTheme()
 
     fun onEditMotion()
-
-    fun onEditTips()
 
     fun onEditFolder(folderId: Long)
 

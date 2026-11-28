@@ -98,7 +98,7 @@ private fun DrawScope.drawSpaceHome(time: Float, colors: MushinColors, labels: S
         rowControls(colors, MiniHome.LIST_TOP + Scene.ROW_HEIGHT * index, edit * shown)
     }
     val rows = mix(HOME_APPS_BEFORE.toFloat(), HOME_APPS_AFTER.toFloat(), added)
-    addRow(colors, MiniHome.LIST_TOP + Scene.ROW_HEIGHT * rows, HOME_APPS_BEFORE, labels.add, edit)
+    addRow(colors, MiniHome.LIST_TOP + Scene.ROW_HEIGHT * rows, labels.add, edit)
     editBar(colors, edit)
 }
 

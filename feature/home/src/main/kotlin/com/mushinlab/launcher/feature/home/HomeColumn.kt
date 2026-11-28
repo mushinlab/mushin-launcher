@@ -98,7 +98,7 @@ internal fun HomeColumn(
     val rowHeight = rememberRowHeight(textStyle)
     val rowAlpha = state.backgroundRowAlpha
     val rowColor: (Int) -> Color = remember(colors, hasBackground, rowAlpha) {
-        { index -> colors.row(index, overImage = hasBackground, alpha = rowAlpha) }
+        { colors.row(overImage = hasBackground, alpha = rowAlpha) }
     }
     val placement = rememberListPlacement(state, rowHeight)
     BoxWithConstraints(Modifier.fillMaxSize()) {

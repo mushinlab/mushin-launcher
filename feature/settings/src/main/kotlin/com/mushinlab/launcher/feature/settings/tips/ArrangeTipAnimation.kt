@@ -14,7 +14,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinColors
 import com.mushinlab.launcher.feature.settings.R
-import kotlin.math.roundToInt
 
 @Composable
 internal fun ArrangeTipAnimation(modifier: Modifier = Modifier) {
@@ -58,7 +57,7 @@ private fun DrawScope.drawArrangeTip(time: Float, colors: MushinColors, labels: 
             rowTop(0) + drag,
             RowState(edit, 1f, hold(time, DRAG_FROM - PRESS_LEAD, DRAG_TO), 0f),
         )
-        addRow(colors, rowTop(ROWS) - Scene.ROW_HEIGHT * removed, ROWS, labels.add, edit)
+        addRow(colors, rowTop(ROWS) - Scene.ROW_HEIGHT * removed, labels.add, edit)
         editBar(colors, edit)
         finger(
             colors,
@@ -78,10 +77,9 @@ private data class RowState(val edit: Float, val shown: Float, val lifted: Float
 
 private fun DrawScope.arrangeRow(colors: MushinColors, label: TextLayoutResult, top: Float, state: RowState) {
     if (state.shown <= 0f) return
-    val slot = ((top - MiniHome.LIST_TOP) / Scene.ROW_HEIGHT).roundToInt()
     val size = Size(Scene.WIDTH, Scene.ROW_HEIGHT)
     translate(left = -MiniHome.ROW_REVEAL * state.swiped) {
-        drawRect(colors.zebra(slot), Offset(0f, top), size, alpha = state.shown)
+        drawRect(colors.zebraA, Offset(0f, top), size, alpha = state.shown)
         if (state.lifted > 0f) drawRect(colors.accent, Offset(0f, top), size, alpha = LIFT_ALPHA * state.lifted)
         text(
             label,

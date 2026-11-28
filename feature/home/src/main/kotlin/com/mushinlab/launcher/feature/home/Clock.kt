@@ -139,7 +139,7 @@ internal fun ClockTile(
 @Composable
 private fun ClockTime(minute: State<Long>, format: ClockFormat, size: ClockSize, ink: ClockInk) {
     val context = LocalContext.current
-    val style = MushinType.style(size.tileSp.sp, LocalMushinColors.current.textPrimary, FontWeight.Light)
+    val style = MushinType.style(size.tileSp.sp, LocalMushinColors.current.textPrimary, FontWeight.ExtraLight)
     val use24h = ClockText.is24h(format, DateFormat.is24HourFormat(context))
     ClockLabel(
         ClockText.time(minute.value, ZoneId.systemDefault(), use24h),

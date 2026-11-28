@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.mushinlab.launcher.feature.settings.EditTipsSheet
 import com.mushinlab.launcher.feature.settings.SettingsRoute
 import com.mushinlab.launcher.feature.settings.WidgetLabel
 import com.mushinlab.launcher.feature.settings.WidgetPickerSheet
@@ -14,8 +13,6 @@ import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 internal fun HomeEditLayer(vm: LauncherViewModel) {
-    val navigator = vm.navigator
-    if (navigator.overlay == Overlay.EditTips) EditTipsSheet { navigator.overlay = Overlay.None }
     vm.widgets.choices?.let { WidgetPicker(vm, it) }
 }
 

@@ -18,7 +18,6 @@
     <string name="privacy_delete_memory_note">Menghapus riwayat pembukaan dan gestur yang dipelajari. Ruang, setelan, dan latar tetap ada.</string>
     <string name="privacy_delete_memory_confirm">Hapus riwayat pembukaan dan semua gestur yang dipelajari? Pencarian, saran, dan gambar akan belajar lagi.</string>
     <string name="privacy_data">Data tersimpan</string>
-    <string name="summary_privacy">Data tersimpan, hapus memori</string>
     <string name="settings_press">Animasi sentuh</string>
     <string name="settings_apps">Tersembunyi &amp; diganti nama</string>
     <string name="settings_system">Sistem</string>
@@ -161,11 +160,6 @@
         <item quantity="other">%d gambar</item>
     </plurals>
     <string name="settings_spaces">Ruang</string>
-    <string name="summary_spaces">Buat, ganti nama, dan hapus ruang</string>
-    <string name="summary_keyboard">Tata letak, getaran, ketik geser</string>
-    <string name="summary_gestures">Geser di layar utama dan garis</string>
-    <string name="summary_apps">Aplikasi tersembunyi, nama kustom</string>
-    <string name="summary_system">Launcher default, bahasa, privasi, lanjutan</string>
     <string name="style_font">Font</string>
     <string name="style_weight">Ketebalan</string>
     <string name="style_note">Font dan ketebalan berlaku di seluruh aplikasi; ukuran berlaku untuk daftar di layar utama.</string>
@@ -218,7 +212,6 @@
     <string name="style_stroke_dots">Titik pada garis</string>
     <string name="memory_sheet_draft">Ini rata-rata dari percobaan terakhir Anda. Tambahkan atau gambar lagi.</string>
     <string name="settings_tips">Tips</string>
-    <string name="summary_tips">Animasi singkat tentang kemampuan launcher</string>
     <string name="tip_space_title">Atur ruang pertama Anda</string>
     <string name="tip_space_text">Ketuk pensil di bagian bawah layar utama, lalu palet untuk memilih warna. Ketuk “Tambah aplikasi”, pilih aplikasi untuk ruang ini, lalu ketuk tanda centang.</string>
     <string name="tip_search_title">Temukan aplikasi apa pun</string>
@@ -247,15 +240,6 @@
     <string name="onboarding_next">Berikutnya</string>
     <string name="onboarding_done">Selesai</string>
     <string name="onboarding_position">Slide %1$d dari %2$d</string>
-    <string name="edit_tips">Tips pengeditan</string>
-    <string name="edit_tip_list_title">Aplikasi dan folder</string>
-    <string name="edit_tip_list">Seret baris dengan pegangan di sebelah kirinya untuk mengubah urutan. Geser baris ke kiri dan ketuk tempat sampah untuk menghapusnya dari daftar; pensil pada folder membuka editornya. Tambahkan aplikasi dan folder di bawah daftar. Seret pegangan di atas daftar untuk memindahkannya; gulir untuk melihat aplikasi lainnya.</string>
-    <string name="edit_tip_widgets_title">Widget</string>
-    <string name="edit_tip_widgets">Panel atas adalah kisi 2 × 2. Dalam mode edit, tahan widget untuk memindahkannya, seret batang di tepinya untuk merentangkannya ke sel di sebelahnya, dan ketuk sel kosong untuk menambahkan widget.</string>
-    <string name="edit_tip_font_title">Font</string>
-    <string name="edit_tip_font">Ketuk tombol teks untuk memilih font, ketebalan, ukuran, dan perataan nama aplikasi.</string>
-    <string name="edit_tip_theme_title">Tema</string>
-    <string name="edit_tip_theme">Ketuk palet untuk memilih tema ruang ini, ikon aplikasi, dan penghitung notifikasi. Gunakan tombol gambar untuk mengubah latar, kecerahan, dan keburaman.</string>
     <string name="widgets_top">Panel atas</string>
     <string name="widgets_bottom">Panel bawah</string>
     <string name="widgets_height">Tinggi panel</string>
@@ -282,4 +266,6 @@
     <string name="motion_fade">Pudar</string>
     <string name="motion_none">Tanpa animasi</string>
     <string name="motion_note">Dipakai saat Anda memilih ruang di menu. Geser di bilah bawah selalu menggerakkan halaman mengikuti jari.</string>
+    <string name="system_about">Tentang</string>
+    <string name="keyboard_feel">Rasa</string>
 </resources>

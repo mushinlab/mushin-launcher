@@ -239,11 +239,11 @@ private fun homeActions(vm: LauncherViewModel, density: Density, pager: SpacePag
     }
 
     override fun onLongPress(position: Offset, row: HomeRow?) {
-        navigator.overlay = Overlay.Popup(position, row?.key)
+        navigator.overlay = Overlay.Popup(row?.key)
     }
 
     override fun onOpenSpaces(anchor: Offset) {
-        navigator.overlay = Overlay.Popup(anchor, null)
+        navigator.overlay = Overlay.Popup(null)
     }
 
     override fun onSwipe(direction: SwipeDirection, fromShadeZone: Boolean) =
@@ -279,17 +279,11 @@ private fun homeActions(vm: LauncherViewModel, density: Density, pager: SpacePag
 
     override fun onAddFolder() = vm.addFolder()
 
-    override fun onOpenSettings() = navigator.openSettings()
-
     override fun onPlaceWidget(id: Int, cell: WidgetCell) = vm.widgets.panels.place(id, cell)
 
     override fun onAddWidget(cell: WidgetCell) = vm.widgets.add(cell)
 
     override fun onRemoveWidget(id: Int) = vm.widgets.panels.remove(id)
-
-    override fun onEditTips() {
-        navigator.overlay = Overlay.EditTips
-    }
 
     override fun onEditFolder(folderId: Long) {
         navigator.openSettings(SettingsRoute.HomeFolder(folderId))

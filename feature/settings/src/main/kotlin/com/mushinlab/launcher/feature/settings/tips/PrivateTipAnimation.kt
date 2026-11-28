@@ -92,7 +92,7 @@ private fun DrawScope.drawPrivateHome(night: MushinColors, labels: PrivateLabels
     drawRect(night.background, size = Size(Scene.WIDTH, Scene.HEIGHT), alpha = alpha)
     labels.hidden.forEachIndexed { index, label ->
         val top = Scene.HOME_ROWS_TOP + Scene.ROW_HEIGHT * index
-        drawRect(night.zebra(index), Offset(0f, top), Size(Scene.WIDTH, Scene.ROW_HEIGHT), alpha = alpha)
+        drawRect(night.zebraA, Offset(0f, top), Size(Scene.WIDTH, Scene.ROW_HEIGHT), alpha = alpha)
         text(label, night.textPrimary, Offset(Scene.MARGIN, top + (Scene.ROW_HEIGHT - label.size.height) / 2), alpha)
     }
     val name = labels.privateName

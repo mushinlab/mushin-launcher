@@ -18,8 +18,8 @@ import com.mushinlab.launcher.core.model.Palettes
 import com.mushinlab.launcher.core.model.SpaceBackground
 
 /**
- * Compose colors of a [Palette]; [zebra] returns the alternating background of the list row at an index and
- * [row] the same color as drawn on the home screen, see-through at the space's row opacity over a background image.
+ * Compose colors of a [Palette]; list rows share one background [zebraA] without alternation (ADR-0065), and
+ * [row] is that color as drawn on the home screen, see-through at the space's row opacity over a background image.
  */
 @Immutable
 data class MushinColors(
@@ -39,14 +39,9 @@ data class MushinColors(
     /** Color of destructive actions, the same in every palette. */
     val danger: Color get() = DANGER
 
-    fun zebra(index: Int): Color = if (index % 2 == 0) zebraA else zebraB
-
-    /**
-     * Background of the home row at [index]: [zebra], over an image at opacity [alpha] limited by
-     * [SpaceBackground.rowAlpha].
-     */
-    fun row(index: Int, overImage: Boolean, alpha: Float): Color =
-        if (overImage) zebra(index).copy(alpha = SpaceBackground.rowAlpha(alpha)) else zebra(index)
+    /** Background of a home row: [zebraA], over an image at opacity [alpha] limited by [SpaceBackground.rowAlpha]. */
+    fun row(overImage: Boolean, alpha: Float): Color =
+        if (overImage) zebraA.copy(alpha = SpaceBackground.rowAlpha(alpha)) else zebraA
 
     companion object {
         fun from(p: Palette) = MushinColors(

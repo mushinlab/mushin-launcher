@@ -18,7 +18,6 @@
     <string name="privacy_delete_memory_note">Borra el historial de aperturas y los gestos aprendidos. Los espacios, los ajustes y los fondos se mantienen.</string>
     <string name="privacy_delete_memory_confirm">¿Borrar el historial de aperturas y todos los gestos aprendidos? La búsqueda, las sugerencias y los dibujos volverán a aprender.</string>
     <string name="privacy_data">Datos guardados</string>
-    <string name="summary_privacy">Datos guardados y borrar memoria</string>
     <string name="settings_press">Animación al tocar</string>
     <string name="settings_apps">Ocultas y renombradas</string>
     <string name="settings_system">Sistema</string>
@@ -163,11 +162,6 @@
         <item quantity="other">%d trazos</item>
     </plurals>
     <string name="settings_spaces">Espacios</string>
-    <string name="summary_spaces">Crear, renombrar y eliminar espacios</string>
-    <string name="summary_keyboard">Distribuciones, vibración, escritura gestual</string>
-    <string name="summary_gestures">Deslizamientos en la pantalla de inicio y trazo</string>
-    <string name="summary_apps">Apps ocultas, nombres propios</string>
-    <string name="summary_system">Launcher predeterminado, idioma, privacidad, avanzado</string>
     <string name="style_font">Fuente</string>
     <string name="style_weight">Grosor</string>
     <string name="style_note">La fuente y el grosor se aplican a toda la app; el tamaño, a la lista de la pantalla de inicio.</string>
@@ -220,7 +214,6 @@
     <string name="style_stroke_dots">Puntos en la línea</string>
     <string name="memory_sheet_draft">Este es el promedio de tus últimos intentos. Añádelo o dibuja de nuevo.</string>
     <string name="settings_tips">Consejos</string>
-    <string name="summary_tips">Animaciones breves sobre lo que puede hacer el launcher</string>
     <string name="tip_space_title">Configura tu primer espacio</string>
     <string name="tip_space_text">Toca el lápiz en la parte inferior de la pantalla de inicio y luego la paleta para elegir los colores. Toca «Añadir app», elige las apps de este espacio y toca la marca de verificación.</string>
     <string name="tip_search_title">Encuentra cualquier app</string>
@@ -249,15 +242,6 @@
     <string name="onboarding_next">Siguiente</string>
     <string name="onboarding_done">Listo</string>
     <string name="onboarding_position">Diapositiva %1$d de %2$d</string>
-    <string name="edit_tips">Consejos de edición</string>
-    <string name="edit_tip_list_title">Aplicaciones y carpetas</string>
-    <string name="edit_tip_list">Arrastra una fila por el control de su izquierda para cambiar el orden. Desliza una fila hacia la izquierda y toca la papelera para quitarla de la lista; el lápiz de una carpeta abre su editor. Añade aplicaciones y carpetas debajo de la lista. Arrastra el control sobre la lista para moverla; desplázate para ver más aplicaciones.</string>
-    <string name="edit_tip_widgets_title">Widgets</string>
-    <string name="edit_tip_widgets">El panel superior es una cuadrícula de 2 × 2. En el modo de edición, mantén pulsado un widget para moverlo, arrastra las barras de sus bordes para extenderlo a las celdas vecinas y toca una celda vacía para añadir un widget.</string>
-    <string name="edit_tip_font_title">Fuente</string>
-    <string name="edit_tip_font">Toca el botón de texto para elegir la fuente, el grosor, el tamaño y la alineación de los nombres de las aplicaciones.</string>
-    <string name="edit_tip_theme_title">Tema</string>
-    <string name="edit_tip_theme">Toca la paleta para elegir el tema de este espacio, los iconos y los contadores de notificaciones. Usa el botón de imagen para cambiar el fondo, el brillo y el desenfoque.</string>
     <string name="widgets_top">Panel superior</string>
     <string name="widgets_bottom">Panel inferior</string>
     <string name="widgets_height">Altura del panel</string>
@@ -284,4 +268,6 @@
     <string name="motion_fade">Fundido</string>
     <string name="motion_none">Ninguna</string>
     <string name="motion_note">Se usa al elegir un espacio en el menú. Deslizar sobre la barra inferior siempre mueve las páginas con el dedo.</string>
+    <string name="system_about">Acerca de</string>
+    <string name="keyboard_feel">Tacto</string>
 </resources>

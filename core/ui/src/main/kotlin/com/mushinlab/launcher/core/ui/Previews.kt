@@ -66,7 +66,7 @@ private fun PressableRowsPreview() {
                 Box(
                     Modifier
                         .rowHeight(48.dp)
-                        .background(LocalMushinColors.current.zebra(index))
+                        .background(LocalMushinColors.current.zebraA)
                         .pressable(onClick = {})
                         .padding(horizontal = 16.dp),
                     contentAlignment = Alignment.CenterStart,

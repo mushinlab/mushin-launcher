@@ -71,7 +71,7 @@ class NavigationUiTest : LauncherUiTestBase() {
 
     @Test
     fun AC_13_1_homeButtonClosesSettings() {
-        rule.onNodeWithTag("home_settings").performClick()
+        rule.runOnIdle { rule.activity.launcher.navigator.openSettings() }
         rule.onNodeWithTag("settings").assertIsDisplayed()
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         context.startActivity(

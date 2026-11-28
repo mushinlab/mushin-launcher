@@ -105,17 +105,17 @@ class SettingsUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun systemHasAdvancedWithResetApp() {
+    fun AC_70_2_systemHoldsResetAppDirectly() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.System) }
-        rule.onNodeWithTag("nav_advanced").performScrollTo().performClick()
-        rule.onNodeWithTag("reset_app").assertIsDisplayed()
+        rule.onNodeWithTag("nav_advanced").assertDoesNotExist()
+        rule.onNodeWithTag("reset_app").performScrollTo().assertIsDisplayed()
     }
 
     @Test
-    fun systemHasPrivacyWithStoredDataFolded() {
+    fun AC_70_2_systemHoldsPrivacyWithStoredDataFolded() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.System) }
-        rule.onNodeWithTag("nav_privacy").performScrollTo().performClick()
-        rule.onNodeWithTag("privacy_delete_memory").assertIsDisplayed()
+        rule.onNodeWithTag("nav_privacy").assertDoesNotExist()
+        rule.onNodeWithTag("privacy_delete_memory").performScrollTo().assertIsDisplayed()
         val history = rule.activity.getString(SettingsR.string.memory_usage)
         rule.onNodeWithText(history).assertDoesNotExist()
         rule.onNodeWithTag("privacy_data").performScrollTo().performClick()
@@ -135,8 +135,7 @@ class SettingsUiTest : LauncherUiTestBase() {
     @Test
     fun clockSheetChangesTheFormatAndHidesTheDate() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.ClockSheet) }
-        rule.onNodeWithTag("clock_dropdown").performScrollTo().performClick()
-        rule.onNodeWithTag("clock_H24").performClick()
+        rule.onNodeWithTag("clock_H24").performScrollTo().performClick()
         rule.onNodeWithTag("show_date").performScrollTo().performClick()
         try {
             rule.waitUntil(5_000) {
@@ -162,10 +161,8 @@ class SettingsUiTest : LauncherUiTestBase() {
         rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.TextSheet) }
         rule.onNodeWithTag("font_dropdown").performScrollTo().performClick()
         rule.onNodeWithTag("font_MONTSERRAT").performClick()
-        rule.onNodeWithTag("font_weight_dropdown").performScrollTo().performClick()
-        rule.onNodeWithTag("font_weight_LIGHT").performClick()
-        rule.onNodeWithTag("text_align_dropdown").performScrollTo().performClick()
-        rule.onNodeWithTag("text_align_END").performClick()
+        rule.onNodeWithTag("font_weight_LIGHT").performScrollTo().performClick()
+        rule.onNodeWithTag("text_align_END").performScrollTo().performClick()
         rule.waitUntil(5_000) {
             container.settings.settings.value.let {
                 it.font == AppFont.MONTSERRAT &&

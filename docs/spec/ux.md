@@ -69,8 +69,8 @@ Settings — стек внутри той же Activity: `sealed interface Setti
 | Роль | Назначение |
 |---|---|
 | `background` | Фон окна, Home, Search |
-| `zebraA` | Фон чётных строк |
-| `zebraB` | Фон нечётных строк (на 3–5 % светлоты отличается от `zebraA`) |
+| `zebraA` | Фон всех строк списка (ADR-0065) |
+| `zebraB` | Не рисуется с ADR-0065; хранится ради своих палитр (на 3–5 % светлоты отличается от `zebraA`) |
 | `textPrimary` | Названия, часы |
 | `textSecondary` | Дата, подписи, подсказки цифр, «скрыто» |
 | `accent` | Текущий энв ✓, курсор запроса, онбординг-карточка, подсветка drag |
@@ -85,7 +85,7 @@ Settings — стек внутри той же Activity: `sealed interface Setti
 
 | Пресет | background | zebraA | zebraB | textPrimary | textSecondary | accent | iconTint | divider | surface | keyBackground | keyPressed | isDark |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Graphite (NORMAL по умолчанию) | #0E0E0E | #0E0E0E | #171717 | #EDEDED | #8A8A8A | #B5C7FF | #D0D0D0 | #262626 | #1A1A1A | #1C1C1C | #2E2E2E | true |
+| Graphite (NORMAL по умолчанию, ADR-0065) | #0F0F0F | #0F0F0F | #1A1A1A | #ECECE8 | #8F8F8C | #B5C7FF | #C8C8C8 | #262626 | #171717 | #1C1C1C | #2E2E2E | true |
 | Navy (WORK по умолчанию) | #0B1220 | #0B1220 | #111A2C | #E6ECF7 | #8C9AB3 | #6EA8FE | #C9D6EE | #1E2A40 | #131D30 | #152036 | #22324F | true |
 | Paper (светлый) | #F5F5F2 | #F5F5F2 | #EBEBE7 | #141414 | #5F5F5F | #2F5BD3 | #2A2A2A | #D9D9D4 | #FFFFFF | #E6E6E1 | #D2D2CC | false |
 | Moss | #0F130F | #0F130F | #161C16 | #E4EBE2 | #8C9989 | #9FD39A | #CBD6C8 | #243024 | #182018 | #1A221A | #283428 | true |

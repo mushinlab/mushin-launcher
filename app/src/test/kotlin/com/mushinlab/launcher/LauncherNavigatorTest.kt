@@ -23,7 +23,7 @@ class LauncherNavigatorTest {
     @Test
     fun backClosesTheTopmostLayerFirst() {
         navigator.openSettings(SettingsRoute.Keyboard)
-        navigator.overlay = Overlay.Popup(Offset.Zero, null)
+        navigator.overlay = Overlay.Popup(null)
         navigator.renameTarget = key("slack")
 
         navigator.handleBack()
@@ -69,17 +69,6 @@ class LauncherNavigatorTest {
 
         navigator.handleBack()
         assertThat(navigator.homeEditing).isFalse()
-    }
-
-    @Test
-    fun AC_37_2_backClosesEditTipsBeforeLeavingEditing() {
-        navigator.toggleHomeEditing()
-        navigator.overlay = Overlay.EditTips
-
-        navigator.handleBack()
-
-        assertThat(navigator.overlay).isEqualTo(Overlay.None)
-        assertThat(navigator.homeEditing).isTrue()
     }
 
     @Test

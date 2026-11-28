@@ -94,8 +94,7 @@ private fun SettingsRouteScreen(
         ->
             InputRouteScreen(route, state, actions, push, back)
 
-        SettingsRoute.Apps, SettingsRoute.System, SettingsRoute.Privacy, SettingsRoute.Advanced ->
-            SystemRouteScreen(route, state, actions, push, back)
+        SettingsRoute.Apps, SettingsRoute.System -> SystemRouteScreen(route, state, actions, back)
 
         is SettingsRoute.MemoryApp, SettingsRoute.MemoryPickApp ->
             MemoryRouteScreen(route, stack, state, actions, push, back)
@@ -146,14 +145,11 @@ private fun SystemRouteScreen(
     route: SettingsRoute,
     state: SettingsUiState,
     actions: SettingsActions,
-    push: (SettingsRoute) -> Unit,
     back: () -> Unit,
 ) {
     when (route) {
         SettingsRoute.Apps -> AppsSettingsScreen(state, actions, back)
-        SettingsRoute.Privacy -> PrivacyScreen(state, actions, back)
-        SettingsRoute.Advanced -> AdvancedScreen(actions, back)
-        else -> SystemScreen(state, actions, push, back)
+        else -> SystemScreen(state, actions, back)
     }
 }
 

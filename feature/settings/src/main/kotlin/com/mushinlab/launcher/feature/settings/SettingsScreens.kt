@@ -1,8 +1,10 @@
 package com.mushinlab.launcher.feature.settings
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,32 +39,26 @@ internal fun RootScreen(push: (SettingsRoute) -> Unit, back: () -> Unit) {
 private fun RootRows(push: (SettingsRoute) -> Unit) {
     NavRow(
         stringResource(R.string.settings_spaces),
-        summary = stringResource(R.string.summary_spaces),
         tag = "nav_spaces",
     ) { push(SettingsRoute.Spaces) }
     NavRow(
         stringResource(R.string.settings_keyboard),
-        summary = stringResource(R.string.summary_keyboard),
         tag = "nav_keyboard",
     ) { push(SettingsRoute.Keyboard) }
     NavRow(
         stringResource(R.string.settings_gestures),
-        summary = stringResource(R.string.summary_gestures),
         tag = "nav_gestures",
     ) { push(SettingsRoute.Gestures) }
     NavRow(
         stringResource(R.string.settings_apps),
-        summary = stringResource(R.string.summary_apps),
         tag = "nav_apps",
     ) { push(SettingsRoute.Apps) }
     NavRow(
         stringResource(R.string.settings_tips),
-        summary = stringResource(R.string.summary_tips),
         tag = "nav_tips",
     ) { push(SettingsRoute.Tips) }
     NavRow(
         stringResource(R.string.settings_system),
-        summary = stringResource(R.string.summary_system),
         tag = "nav_system",
     ) { push(SettingsRoute.System) }
 }
@@ -74,14 +73,15 @@ internal fun KeyboardSettingsScreen(
     val s = state.settings
     val preferences = actions.preferences
     SettingsPage(stringResource(R.string.settings_keyboard), back) {
-        MultiDropdownRow(
-            stringResource(R.string.keyboard_layouts),
-            KeyboardLayouts.all.map { it.id to it.nativeName },
-            s.keyboardLayouts.toSet(),
-            "layouts",
-        ) { id ->
-            preferences.updateSettings { if (id in it.keyboardLayouts) it.withoutLayout(id) else it.withLayout(id) }
+        SectionHeader(stringResource(R.string.keyboard_layouts))
+        KeyboardLayouts.all.forEach { layout ->
+            LayoutRow(layout.id, layout.nativeName, s.keyboardLayouts) {
+                preferences.updateSettings {
+                    if (layout.id in it.keyboardLayouts) it.withoutLayout(layout.id) else it.withLayout(layout.id)
+                }
+            }
         }
+        SectionHeader(stringResource(R.string.keyboard_feel))
         ToggleRow(stringResource(R.string.keyboard_haptics), s.keyboardHaptics, tag = "kb_haptics") { v ->
             preferences.updateSettings { it.copy(keyboardHaptics = v) }
         }
@@ -174,32 +174,8 @@ internal fun AppsSettingsScreen(state: SettingsUiState, actions: SettingsActions
 }
 
 @Composable
-internal fun AdvancedScreen(actions: SettingsActions, back: () -> Unit) {
+internal fun SystemScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
     var confirming by remember { mutableStateOf(false) }
-    SettingsPage(stringResource(R.string.settings_advanced), back) {
-        NavRow(stringResource(R.string.advanced_reset_app), tag = "reset_app") { confirming = true }
-        NoteText(stringResource(R.string.advanced_reset_text))
-    }
-    if (confirming) {
-        ConfirmDialog(
-            message = stringResource(R.string.advanced_reset_text),
-            confirm = stringResource(R.string.advanced_reset_confirm),
-            onConfirm = {
-                confirming = false
-                actions.system.resetApp()
-            },
-            onDismiss = { confirming = false },
-        )
-    }
-}
-
-@Composable
-internal fun SystemScreen(
-    state: SettingsUiState,
-    actions: SettingsActions,
-    push: (SettingsRoute) -> Unit,
-    back: () -> Unit,
-) {
     SettingsPage(stringResource(R.string.settings_system), back) {
         NavRow(
             stringResource(R.string.system_default),
@@ -216,16 +192,46 @@ internal fun SystemScreen(
             state.appLanguage,
             "system_language",
         ) { actions.system.setAppLanguage(it) }
+        PrivacyRows(state, actions)
+        SectionHeader(stringResource(R.string.system_about))
         NavRow(stringResource(R.string.system_version), value = state.versionName) {}
-        NavRow(
-            stringResource(R.string.system_privacy),
-            summary = stringResource(R.string.summary_privacy),
-            tag = "nav_privacy",
-        ) { push(SettingsRoute.Privacy) }
-        NavRow(stringResource(R.string.settings_advanced), tag = "nav_advanced") {
-            push(SettingsRoute.Advanced)
-        }
-        SectionHeader(stringResource(R.string.system_licenses))
         NoteText(stringResource(R.string.system_licenses_text))
+        DangerRow(stringResource(R.string.advanced_reset_app), "reset_app") { confirming = true }
+        NoteText(stringResource(R.string.advanced_reset_text))
+    }
+    if (confirming) {
+        ConfirmDialog(
+            message = stringResource(R.string.advanced_reset_text),
+            confirm = stringResource(R.string.advanced_reset_confirm),
+            onConfirm = {
+                confirming = false
+                actions.system.resetApp()
+            },
+            onDismiss = { confirming = false },
+        )
+    }
+}
+
+@Composable
+private fun LayoutRow(id: String, name: String, chosen: List<String>, onToggle: () -> Unit) {
+    val colors = LocalMushinColors.current
+    val order = chosen.indexOf(id)
+    val enabled = order < 0 || chosen.size > 1
+    Row(
+        Modifier
+            .settingsCard()
+            .heightIn(min = 48.dp)
+            .pressable(enabled = enabled, role = Role.Checkbox, onClick = onToggle)
+            .semantics { selected = order >= 0 }
+            .testTag("layouts_$id")
+            .padding(horizontal = CARD_PADDING),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        SingleLineText(
+            name,
+            MushinType.style(17.sp, if (order >= 0) colors.textPrimary else colors.textSecondary),
+            Modifier.weight(1f),
+        )
+        if (order >= 0) BasicText("${order + 1}", style = MushinType.style(14.sp, colors.accent))
     }
 }

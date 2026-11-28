@@ -27,25 +27,16 @@ class ThemeTest {
         (maxOf(a.luminance(), b.luminance()) + 0.05f) / (minOf(a.luminance(), b.luminance()) + 0.05f)
 
     @Test
-    fun rowsAlternateBetweenTheTwoZebraColours() {
-        assertThat(colors.zebra(0)).isEqualTo(colors.zebraA)
-        assertThat(colors.zebra(1)).isEqualTo(colors.zebraB)
-        assertThat(colors.zebra(2)).isEqualTo(colors.zebraA)
-    }
-
-    @Test
-    fun homeRowsAreSeeThroughOnlyOverAnImage() {
-        assertThat(colors.row(0, overImage = false, alpha = 0.5f)).isEqualTo(colors.zebraA)
-        assertThat(colors.row(1, overImage = false, alpha = 0.5f)).isEqualTo(colors.zebraB)
-        assertThat(colors.row(0, overImage = true, alpha = 0.9f)).isEqualTo(colors.zebraA.copy(alpha = 0.9f))
-        assertThat(colors.row(1, overImage = true, alpha = 0.5f)).isEqualTo(colors.zebraB.copy(alpha = 0.5f))
+    fun AC_65_2_homeRowsShareOneBackgroundSeeThroughOnlyOverAnImage() {
+        assertThat(colors.row(overImage = false, alpha = 0.5f)).isEqualTo(colors.zebraA)
+        assertThat(colors.row(overImage = true, alpha = 0.9f)).isEqualTo(colors.zebraA.copy(alpha = 0.9f))
     }
 
     @Test
     fun rowOpacityOverAnImageIsLimitedTo20To100Percent() {
-        assertThat(colors.row(0, overImage = true, alpha = 0.05f)).isEqualTo(colors.zebraA.copy(alpha = 0.2f))
-        assertThat(colors.row(0, overImage = true, alpha = 2f)).isEqualTo(colors.zebraA.copy(alpha = 1f))
-        assertThat(colors.row(0, overImage = true, alpha = Float.NaN)).isEqualTo(colors.zebraA.copy(alpha = 0.9f))
+        assertThat(colors.row(overImage = true, alpha = 0.05f)).isEqualTo(colors.zebraA.copy(alpha = 0.2f))
+        assertThat(colors.row(overImage = true, alpha = 2f)).isEqualTo(colors.zebraA.copy(alpha = 1f))
+        assertThat(colors.row(overImage = true, alpha = Float.NaN)).isEqualTo(colors.zebraA.copy(alpha = 0.9f))
     }
 
     @Test

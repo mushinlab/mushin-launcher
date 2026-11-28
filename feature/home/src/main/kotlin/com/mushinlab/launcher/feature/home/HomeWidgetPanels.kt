@@ -26,9 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -283,15 +281,14 @@ private fun BoxScope.GridCells(grid: PanelGrid, taken: List<WidgetCell>) {
         val width = grid.cellWidth.toPx()
         val height = grid.cellHeight.toPx()
         val gap = WIDGET_GAP.toPx()
-        val radius = CornerRadius(GRID_RADIUS.toPx())
+        val dot = GRID_DOT.toPx()
         grid.rows.forEachIndexed { index, row ->
             repeat(WidgetCell.COLUMNS) { column ->
                 if (taken.none { it.overlaps(WidgetCell(column, row)) }) {
-                    drawRoundRect(
+                    drawCircle(
                         color,
-                        Offset(column * (width + gap), index * (height + gap)),
-                        Size(width, height),
-                        radius,
+                        dot,
+                        Offset(column * (width + gap) + width / 2, index * (height + gap) + height / 2),
                     )
                 }
             }
@@ -363,5 +360,5 @@ private val HANDLE_BAR = 4.dp
 private val HANDLE_BACKING = 12.dp
 private const val EDIT_CONTENT_ALPHA = 0.5f
 private const val PREVIEW_ALPHA = 0.15f
-private const val GRID_ALPHA = 0.1f
-private val GRID_RADIUS = 4.dp
+private const val GRID_ALPHA = 0.35f
+private val GRID_DOT = 1.5.dp

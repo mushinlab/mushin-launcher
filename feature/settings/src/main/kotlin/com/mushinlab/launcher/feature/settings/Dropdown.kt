@@ -99,54 +99,9 @@ fun <T> DropdownRow(
     }
 }
 
-@Composable
-fun <T> MultiDropdownRow(
-    title: String,
-    options: List<Pair<T, String>>,
-    selected: Set<T>,
-    tagPrefix: String,
-    onToggle: (T) -> Unit,
-) {
-    val colors = LocalMushinColors.current
-    var expanded by remember { mutableStateOf(false) }
-    var rowWidth by remember { mutableIntStateOf(0) }
-    val summary = options.filter { it.first in selected }.joinToString { it.second }
-    Box(Modifier.settingsCard().onSizeChanged { rowWidth = it.width }) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = 56.dp)
-                .pressable(role = Role.DropdownList) { expanded = true }
-                .testTag("${tagPrefix}_dropdown")
-                .padding(horizontal = CARD_PADDING, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f)) {
-                BasicText(title, style = MushinType.style(17.sp, colors.textPrimary))
-                Spacer(Modifier.height(2.dp))
-                BasicText(summary, style = MushinType.style(14.sp, colors.textSecondary))
-            }
-            BasicText("▾", style = MushinType.style(17.sp, colors.textSecondary))
-        }
-        if (expanded) {
-            Popup(
-                popupPositionProvider = remember { BelowOrAbove() },
-                onDismissRequest = { expanded = false },
-                properties = PopupProperties(focusable = true),
-            ) {
-                DimBehindWindow(colors.isDark)
-                val choice =
-                    MenuChoice<T>({ it in selected }, { it !in selected || selected.size > 1 }, multiple = true)
-                DropdownMenu(options, choice, tagPrefix, rowWidth, null, null, onToggle)
-            }
-        }
-    }
-}
-
 private class MenuChoice<T>(
     val isSelected: (T) -> Boolean,
     val isEnabled: (T) -> Boolean = { true },
-    val multiple: Boolean = false,
 )
 
 @Composable
@@ -174,11 +129,8 @@ private fun <T> DropdownMenu(
                 Modifier
                     .fillMaxWidth()
                     .heightIn(min = 48.dp)
-                    .selectedBackground(choice.isSelected(value) && !choice.multiple)
-                    .pressable(
-                        enabled = choice.isEnabled(value),
-                        role = if (choice.multiple) Role.Checkbox else Role.RadioButton,
-                    ) { onPick(value) }
+                    .selectedBackground(choice.isSelected(value))
+                    .pressable(enabled = choice.isEnabled(value), role = Role.RadioButton) { onPick(value) }
                     .testTag("${tagPrefix}_$value")
                     .alpha(if (choice.isEnabled(value)) 1f else DISABLED_ALPHA)
                     .padding(horizontal = CARD_PADDING),
@@ -191,9 +143,6 @@ private fun <T> DropdownMenu(
                     style?.invoke(value) ?: MushinType.style(16.sp, colors.textPrimary),
                     Modifier.weight(1f),
                 )
-                if (choice.multiple && choice.isSelected(value)) {
-                    BasicText("✓", style = MushinType.style(17.sp, colors.accent))
-                }
             }
         }
     }

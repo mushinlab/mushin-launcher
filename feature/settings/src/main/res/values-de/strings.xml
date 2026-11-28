@@ -18,7 +18,6 @@
     <string name="privacy_delete_memory_note">Löscht den Startverlauf und die gelernten Gesten. Bereiche, Einstellungen und Hintergründe bleiben.</string>
     <string name="privacy_delete_memory_confirm">Startverlauf und alle gelernten Gesten löschen? Suche, Vorschläge und Zeichnungen lernen dann neu.</string>
     <string name="privacy_data">Gespeicherte Daten</string>
-    <string name="summary_privacy">Gespeicherte Daten, Gedächtnis löschen</string>
     <string name="settings_press">Tippanimation</string>
     <string name="settings_apps">Ausgeblendet &amp; umbenannt</string>
     <string name="settings_system">System</string>
@@ -162,11 +161,6 @@
         <item quantity="other">%d Zeichnungen</item>
     </plurals>
     <string name="settings_spaces">Bereiche</string>
-    <string name="summary_spaces">Bereiche erstellen, umbenennen und löschen</string>
-    <string name="summary_keyboard">Layouts, Vibration, Wischeingabe</string>
-    <string name="summary_gestures">Wischgesten auf dem Startbildschirm und Linie</string>
-    <string name="summary_apps">Ausgeblendete Apps, eigene Namen</string>
-    <string name="summary_system">Standard-Launcher, Sprache, Datenschutz, Erweitert</string>
     <string name="style_font">Schrift</string>
     <string name="style_weight">Stärke</string>
     <string name="style_note">Schrift und Stärke gelten für die ganze App, die Größe für die Liste auf dem Startbildschirm.</string>
@@ -219,7 +213,6 @@
     <string name="style_stroke_dots">Punkte auf der Linie</string>
     <string name="memory_sheet_draft">Das ist der Durchschnitt deiner letzten Versuche. Füge ihn hinzu oder zeichne neu.</string>
     <string name="settings_tips">Tipps</string>
-    <string name="summary_tips">Kurze Animationen dazu, was der Launcher kann</string>
     <string name="tip_space_title">Richte deinen ersten Bereich ein</string>
     <string name="tip_space_text">Tippe unten auf dem Startbildschirm auf den Stift und dann auf die Palette, um Farben zu wählen. Tippe auf „App hinzufügen“, wähle die Apps dieses Bereichs aus und tippe auf das Häkchen.</string>
     <string name="tip_search_title">Finde jede App</string>
@@ -248,15 +241,6 @@
     <string name="onboarding_next">Weiter</string>
     <string name="onboarding_done">Fertig</string>
     <string name="onboarding_position">Folie %1$d von %2$d</string>
-    <string name="edit_tips">Tipps zum Bearbeiten</string>
-    <string name="edit_tip_list_title">Apps und Ordner</string>
-    <string name="edit_tip_list">Ziehe eine Zeile am Griff links, um die Reihenfolge zu ändern. Wische eine Zeile nach links und tippe auf den Papierkorb, um sie aus der Liste zu entfernen; der Stift an einem Ordner öffnet dessen Editor. Füge Apps und Ordner unter der Liste hinzu. Ziehe den Griff über der Liste, um sie zu verschieben. Scrolle, um weitere Apps zu sehen.</string>
-    <string name="edit_tip_widgets_title">Widgets</string>
-    <string name="edit_tip_widgets">Die obere Leiste ist ein 2 × 2-Raster. Halte im Bearbeitungsmodus ein Widget, um es zu verschieben, ziehe die Balken an seinen Rändern, um es über Nachbarzellen zu dehnen, und tippe auf eine leere Zelle, um ein Widget hinzuzufügen.</string>
-    <string name="edit_tip_font_title">Schrift</string>
-    <string name="edit_tip_font">Tippe auf die Textschaltfläche, um Schriftart, Stärke, Größe und Ausrichtung der App-Namen auszuwählen.</string>
-    <string name="edit_tip_theme_title">Thema</string>
-    <string name="edit_tip_theme">Tippe auf die Palette, um das Thema für diesen Space, App-Symbole und Benachrichtigungszähler auszuwählen. Mit der Bildschaltfläche änderst du Hintergrund, Helligkeit und Unschärfe.</string>
     <string name="widgets_top">Oberer Bereich</string>
     <string name="widgets_bottom">Unterer Bereich</string>
     <string name="widgets_height">Bereichshöhe</string>
@@ -283,4 +267,6 @@
     <string name="motion_fade">Überblenden</string>
     <string name="motion_none">Keine</string>
     <string name="motion_note">Gilt, wenn du einen Bereich im Menü wählst. Ein Wischen über die untere Leiste bewegt die Seiten immer mit dem Finger.</string>
+    <string name="system_about">Über</string>
+    <string name="keyboard_feel">Bedienung</string>
 </resources>

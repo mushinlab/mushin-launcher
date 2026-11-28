@@ -141,9 +141,9 @@ internal fun DrawScope.removeStrip(colors: MushinColors, top: Float, swiped: Flo
     trashGlyph(remove, colors.danger, swiped)
 }
 
-internal fun DrawScope.addRow(colors: MushinColors, top: Float, index: Int, labels: AddLabels, alpha: Float) {
+internal fun DrawScope.addRow(colors: MushinColors, top: Float, labels: AddLabels, alpha: Float) {
     if (alpha <= 0f) return
-    drawRect(colors.zebra(index), Offset(0f, top), Size(Scene.WIDTH, Scene.ROW_HEIGHT), alpha = alpha)
+    drawRect(colors.zebraA, Offset(0f, top), Size(Scene.WIDTH, Scene.ROW_HEIGHT), alpha = alpha)
     listOf(labels.folder, labels.app).forEachIndexed { half, label ->
         val glyph = MiniHome.addButton(top, half)
         glyphCircle(colors, glyph, PLUS_RADIUS, alpha)

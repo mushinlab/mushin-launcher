@@ -93,7 +93,7 @@ internal fun PopupLayer(vm: LauncherViewModel) {
     }
     val actions = remember(vm) { popupActions(vm) }
     Box(Modifier.zIndex(2f).fillMaxSize()) {
-        HomePopup(popup.anchor, app, spaces, actions)
+        HomePopup(app, spaces, actions)
     }
 }
 

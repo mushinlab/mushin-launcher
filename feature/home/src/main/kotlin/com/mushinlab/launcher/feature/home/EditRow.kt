@@ -1,5 +1,6 @@
 package com.mushinlab.launcher.feature.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -18,10 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -68,7 +72,12 @@ internal fun EditRow(
                 handle.fillMaxHeight().width(CONTROL_SIZE).testTag("row_drag_$index"),
                 contentAlignment = Alignment.Center,
             ) {
-                GlyphBadge(Glyph.DRAG, HANDLE_SIZE)
+                Image(
+                    painterResource(Glyph.DRAG.res),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(LocalMushinColors.current.textSecondary),
+                    modifier = Modifier.size(HANDLE_SIZE),
+                )
             }
             RowLabel(
                 row,
@@ -119,6 +128,6 @@ private fun BoxScope.RemoveStrip(index: Int, row: HomeRow, swipe: RowSwipe, onRe
 
 private val EDIT_ROW_PADDING = 8.dp
 private val CONTROL_SIZE = 48.dp
-private val HANDLE_SIZE = 40.dp
+private val HANDLE_SIZE = 20.dp
 private val LABEL_GAP = 8.dp
 private const val STRIP_ALPHA = 0.28f

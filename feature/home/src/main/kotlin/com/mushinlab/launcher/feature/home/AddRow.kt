@@ -3,15 +3,15 @@ package com.mushinlab.launcher.feature.home
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -26,7 +26,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.mushinlab.launcher.core.ui.Glyph
 import com.mushinlab.launcher.core.ui.LocalMushinColors
 import com.mushinlab.launcher.core.ui.MushinType
@@ -49,27 +48,34 @@ internal fun AddRow(
             .height(rowStyle.height)
             .background(background)
             .onGloballyPositioned { registry.block(HOME_ADD, it.boundsInRoot()) }
-            .testTag(HOME_ADD),
+            .testTag(HOME_ADD)
+            .padding(horizontal = ADD_PADDING),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        AddButton(Glyph.FOLDER, R.string.home_add_folder, "home_add_folder", Modifier.weight(1f), onAddFolder)
-        AddButton(Glyph.ADD, R.string.home_add_app, "home_add_app", Modifier.weight(1f), onAddApp)
+        AddButton(R.string.home_add_app, "home_add_app", onAddApp)
+        AddButton(R.string.home_add_folder, "home_add_folder", onAddFolder)
     }
 }
 
 @Composable
-private fun AddButton(glyph: Glyph, @StringRes text: Int, tag: String, modifier: Modifier, onClick: () -> Unit) {
+private fun AddButton(@StringRes text: Int, tag: String, onClick: () -> Unit) {
     val colors = LocalMushinColors.current
-    Column(
-        modifier
+    Row(
+        Modifier
             .fillMaxHeight()
             .pressable(onClick = onClick)
-            .testTag(tag),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+            .testTag(tag)
+            .padding(horizontal = ADD_GAP),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        GlyphBadge(glyph, HomeDimens.iconSize)
-        Spacer(Modifier.height(4.dp))
-        SingleLineText(stringResource(text), MushinType.style(13.sp, colors.textPrimary))
+        Image(
+            painterResource(Glyph.ADD.res),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(colors.textSecondary),
+            modifier = Modifier.size(ADD_GLYPH),
+        )
+        Spacer(Modifier.width(6.dp))
+        SingleLineText(stringResource(text), MushinType.style(MushinType.secondarySize, colors.textSecondary))
     }
 }
 
@@ -92,5 +98,8 @@ internal fun GlyphBadge(glyph: Glyph, size: Dp, modifier: Modifier = Modifier) {
 }
 
 private const val GLYPH_TO_BADGE = 0.6f
+private val ADD_PADDING = 12.dp
+private val ADD_GAP = 12.dp
+private val ADD_GLYPH = 16.dp
 
 private const val HOME_ADD = "home_add"

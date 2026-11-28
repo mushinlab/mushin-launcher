@@ -7,6 +7,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
@@ -233,7 +234,6 @@ class HomeUiTest : LauncherUiTestBase() {
         rule.onNodeWithTag("home_edit").performClick()
         rule.onNodeWithTag("home_edit_motion").performClick()
         rule.onNodeWithTag("motion_sheet").assertIsDisplayed()
-        rule.onNodeWithTag("motion_space_dropdown").performClick()
         rule.onNodeWithTag("motion_space_NONE").performClick()
         rule.waitUntil(5_000) { container.settings.settings.value.spaceTransition == SpaceTransition.NONE }
     }
@@ -264,13 +264,10 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun settingsButtonNextToTheEditButtonOpensSettings() {
-        val settings = rule.onNodeWithTag("home_settings").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
-        val edit = rule.onNodeWithTag("home_edit").fetchSemanticsNode().boundsInRoot
-        assertThat(settings.right).isAtMost(edit.left)
-        assertThat(settings.center.y).isWithin(2f).of(edit.center.y)
-        rule.onNodeWithTag("home_settings").performTouchInput { click() }
-        rule.waitUntil(5_000) { rule.activity.launcher.navigator.settings.top == SettingsRoute.Root }
+    fun AC_65_3_barHasNoSettingsButtonAndShowsOneDotPerSpace() {
+        rule.onNodeWithTag("home_settings").assertDoesNotExist()
+        rule.onNodeWithTag("home_edit").assertIsDisplayed()
+        rule.onAllNodesWithTag("home_space_dot", useUnmergedTree = true).assertCountEquals(2)
     }
 
     @Test
@@ -282,9 +279,9 @@ class HomeUiTest : LauncherUiTestBase() {
         val info = rule.onNodeWithTag("popup_about").fetchSemanticsNode().boundsInRoot
         val rename = rule.onNodeWithTag("popup_rename").fetchSemanticsNode().boundsInRoot
         val remove = rule.onNodeWithTag("popup_remove").fetchSemanticsNode().boundsInRoot
-        assertThat(rename.center.y).isWithin(1f).of(info.center.y)
-        assertThat(rename.left).isAtLeast(info.right)
-        assertThat(remove.left).isAtLeast(rename.right)
+        assertThat(info.top).isAtLeast(rename.bottom - 1f)
+        assertThat(remove.top).isAtLeast(info.bottom - 1f)
+        rule.onAllNodesWithTag("popup_env_$normalId").assertCountEquals(0)
     }
 
     @Test
@@ -516,7 +513,7 @@ class HomeUiTest : LauncherUiTestBase() {
         assertThat(add.width).isWithin(1f).of(lastRow.width)
         val folder = rule.onNodeWithTag("home_add_folder").fetchSemanticsNode().boundsInRoot
         val app = rule.onNodeWithTag("home_add_app").fetchSemanticsNode().boundsInRoot
-        assertThat(folder.right).isAtMost(app.left + 1f)
+        assertThat(app.right).isAtMost(folder.left + 1f)
         assertThat(folder.center.y).isWithin(1f).of(app.center.y)
         rule.onNodeWithTag("home_add_folder").assertTextEquals(rule.activity.getString(HomeR.string.home_add_folder))
         rule.onNodeWithTag("home_add_app").performClick()
@@ -566,18 +563,16 @@ class HomeUiTest : LauncherUiTestBase() {
     }
 
     @Test
-    fun AC_37_2_editTipsOpenOverHomeAndBackKeepsEditMode() {
-        rule.onNodeWithTag("home_edit_tips").assertDoesNotExist()
+    fun AC_66_1_editModeShowsTextTabsAndDoneWithoutTipsOrSettings() {
         rule.onNodeWithTag("home_edit").performClick()
-        rule.onNodeWithTag("home_edit_tips").assertIsDisplayed().performClick()
-        rule.onNodeWithTag("edit_tips_sheet").assertIsDisplayed()
-        rule.onNodeWithText(
-            rule.activity.getString(com.mushinlab.launcher.feature.settings.R.string.edit_tip_list_title),
-        )
-            .assertIsDisplayed()
-        rule.runOnIdle { rule.activity.launcher.navigator.handleBack() }
-        rule.onNodeWithTag("edit_tips_sheet").assertDoesNotExist()
-        assertThat(rule.activity.launcher.navigator.homeEditing).isTrue()
+        listOf("home_edit_background", "home_edit_text", "home_edit_theme", "home_edit_motion").forEach {
+            rule.onNodeWithTag(it).assertIsDisplayed()
+        }
+        rule.onNodeWithTag("home_edit_tips").assertDoesNotExist()
+        rule.onNodeWithTag("home_settings").assertDoesNotExist()
+        rule.onNodeWithTag("home_add_app").assertIsDisplayed()
+        rule.onNodeWithTag("home_edit").performClick()
+        rule.runOnIdle { assertThat(rule.activity.launcher.navigator.homeEditing).isFalse() }
     }
 
     @Test

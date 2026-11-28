@@ -23,16 +23,15 @@ import com.mushinlab.launcher.core.ui.MushinType
 import com.mushinlab.launcher.core.ui.pressable
 
 @Composable
-internal fun PrivacyScreen(state: SettingsUiState, actions: SettingsActions, back: () -> Unit) {
+internal fun PrivacyRows(state: SettingsUiState, actions: SettingsActions) {
     var confirm by rememberSaveable { mutableStateOf(false) }
     var expanded by rememberSaveable { mutableStateOf(false) }
-    SettingsPage(stringResource(R.string.system_privacy), back) {
-        DangerRow(stringResource(R.string.privacy_delete_memory), "privacy_delete_memory") { confirm = true }
-        NoteText(stringResource(R.string.privacy_delete_memory_note))
-        NoteText(stringResource(R.string.system_privacy_text))
-        ExpandRow(stringResource(R.string.privacy_data), expanded, "privacy_data") { expanded = !expanded }
-        if (expanded) StoredData(state)
-    }
+    SectionHeader(stringResource(R.string.system_privacy))
+    NoteText(stringResource(R.string.system_privacy_text))
+    ExpandRow(stringResource(R.string.privacy_data), expanded, "privacy_data") { expanded = !expanded }
+    if (expanded) StoredData(state)
+    DangerRow(stringResource(R.string.privacy_delete_memory), "privacy_delete_memory") { confirm = true }
+    NoteText(stringResource(R.string.privacy_delete_memory_note))
     if (confirm) {
         SystemConfirmDialog(
             title = stringResource(R.string.privacy_delete_memory),
@@ -62,7 +61,7 @@ private fun StoredData(state: SettingsUiState) {
 }
 
 @Composable
-private fun DangerRow(title: String, tag: String, onClick: () -> Unit) {
+internal fun DangerRow(title: String, tag: String, onClick: () -> Unit) {
     Row(
         Modifier
             .settingsCard()

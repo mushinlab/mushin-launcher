@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -86,8 +87,8 @@ internal fun ResultsPane(
                 }
                 AppRowItem(
                     label = row.label,
+                    query = controller.query,
                     key = row.key,
-                    index = index,
                     height = SearchDimens.resultHeight,
                     textSize = MushinType.resultSize.value,
                     iconMode = iconMode,
@@ -107,8 +108,8 @@ internal fun ResultsPane(
 @Composable
 private fun AppRowItem(
     label: String,
+    query: String,
     key: AppKey,
-    index: Int,
     height: Dp,
     textSize: Float,
     iconMode: IconMode,
@@ -123,7 +124,6 @@ private fun AppRowItem(
     val colors = LocalMushinColors.current
     val background = when {
         highlighted -> colors.accent.copy(alpha = HIGHLIGHT_ALPHA)
-        index % 2 == 1 -> colors.textPrimary.copy(alpha = PANE_ZEBRA_ALPHA)
         else -> Color.Transparent
     }
     val textStyle = MushinType.style(textSize.sp, colors.textPrimary)
@@ -138,7 +138,14 @@ private fun AppRowItem(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-            SingleLineText(label, textStyle, Modifier.weight(1f, fill = false))
+            BasicText(
+                matchHighlight(label, query),
+                style = textStyle,
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false),
+            )
             if (swipes.isNotEmpty()) {
                 Spacer(Modifier.width(8.dp))
                 SwipeMarks(swipes, textSize.sp, colors.textSecondary, Modifier.testTag("${tag}_swipe"))

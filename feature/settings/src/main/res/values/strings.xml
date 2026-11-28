@@ -18,7 +18,6 @@
     <string name="privacy_delete_memory_note">Erases the launch history and the learned gestures. Spaces, settings and backgrounds stay.</string>
     <string name="privacy_delete_memory_confirm">Delete the launch history and all learned gestures? Search, hints and drawings start learning again.</string>
     <string name="privacy_data">Stored data</string>
-    <string name="summary_privacy">Stored data, delete memory</string>
     <string name="settings_press">Press animation</string>
     <string name="settings_apps">Hidden &amp; renamed</string>
     <string name="settings_system">System</string>
@@ -162,11 +161,6 @@
         <item quantity="other">%d drawings</item>
     </plurals>
     <string name="settings_spaces">Spaces</string>
-    <string name="summary_spaces">Create, rename and delete spaces</string>
-    <string name="summary_keyboard">Layouts, vibration, swipe typing</string>
-    <string name="summary_gestures">Swipes on the home screen and the stroke</string>
-    <string name="summary_apps">Hidden apps, custom names</string>
-    <string name="summary_system">Default launcher, language, privacy, advanced</string>
     <string name="style_font">Font</string>
     <string name="style_weight">Weight</string>
     <string name="style_note">Font and weight apply to the whole app; the size applies to the home screen list.</string>
@@ -219,7 +213,6 @@
     <string name="style_stroke_dots">Dots on the line</string>
     <string name="memory_sheet_draft">This is the average of your last attempts. Add it or draw again.</string>
     <string name="settings_tips">Tips</string>
-    <string name="summary_tips">Short animations about what the launcher can do</string>
     <string name="tip_space_title">Set up your first space</string>
     <string name="tip_space_text">Tap the pencil at the bottom of the home screen, then the palette to pick colors. Tap “Add app”, choose the apps of this space and tap the check mark.</string>
     <string name="tip_search_title">Find any app</string>
@@ -249,15 +242,6 @@
     <string name="onboarding_next">Next</string>
     <string name="onboarding_done">Done</string>
     <string name="onboarding_position">Slide %1$d of %2$d</string>
-    <string name="edit_tips">Editing tips</string>
-    <string name="edit_tip_list_title">Apps and folders</string>
-    <string name="edit_tip_list">Drag a row by the handle on its left to change the order. Swipe a row to the left and tap the bin to remove it from the list; the pencil on a folder opens its editor. Add apps and folders below the list. Drag the handle above the list to move it; scroll the list to reach more apps.</string>
-    <string name="edit_tip_widgets_title">Widgets</string>
-    <string name="edit_tip_widgets">The top panel is a 2 × 2 grid. In edit mode hold a widget to move it, drag the bars on its edges to stretch it over neighbouring cells, and tap an empty cell to add a widget.</string>
-    <string name="edit_tip_font_title">Font</string>
-    <string name="edit_tip_font">Tap the text button to choose the font, weight, size and alignment of app names.</string>
-    <string name="edit_tip_theme_title">Theme</string>
-    <string name="edit_tip_theme">Tap the palette to choose a theme for this space, app icons and notification counts. Use the image button to change the background, brightness and blur.</string>
     <string name="widgets_top">Top panel</string>
     <string name="widgets_bottom">Bottom panel</string>
     <string name="widgets_height">Panel height</string>
@@ -284,4 +268,6 @@
     <string name="motion_fade">Fade</string>
     <string name="motion_none">None</string>
     <string name="motion_note">Used when you choose a space in the menu. A swipe on the bottom bar always moves the pages with your finger.</string>
+    <string name="system_about">About</string>
+    <string name="keyboard_feel">Feel</string>
 </resources>

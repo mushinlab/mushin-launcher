@@ -2,6 +2,7 @@ package com.mushinlab.launcher
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onChild
@@ -60,11 +61,10 @@ class LanguagesUiTest : LauncherUiTestBase() {
             rule.runOnIdle { rule.activity.launcher.navigator.settings.open(SettingsRoute.Keyboard) }
             rule.onNodeWithTag("kb_digits").assertDoesNotExist()
             rule.onNodeWithTag("layout_en").assertDoesNotExist()
-            rule.onNodeWithTag("layouts_dropdown").assertIsDisplayed().performClick()
-            rule.onNodeWithTag("layouts_menu").assertIsDisplayed()
+            rule.onNodeWithTag("layouts_dropdown").assertDoesNotExist()
             rule.onNodeWithTag("layouts_de").performScrollTo().performClick()
             rule.waitUntil(5_000) { container.settings.settings.value.keyboardLayouts == listOf("en", "ru", "de") }
-            rule.onNodeWithTag("layouts_menu").assertIsDisplayed()
+            rule.onNodeWithTag("layouts_de").assertIsSelected()
 
             rule.runOnIdle { rule.activity.launcher.navigator.closeAll() }
             openSearch()
@@ -82,7 +82,6 @@ class LanguagesUiTest : LauncherUiTestBase() {
             rule.onNodeWithTag("key_q").assertIsDisplayed()
 
             rule.runOnIdle { rule.activity.launcher.navigator.openSettings(SettingsRoute.Keyboard) }
-            rule.onNodeWithTag("layouts_dropdown").performClick()
             rule.onNodeWithTag("layouts_ru").performScrollTo().performClick()
             rule.waitUntil(5_000) { container.settings.settings.value.keyboardLayouts == listOf("en", "de") }
             rule.onNodeWithTag("layouts_de").performScrollTo().performClick()

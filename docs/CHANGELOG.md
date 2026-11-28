@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.14.0 — 2026-11-28
+
+### Changed
+- A quieter look: the Graphite palette is darker with softer text, list rows no longer alternate shades, and the clock digits are thinner.
+- New installs start with Inter Light and without app icons.
+- The home bar shows the space name with one dot per space; the settings gear moved off the home screen and is in the search header.
+- Edit mode is calmer: the widget grid is drawn as dots, rows have a dotted grip, Add app and Add folder are plain text, and the bottom bar has text tabs (Background, Text, Theme, Motion) with a Done button. The editing tips button is gone; tips stay in Settings.
+- Search and the app picker sit directly on the background without panels or alternating rows; the query line is underlined and the typed letters are bold in each result.
+- The space menu and the app actions open as a sheet from the bottom with plain text rows instead of a popup with icon buttons.
+- Text, Clock and Motion options with three choices are segmented buttons instead of drop-down lists, and settings rows no longer sit on cards.
+- Settings are shorter: the main list shows only section names, Privacy and Reset app live on the System page, and keyboard layouts are a plain list with their switching order.
+- First-run onboarding is four slides with a progress bar; the other tips stay in Settings → Tips.
+
 ## 0.13.3 — 2026-11-28
 
 ### Changed

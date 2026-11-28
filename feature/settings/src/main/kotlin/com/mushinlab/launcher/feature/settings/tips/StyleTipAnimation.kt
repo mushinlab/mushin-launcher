@@ -116,7 +116,7 @@ private fun DrawScope.drawStyledHome(time: Float, colors: MushinColors, labels: 
     labels.apps[look.family].forEachIndexed { index, label ->
         val top = look.listTop + Scene.ROW_HEIGHT * index
         val centerY = top + Scene.ROW_HEIGHT / 2
-        drawRect(colors.zebra(index), Offset(0f, top), Size(Scene.WIDTH, Scene.ROW_HEIGHT))
+        drawRect(colors.zebraA, Offset(0f, top), Size(Scene.WIDTH, Scene.ROW_HEIGHT))
         val centered = (Scene.WIDTH - label.size.width) / 2 - CENTER_SHIFT * edit
         val left = mix(Scene.MARGIN + MiniHome.ROW_INSET * edit, centered, look.align)
         textCenteredY(label, colors.textPrimary, left, centerY)

@@ -100,6 +100,7 @@ internal fun homeState(
             swipes = swipes[key]?.toImmutableList() ?: persistentListOf(),
         )
     }
+    val spaces = popupSpaces(d)
     return HomeUiState(
         rows = rows.toImmutableList(),
         iconMode = d.settings.iconMode,
@@ -119,6 +120,8 @@ internal fun homeState(
         roleMissing = !roleHeld,
         spaceName = d.current?.name.orEmpty(),
         spaceId = d.current?.id,
+        spaceCount = spaces.size,
+        spaceIndex = spaces.indexOfFirst { it.current },
     )
 }
 

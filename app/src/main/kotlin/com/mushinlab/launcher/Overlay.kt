@@ -6,12 +6,10 @@ import androidx.compose.ui.geometry.Offset
 import com.mushinlab.launcher.core.model.AppKey
 
 sealed interface Overlay {
-    data object EditTips : Overlay
-
     data object None : Overlay
 
     @Immutable
-    data class Popup(val anchor: Offset, val app: AppKey?) : Overlay
+    data class Popup(val app: AppKey?) : Overlay
 
     data object Search : Overlay
 

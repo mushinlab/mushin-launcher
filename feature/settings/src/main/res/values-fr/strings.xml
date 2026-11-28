@@ -18,7 +18,6 @@
     <string name="privacy_delete_memory_note">Efface l’historique des lancements et les gestes appris. Les espaces, les paramètres et les arrière-plans sont conservés.</string>
     <string name="privacy_delete_memory_confirm">Effacer l’historique des lancements et tous les gestes appris ? La recherche, les suggestions et les dessins réapprendront.</string>
     <string name="privacy_data">Données enregistrées</string>
-    <string name="summary_privacy">Données enregistrées, effacer la mémoire</string>
     <string name="settings_press">Animation au toucher</string>
     <string name="settings_apps">Masquées et renommées</string>
     <string name="settings_system">Système</string>
@@ -163,11 +162,6 @@
         <item quantity="other">%d tracés</item>
     </plurals>
     <string name="settings_spaces">Espaces</string>
-    <string name="summary_spaces">Créer, renommer et supprimer des espaces</string>
-    <string name="summary_keyboard">Dispositions, vibration, saisie gestuelle</string>
-    <string name="summary_gestures">Balayages sur l’écran d’accueil et tracé</string>
-    <string name="summary_apps">Applis masquées, noms personnalisés</string>
-    <string name="summary_system">Launcher par défaut, langue, confidentialité, avancé</string>
     <string name="style_font">Police</string>
     <string name="style_weight">Graisse</string>
     <string name="style_note">La police et la graisse s’appliquent à toute l’appli ; la taille, à la liste de l’écran d’accueil.</string>
@@ -220,7 +214,6 @@
     <string name="style_stroke_dots">Points sur la ligne</string>
     <string name="memory_sheet_draft">Voici la moyenne de vos derniers essais. Ajoutez-la ou redessinez.</string>
     <string name="settings_tips">Astuces</string>
-    <string name="summary_tips">De courtes animations sur ce que sait faire le launcher</string>
     <string name="tip_space_title">Configurez votre premier espace</string>
     <string name="tip_space_text">Touchez le crayon en bas de l’écran d’accueil, puis la palette pour choisir les couleurs. Touchez « Ajouter une appli », choisissez les applis de cet espace et touchez la coche.</string>
     <string name="tip_search_title">Trouvez n’importe quelle appli</string>
@@ -249,15 +242,6 @@
     <string name="onboarding_next">Suivant</string>
     <string name="onboarding_done">Terminé</string>
     <string name="onboarding_position">Diapositive %1$d sur %2$d</string>
-    <string name="edit_tips">Conseils de modification</string>
-    <string name="edit_tip_list_title">Applications et dossiers</string>
-    <string name="edit_tip_list">Faites glisser une ligne par la poignée à sa gauche pour changer l’ordre. Balayez une ligne vers la gauche et touchez la corbeille pour la retirer de la liste ; le crayon d’un dossier ouvre son éditeur. Ajoutez des applications et des dossiers sous la liste. Faites glisser la poignée au-dessus de la liste pour la déplacer ; faites défiler pour voir les autres applications.</string>
-    <string name="edit_tip_widgets_title">Widgets</string>
-    <string name="edit_tip_widgets">Le panneau du haut est une grille de 2 × 2. En mode édition, maintenez un widget pour le déplacer, faites glisser les barres de ses bords pour l’étendre sur les cellules voisines et touchez une cellule vide pour ajouter un widget.</string>
-    <string name="edit_tip_font_title">Police</string>
-    <string name="edit_tip_font">Touchez le bouton de texte pour choisir la police, la graisse, la taille et l’alignement des noms des applications.</string>
-    <string name="edit_tip_theme_title">Thème</string>
-    <string name="edit_tip_theme">Touchez la palette pour choisir le thème de cet espace, les icônes et les compteurs de notifications. Le bouton d’image permet de modifier le fond, la luminosité et le flou.</string>
     <string name="widgets_top">Panneau supérieur</string>
     <string name="widgets_bottom">Panneau inférieur</string>
     <string name="widgets_height">Hauteur du panneau</string>
@@ -284,4 +268,6 @@
     <string name="motion_fade">Fondu</string>
     <string name="motion_none">Aucune</string>
     <string name="motion_note">S’applique quand vous choisissez un espace dans le menu. Un balayage sur la barre du bas déplace toujours les pages avec le doigt.</string>
+    <string name="system_about">À propos</string>
+    <string name="keyboard_feel">Toucher</string>
 </resources>

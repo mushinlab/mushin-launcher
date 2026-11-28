@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -37,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.testTag
@@ -131,7 +129,7 @@ fun AppPickerScreen(state: AppPickerState, chrome: SearchChrome, actions: AppPic
     val results = remember(state.entries, query.text, engine) {
         pickerResults(state.entries, query.text, engine).toImmutableList()
     }
-    val pane = Modifier.clip(RoundedCornerShape(SearchDimens.paneRadius)).background(colors.surface)
+    val pane = Modifier
     val chosen = remember(state.entries) { state.entries.filter { it.checked }.map { it.key }.toSet() }
     val opened = remember(state.entries.isEmpty()) { chosen }
     Column(
@@ -206,25 +204,19 @@ private fun PickerList(
         LazyColumn(Modifier.fillMaxSize().testTag("picker_list"), reverseLayout = true) {
             itemsIndexed(results, key = { _, entry -> entry.key.id }) { index, entry ->
                 val enabled = entry.checked || !full
-                PickerItem(entry, index, enabled) { actions.onToggle(entry.key) }
+                PickerItem(entry, enabled) { actions.onToggle(entry.key) }
             }
         }
     }
 }
 
 @Composable
-private fun PickerItem(entry: PickerEntry, index: Int, enabled: Boolean, onClick: () -> Unit) {
+private fun PickerItem(entry: PickerEntry, enabled: Boolean, onClick: () -> Unit) {
     val colors = LocalMushinColors.current
-    val background = when {
-        entry.checked -> colors.accent.copy(alpha = CHECKED_ALPHA)
-        index % 2 == 1 -> colors.textPrimary.copy(alpha = PANE_ZEBRA_ALPHA)
-        else -> Color.Transparent
-    }
     Row(
         Modifier
             .fillMaxWidth()
             .height(SearchDimens.resultHeight)
-            .background(background)
             .pressable(enabled = enabled, onClick = onClick)
             .semantics { selected = entry.checked }
             .testTag("pick_${entry.label}")
@@ -236,7 +228,7 @@ private fun PickerItem(entry: PickerEntry, index: Int, enabled: Boolean, onClick
         Spacer(Modifier.width(SearchDimens.padding))
         SingleLineText(
             entry.label,
-            MushinType.style(MushinType.resultSize, colors.textPrimary),
+            MushinType.style(MushinType.resultSize, if (entry.checked) colors.textPrimary else colors.textSecondary),
             Modifier.weight(1f),
         )
         if (entry.checked) {
@@ -272,7 +264,6 @@ private fun PickerInput(
             Modifier
                 .fillMaxWidth(chrome.keyboardWidth)
                 .align(BiasAlignment(chrome.keyboardShift, 0f))
-                .background(colors.surface, RoundedCornerShape(SearchDimens.paneRadius))
                 .testTag("picker_input")
                 .padding(
                     start = SearchDimens.panePadding,
@@ -332,5 +323,4 @@ private fun pickerKeys(query: PickerQuery, actions: AppPickerActions) = object :
 
 private val PICKER_HEADER = 56.dp
 private val CHECK_SIZE = 20.dp
-private const val CHECKED_ALPHA = 0.2f
 private const val DISABLED_ALPHA = 0.4f

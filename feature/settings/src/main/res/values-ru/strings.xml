@@ -18,7 +18,6 @@
     <string name="privacy_delete_memory_note">Стирает историю запусков и выученные жесты. Спейсы, настройки и фоны остаются.</string>
     <string name="privacy_delete_memory_confirm">Стереть историю запусков и все выученные жесты? Поиск, подсказки и рисунки начнут учиться заново.</string>
     <string name="privacy_data">Сохранённые данные</string>
-    <string name="summary_privacy">Данные и стирание памяти</string>
     <string name="settings_press">Анимация нажатия</string>
     <string name="settings_apps">Скрытые и переименованные</string>
     <string name="settings_system">Система</string>
@@ -87,9 +86,9 @@
     <string name="home_show_date">Показывать дату</string>
     <string name="home_text_size">Размер текста</string>
     <string name="home_text_align">Выравнивание текста</string>
-    <string name="home_text_align_start">По левому краю</string>
+    <string name="home_text_align_start">Слева</string>
     <string name="home_text_align_center">По центру</string>
-    <string name="home_text_align_end">По правому краю</string>
+    <string name="home_text_align_end">Справа</string>
     <string name="home_text_s">Маленький</string>
     <string name="home_text_m">Средний</string>
     <string name="home_text_l">Крупный</string>
@@ -164,11 +163,6 @@
         <item quantity="other">%d рисунка</item>
     </plurals>
     <string name="settings_spaces">Спейсы</string>
-    <string name="summary_spaces">Создание, переименование и удаление спейсов</string>
-    <string name="summary_keyboard">Раскладки, вибрация, рисунок на клавиатуре</string>
-    <string name="summary_gestures">Свайпы на главном экране и линия</string>
-    <string name="summary_apps">Скрытые приложения, свои названия</string>
-    <string name="summary_system">Лаунчер по умолчанию, язык, конфиденциальность, дополнительно</string>
     <string name="style_font">Шрифт</string>
     <string name="style_weight">Насыщенность</string>
     <string name="style_note">Шрифт и насыщенность действуют во всём приложении, размер — для списка на главном экране.</string>
@@ -221,7 +215,6 @@
     <string name="style_stroke_dots">Точки на линии</string>
     <string name="memory_sheet_draft">Это усреднённый рисунок из ваших последних попыток. Добавьте его или нарисуйте заново.</string>
     <string name="settings_tips">Советы</string>
-    <string name="summary_tips">Короткие анимации о том, что умеет лаунчер</string>
     <string name="tip_space_title">Настройте первый спейс</string>
     <string name="tip_space_text">Нажмите на карандаш внизу главного экрана, затем на палитру, чтобы выбрать цвета. Нажмите «Добавить приложение», выберите приложения этого спейса и нажмите галочку.</string>
     <string name="tip_search_title">Найдите любое приложение</string>
@@ -250,15 +243,6 @@
     <string name="onboarding_next">Далее</string>
     <string name="onboarding_done">Готово</string>
     <string name="onboarding_position">Слайд %1$d из %2$d</string>
-    <string name="edit_tips">Советы по редактированию</string>
-    <string name="edit_tip_list_title">Список приложений и папки</string>
-    <string name="edit_tip_list">Перетащите строку за ручку слева, чтобы изменить порядок. Смахните строку влево и нажмите на корзину, чтобы убрать её из списка; карандаш у папки открывает её редактор. Добавляйте приложения и папки под списком. Тяните линию над списком, чтобы передвинуть его; прокручивайте список, чтобы увидеть остальные приложения.</string>
-    <string name="edit_tip_widgets_title">Виджеты</string>
-    <string name="edit_tip_widgets">Верхняя панель — сетка 2 × 2. В режиме редактирования удерживайте виджет, чтобы перенести его, тяните полоски на его краях, чтобы растянуть на соседние ячейки, и нажмите пустую ячейку, чтобы добавить виджет.</string>
-    <string name="edit_tip_font_title">Шрифт</string>
-    <string name="edit_tip_font">Кнопка текста открывает выбор шрифта, насыщенности, размера и выравнивания названий приложений.</string>
-    <string name="edit_tip_theme_title">Тема</string>
-    <string name="edit_tip_theme">Палитра открывает выбор темы текущего спейса, значков приложений и счётчиков уведомлений. Кнопка картинки меняет фон, яркость и размытие.</string>
     <string name="widgets_top">Верхняя панель</string>
     <string name="widgets_bottom">Нижняя панель</string>
     <string name="widgets_height">Высота панели</string>
@@ -285,4 +269,6 @@
     <string name="motion_fade">Растворение</string>
     <string name="motion_none">Без анимации</string>
     <string name="motion_note">Работает, когда спейс выбран в меню. Свайп по нижней плашке всегда ведёт страницы за пальцем.</string>
+    <string name="system_about">О приложении</string>
+    <string name="keyboard_feel">Ощущения</string>
 </resources>

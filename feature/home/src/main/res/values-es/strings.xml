@@ -12,7 +12,6 @@
     <string name="home_edit_background">Fondo</string>
     <string name="home_edit_text">Texto</string>
     <string name="home_edit_theme">Tema</string>
-    <string name="home_settings">Ajustes</string>
     <string name="home_add_folder">Añadir carpeta</string>
     <string name="home_add_app">Añadir app</string>
     <string name="home_row_edit">Editar %1$s</string>
@@ -23,7 +22,6 @@
     <string name="suggest_replace">Ponerla en lugar de «%1$s»</string>
     <string name="suggest_add">Añadir a la pantalla de inicio</string>
     <string name="suggest_dismiss">No sugerir</string>
-    <string name="home_edit_tips">Consejos de edición</string>
     <string name="home_add_widget">Añadir widget</string>
     <string name="widget_remove">Quitar widget</string>
     <string name="widget_move_before">Mover antes</string>

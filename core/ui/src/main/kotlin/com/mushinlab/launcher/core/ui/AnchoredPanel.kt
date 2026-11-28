@@ -150,35 +150,11 @@ fun PanelItem(
     onClick: () -> Unit,
 ) {
     val colors = LocalMushinColors.current
-    val view = LocalView.current
-    val currentOnHold by rememberUpdatedState(onHold)
     Box(
         Modifier
             .fillMaxWidth()
             .height(48.dp)
-            .pointerInput(onHold != null) {
-                if (onHold == null) return@pointerInput
-                awaitEachGesture {
-                    val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
-                    val released = withTimeoutOrNull(Motion.HOLD_MS) {
-                        do {
-                            val change = awaitPointerEvent(PointerEventPass.Initial).changes
-                                .firstOrNull { it.id == down.id }
-                            val moved = change != null &&
-                                (change.position - down.position).getDistance() > viewConfiguration.touchSlop
-                        } while (change != null && change.pressed && !moved)
-                        true
-                    }
-                    if (released == null) {
-                        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                        currentOnHold?.invoke()
-                        do {
-                            val event = awaitPointerEvent(PointerEventPass.Initial)
-                            event.changes.forEach { it.consume() }
-                        } while (event.changes.any { it.pressed })
-                    }
-                }
-            }
+            .holdToFire(onHold)
             .pressable(onClick = onClick)
             .semantics { if (radio != null) selected = radio }
             .testTag(tag)
@@ -198,6 +174,39 @@ fun PanelItem(
                     if (bold) FontWeight.Bold else FontWeight.Normal,
                 ),
             )
+        }
+    }
+}
+
+/**
+ * Calls [onHold] after the pointer stays down for [Motion.HOLD_MS] without moving past touch slop, with a long-press
+ * haptic; the rest of that gesture is consumed so the release is not a click. Does nothing when [onHold] is null.
+ */
+@Composable
+fun Modifier.holdToFire(onHold: (() -> Unit)?): Modifier {
+    val view = LocalView.current
+    val currentOnHold by rememberUpdatedState(onHold)
+    return pointerInput(onHold != null) {
+        if (onHold == null) return@pointerInput
+        awaitEachGesture {
+            val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+            val released = withTimeoutOrNull(Motion.HOLD_MS) {
+                do {
+                    val change = awaitPointerEvent(PointerEventPass.Initial).changes
+                        .firstOrNull { it.id == down.id }
+                    val moved = change != null &&
+                        (change.position - down.position).getDistance() > viewConfiguration.touchSlop
+                } while (change != null && change.pressed && !moved)
+                true
+            }
+            if (released == null) {
+                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                currentOnHold?.invoke()
+                do {
+                    val event = awaitPointerEvent(PointerEventPass.Initial)
+                    event.changes.forEach { it.consume() }
+                } while (event.changes.any { it.pressed })
+            }
         }
     }
 }
